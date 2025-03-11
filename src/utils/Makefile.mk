@@ -10,5 +10,6 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   =
+FILES   = check_endianness.c
+
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
