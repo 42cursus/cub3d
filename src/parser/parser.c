@@ -6,11 +6,11 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/10 18:45:54 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/12 19:53:43 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "parser.h"
+#include "../../include/cub3d.h"
 
 void	**ft_lst_to_arr(t_list *list)
 {
@@ -144,12 +144,36 @@ size_t	find_longest_line(char **map)
 	return (longest);
 }
 
+void	remove_trailing_lines(t_map *map)
+{
+	size_t	lines;
+	size_t	i;
+	char	**trimmed_map;
+
+	lines = count_split_words(map->map);
+	while (--lines >= 0)
+	{
+		if (str_cmp_whitespace((map->map)[lines], NULL))
+			break ;
+		free((map->map)[lines]);
+		(map->map)[lines] = NULL;
+	}
+	trimmed_map = ft_calloc(lines + 2, sizeof(char *));
+	i = -1;
+	while ((map->map)[++i] != NULL)
+		trimmed_map[i] = (map->map)[i];
+	trimmed_map[i] = NULL;
+	free(map->map);
+	map->map = trimmed_map;
+}
+
 void	normalise_map(t_map *map)
 {
 	size_t	longest;
 	size_t	i;
 	char	*normalised;
 
+	remove_trailing_lines(map);
 	longest = find_longest_line(map->map);
 	i = 0;
 	while ((map->map)[i])
@@ -177,7 +201,8 @@ int	collect_map(t_list	*file, t_map *map)
 		current = current->next;
 	}
 	if (current->next == NULL)
-		return (0);
+		return (ft_list_destroy(&(current->next), NULL), 0);
+	ft_list_reverse_fun(current->next);
 	map->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
@@ -211,18 +236,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 	return (1);
 }
 
-int	check_start_pos(char tile, int *start_found)
+int	check_start_pos(t_map *map , size_t i, size_t j, int *start_found)
 {
-	if (tile != '0')
+	if ((map->map)[i][j] != '0')
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
+		map->starting_pos.x = (double)j + 0.5;
+		map->starting_pos.y = (double)i + 0.5;
+		map->starting_dir = (map->map)[i][j];
 		*start_found = 1;
 	}
 	return (1);
 }
 
-int	validate_map_tiles(char **map)
+int	validate_map_tiles(t_map *mapstruct, char **map)
 {
 	size_t	i;
 	size_t	j;
@@ -238,7 +266,7 @@ int	validate_map_tiles(char **map)
 			if (ft_strchr("0NEWS", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
-					|| !check_start_pos(map[i][j], &start_found))
+					|| !check_start_pos(mapstruct, i, j, &start_found))
 				{
 					printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
 					return (0);
@@ -270,7 +298,7 @@ int	map_is_valid(t_map *map)
 	if (!map_is_terminating(map->map))
 		return (printf("Error: map not defined last\n"), 0);
 	normalise_map(map);
-	if (!validate_map_tiles(map->map))
+	if (!validate_map_tiles(map, map->map))
 		return (0);
 	return (1);
 }
@@ -422,9 +450,10 @@ int	parse_cub(t_map *map, int fd)
 
 	file = read_cub(fd);
 	if (!collect_map(file, map))
-		return (printf("Error: map not provided\n"), 1);
+		return (ft_list_destroy(&file, free),
+			printf("Error: map not provided\n"), 1);
 	if (!map_is_valid(map))
-		return (1);
+		return (ft_list_destroy(&file, free), 1);
 	ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
 	current = file;
 	while (current != NULL)
@@ -451,6 +480,7 @@ void	print_t_map(t_map *map)
 	printf("map dimensions:\t%ld x %ld\n", map->width, map->height);
 	printf("map:\n");
 	print_map(map);
+	printf("starting_pos:\t(%f, %f)\n", map->starting_pos.x, map->starting_pos.y);
 }
 
 void	free_map(t_map *map)

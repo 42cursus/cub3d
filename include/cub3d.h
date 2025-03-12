@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/08 19:54:09 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/12 19:53:30 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,44 @@
 # define DOWN 65364
 # define RIGHT 65363
 # define LEFT 65361
+
+typedef struct s_vect
+{
+	double	x;
+	double	y;
+}	t_vect;
+
+typedef	struct s_map
+{
+	char	*n_path;
+	char	*s_path;
+	char	*e_path;
+	char	*w_path;
+	int		f_col;
+	int		c_col;
+	char	**map;
+	t_vect	starting_pos;
+	char	starting_dir;
+	size_t	height;
+	size_t	width;
+}	t_map;
+
+typedef struct s_player
+{
+	t_vect	pos;
+	t_vect	direction;
+}	t_player;
+
+enum
+{
+	NONE = 0,
+	FLOOR = 1,
+	CEILING = 2,
+	NORTH = 3,
+	SOUTH = 4,
+	EAST = 5,
+	WEST = 6
+};
 
 typedef struct s_info
 {
@@ -49,5 +87,10 @@ int		expose_win(void *param);
 int		mouse_win(unsigned int button, int x, int y, void *p);
 int		key_win(int key, void *param);
 void	mlx_keypress_hook(void *param);
+
+t_map	*init_map(void);
+void	free_map(t_map *map);
+int		parse_cub(t_map *map, int fd);
+void	print_t_map(t_map *map);
 
 #endif //CUB3D_H
