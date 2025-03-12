@@ -351,7 +351,7 @@ int	parse_colour(t_map *map, char *str, int identifier)
 		return (printf("Error: colour defined multiple times\n"), 1);
 	*coladdr = convert_col(str);
 	if (*coladdr == -1)
-		return (1);
+		return (printf("Error: invalid colour\n"), 1);
 	return (0);
 }
 
@@ -386,10 +386,11 @@ int	parse_line(t_map *map, char *line)
 	retval = 0;
 	words = count_split_words(split);
 	if (words != 2)
-		return (free_split(split), 1);
+		return (printf("Error: invalid line format\n"), free_split(split), 1);
 	identifier = valid_identifier(split[0]);
 	if (!identifier)
-		return (free_split(split), 1);
+		return (printf("Error: invalid line identifier\n"),
+			free_split(split), 1);
 	else if (identifier < 3)
 		retval = parse_colour(map, split[1], identifier);
 	else
