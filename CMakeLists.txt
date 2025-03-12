@@ -110,12 +110,26 @@ set(TARGET_NAME "${PROJECT_NAME}_exe")
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(RL REQUIRED IMPORTED_TARGET readline)
+find_package(X11 REQUIRED) # https://cmake.org/cmake/help/latest/module/FindX11.html
+find_library(MATH_LIB m)
+# Locate additional libraries that are not covered by FindX11
+find_library(XT_LIBRARY Xt REQUIRED)
+find_library(XM_LIBRARY Xm REQUIRED)
+find_library(MRM_LIBRARY Mrm REQUIRED)
+find_library(XPM_LIBRARY Xpm REQUIRED)
 
 set(TARGET_LIBRARIES
         ${MLX_LIB_NAME}
+        ${MATH_LIB}
         ${FT_LIB_NAME}
         Threads::Threads
-        PkgConfig::RL
+        ${X11_LIBRARIES}
+        ${XT_LIBRARY}
+        ${XM_LIBRARY}
+        ${MRM_LIBRARY}
+        ${XPM_LIBRARY}
+        Xrandr  # Xrandr is usually part of X11_LIBRARIES but may need explicit linking
+        Xext    # Xext is typically in X11_LIBRARIES, but we ensure it's linked
 )
 
 add_executable(${TARGET_NAME}

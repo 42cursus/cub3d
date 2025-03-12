@@ -6,28 +6,36 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/03/08 16:52:05 by abelov           ###   ########.fr        #
+#    Updated: 2025/03/11 13:31:06 by abelov           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME			:= cub3d
+
+LIBFT_DIR		=  ./lib/ft
+LIBX_DIR		=  ./lib/mlx
+BUILD_DIR		= build
+INC_DIR			=  ./include
+
 CC				:= cc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O0
 DEBUG_FLAGS		:= -g3 -gdwarf-3 -fsanitize=address -fsanitize=undefined
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit
-CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) \
-					$(OPTIMIZE_FLAGS) $(INCLUDE_FLAGS)
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
+CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
+					$(INCLUDE_FLAGS)
 
-LIBFT_DIR		=  ./lib/ft
+
 LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
-LIBS			:= $(LIBFT)
-LINK_FLAGS		:= -L $(LIBFT_DIR) -lft -L/usr/lib/x86_64-linux-gnu \
+LIBX			=  $(LIBX_DIR)/libmlx.a
+LIBS			:= $(LIBFT) $(LIBX)
+LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
+					-lmlx -lft -lX11 -lXext -lm \
  					-fsanitize=address -fsanitize=undefined
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils
+SUB_DIRS		= parser utils app
 CUB_SRCS		:=
 
 ifndef VERBOSE
@@ -39,21 +47,23 @@ include $(SUB_DIRS:%=$(SRC_DIR)/%/Makefile.mk)
 SRCS			:= src/main.c
 SRCS			+= $(CUB_SRCS)
 
-
-BUILD_DIR		= build
 OBJS			= $(SRCS:%.c=$(BUILD_DIR)/%.o)
 
 ## all
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBFT_LIB) $(OBJS)
+$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS)
 		@$(CC) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
 ## libft
 $(LIBFT_LIB):
 		@$(MAKE) -C $(LIBFT_DIR) --no-print-directory -j8
+
+## mlx
+$(LIBX):
+		@$(MAKE) -C $(LIBX_DIR) --no-print-directory -j8
 
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
