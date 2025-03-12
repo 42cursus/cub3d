@@ -16,13 +16,11 @@
 int	main(void)
 {
 	int		cubfd;
-	t_list	*file;
 	t_map	*map;
 
 	cubfd = open("test.cub", O_RDONLY);
 	map = init_map();
-	file = read_cub(cubfd);
-	if (!parse_cub(map, file))
+	if (!parse_cub(map, cubfd))
 		print_t_map(map);
 	free_map(map);
 }

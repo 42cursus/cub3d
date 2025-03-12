@@ -24,6 +24,8 @@ typedef	struct s_map
 	int		f_col;
 	int		c_col;
 	char	**map;
+	size_t	height;
+	size_t	width;
 }	t_map;
 
 enum
@@ -37,10 +39,9 @@ enum
 	WEST = 6
 };
 
-t_list	*read_cub(int cubfd);
 t_map	*init_map(void);
 void	free_map(t_map *map);
-int		parse_cub(t_map *map, t_list *file);
+int		parse_cub(t_map *map, int fd);
 void	print_t_map(t_map *map);
 
 #endif

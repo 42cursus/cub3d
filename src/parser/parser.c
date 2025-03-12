@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "parser.h"
-#include <errno.h>
 
 void	**ft_lst_to_arr(t_list *list)
 {
@@ -36,9 +35,21 @@ void	free_split(char **split)
 	int	i;
 
 	i = 0;
+	if (split == NULL)
+		return ;
 	while (split[i])
 		free(split[i++]);
 	free(split);
+}
+
+size_t	count_split_words(char **split)
+{
+	size_t	i;
+
+	i = 0;
+	while (split[i])
+		i++;
+	return (i);
 }
 
 void	print_list(t_list *list)
@@ -58,10 +69,12 @@ t_map	*init_map(void)
 	t_map	*map;
 
 	map = ft_calloc(1, sizeof(*map));
+	map->f_col = -1;
+	map->c_col = -1;
 	return (map);
 }
 
-int	lst_is_whitespace(void *data, void *ref)
+int	str_cmp_whitespace(void *data, void *ref)
 {
 	char	*line;
 	int		i;
@@ -92,7 +105,6 @@ t_list	*read_cub(int cubfd)
 		ft_lstadd_back(&file, ft_lstnew(stripped));
 		line = get_next_line(cubfd);
 	}
-	ft_list_remove_if(&file, NULL, lst_is_whitespace, free);
 	return (file);
 }
 
@@ -100,6 +112,8 @@ int	is_map_line(char *line)
 {
 	int	i;
 
+	if (str_cmp_whitespace(line, NULL) == 0)
+		return (0);
 	i = 0;
 	while (line[i])
 	{
@@ -109,7 +123,49 @@ int	is_map_line(char *line)
 	return (1);
 }
 
-void	collect_map(t_list	*file, t_map *map)
+size_t	find_longest_line(char **map)
+{
+	size_t	longest;
+	char	*last1;
+	size_t	len;
+	size_t	i;
+
+	longest = 0;
+	i = -1;
+	while (map[++i])
+	{
+		last1 = ft_strrchr(map[i], '1');
+		if (last1 == NULL)
+			continue ;
+		len = last1 - map[i] + 1;
+		if (len > longest)
+			longest = len;
+	}
+	return (longest);
+}
+
+void	normalise_map(t_map *map)
+{
+	size_t	longest;
+	size_t	i;
+	char	*normalised;
+
+	longest = find_longest_line(map->map);
+	i = 0;
+	while ((map->map)[i])
+	{
+		normalised = ft_calloc(longest + 1, 1);
+		ft_memset(normalised, ' ', longest);
+		ft_memmove(normalised, (map->map)[i], ft_strlen((map->map)[i]));
+		free((map->map)[i]);
+		(map->map[i] = normalised);
+		i++;
+	}
+	map->width = longest;
+	map->height = i;
+}
+
+int	collect_map(t_list	*file, t_map *map)
 {
 	t_list	*current;
 
@@ -120,10 +176,103 @@ void	collect_map(t_list	*file, t_map *map)
 			break ;
 		current = current->next;
 	}
+	if (current->next == NULL)
+		return (0);
 	map->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
-	// print_list(file);
+	return (1);
+}
+
+int	surrounding_tiles_valid(char **map, size_t i, size_t j)
+{
+	if (i == 0 || j == 0)
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (map[i + 1] == NULL)
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (map[i][j + 1] == 0)
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i - 1][j]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i][j - 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i][j + 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i + 1][j]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i - 1][j - 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i + 1][j - 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i - 1][j + 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	if (!ft_strchr("NESW01", map[i + 1][j + 1]))
+		return (printf("Error: map not fully bounded\n"), 0);
+	return (1);
+}
+
+int	check_start_pos(char tile, int *start_found)
+{
+	if (tile != '0')
+	{
+		if (*start_found)
+			return (printf("Error: starting pos defined multiple times\n"), 0);
+		*start_found = 1;
+	}
+	return (1);
+}
+
+int	validate_map_tiles(char **map)
+{
+	size_t	i;
+	size_t	j;
+	int		start_found;
+
+	i = -1;
+	start_found = 0;
+	while (map[++i])
+	{
+		j = -1;
+		while (map[i][++j])
+		{
+			if (ft_strchr("0NEWS", map[i][j]))
+			{
+				if (!surrounding_tiles_valid(map, i, j)
+					|| !check_start_pos(map[i][j], &start_found))
+				{
+					printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
+					return (0);
+				}
+			}
+		}
+	}
+	if (!start_found)
+		return (printf("Error: no starting pos defined\n"), 0);
+	return (1);
+}
+
+int	map_is_terminating(char **map)
+{
+	size_t	i;
+
+	i = 0;
+	while (map[i])
+	{
+		if (!is_map_line(map[i]) && str_cmp_whitespace(map[i], NULL) != 0)
+			return (0);
+		i++;
+	}
+	return (1);
+}
+
+int	map_is_valid(t_map *map)
+{
+	if (!map_is_terminating(map->map))
+		return (printf("Error: map not defined last\n"), 0);
+	normalise_map(map);
+	if (!validate_map_tiles(map->map))
+		return (0);
+	return (1);
 }
 
 void	print_map(t_map *map)
@@ -131,18 +280,8 @@ void	print_map(t_map *map)
 	int	i;
 
 	i = 0;
-	while(map->map[i] != NULL)
-		ft_printf("%s\n", map->map[i++]);
-}
-
-size_t	count_split_words(char **split)
-{
-	size_t	i;
-
-	i = 0;
-	while (split[i])
-		i++;
-	return (i);
+	while (map->map[i] != NULL)
+		ft_printf("<%s>\n", map->map[i++]);
 }
 
 int	valid_identifier(char *str)
@@ -167,7 +306,7 @@ int	get_col(char *str)
 	char	*endptr;
 	long	num;
 
-	num = ft_strtol(str, &endptr, 0);
+	num = ft_strtol(str, &endptr, 10);
 	if (num > 255 || num < 0)
 		return (-1);
 	if (*endptr != 0)
@@ -208,8 +347,8 @@ int	parse_colour(t_map *map, char *str, int identifier)
 		coladdr = &map->f_col;
 	else
 		coladdr = &map->c_col;
-	if (*coladdr != 0)
-		return (1);
+	if (*coladdr != -1)
+		return (printf("Error: colour defined multiple times\n"), 1);
 	*coladdr = convert_col(str);
 	if (*coladdr == -1)
 		return (1);
@@ -231,7 +370,7 @@ int	parse_texture(t_map *map, char *str, int identifier)
 	else
 		return (1);
 	if (*pathaddr != NULL)
-		return (1);
+		return (printf("Error: texture defined multiple times\n"), 1);
 	*pathaddr = ft_strdup(str);
 	return (0);
 }
@@ -258,19 +397,45 @@ int	parse_line(t_map *map, char *line)
 	return (free_split(split), retval);
 }
 
-int	parse_cub(t_map *map, t_list *file)
+int	all_fields_parsed(t_map *map)
 {
+	if (map->n_path == NULL)
+		return (0);
+	if (map->s_path == NULL)
+		return (0);
+	if (map->e_path == NULL)
+		return (0);
+	if (map->w_path == NULL)
+		return (0);
+	if (map->f_col == -1)
+		return (0);
+	if (map->c_col == -1)
+		return (0);
+	return (1);
+}
+
+int	parse_cub(t_map *map, int fd)
+{
+	t_list	*file;
 	t_list	*current;
 
-	collect_map(file, map);
+	file = read_cub(fd);
+	if (!collect_map(file, map))
+		return (printf("Error: map not provided\n"), 1);
+	if (!map_is_valid(map))
+		return (1);
+	ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
 	current = file;
 	while (current != NULL)
 	{
 		if (parse_line(map, current->data))
-			return (ft_printf("%s\n", current->data), ft_list_destroy(&file, free), 1);
+			return (ft_printf("%s\n", current->data),
+				ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}
 	ft_list_destroy(&file, free);
+	if (!all_fields_parsed(map))
+		return (printf("Error: not all fields provided\n"), 1);
 	return (0);
 }
 
@@ -282,6 +447,7 @@ void	print_t_map(t_map *map)
 	printf("w_path:\t%s\n", map->w_path);
 	printf("f_col:\t%#.6X\n", map->f_col);
 	printf("c_col:\t%#.6X\n", map->c_col);
+	printf("map dimensions:\t%ld x %ld\n", map->width, map->height);
 	printf("map:\n");
 	print_map(map);
 }
