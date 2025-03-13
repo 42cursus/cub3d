@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/13 17:22:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/13 18:04:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 			else if (map[i][j] == '0')
 				ft_putstr("\e[37m`");
 			j++;
+			write(1, " ", 1);
 		}
 		ft_putstr("\e[m\n");
 	}
@@ -79,7 +80,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		player_char = 'v';
 	else
 		player_char = '>';
-	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 2, (int)player->pos.x + 1, player_char);
+	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 2, (int)player->pos.x * 2 + 1, player_char);
 }
 
 void	move_player(t_player *player, char **map, t_vect dir)
@@ -90,8 +91,10 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	char	y_tile;
 	char	both_tile;
 
-	new_x = player->pos.x + dir.x;
-	new_y = player->pos.y + dir.y;
+	// new_x = player->pos.x + dir.x;
+	// new_y = player->pos.y + dir.y;
+	new_x = player->pos.x + (dir.x * 0.2);
+	new_y = player->pos.y + (dir.y * 0.2);
 	x_tile = map[(int)player->pos.y][(int)new_x];
 	y_tile = map[(int)new_y][(int)player->pos.x];
 	both_tile = map[(int)new_y][(int)new_x];
@@ -125,7 +128,7 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_2);
+		rotate_vect_inplace(&player->direction, M_PI_4);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_2);
+		rotate_vect_inplace(&player->direction, -M_PI_4);
 }
