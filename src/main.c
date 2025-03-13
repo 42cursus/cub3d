@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/13 18:19:53 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/13 18:55:24 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	main(int argc, char **argv)
 	int		cubfd;
 
 	if (argc != 2)
-		return (1);
+		return (printf("Error: incorrect no. arguments\n"), 1);
 	cubfd = open(argv[1], O_RDONLY);
 	if (cubfd == -1)
 		return (printf("Error: failed to open map\n"), 1);
