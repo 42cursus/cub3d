@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/13 18:04:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/13 19:14:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,20 +109,20 @@ void	move_player(t_player *player, char **map, t_vect dir)
 		if (y_tile == '0')
 			player->pos.y = new_y;
 	}
-	// else
-	// {
-	// 	if (x_tile == '0' && y_tile == '0')
-	// 	{
-	// 		if (get_max_direction(dir) == 'x')
-	// 			player->pos.x = new_x;
-	// 		else
-	// 			player->pos.y = new_y;
-	// 	}
-	// 	else if (x_tile == '1')
-	// 		player->pos.y = new_y;
-	// 	else
-	// 		player->pos.x = new_x;
-	// }
+	else
+	{
+		if (x_tile == '0' && y_tile == '0')
+		{
+			if (get_max_direction(dir) == 'x')
+				player->pos.x = new_x;
+			else
+				player->pos.y = new_y;
+		}
+		else if (x_tile == '0')
+			player->pos.x = new_x;
+		else if (y_tile == '0')
+			player->pos.y = new_y;
+	}
 }
 
 void	rotate_player(t_player *player, int direction)
