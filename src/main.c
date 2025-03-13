@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/08 16:38:06 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/13 18:19:53 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ int	main(int argc, char **argv)
 	if (cubfd == -1)
 		return (printf("Error: failed to open map\n"), 1);
 	app->map = init_map();
-	if (!parse_cub(app->map, cubfd))
-		print_t_map(app->map);
+	if (parse_cub(app->map, cubfd))
+		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
 	// print_ascii_mmap(app->map, app->player);
 	app->endianness = check_endianness();
