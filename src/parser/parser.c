@@ -64,9 +64,9 @@ void	print_list(t_list *list)
 	}
 }
 
-t_map	*init_map(void)
+t_data	*init_map(void)
 {
-	t_map	*map;
+	t_data	*map;
 
 	map = ft_calloc(1, sizeof(*map));
 	map->f_col = -1;
@@ -144,52 +144,52 @@ size_t	find_longest_line(char **map)
 	return (longest);
 }
 
-void	remove_trailing_lines(t_map *map)
+void	remove_trailing_lines(t_data *data)
 {
 	size_t	lines;
 	size_t	i;
 	char	**trimmed_map;
 
-	lines = count_split_words(map->map);
+	lines = count_split_words(data->map);
 	while (--lines >= 0)
 	{
-		if (str_cmp_whitespace((map->map)[lines], NULL))
+		if (str_cmp_whitespace((data->map)[lines], NULL))
 			break ;
-		free((map->map)[lines]);
-		(map->map)[lines] = NULL;
+		free((data->map)[lines]);
+		(data->map)[lines] = NULL;
 	}
 	trimmed_map = ft_calloc(lines + 2, sizeof(char *));
 	i = -1;
-	while ((map->map)[++i] != NULL)
-		trimmed_map[i] = (map->map)[i];
+	while ((data->map)[++i] != NULL)
+		trimmed_map[i] = (data->map)[i];
 	trimmed_map[i] = NULL;
-	free(map->map);
-	map->map = trimmed_map;
+	free(data->map);
+	data->map = trimmed_map;
 }
 
-void	normalise_map(t_map *map)
+void	normalise_map(t_data *data)
 {
 	size_t	longest;
 	size_t	i;
 	char	*normalised;
 
-	remove_trailing_lines(map);
-	longest = find_longest_line(map->map);
+	remove_trailing_lines(data);
+	longest = find_longest_line(data->map);
 	i = 0;
-	while ((map->map)[i])
+	while ((data->map)[i])
 	{
 		normalised = ft_calloc(longest + 1, 1);
 		ft_memset(normalised, ' ', longest);
-		ft_memmove(normalised, (map->map)[i], ft_strlen((map->map)[i]));
-		free((map->map)[i]);
-		(map->map[i] = normalised);
+		ft_memmove(normalised, (data->map)[i], ft_strlen((data->map)[i]));
+		free((data->map)[i]);
+		(data->map[i] = normalised);
 		i++;
 	}
-	map->width = longest;
-	map->height = i;
+	data->width = longest;
+	data->height = i;
 }
 
-int	collect_map(t_list	*file, t_map *map)
+int	collect_map(t_list	*file, t_data *data)
 {
 	t_list	*current;
 
@@ -203,7 +203,7 @@ int	collect_map(t_list	*file, t_map *map)
 	if (current->next == NULL)
 		return (ft_list_destroy(&(current->next), NULL), 0);
 	ft_list_reverse_fun(current->next);
-	map->map = (char **)ft_lst_to_arr(current->next);
+	data->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
 	return (1);
@@ -236,21 +236,22 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 	return (1);
 }
 
-int	check_start_pos(t_map *map , size_t i, size_t j, int *start_found)
+int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 {
-	if ((map->map)[i][j] != '0')
+	if ((data->map)[i][j] != '0')
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
-		map->starting_pos.x = (double)j + 0.5;
-		map->starting_pos.y = (double)i + 0.5;
-		map->starting_dir = (map->map)[i][j];
+		data->starting_pos.x = (double)j + 0.5;
+		data->starting_pos.y = (double)i + 0.5;
+		data->starting_dir = (data->map)[i][j];
+		(data->map)[i][j] = '0';
 		*start_found = 1;
 	}
 	return (1);
 }
 
-int	validate_map_tiles(t_map *mapstruct, char **map)
+int	validate_map_tiles(t_data *data, char **map)
 {
 	size_t	i;
 	size_t	j;
@@ -266,7 +267,7 @@ int	validate_map_tiles(t_map *mapstruct, char **map)
 			if (ft_strchr("0NEWS", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
-					|| !check_start_pos(mapstruct, i, j, &start_found))
+					|| !check_start_pos(data, i, j, &start_found))
 				{
 					printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
 					return (0);
@@ -293,23 +294,23 @@ int	map_is_terminating(char **map)
 	return (1);
 }
 
-int	map_is_valid(t_map *map)
+int	map_is_valid(t_data *data)
 {
-	if (!map_is_terminating(map->map))
+	if (!map_is_terminating(data->map))
 		return (printf("Error: map not defined last\n"), 0);
-	normalise_map(map);
-	if (!validate_map_tiles(map, map->map))
+	normalise_map(data);
+	if (!validate_map_tiles(data, data->map))
 		return (0);
 	return (1);
 }
 
-void	print_map(t_map *map)
+void	print_map(t_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (map->map[i] != NULL)
-		ft_printf("<%s>\n", map->map[i++]);
+	while (data->map[i] != NULL)
+		ft_printf("<%s>\n", data->map[i++]);
 }
 
 int	valid_identifier(char *str)
@@ -367,7 +368,7 @@ int	convert_col(char *str)
 	return (free_split(split), col);
 }
 
-int	parse_colour(t_map *map, char *str, int identifier)
+int	parse_colour(t_data *map, char *str, int identifier)
 {
 	int	*coladdr;
 
@@ -383,18 +384,18 @@ int	parse_colour(t_map *map, char *str, int identifier)
 	return (0);
 }
 
-int	parse_texture(t_map *map, char *str, int identifier)
+int	parse_texture(t_data *data, char *str, int identifier)
 {
 	char	**pathaddr;
 
 	if (identifier == NORTH)
-		pathaddr = &map->n_path;
+		pathaddr = &data->n_path;
 	else if (identifier == SOUTH)
-		pathaddr = &map->s_path;
+		pathaddr = &data->s_path;
 	else if (identifier == EAST)
-		pathaddr = &map->e_path;
+		pathaddr = &data->e_path;
 	else if (identifier == WEST)
-		pathaddr = &map->w_path;
+		pathaddr = &data->w_path;
 	else
 		return (1);
 	if (*pathaddr != NULL)
@@ -403,7 +404,7 @@ int	parse_texture(t_map *map, char *str, int identifier)
 	return (0);
 }
 
-int	parse_line(t_map *map, char *line)
+int	parse_line(t_data *data, char *line)
 {
 	char	**split;
 	size_t	words;
@@ -420,75 +421,75 @@ int	parse_line(t_map *map, char *line)
 		return (printf("Error: invalid line identifier\n"),
 			free_split(split), 1);
 	else if (identifier < 3)
-		retval = parse_colour(map, split[1], identifier);
+		retval = parse_colour(data, split[1], identifier);
 	else
-		retval = parse_texture(map, split[1], identifier);
+		retval = parse_texture(data, split[1], identifier);
 	return (free_split(split), retval);
 }
 
-int	all_fields_parsed(t_map *map)
+int	all_fields_parsed(t_data *data)
 {
-	if (map->n_path == NULL)
+	if (data->n_path == NULL)
 		return (0);
-	if (map->s_path == NULL)
+	if (data->s_path == NULL)
 		return (0);
-	if (map->e_path == NULL)
+	if (data->e_path == NULL)
 		return (0);
-	if (map->w_path == NULL)
+	if (data->w_path == NULL)
 		return (0);
-	if (map->f_col == -1)
+	if (data->f_col == -1)
 		return (0);
-	if (map->c_col == -1)
+	if (data->c_col == -1)
 		return (0);
 	return (1);
 }
 
-int	parse_cub(t_map *map, int fd)
+int	parse_cub(t_data *data, int fd)
 {
 	t_list	*file;
 	t_list	*current;
 
 	file = read_cub(fd);
-	if (!collect_map(file, map))
+	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
 			printf("Error: map not provided\n"), 1);
-	if (!map_is_valid(map))
+	if (!map_is_valid(data))
 		return (ft_list_destroy(&file, free), 1);
 	ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
 	current = file;
 	while (current != NULL)
 	{
-		if (parse_line(map, current->data))
+		if (parse_line(data, current->data))
 			return (ft_printf("%s\n", current->data),
 				ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}
 	ft_list_destroy(&file, free);
-	if (!all_fields_parsed(map))
+	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
 	return (0);
 }
 
-void	print_t_map(t_map *map)
+void	print_t_map(t_data *data)
 {
-	printf("n_path:\t%s\n", map->n_path);
-	printf("s_path:\t%s\n", map->s_path);
-	printf("e_path:\t%s\n", map->e_path);
-	printf("w_path:\t%s\n", map->w_path);
-	printf("f_col:\t%#.6X\n", map->f_col);
-	printf("c_col:\t%#.6X\n", map->c_col);
-	printf("map dimensions:\t%ld x %ld\n", map->width, map->height);
+	printf("n_path:\t%s\n", data->n_path);
+	printf("s_path:\t%s\n", data->s_path);
+	printf("e_path:\t%s\n", data->e_path);
+	printf("w_path:\t%s\n", data->w_path);
+	printf("f_col:\t%#.6X\n", data->f_col);
+	printf("c_col:\t%#.6X\n", data->c_col);
+	printf("map dimensions:\t%d x %d\n", data->width, data->height);
 	printf("map:\n");
-	print_map(map);
-	printf("starting_pos:\t(%f, %f)\n", map->starting_pos.x, map->starting_pos.y);
+	print_map(data);
+	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
 }
 
-void	free_map(t_map *map)
+void	free_map(t_data *data)
 {
-	free(map->n_path);
-	free(map->s_path);
-	free(map->e_path);
-	free(map->w_path);
-	free_split(map->map);
-	free(map);
+	free(data->n_path);
+	free(data->s_path);
+	free(data->e_path);
+	free(data->w_path);
+	free_split(data->map);
+	free(data);
 }
