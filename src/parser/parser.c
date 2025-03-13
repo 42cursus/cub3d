@@ -146,7 +146,7 @@ size_t	find_longest_line(char **map)
 
 void	remove_trailing_lines(t_data *data)
 {
-	size_t	lines;
+	ssize_t	lines;
 	size_t	i;
 	char	**trimmed_map;
 
