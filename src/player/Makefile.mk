@@ -10,6 +10,6 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = parser.c \
+FILES   = player.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

@@ -6,11 +6,11 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/10 22:33:26 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/13 17:53:52 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "../../include/cub3d.h"
 
 void	replace_image(t_info *app)
 {
@@ -84,6 +84,18 @@ int	key_win(int key, void *param)
 
 	if (key == NUM_5 || key == ESC)
 		exit_win(app);
+	else if (key == KEY_W)
+		move_player(app->player, app->map->map, app->player->direction);
+	else if (key == KEY_S)
+		move_player(app->player, app->map->map, rotate_vect(app->player->direction, M_PI));
+	else if (key == KEY_A)
+		move_player(app->player, app->map->map, rotate_vect(app->player->direction, M_PI_2));
+	else if (key == KEY_D)
+		move_player(app->player, app->map->map, rotate_vect(app->player->direction, -M_PI_2));
+	else if (key == RIGHT)
+		rotate_player(app->player, 1);
+	else if (key == LEFT)
+		rotate_player(app->player, 0);
 	replace_image(app);
 	on_expose(app);
 	return (0);

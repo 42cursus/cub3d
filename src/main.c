@@ -6,19 +6,30 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/08 16:38:06 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/13 18:55:24 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
-#include "cub3d.h"
+#include "../include/cub3d.h"
 
 int	main(int argc, char **argv)
 {
 	t_info *const	app = &(t_info){.title = (char *)"cub3d", .win = {
 		.width = 1024, .height = 768
 	}};
+	int		cubfd;
 
+	if (argc != 2)
+		return (printf("Error: incorrect no. arguments\n"), 1);
+	cubfd = open(argv[1], O_RDONLY);
+	if (cubfd == -1)
+		return (printf("Error: failed to open map\n"), 1);
+	app->map = init_map();
+	if (parse_cub(app->map, cubfd))
+		return (free_map(app->map), 1);
+	app->player = init_player(app->map);
+	// print_ascii_mmap(app->map, app->player);
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 	if (app->mlx == NULL)
@@ -30,6 +41,7 @@ int	main(int argc, char **argv)
 	mlx_hook(app->root, DestroyNotify, 0, &exit_win, app);
 	mlx_keypress_hook(app);
 	mlx_loop(app->mlx);
+	free_map(app->map);
 	return (EXIT_SUCCESS);
 	(void)argc;
 	(void)argv;

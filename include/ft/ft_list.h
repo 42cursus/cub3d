@@ -51,8 +51,8 @@ typedef struct s_list_fun
 t_list	*ft_lstnew(void *data);
 t_list	*ft_list_create_elem(void *content);
 void	ft_list_destroy(t_list **list, void (*del_fun)(void *));
-void	ft_lstadd_back(t_list **alst, t_list *new);
-void	ft_lstadd_front(t_list **lst, t_list *new);
+void	ft_lstadd_back(t_list **alst, t_list *newnode);
+void	ft_lstadd_front(t_list **lst, t_list *newnode);
 int		ft_lstsize(t_list *lst);
 t_list	*ft_lstlast(t_list *lst);
 void	ft_lstdelone(t_list *lst, void (*del)(void *));
@@ -81,7 +81,7 @@ t_list	*ft_list_find_sublist(t_list *list, t_list *sub_list,
 			__compar_fn_t cmp);
 void	ft_list_remove_if(t_list **list, void *data_ref,
 			int (*cmp)(void *, void *), void (*del_fun)(void *));
-void	ft_list_prepend(t_list **lst, t_list *new);
+void	ft_list_prepend(t_list **lst, t_list *newnode);
 void	ft_list_concat(t_list **list1, t_list *list2);
 void	ft_list_sort(t_list **list, int (*cmp)(void *, void *));
 void	ft_list_reverse_fun(t_list *list);

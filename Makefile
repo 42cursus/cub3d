@@ -35,7 +35,7 @@ LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app
+SUB_DIRS		= parser utils app player
 CUB_SRCS		:=
 
 ifndef VERBOSE
