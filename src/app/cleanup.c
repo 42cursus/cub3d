@@ -14,6 +14,8 @@
 
 int	cleanup(t_info *app)
 {
+	mlx_destroy_image(app->mlx, app->canvas);
+	mlx_destroy_window(app->mlx, app->root);
 	free(app->mlx);
 	free_map(app->map);
 	free(app->player);
