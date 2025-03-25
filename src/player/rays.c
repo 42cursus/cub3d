@@ -1,0 +1,148 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rays.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
+/*   Updated: 2025/03/25 20:18:11 by fsmyth           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../include/cub3d.h"
+
+double	get_gradient(t_vect dir)
+{
+	return (dir.y / dir.x);
+}
+
+double	get_y_intercept(t_vect pos, double gradient)
+{
+	return (pos.y - (gradient * pos.x));
+}
+
+t_vect	get_horizontal_int(double y, double gradient, double c)
+{
+	t_vect	out;
+
+	out.y = y;
+	out.x = (y - c) / gradient;
+	return (out);
+}
+
+t_vect	get_vertical_int(double x, double gradient, double c)
+{
+	t_vect	out;
+
+	out.x = x;
+	out.y = (gradient * x) + c;
+	return (out);
+}
+
+int	get_quadrant(double angle)
+{
+	if (angle > M_PI_2)
+		return (1);
+	if (angle > 0)
+		return (0);
+	if (angle <= -M_PI_2)
+		return (2);
+	if (angle <= 0)
+		return (3);
+	return (-1);
+}
+
+t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player)
+{
+	double	gradient;
+	double	c;
+	t_vect	out;
+	int	 	quadrant;
+	double	i;
+
+	quadrant = get_quadrant(player->angle);
+	gradient = get_gradient(player->direction);
+	c = get_y_intercept(player->pos, gradient);
+	if (quadrant < 2)
+	{
+		i = ceil(player->pos.y);
+		while (i < map->height)
+		{
+			out = get_horizontal_int(i, gradient, c);
+			dprintf(2, "int:\t(%f, %f)\n", out.x, out.y);
+			if (out.x < map->width && out.x >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+				break ;
+			i += 1.0f;
+		}
+	}
+	else
+	{
+		i = floor(player->pos.y);
+		while (i > 0)
+		{
+			out = get_horizontal_int(i, gradient, c);
+			out.y -= 0.001;
+			dprintf(2, "int:\t(%f, %f)\n", out.x, out.y);
+			if (out.x < map->width && out.x >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+				break ;
+			i -= 1.0f;
+		}
+	}
+	return (out);
+}
+
+t_vect	get_vert_boundary_intersect(t_data *map, t_player *player)
+{
+	double	gradient;
+	double	c;
+	t_vect	out;
+	int	 	quadrant;
+	double	i;
+
+	quadrant = get_quadrant(player->angle);
+	gradient = get_gradient(player->direction);
+	c = get_y_intercept(player->pos, gradient);
+	if (quadrant == 0 || quadrant == 3)
+	{
+		i = ceil(player->pos.x);
+		while (i < map->width)
+		{
+			out = get_vertical_int(i, gradient, c);
+			dprintf(2, "int:\t(%f, %f)\n", out.x, out.y);
+			if (out.y < map->height && out.y >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+				break ;
+			i += 1.0f;
+		}
+	}
+	else
+	{
+		i = floor(player->pos.x);
+		while (i > 0)
+		{
+			out = get_vertical_int(i, gradient, c);
+			out.x -= 0.001;
+			dprintf(2, "int:\t(%f, %f)\n", out.x, out.y);
+			if (out.y < map->height && out.y >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+				break ;
+			i -= 1.0f;
+		}
+	}
+	return (out);
+}
+
+t_vect	find_ray_collision(t_data *map, t_player *player)
+{
+	t_vect	hor_int;
+	t_vect	vert_int;
+	double	hor_dist2;
+	double	vert_dist2;
+
+	hor_int = get_horiz_boundary_intersect(map, player);
+	vert_int = get_vert_boundary_intersect(map, player);
+	hor_dist2 = (pow(hor_int.x - player->pos.x, 2) + pow(hor_int.y - player->pos.y, 2));
+	vert_dist2 = (pow(vert_int.x - player->pos.x, 2) + pow(vert_int.y - player->pos.y, 2));
+	if (hor_dist2 > vert_dist2)
+		return (vert_int);
+	return (hor_int);
+}

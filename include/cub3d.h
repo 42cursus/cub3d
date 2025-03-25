@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/13 16:58:23 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/25 18:39:37 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ typedef struct s_player
 {
 	t_vect	pos;
 	t_vect	direction;
+	double	angle;
 }	t_player;
 
 enum

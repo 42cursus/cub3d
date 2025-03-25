@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/13 19:14:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/25 20:15:33 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,13 @@ t_player	*init_player(t_data *map)
 		player->direction.x = -1;
 		player->direction.y = 0;
 	}
+	rotate_vect_inplace(&player->direction, 0.01);
 	return (player);
 }
+
+t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player);
+t_vect	get_vert_boundary_intersect(t_data *map, t_player *player);
+t_vect	find_ray_collision(t_data *map, t_player *player);
 
 void	print_ascii_mmap(t_data *data, t_player *player)
 {
@@ -47,14 +52,25 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	ssize_t	j;
 	char	**map;
 	char	player_char;
-	double	angle;
+	t_vect	intercept;
 
-	(void)player;
-	i = data->height;
 	map = data->map;
+	intercept = find_ray_collision(data, player);
+	player->angle = atan2(player->direction.y, player->direction.x);
+	if (player->angle > M_PI_4 && player->angle <= 3 * M_PI_4)
+		player_char = '^';
+	else if (player->angle > 3 * M_PI_4 || player->angle <= -3 * M_PI_4)
+		player_char = '<';
+	else if (player->angle > -3 * M_PI_4 && player->angle <= -M_PI_4)
+		player_char = 'v';
+	else
+		player_char = '>';
 	ft_putstr("\e[2J\e[H");
+	printf("height: %d width: %d\n", data->height, data->width);
+	printf("int:\t(%f, %f)\n", intercept.x, intercept.y);
 	printf("pos:\t(%f, %f)\n", player->pos.x, player->pos.y);
 	printf("dir:\t(%f, %f)\n", player->direction.x, player->direction.y);
+	i = data->height;
 	while (--i >= 0)
 	{
 		j = 0;
@@ -71,16 +87,10 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		}
 		ft_putstr("\e[m\n");
 	}
-	angle = atan2(player->direction.y, player->direction.x);
-	if (angle > M_PI_4 && angle <= 3 * M_PI_4)
-		player_char = '^';
-	else if (angle > 3 * M_PI_4 || angle <= -3 * M_PI_4)
-		player_char = '<';
-	else if (angle > -3 * M_PI_4 && angle <= -M_PI_4)
-		player_char = 'v';
-	else
-		player_char = '>';
-	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 2, (int)player->pos.x * 2 + 1, player_char);
+	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
+	if (intercept.x >= 0 && intercept.x < data->width)
+		ft_printf("\e[%d;%dH\e[1;31m#\e[m", data->height - (int)intercept.y + 4, (int)intercept.x * 2 + 1);
+
 }
 
 void	move_player(t_player *player, char **map, t_vect dir)
@@ -128,7 +138,7 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4);
+		rotate_vect_inplace(&player->direction, M_PI_4 / 17);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / 17);
 }
