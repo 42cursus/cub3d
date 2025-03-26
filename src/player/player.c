@@ -42,9 +42,6 @@ t_player	*init_player(t_data *map)
 	return (player);
 }
 
-t_vect	find_ray_collision(t_data *map, t_player *player, double angle);
-void	cast_all_rays(t_data *map, t_player *player);
-
 void	print_ascii_mmap(t_data *data, t_player *player)
 {
 	ssize_t	i;
@@ -52,6 +49,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	char	**map;
 	char	player_char;
 	t_vect	intercept;
+	int		face;
 
 	map = data->map;
 	player->angle = atan2(player->direction.y, player->direction.x);
@@ -91,7 +89,15 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	i = 0;
 	while (i < 800)
 	{
-		ft_printf("\e[%d;%dH\e[1;31m#\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
+		face = determine_face(player->rays[i]);
+		if (face == WEST)
+			ft_printf("\e[%d;%dH\e[1;31mW\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
+		else if (face == EAST)
+			ft_printf("\e[%d;%dH\e[1;31mE\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
+		else if (face == NORTH)
+			ft_printf("\e[%d;%dH\e[1;31mN\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
+		else if (face == SOUTH)
+			ft_printf("\e[%d;%dH\e[1;31mS\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
 		i++;
 	}
 

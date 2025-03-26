@@ -166,3 +166,19 @@ void	cast_all_rays(t_data *map, t_player *player)
 		i++;
 	}
 }
+
+int	determine_face(t_vect intersect)
+{
+	double	modx;
+	double	mody;
+
+	modx = fmod(intersect.x, 1);
+	mody = fmod(intersect.y, 1);
+	if (modx == 0)
+		return (WEST);
+	if (mody == 0)
+		return (SOUTH);
+	if (modx >= 0.9989 && modx < 0.9991)
+		return (EAST);
+	return (NORTH);
+}

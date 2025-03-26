@@ -17,7 +17,10 @@ int	cleanup(t_info *app)
 	free(app->mlx);
 	free_map(app->map);
 	for (int i = 0; i < 800; i++)
-		dprintf(2, "(%f, %f)\n", app->player->rays[i].x, app->player->rays[i].y);
+	{
+		dprintf(2, "(%f, %f) mod:(%f, %f)\n", app->player->rays[i].x, app->player->rays[i].y,
+			fmod(app->player->rays[i].x, 1), fmod(app->player->rays[i].y, 1));
+	}
 	free(app->player);
 	printf("\e[?25h");
 	return (0);
