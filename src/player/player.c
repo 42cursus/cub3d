@@ -42,9 +42,8 @@ t_player	*init_player(t_data *map)
 	return (player);
 }
 
-t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player);
-t_vect	get_vert_boundary_intersect(t_data *map, t_player *player);
-t_vect	find_ray_collision(t_data *map, t_player *player);
+t_vect	find_ray_collision(t_data *map, t_player *player, double angle);
+void	cast_all_rays(t_data *map, t_player *player);
 
 void	print_ascii_mmap(t_data *data, t_player *player)
 {
@@ -55,8 +54,8 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	t_vect	intercept;
 
 	map = data->map;
-	intercept = find_ray_collision(data, player);
 	player->angle = atan2(player->direction.y, player->direction.x);
+	intercept = find_ray_collision(data, player, player->angle);
 	if (player->angle > M_PI_4 && player->angle <= 3 * M_PI_4)
 		player_char = '^';
 	else if (player->angle > 3 * M_PI_4 || player->angle <= -3 * M_PI_4)
@@ -65,9 +64,10 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		player_char = 'v';
 	else
 		player_char = '>';
+	cast_all_rays(data, player);
 	ft_putstr("\e[2J\e[H");
 	printf("height: %d width: %d\n", data->height, data->width);
-	printf("int:\t(%f, %f)\n", intercept.x, intercept.y);
+	printf("ahead:\t(%f, %f)\n", intercept.x, intercept.y);
 	printf("pos:\t(%f, %f)\n", player->pos.x, player->pos.y);
 	printf("dir:\t(%f, %f)\n", player->direction.x, player->direction.y);
 	i = data->height;
@@ -88,8 +88,12 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		ft_putstr("\e[m\n");
 	}
 	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
-	if (intercept.x >= 0 && intercept.x < data->width)
-		ft_printf("\e[%d;%dH\e[1;31m#\e[m", data->height - (int)intercept.y + 4, (int)intercept.x * 2 + 1);
+	i = 0;
+	while (i < 800)
+	{
+		ft_printf("\e[%d;%dH\e[1;31m#\e[m", data->height - (int)player->rays[i].y + 4, (int)player->rays[i].x * 2 + 1);
+		i++;
+	}
 
 }
 
@@ -138,7 +142,7 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / 17);
+		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / 17);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
 }

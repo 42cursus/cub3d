@@ -54,6 +54,7 @@ typedef struct s_player
 	t_vect	pos;
 	t_vect	direction;
 	double	angle;
+	t_vect	rays[800];
 }	t_player;
 
 enum
