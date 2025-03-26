@@ -38,7 +38,7 @@ t_player	*init_player(t_data *map)
 		player->direction.x = -1;
 		player->direction.y = 0;
 	}
-	rotate_vect_inplace(&player->direction, 0.01);
+	// rotate_vect_inplace(&player->direction, 0.01);
 	return (player);
 }
 
@@ -81,13 +81,13 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 			else if (map[i][j] == '1')
 				ft_putstr("\e[34m#");
 			else if (map[i][j] == '0')
-				ft_putstr("\e[37m`");
+				ft_putstr(" ");
 			j++;
 			write(1, " ", 1);
 		}
 		ft_putstr("\e[m\n");
 	}
-	ft_printf("\e[%d;%dH\e[1;31m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
+	ft_printf("\e[%d;%dH\e[1;32m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
 	i = 0;
 	while (i < 800)
 	{
@@ -142,7 +142,7 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / 16);
+		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / 16);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
 }
