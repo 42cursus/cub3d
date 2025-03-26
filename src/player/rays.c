@@ -62,11 +62,11 @@ int	get_quadrant(double angle)
 	return (-1);
 }
 
-t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, int quadrant)
+t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, int quadrant)
 {
 	double	gradient;
 	double	c;
-	t_vect	out;
+	t_ray	out;
 	double	i;
 
 	gradient = get_gradient_angle(angle);
@@ -74,10 +74,11 @@ t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle,
 	if (quadrant < 2)
 	{
 		i = ceil(player->pos.y);
+		out.face = SOUTH;
 		while (i < map->height)
 		{
-			out = get_horizontal_int(i, gradient, c);
-			if (out.x < map->width && out.x >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+			out.intcpt = get_horizontal_int(i, gradient, c);
+			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
 				break ;
 			i += 1.0f;
 		}
@@ -85,11 +86,12 @@ t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle,
 	else
 	{
 		i = floor(player->pos.y);
+		out.face = NORTH;
 		while (i > 0)
 		{
-			out = get_horizontal_int(i, gradient, c);
-			out.y -= 0.001;
-			if (out.x < map->width && out.x >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+			out.intcpt = get_horizontal_int(i, gradient, c);
+			out.intcpt.y -= 0.001;
+			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
 				break ;
 			i -= 1.0f;
 		}
@@ -97,11 +99,11 @@ t_vect	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle,
 	return (out);
 }
 
-t_vect	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, int quadrant)
+t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, int quadrant)
 {
 	double	gradient;
 	double	c;
-	t_vect	out;
+	t_ray	out;
 	double	i;
 
 	gradient = get_gradient_angle(angle);
@@ -109,10 +111,11 @@ t_vect	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, 
 	if (quadrant == 0 || quadrant == 3)
 	{
 		i = ceil(player->pos.x);
+		out.face = WEST;
 		while (i < map->width)
 		{
-			out = get_vertical_int(i, gradient, c);
-			if (out.y < map->height && out.y >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+			out.intcpt = get_vertical_int(i, gradient, c);
+			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
 				break ;
 			i += 1.0f;
 		}
@@ -120,11 +123,12 @@ t_vect	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, 
 	else
 	{
 		i = floor(player->pos.x);
+		out.face = EAST;
 		while (i > 0)
 		{
-			out = get_vertical_int(i, gradient, c);
-			out.x -= 0.001;
-			if (out.y < map->height && out.y >= 0 && map->map[(int)out.y][(int)out.x] == '1')
+			out.intcpt = get_vertical_int(i, gradient, c);
+			out.intcpt.x -= 0.001;
+			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
 				break ;
 			i -= 1.0f;
 		}
@@ -132,10 +136,10 @@ t_vect	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, 
 	return (out);
 }
 
-t_vect	find_ray_collision(t_data *map, t_player *player, double angle)
+t_ray	find_ray_collision(t_data *map, t_player *player, double angle)
 {
-	t_vect	hor_int;
-	t_vect	vert_int;
+	t_ray	hor_int;
+	t_ray	vert_int;
 	double	hor_dist2;
 	double	vert_dist2;
 	int		quadrant;
@@ -143,11 +147,16 @@ t_vect	find_ray_collision(t_data *map, t_player *player, double angle)
 	quadrant = get_quadrant(angle);
 	hor_int = get_horiz_boundary_intersect(map, player, angle, quadrant);
 	vert_int = get_vert_boundary_intersect(map, player, angle, quadrant);
-	hor_dist2 = (pow(hor_int.x - player->pos.x, 2) + pow(hor_int.y - player->pos.y, 2));
-	vert_dist2 = (pow(vert_int.x - player->pos.x, 2) + pow(vert_int.y - player->pos.y, 2));
+	hor_dist2 = (pow(hor_int.intcpt.x - player->pos.x, 2) + pow(hor_int.intcpt.y - player->pos.y, 2));
+	vert_dist2 = (pow(vert_int.intcpt.x - player->pos.x, 2) + pow(vert_int.intcpt.y - player->pos.y, 2));
 	if (hor_dist2 > vert_dist2)
 		return (vert_int);
 	return (hor_int);
+}
+
+double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
+{
+	return (fabs((cos(angle) * (intcpt.y - pos.y)) - (sin(angle) * (intcpt.x - pos.x))));
 }
 
 void	cast_all_rays(t_data *map, t_player *player)
@@ -162,23 +171,8 @@ void	cast_all_rays(t_data *map, t_player *player)
 	while (i < 800)
 	{
 		player->rays[i] = find_ray_collision(map, player, angle);
+		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
 		angle -= step;
 		i++;
 	}
-}
-
-int	determine_face(t_vect intersect)
-{
-	double	modx;
-	double	mody;
-
-	modx = fmod(intersect.x, 1);
-	mody = fmod(intersect.y, 1);
-	if (modx == 0)
-		return (WEST);
-	if (mody == 0)
-		return (SOUTH);
-	if (modx >= 0.9989 && modx < 0.9991)
-		return (EAST);
-	return (NORTH);
 }

@@ -34,6 +34,13 @@ typedef struct s_vect
 	double	y;
 }	t_vect;
 
+typedef struct s_ray
+{
+	t_vect	intcpt;
+	int		face;
+	double	distance;
+}	t_ray;
+
 typedef	struct s_data
 {
 	char	*n_path;
@@ -54,7 +61,7 @@ typedef struct s_player
 	t_vect	pos;
 	t_vect	direction;
 	double	angle;
-	t_vect	rays[800];
+	t_ray	rays[800];
 }	t_player;
 
 enum
@@ -112,7 +119,7 @@ t_vect	scale_vect(t_vect vect, double scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 
-t_vect	find_ray_collision(t_data *map, t_player *player, double angle);
+t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 

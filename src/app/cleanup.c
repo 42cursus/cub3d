@@ -14,12 +14,21 @@
 
 int	cleanup(t_info *app)
 {
+	char	face_char;
+
 	free(app->mlx);
 	free_map(app->map);
 	for (int i = 0; i < 800; i++)
 	{
-		dprintf(2, "(%f, %f) mod:(%f, %f)\n", app->player->rays[i].x, app->player->rays[i].y,
-			fmod(app->player->rays[i].x, 1), fmod(app->player->rays[i].y, 1));
+		if (app->player->rays[i].face == NORTH)
+			face_char = 'N';
+		else if (app->player->rays[i].face == SOUTH)
+			face_char = 'S';
+		else if (app->player->rays[i].face == EAST)
+			face_char = 'E';
+		else
+			face_char = 'W';
+		dprintf(2, "(%f, %f) %c dist: %f\n", app->player->rays[i].intcpt.x, app->player->rays[i].intcpt.y, face_char, app->player->rays[i].distance);
 	}
 	free(app->player);
 	printf("\e[?25h");
