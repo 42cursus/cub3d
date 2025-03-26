@@ -16,6 +16,8 @@ int	cleanup(t_info *app)
 {
 	free(app->mlx);
 	free_map(app->map);
+	for (int i = 0; i < 800; i++)
+		dprintf(2, "(%f, %f)\n", app->player->rays[i].x, app->player->rays[i].y);
 	free(app->player);
 	return (0);
 }
