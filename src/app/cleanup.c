@@ -19,5 +19,6 @@ int	cleanup(t_info *app)
 	for (int i = 0; i < 800; i++)
 		dprintf(2, "(%f, %f)\n", app->player->rays[i].x, app->player->rays[i].y);
 	free(app->player);
+	printf("\e[?25h");
 	return (0);
 }

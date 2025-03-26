@@ -30,6 +30,7 @@ int	main(int argc, char **argv)
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
 	// print_ascii_mmap(app->map, app->player);
+	printf("\e[?25l");
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 	if (app->mlx == NULL)
