@@ -112,4 +112,8 @@ t_vect	scale_vect(t_vect vect, double scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 
+t_vect	find_ray_collision(t_data *map, t_player *player, double angle);
+void	cast_all_rays(t_data *map, t_player *player);
+int		determine_face(t_vect intersect);
+
 #endif //CUB3D_H
