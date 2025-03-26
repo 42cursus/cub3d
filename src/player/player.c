@@ -67,7 +67,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	cast_all_rays(data, player);
 	ft_putstr("\e[2J\e[H");
 	printf("height: %d width: %d\n", data->height, data->width);
-	printf("ahead:\t(%f, %f)\n", intercept.x, intercept.y);
+	printf("ahead:\t(%f, %f) angle: %f\n", intercept.x, intercept.y, player->angle);
 	printf("pos:\t(%f, %f)\n", player->pos.x, player->pos.y);
 	printf("dir:\t(%f, %f)\n", player->direction.x, player->direction.y);
 	i = data->height;
@@ -142,7 +142,7 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
+		rotate_vect_inplace(&player->direction, M_PI_4 / 16);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / 16);
 }

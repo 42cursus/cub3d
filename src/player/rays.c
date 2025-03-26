@@ -47,6 +47,10 @@ t_vect	get_vertical_int(double x, double gradient, double c)
 
 int	get_quadrant(double angle)
 {
+	if (angle > M_PI)
+		angle -= 2 * M_PI;
+	else if (angle < -M_PI)
+		angle += 2 * M_PI;
 	if (angle > M_PI_2)
 		return (1);
 	if (angle > 0)
