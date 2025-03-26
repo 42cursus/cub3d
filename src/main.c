@@ -20,9 +20,9 @@ int	main(int argc, char **argv)
 	}};
 	int		cubfd;
 
-	if (argc != 2)
-		return (printf("Error: incorrect no. arguments\n"), 1);
-	cubfd = open(argv[1], O_RDONLY);
+//	if (argc != 2)
+//		return (printf("Error: incorrect no. arguments\n"), 1);
+	cubfd = open("./maps/test3.cub", O_RDONLY);
 	if (cubfd == -1)
 		return (printf("Error: failed to open map\n"), 1);
 	app->map = init_map();
@@ -40,9 +40,10 @@ int	main(int argc, char **argv)
 	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_mouse_hook(app->root, &mouse_win, app);
 	mlx_hook(app->root, DestroyNotify, 0, &exit_win, app);
-	mlx_keypress_hook(app);
+	mlx_keypress_hook(app->root, &key_win, app);
+	mlx_key_hook(app->root, &key_win, app);
 	mlx_loop(app->mlx);
-	free_map(app->map);
+	cleanup(app);
 	return (EXIT_SUCCESS);
 	(void)argc;
 	(void)argv;

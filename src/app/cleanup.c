@@ -16,6 +16,8 @@ int	cleanup(t_info *app)
 {
 	char	face_char;
 
+	mlx_destroy_image(app->mlx, app->canvas);
+	mlx_destroy_window(app->mlx, app->root);
 	free(app->mlx);
 	free_map(app->map);
 	for (int i = 0; i < 800; i++)

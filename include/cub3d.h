@@ -101,8 +101,8 @@ int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
 int		mouse_win(unsigned int button, int x, int y, void *p);
-int		key_win(int key, void *param);
-void	mlx_keypress_hook(void *param);
+int		key_win(KeySym key, void *param);
+void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
 
 t_data	*init_map(void);
 void	free_map(t_data *map);

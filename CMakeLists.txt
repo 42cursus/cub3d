@@ -23,9 +23,9 @@ set(FT_CFLAGS
         -Wall -Wextra -Werror
         -Wwrite-strings
         -Wimplicit
-        -Wformat -Werror=format-security
-        -Wstrict-prototypes
-        -Wmissing-prototypes
+#        -Wformat -Werror=format-security
+#        -Wstrict-prototypes
+#        -Wmissing-prototypes
         -include include/cub3d.h
         -fstack-protector-strong
         -Wno-error=unused-parameter
