@@ -28,8 +28,8 @@
 # define KEY_S 0x0073
 # define KEY_D 0x0064
 
-# define WIN_HEIGHT 768
-# define WIN_WIDTH 1024
+# define WIN_HEIGHT 900
+# define WIN_WIDTH 1200
 
 typedef struct s_vect
 {
@@ -65,6 +65,7 @@ typedef struct s_player
 	t_vect	direction;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
+	double	angle_offsets[WIN_WIDTH];
 }	t_player;
 
 typedef struct s_imgdata

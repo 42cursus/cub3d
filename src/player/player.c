@@ -23,8 +23,8 @@ void	calculate_offsets(t_player *player)
 	while (i < WIN_WIDTH / 2)
 	{
 		angle = atan(1 - (i * offset));
-		player->angle_offsets[i] = -angle;
-		player->angle_offsets[WIN_WIDTH - i - 1] = angle;
+		player->angle_offsets[i] = angle;
+		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 		i++;
 	}
 }
@@ -130,8 +130,8 @@ void	move_player(t_player *player, char **map, t_vect dir)
 
 	// new_x = player->pos.x + dir.x;
 	// new_y = player->pos.y + dir.y;
-	new_x = player->pos.x + (dir.x * 0.2);
-	new_y = player->pos.y + (dir.y * 0.2);
+	new_x = player->pos.x + (dir.x * 0.1);
+	new_y = player->pos.y + (dir.y * 0.1);
 	x_tile = map[(int)player->pos.y][(int)new_x];
 	y_tile = map[(int)new_y][(int)player->pos.x];
 	both_tile = map[(int)new_y][(int)new_x];

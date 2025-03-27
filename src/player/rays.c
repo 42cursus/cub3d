@@ -90,8 +90,8 @@ t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, 
 		while (i > 0)
 		{
 			out.intcpt = get_horizontal_int(i, gradient, c);
-			out.intcpt.y -= 0.001;
-			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
+			// out.intcpt.y -= 0.001;
+			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == '1')
 				break ;
 			i -= 1.0f;
 		}
@@ -127,8 +127,8 @@ t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, i
 		while (i > 0)
 		{
 			out.intcpt = get_vertical_int(i, gradient, c);
-			out.intcpt.x -= 0.001;
-			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
+			// out.intcpt.x -= 0.001;
+			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == '1')
 				break ;
 			i -= 1.0f;
 		}
@@ -159,25 +159,6 @@ double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
 	return (fabs((cos(angle) * (intcpt.y - pos.y)) - (sin(angle) * (intcpt.x - pos.x))));
 }
 
-// void	cast_all_rays(t_data *map, t_player *player)
-// {
-// 	int		i;
-// 	double	step;
-// 	double	angle;
-//
-// 	step = M_PI_2 / WIN_WIDTH;
-// 	player->angle = atan2(player->direction.y, player->direction.x);
-// 	angle = player->angle + M_PI_4;
-// 	i = 0;
-// 	while (i < WIN_WIDTH)
-// 	{
-// 		player->rays[i] = find_ray_collision(map, player, angle);
-// 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
-// 		angle -= step;
-// 		i++;
-// 	}
-// }
-
 void	cast_all_rays(t_data *map, t_player *player)
 {
 	int		i;
@@ -187,7 +168,7 @@ void	cast_all_rays(t_data *map, t_player *player)
 	i = 0;
 	while (i < WIN_WIDTH)
 	{
-		angle = player->angle - player->angle_offsets[i];
+		angle = player->angle + player->angle_offsets[i];
 		player->rays[i] = find_ray_collision(map, player, angle);
 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
 		i++;

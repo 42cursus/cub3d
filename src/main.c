@@ -16,7 +16,7 @@
 int	main(int argc, char **argv)
 {
 	t_info *const	app = &(t_info){.title = (char *)"cub3d", .win = {
-		.width = 1024, .height = 768
+		.width = WIN_WIDTH, .height = WIN_HEIGHT
 	}};
 	int		cubfd;
 
