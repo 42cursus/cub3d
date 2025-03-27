@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/12 19:53:43 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/27 18:09:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,7 +335,7 @@ int	get_col(char *str)
 	char	*endptr;
 	long	num;
 
-	num = ft_strtol(str, &endptr, 10);
+	num = ft_strtol(str, &endptr, 0);
 	if (num > 255 || num < 0)
 		return (-1);
 	if (*endptr != 0)
@@ -384,27 +384,27 @@ int	parse_colour(t_data *map, char *str, int identifier)
 	return (0);
 }
 
-int	parse_texture(t_data *data, char *str, int identifier)
+int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 {
-	char	**pathaddr;
+	unsigned int	***pathaddr;
 
 	if (identifier == NORTH)
-		pathaddr = &data->n_path;
+		pathaddr = &data->n_img;
 	else if (identifier == SOUTH)
-		pathaddr = &data->s_path;
+		pathaddr = &data->s_img;
 	else if (identifier == EAST)
-		pathaddr = &data->e_path;
+		pathaddr = &data->e_img;
 	else if (identifier == WEST)
-		pathaddr = &data->w_path;
+		pathaddr = &data->w_img;
 	else
 		return (1);
 	if (*pathaddr != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
-	*pathaddr = ft_strdup(str);
+	*pathaddr = img_to_arr(str, app);
 	return (0);
 }
 
-int	parse_line(t_data *data, char *line)
+int	parse_line(t_data *data, char *line, t_info *app)
 {
 	char	**split;
 	size_t	words;
@@ -423,19 +423,19 @@ int	parse_line(t_data *data, char *line)
 	else if (identifier < 3)
 		retval = parse_colour(data, split[1], identifier);
 	else
-		retval = parse_texture(data, split[1], identifier);
+		retval = parse_texture(data, split[1], identifier, app);
 	return (free_split(split), retval);
 }
 
 int	all_fields_parsed(t_data *data)
 {
-	if (data->n_path == NULL)
+	if (data->n_img == NULL)
 		return (0);
-	if (data->s_path == NULL)
+	if (data->s_img == NULL)
 		return (0);
-	if (data->e_path == NULL)
+	if (data->e_img == NULL)
 		return (0);
-	if (data->w_path == NULL)
+	if (data->w_img == NULL)
 		return (0);
 	if (data->f_col == -1)
 		return (0);
@@ -444,11 +444,13 @@ int	all_fields_parsed(t_data *data)
 	return (1);
 }
 
-int	parse_cub(t_data *data, int fd)
+int	parse_cub(t_info *app, int fd)
 {
 	t_list	*file;
 	t_list	*current;
+	t_data	*data;
 
+	data = app->map;
 	file = read_cub(fd);
 	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
@@ -459,7 +461,7 @@ int	parse_cub(t_data *data, int fd)
 	current = file;
 	while (current != NULL)
 	{
-		if (parse_line(data, current->data))
+		if (parse_line(data, current->data, app))
 			return (ft_printf("%s\n", current->data),
 				ft_list_destroy(&file, free), 1);
 		current = current->next;
@@ -470,26 +472,26 @@ int	parse_cub(t_data *data, int fd)
 	return (0);
 }
 
-void	print_t_map(t_data *data)
-{
-	printf("n_path:\t%s\n", data->n_path);
-	printf("s_path:\t%s\n", data->s_path);
-	printf("e_path:\t%s\n", data->e_path);
-	printf("w_path:\t%s\n", data->w_path);
-	printf("f_col:\t%#.6X\n", data->f_col);
-	printf("c_col:\t%#.6X\n", data->c_col);
-	printf("map dimensions:\t%d x %d\n", data->width, data->height);
-	printf("map:\n");
-	print_map(data);
-	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
-}
+// void	print_t_map(t_data *data)
+// {
+// 	printf("n_path:\t%s\n", data->n_path);
+// 	printf("s_path:\t%s\n", data->s_path);
+// 	printf("e_path:\t%s\n", data->e_path);
+// 	printf("w_path:\t%s\n", data->w_path);
+// 	printf("f_col:\t%#.6X\n", data->f_col);
+// 	printf("c_col:\t%#.6X\n", data->c_col);
+// 	printf("map dimensions:\t%d x %d\n", data->width, data->height);
+// 	printf("map:\n");
+// 	print_map(data);
+// 	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
+// }
 
 void	free_map(t_data *data)
 {
-	free(data->n_path);
-	free(data->s_path);
-	free(data->e_path);
-	free(data->w_path);
+	free(data->n_img);
+	free(data->s_img);
+	free(data->e_img);
+	free(data->w_img);
 	free_split(data->map);
 	free(data);
 }

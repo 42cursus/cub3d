@@ -87,7 +87,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	}
 	ft_printf("\e[%d;%dH\e[1;32m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
 	i = 0;
-	while (i < 800)
+	while (i < WIN_WIDTH)
 	{
 		face = player->rays[i].face;
 		if (face == WEST)
@@ -100,7 +100,6 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 			ft_printf("\e[%d;%dH\e[1;31mS\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
 		i++;
 	}
-
 }
 
 void	move_player(t_player *player, char **map, t_vect dir)

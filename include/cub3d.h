@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/25 18:39:37 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/27 18:38:21 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,9 @@
 # define KEY_S 0x0073
 # define KEY_D 0x0064
 
+# define WIN_HEIGHT 768
+# define WIN_WIDTH 1024
+
 typedef struct s_vect
 {
 	double	x;
@@ -43,10 +46,10 @@ typedef struct s_ray
 
 typedef	struct s_data
 {
-	char	*n_path;
-	char	*s_path;
-	char	*e_path;
-	char	*w_path;
+	unsigned int	**n_img;
+	unsigned int	**s_img;
+	unsigned int	**e_img;
+	unsigned int	**w_img;
 	int		f_col;
 	int		c_col;
 	char	**map;
@@ -61,8 +64,19 @@ typedef struct s_player
 	t_vect	pos;
 	t_vect	direction;
 	double	angle;
-	t_ray	rays[800];
+	t_ray	rays[WIN_WIDTH];
 }	t_player;
+
+typedef struct s_imgdata
+{
+	void	*img;
+	char	*addr;
+	int		width;
+	int		height;
+	int		bpp;
+	int		line_length;
+	int		endian;
+}	t_imgdata;
 
 enum
 {
@@ -106,7 +120,7 @@ void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param
 
 t_data	*init_map(void);
 void	free_map(t_data *map);
-int		parse_cub(t_data *map, int fd);
+int		parse_cub(t_info *app, int fd);
 void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
 
@@ -122,5 +136,9 @@ void	rotate_vect_inplace(t_vect *vect, double angle);
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
+
+void	fill_bg(t_imgdata *canvas, t_data *map);
+unsigned int	**img_to_arr(char *filename, t_info *app);
+void	draw_rays(t_info *app, t_imgdata *canvas);
 
 #endif //CUB3D_H
