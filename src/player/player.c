@@ -12,6 +12,23 @@
 
 #include "../../include/cub3d.h"
 
+void	calculate_offsets(t_player *player)
+{
+	int		i;
+	double	offset;
+	double	angle;
+
+	offset = 1.0 / (WIN_WIDTH / 2.0);
+	i = 0;
+	while (i < WIN_WIDTH / 2)
+	{
+		angle = atan(1 - (i * offset));
+		player->angle_offsets[i] = -angle;
+		player->angle_offsets[WIN_WIDTH - i - 1] = angle;
+		i++;
+	}
+}
+
 t_player	*init_player(t_data *map)
 {
 	t_player	*player;
@@ -39,6 +56,7 @@ t_player	*init_player(t_data *map)
 		player->direction.y = 0;
 	}
 	// rotate_vect_inplace(&player->direction, 0.01);
+	calculate_offsets(player);
 	return (player);
 }
 

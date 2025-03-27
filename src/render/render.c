@@ -137,7 +137,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 		pixel_arr = app->map->e_img;
 		pos = (int)(fmod(ray->intcpt.y, 1) * 64);
 	}
-	lineheight = (int)((double)WIN_HEIGHT / ray->distance);
+	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.5));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
 	y = 0;
 	while (y < lineheight && y + top < WIN_HEIGHT)
