@@ -20,7 +20,7 @@ INC_DIR			=  ./include
 CC				:= cc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O0
-DEBUG_FLAGS		:= -g3 -gdwarf-3 #-fsanitize=address -fsanitize=undefined
+DEBUG_FLAGS		:= -g3 -gdwarf-3 -fsanitize=address -fsanitize=undefined
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
@@ -31,7 +31,7 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-lmlx -lft -lX11 -lXext -lm \
- 					# -fsanitize=address -fsanitize=undefined
+ 					-fsanitize=address -fsanitize=undefined
 
 SRC_DIR			= src
 
