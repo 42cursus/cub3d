@@ -174,3 +174,22 @@ void	cast_all_rays(t_data *map, t_player *player)
 		i++;
 	}
 }
+
+// void	cast_all_rays(t_data *map, t_player *player)
+// {
+// 	int		i;
+// 	double	step;
+// 	double	angle;
+//
+// 	step = M_PI_2 / WIN_WIDTH;
+// 	player->angle = atan2(player->direction.y, player->direction.x);
+// 	angle = player->angle + M_PI_4;
+// 	i = 0;
+// 	while (i < WIN_WIDTH)
+// 	{
+// 		player->rays[i] = find_ray_collision(map, player, angle);
+// 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
+// 		angle -= step;
+// 		i++;
+// 	}
+// }

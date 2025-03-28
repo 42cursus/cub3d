@@ -22,7 +22,7 @@ void	calculate_offsets(t_player *player)
 	i = 0;
 	while (i < WIN_WIDTH / 2)
 	{
-		angle = atan(1 - (i * offset));
+		angle = atan(1.0 - (i * offset));
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 		i++;
@@ -70,7 +70,6 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	int		face;
 
 	map = data->map;
-	player->angle = atan2(player->direction.y, player->direction.x);
 	intercept = find_ray_collision(data, player, player->angle).intcpt;
 	if (player->angle > M_PI_4 && player->angle <= 3 * M_PI_4)
 		player_char = '^';
@@ -80,7 +79,6 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		player_char = 'v';
 	else
 		player_char = '>';
-	cast_all_rays(data, player);
 	ft_putstr("\e[2J\e[H");
 	printf("height: %d width: %d\n", data->height, data->width);
 	printf("ahead:\t(%f, %f) angle: %f\n", intercept.x, intercept.y, player->angle);
@@ -111,9 +109,9 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 		if (face == WEST)
 			ft_printf("\e[%d;%dH\e[1;31mW\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
 		else if (face == EAST)
-			ft_printf("\e[%d;%dH\e[1;31mE\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
+			ft_printf("\e[%d;%dH\e[1;31mE\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 - 1);
 		else if (face == NORTH)
-			ft_printf("\e[%d;%dH\e[1;31mN\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
+			ft_printf("\e[%d;%dH\e[1;31mN\e[m", data->height - (int)player->rays[i].intcpt.y + 5, (int)player->rays[i].intcpt.x * 2 + 1);
 		else if (face == SOUTH)
 			ft_printf("\e[%d;%dH\e[1;31mS\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
 		i++;
