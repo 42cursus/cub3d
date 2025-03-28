@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:25:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/10 22:25:06 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/28 17:28:28 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,6 @@ void on_expose(t_info *app)
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas, app->clip_x_origin,
 							app->clip_y_origin);
+	draw_mmap(app);
 	// print_ascii_mmap(app->map, app->player);
 }

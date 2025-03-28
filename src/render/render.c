@@ -53,7 +53,7 @@ void	fill_bg(t_imgdata *canvas, t_data *map)
 	}
 }
 
-unsigned int	**img_to_arr(char *filename, t_info *app)
+unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 {
 	t_imgdata		texture;
 	unsigned int	**arr;
@@ -68,6 +68,8 @@ unsigned int	**img_to_arr(char *filename, t_info *app)
 		exit(1);
 	}
 	texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_length, &texture.endian);
+	*x = texture.width;
+	*y = texture.height;
 	arr = malloc(texture.height * sizeof(int *));
 	i = 0;
 	while (i < texture.height)
@@ -84,8 +86,6 @@ unsigned int	**img_to_arr(char *filename, t_info *app)
 		}
 		i++;
 	}
-	// print_pixel_arr(64, 64, arr);
-	// exit(0);
 	mlx_destroy_image(app->mlx, texture.img);
 	return (arr);
 }
@@ -111,7 +111,7 @@ void	print_pixel_arr(int width, int height, unsigned int **arr)
 void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 {
 	int				pos;
-	unsigned int	**pixel_arr;
+	t_texarr		*texture;
 	int				y;
 	int				top;
 	int				h_index;
@@ -119,23 +119,23 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 
 	if (ray->face == NORTH)
 	{
-		pixel_arr = app->map->n_img;
-		pos = (int)(fmod(ray->intcpt.x, 1) * 64);
+		texture = &app->map->n_tex;
+		pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face == SOUTH)
 	{
-		pixel_arr = app->map->s_img;
-		pos = (int)(fmod(ray->intcpt.x, 1) * 64);
+		texture = &app->map->s_tex;
+		pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face == EAST)
 	{
-		pixel_arr = app->map->e_img;
-		pos = (int)(fmod(ray->intcpt.y, 1) * 64);
+		texture = &app->map->e_tex;
+		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 	}
 	else
 	{
-		pixel_arr = app->map->e_img;
-		pos = (int)(fmod(ray->intcpt.y, 1) * 64);
+		texture = &app->map->w_tex;
+		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 	}
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
@@ -147,8 +147,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			y++;
 			continue ;
 		}
-		h_index = ((double)y / lineheight) * 64;
-		my_put_pixel(canvas, x, top + y, pixel_arr[h_index][pos]);
+		h_index = ((double)y / lineheight) * texture->y;
+		my_put_pixel(canvas, x, top + y, texture->img[h_index][pos]);
 		y++;
 	}
 	// lineheight = 64;

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/27 18:38:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/28 17:22:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ int expose_win(void *param)
 	// 	   xpm1_x, xpm1_y, bpp2, sl2, endian2, im2->type);
 
 	app->canvas = im3.img;
-	mlx_clear_window(app->mlx,  app->root);
 	on_expose(app);
 	retcode = mlx_put_image_to_window(app->mlx, app->root, im2.img, 200,0);
 	mlx_destroy_image(app->mlx, im2.img);

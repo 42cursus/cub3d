@@ -16,6 +16,7 @@ int	cleanup(t_info *app)
 {
 	mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_window(app->mlx, app->root);
+	mlx_destroy_display(app->mlx);
 	free(app->mlx);
 	free_map(app->map);
 	// for (int i = 0; i < WIN_WIDTH; i++)
@@ -33,6 +34,5 @@ int	cleanup(t_info *app)
 	// 	dprintf(2, "(%f, %f) %c dist: %f\n", app->player->rays[i].intcpt.x, app->player->rays[i].intcpt.y, face_char, app->player->rays[i].distance);
 	// }
 	free(app->player);
-	printf("\e[?25h");
 	return (0);
 }

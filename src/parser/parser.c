@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/27 18:09:03 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/28 14:58:35 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,21 +386,21 @@ int	parse_colour(t_data *map, char *str, int identifier)
 
 int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 {
-	unsigned int	***pathaddr;
+	t_texarr	*tex_addr;
 
 	if (identifier == NORTH)
-		pathaddr = &data->n_img;
+		tex_addr = &data->n_tex;
 	else if (identifier == SOUTH)
-		pathaddr = &data->s_img;
+		tex_addr = &data->s_tex;
 	else if (identifier == EAST)
-		pathaddr = &data->e_img;
+		tex_addr = &data->e_tex;
 	else if (identifier == WEST)
-		pathaddr = &data->w_img;
+		tex_addr = &data->w_tex;
 	else
 		return (1);
-	if (*pathaddr != NULL)
+	if (tex_addr->img != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
-	*pathaddr = img_to_arr(str, app);
+	tex_addr->img = img_to_arr(str, app, &tex_addr->x, &tex_addr->y);
 	return (0);
 }
 
@@ -429,13 +429,13 @@ int	parse_line(t_data *data, char *line, t_info *app)
 
 int	all_fields_parsed(t_data *data)
 {
-	if (data->n_img == NULL)
+	if (data->n_tex.img == NULL)
 		return (0);
-	if (data->s_img == NULL)
+	if (data->s_tex.img == NULL)
 		return (0);
-	if (data->e_img == NULL)
+	if (data->e_tex.img == NULL)
 		return (0);
-	if (data->w_img == NULL)
+	if (data->w_tex.img == NULL)
 		return (0);
 	if (data->f_col == -1)
 		return (0);
@@ -451,6 +451,7 @@ int	parse_cub(t_info *app, int fd)
 	t_data	*data;
 
 	data = app->map;
+	load_map_textures(app);
 	file = read_cub(fd);
 	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
@@ -469,6 +470,13 @@ int	parse_cub(t_info *app, int fd)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
+	// {
+	// 	printf("NORTH: %d %d\n", data->n_tex.x, data->n_tex.y);
+	// 	printf("SOUTH: %d %d\n", data->s_tex.x, data->s_tex.y);
+	// 	printf("EAST: %d %d\n", data->e_tex.x, data->e_tex.y);
+	// 	printf("WEST: %d %d\n", data->w_tex.x, data->w_tex.y);
+	// 	exit(0);
+	// }
 	return (0);
 }
 
@@ -486,12 +494,22 @@ int	parse_cub(t_info *app, int fd)
 // 	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
 // }
 
+void	free_tex_arr(t_texarr *texture)
+{
+	int	i;
+
+	i = 0;
+	while (i < texture->y)
+		free(texture->img[i++]);
+	free(texture->img);
+}
+
 void	free_map(t_data *data)
 {
-	free(data->n_img);
-	free(data->s_img);
-	free(data->e_img);
-	free(data->w_img);
+	free_tex_arr(&data->n_tex);
+	free_tex_arr(&data->s_tex);
+	free_tex_arr(&data->e_tex);
+	free_tex_arr(&data->w_tex);
 	free_split(data->map);
 	free(data);
 }

@@ -1,0 +1,33 @@
+/* XPM */
+static char *rcp07423507240155[] = {
+/* columns rows colors chars-per-pixel */
+"8 8 19 1 ",
+"  c #D4408C",
+". c #D4428C",
+"X c #D6428C",
+"o c #D6428D",
+"O c #D6408E",
+"+ c #D7408E",
+"@ c #D4428E",
+"# c #D4438E",
+"$ c #D4428F",
+"% c #D6428E",
+"& c #D7428E",
+"* c #D6438E",
+"= c #D6428F",
+"- c #F8F8F8",
+"; c #F9F9F8",
+": c #F8F8F9",
+"> c #FAF8F8",
+", c #F9F8FA",
+"< c #F8F9FA",
+/* pixels */
+"--------",
+"-OOOOOOO",
+"-OOOOO#O",
+"-OOOOOOO",
+"-OOOOOOO",
+"-OOOOOOO",
+"-OOOOOOO",
+"-OOOOOOO"
+};

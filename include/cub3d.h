@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/27 18:38:21 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/03/28 17:02:50 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,20 @@ typedef struct s_ray
 	double	distance;
 }	t_ray;
 
+typedef struct s_texarr
+{
+	unsigned int	**img;
+	int				x;
+	int				y;
+}	t_texarr;
+
 typedef	struct s_data
 {
-	unsigned int	**n_img;
-	unsigned int	**s_img;
-	unsigned int	**e_img;
-	unsigned int	**w_img;
+	t_texarr		n_tex;
+	t_texarr		s_tex;
+	t_texarr		e_tex;
+	t_texarr		w_tex;
+	void			*maptiles[17];
 	int		f_col;
 	int		c_col;
 	char	**map;
@@ -139,7 +147,10 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
-unsigned int	**img_to_arr(char *filename, t_info *app);
+void	load_map_textures(t_info *app);
+unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
+void	tiletest(t_info *app);
+void	draw_mmap(t_info *app);
 
 #endif //CUB3D_H

@@ -44,6 +44,7 @@ int	main(int argc, char **argv)
 	// mlx_key_hook(app->root, &key_win, app);
 	// replace_image(app);
 	mlx_loop(app->mlx);
+	printf("\e[?25h");
 	cleanup(app);
 	return (EXIT_SUCCESS);
 	(void)argc;
