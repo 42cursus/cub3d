@@ -139,26 +139,16 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	}
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
-	y = 0;
+	if (top < 0)
+		y = 0 - top;
+	else
+		y = 0;
 	while (y < lineheight && y + top < WIN_HEIGHT)
 	{
-		if (y + top < 0)
-		{
-			y++;
-			continue ;
-		}
 		h_index = ((double)y / lineheight) * texture->y;
 		my_put_pixel(canvas, x, top + y, texture->img[h_index][pos]);
 		y++;
 	}
-	// lineheight = 64;
-	// top = WIN_HEIGHT / 2 - 32;
-	// y = 0;
-	// while (y < 64)
-	// {
-	// 	my_put_pixel(canvas, x, top + y, pixel_arr[y][pos]);
-	// 	y++;
-	// }
 }
 
 void	draw_rays(t_info *app, t_imgdata *canvas)

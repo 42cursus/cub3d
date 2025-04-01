@@ -449,9 +449,10 @@ int	parse_cub(t_info *app, int fd)
 	t_list	*file;
 	t_list	*current;
 	t_data	*data;
+	void	*tiles[16];
 
 	data = app->map;
-	load_map_textures(app);
+	load_map_textures(app, tiles);
 	file = read_cub(fd);
 	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
@@ -470,14 +471,8 @@ int	parse_cub(t_info *app, int fd)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
-	// {
-	// 	printf("NORTH: %d %d\n", data->n_tex.x, data->n_tex.y);
-	// 	printf("SOUTH: %d %d\n", data->s_tex.x, data->s_tex.y);
-	// 	printf("EAST: %d %d\n", data->e_tex.x, data->e_tex.y);
-	// 	printf("WEST: %d %d\n", data->w_tex.x, data->w_tex.y);
-	// 	exit(0);
-	// }
-	data->minimap = build_mmap(app);
+	data->minimap = build_mmap(app, tiles);
+	free_map_textures(app, tiles);
 	return (0);
 }
 

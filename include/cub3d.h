@@ -68,7 +68,7 @@ typedef	struct s_data
 	t_texarr	s_tex;
 	t_texarr	e_tex;
 	t_texarr	w_tex;
-	void		*maptiles[17];
+	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
 	int			c_col;
@@ -149,11 +149,11 @@ int		determine_face(t_vect intersect);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
-void	load_map_textures(t_info *app);
+void	load_map_textures(t_info *app,  void *tiles[]);
+void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
-void	tiletest(t_info *app);
 void	draw_mmap(t_info *app);
-t_imgdata	build_mmap(t_info *app);
+t_imgdata	build_mmap(t_info *app, void *tiles[]);
 
 #endif //CUB3D_H

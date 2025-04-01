@@ -18,6 +18,7 @@ resources/
 gdb.txt
 scratch/
 cmake_build
+gmon.out
 
 #for test
 !tester/minitest.sh

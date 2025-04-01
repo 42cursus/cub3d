@@ -12,7 +12,7 @@
 
 #include "../../include/cub3d.h"
 
-void	load_map_textures(t_info *app)
+void	load_map_textures(t_info *app, void *tiles[])
 {
 	int		i;
 	char	buf[50];
@@ -28,25 +28,22 @@ void	load_map_textures(t_info *app)
 			  ((i & 4) >> 2) + '0',
 			  ((i & 2) >> 1) + '0',
 			  (i & 1) + '0');
-		printf("%s\n", buf);
-		app->map->maptiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
+		// printf("%s\n", buf);
+		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
 		i++;
 	}
-	app->map->maptiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
+	app->map->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
-void	tiletest(t_info *app)
+void	free_map_textures(t_info *app, void *tiles[])
 {
 	int	i;
-	int	x;
 
 	i = 0;
-	x = 0;
 	while (i < 16)
 	{
-		mlx_put_image_to_window(app->mlx, app->root, app->map->maptiles[i], x, 0);
+		mlx_destroy_image(app->mlx, tiles[i]);
 		i++;
-		x += 16;
 	}
 }
 
@@ -100,7 +97,7 @@ void	fill_image_transparency(t_imgdata *img)
 	}
 }
 
-t_imgdata	build_mmap(t_info *app)
+t_imgdata	build_mmap(t_info *app, void *tiles[])
 {
 	t_imgdata	img;
 	t_imgdata	tile;
@@ -124,7 +121,7 @@ t_imgdata	build_mmap(t_info *app)
 			if (app->map->map[app->map->height - i - 1][j] == '0')
 			{
 				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				tile.img = app->map->maptiles[index];
+				tile.img = tiles[index];
 				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
 				place_tile_on_image(&img, &tile, j * 8, i * 8);
 			}
@@ -163,12 +160,8 @@ void	place_mmap(t_info *app)
 
 void	draw_mmap(t_info *app)
 {
-	void	**tiles;
-
-	tiles = app->map->maptiles;
-	// mlx_put_image_to_window(app->mlx, app->root, app->map->minimap.img, 0, 0);
 	place_mmap(app);
-	mlx_put_image_to_window(app->mlx, app->root, tiles[16],
+	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 }
