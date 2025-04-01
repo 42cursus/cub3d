@@ -477,6 +477,7 @@ int	parse_cub(t_info *app, int fd)
 	// 	printf("WEST: %d %d\n", data->w_tex.x, data->w_tex.y);
 	// 	exit(0);
 	// }
+	data->minimap = build_mmap(app);
 	return (0);
 }
 

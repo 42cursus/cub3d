@@ -62,33 +62,113 @@ int	get_tile_index(char **map, int i, int j)
 	return (index);
 }
 
-void	draw_mmap(t_info *app)
+void	place_tile_on_image(t_imgdata *image, t_imgdata *tile, int x, int y)
 {
-	char	**map;
-	void	**tiles;
-	int		i;
-	int		j;
-	int		index;
+	int	i;
+	int	j;
+	int	colour;
 
-	map = app->map->map;
-	tiles = app->map->maptiles;
+	i = 0;
+	while (i < 8)
+	{
+		j = 0;
+		while (j < 8)
+		{
+			colour = *(unsigned int *)(tile->addr + (i * tile->line_length + j * (tile->bpp / 8)));
+			my_put_pixel(image, x + j, y + i, colour);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	fill_image_transparency(t_imgdata *img)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	while (i < img->height)
+	{
+		j = 0;
+		while (j < img->width)
+		{
+			my_put_pixel(img, j, i, 0x00000000);
+			j++;
+		}
+		i++;
+	}
+}
+
+t_imgdata	build_mmap(t_info *app)
+{
+	t_imgdata	img;
+	t_imgdata	tile;
+	int			i;
+	int			j;
+	int			index;
+
+	img.img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
+	img.addr = mlx_get_data_addr(img.img, &img.bpp, &img.line_length, &img.endian);
+	img.height = app->map->height * 8;
+	img.width = app->map->width * 8;
+	tile.width = 8;
+	tile.height = 8;
+	fill_image_transparency(&img);
 	i = 0;
 	while (i < app->map->height)
 	{
 		j = 0;
 		while (j < app->map->width)
 		{
-			if (map[app->map->height - i - 1][j] == '0')
+			if (app->map->map[app->map->height - i - 1][j] == '0')
 			{
-				index = get_tile_index(map, app->map->height - i - 1, j);
-				mlx_put_image_to_window(app->mlx, app->root, tiles[index],
-										j * 8, i * 8);
+				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
+				tile.img = app->map->maptiles[index];
+				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
+				place_tile_on_image(&img, &tile, j * 8, i * 8);
 			}
-			if (floor(app->player->pos.x) == j && floor(app->player->pos.y) == app->map->height - i - 1)
-				mlx_put_image_to_window(app->mlx, app->root, tiles[16],
-										j * 8 + ((fmod(app->player->pos.x, 1) * 6)), i * 8 + ((fmod(app->player->pos.y, 1) * 6)));
 			j++;
 		}
 		i++;
 	}
+	return (img);
+}
+
+void	place_mmap(t_info *app)
+{
+	t_imgdata	*mmap;
+	t_imgdata	canvas;
+	int	i;
+	int	j;
+	int	colour;
+
+	i = 0;
+	mmap = &app->map->minimap;
+	canvas.img = app->canvas;
+	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
+	while (i < app->map->minimap.height)
+	{
+		j = 0;
+		while (j < app->map->minimap.width)
+		{
+			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
+			if (colour != 0)
+				my_put_pixel(&canvas, j, i, colour);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	draw_mmap(t_info *app)
+{
+	void	**tiles;
+
+	tiles = app->map->maptiles;
+	// mlx_put_image_to_window(app->mlx, app->root, app->map->minimap.img, 0, 0);
+	place_mmap(app);
+	mlx_put_image_to_window(app->mlx, app->root, tiles[16],
+						 floor(app->player->pos.x) * 8 + 3,
+						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 }

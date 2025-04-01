@@ -31,6 +31,17 @@
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
 
+typedef struct s_imgdata
+{
+	void	*img;
+	char	*addr;
+	int		width;
+	int		height;
+	int		bpp;
+	int		line_length;
+	int		endian;
+}	t_imgdata;
+
 typedef struct s_vect
 {
 	double	x;
@@ -53,18 +64,19 @@ typedef struct s_texarr
 
 typedef	struct s_data
 {
-	t_texarr		n_tex;
-	t_texarr		s_tex;
-	t_texarr		e_tex;
-	t_texarr		w_tex;
-	void			*maptiles[17];
-	int		f_col;
-	int		c_col;
-	char	**map;
-	t_vect	starting_pos;
-	char	starting_dir;
-	int		height;
-	int		width;
+	t_texarr	n_tex;
+	t_texarr	s_tex;
+	t_texarr	e_tex;
+	t_texarr	w_tex;
+	void		*maptiles[17];
+	t_imgdata	minimap;
+	int			f_col;
+	int			c_col;
+	char		**map;
+	t_vect		starting_pos;
+	char		starting_dir;
+	int			height;
+	int			width;
 }	t_data;
 
 typedef struct s_player
@@ -75,17 +87,6 @@ typedef struct s_player
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
 }	t_player;
-
-typedef struct s_imgdata
-{
-	void	*img;
-	char	*addr;
-	int		width;
-	int		height;
-	int		bpp;
-	int		line_length;
-	int		endian;
-}	t_imgdata;
 
 enum
 {
@@ -147,10 +148,12 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
+void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	load_map_textures(t_info *app);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
 void	tiletest(t_info *app);
 void	draw_mmap(t_info *app);
+t_imgdata	build_mmap(t_info *app);
 
 #endif //CUB3D_H
