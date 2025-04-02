@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEW", line[i++]))
+		if (!ft_strchr(" \t01NSEWD", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -217,28 +217,28 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j]))
+	if (!ft_strchr("NESW01D", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i][j - 1]))
+	if (!ft_strchr("NESW01D", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i][j + 1]))
+	if (!ft_strchr("NESW01D", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j]))
+	if (!ft_strchr("NESW01D", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01D", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01D", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01D", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01D", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
 
 int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 {
-	if ((data->map)[i][j] != '0')
+	if ((data->map)[i][j] != '0' && (data->map)[i][j] != 'D')
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
@@ -264,7 +264,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWS", map[i][j]))
+			if (ft_strchr("0NEWSD", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -471,7 +471,10 @@ int	parse_cub(t_info *app, int fd)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
+	// print_map(data);
+	// exit(0);
 	data->minimap = build_mmap(app, tiles);
+	data->door_tex.img = img_to_arr((char *)"./textures/metroid_door2.xpm", app, &data->door_tex.x, &data->door_tex.y);
 	free_map_textures(app, tiles);
 	return (0);
 }
@@ -506,6 +509,7 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->s_tex);
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
+	free_tex_arr(&data->door_tex);
 	free_split(data->map);
 	free(data);
 }

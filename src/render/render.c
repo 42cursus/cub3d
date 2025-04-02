@@ -132,11 +132,20 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 		texture = &app->map->e_tex;
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 	}
-	else
+	else if (ray->face == WEST)
 	{
 		texture = &app->map->w_tex;
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 	}
+	else if (ray->face >= DOOR_N)
+	{
+		texture = &app->map->door_tex;
+		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+		if (pos == 0.0)
+			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+	}
+	else
+		exit(0);
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
 	if (top < 0)

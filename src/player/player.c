@@ -167,3 +167,25 @@ void	rotate_player(t_player *player, int direction)
 	else
 		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
 }
+
+void	handle_open_door(t_info *app)
+{
+	t_ray	*crosshair;
+	char	*door_tile;
+
+	crosshair = &app->player->rays[WIN_WIDTH / 2];
+	if (crosshair->distance < 1.0)
+	{
+		if (crosshair->face == DOOR_N)
+			door_tile = &app->map->map[(int)crosshair->intcpt.y - 1][(int)crosshair->intcpt.x];
+		else if (crosshair->face == DOOR_S)
+			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x];
+		else if (crosshair->face == DOOR_E)
+			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x - 1];
+		else if (crosshair->face == DOOR_W)
+			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x];
+		else
+			return ;
+		*door_tile = '0';
+	}
+}

@@ -78,8 +78,16 @@ t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, 
 		while (i < map->height)
 		{
 			out.intcpt = get_horizontal_int(i, gradient, c);
-			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
-				break ;
+			if (out.intcpt.x < map->width && out.intcpt.x >= 0)
+			{
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
+					break ;
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'D')
+				{
+					out.face = DOOR_S;
+					break ;
+				}
+			}
 			i += 1.0f;
 		}
 	}
@@ -91,8 +99,16 @@ t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, 
 		{
 			out.intcpt = get_horizontal_int(i, gradient, c);
 			// out.intcpt.y -= 0.001;
-			if (out.intcpt.x < map->width && out.intcpt.x >= 0 && map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == '1')
-				break ;
+			if (out.intcpt.x < map->width && out.intcpt.x >= 0)
+			{
+				if (map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == '1')
+					break ;
+				if (map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == 'D')
+				{
+					out.face = DOOR_N;
+					break ;
+				}
+			}
 			i -= 1.0f;
 		}
 	}
@@ -115,8 +131,16 @@ t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, i
 		while (i < map->width)
 		{
 			out.intcpt = get_vertical_int(i, gradient, c);
-			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
-				break ;
+			if (out.intcpt.y < map->height && out.intcpt.y >= 0)
+			{
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == '1')
+					break ;
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'D')
+				{
+					out.face = DOOR_W;
+					break ;
+				}
+			}
 			i += 1.0f;
 		}
 	}
@@ -127,9 +151,16 @@ t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, i
 		while (i > 0)
 		{
 			out.intcpt = get_vertical_int(i, gradient, c);
-			// out.intcpt.x -= 0.001;
-			if (out.intcpt.y < map->height && out.intcpt.y >= 0 && map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == '1')
-				break ;
+			if (out.intcpt.y < map->height && out.intcpt.y >= 0)
+			{
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == '1')
+					break ;
+				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == 'D')
+				{
+					out.face = DOOR_E;
+					break ;
+				}
+			}
 			i -= 1.0f;
 		}
 	}

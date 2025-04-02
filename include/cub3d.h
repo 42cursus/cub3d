@@ -27,6 +27,7 @@
 # define KEY_A 0x0061
 # define KEY_S 0x0073
 # define KEY_D 0x0064
+# define KEY_E 0x0065
 
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
@@ -68,6 +69,7 @@ typedef	struct s_data
 	t_texarr	s_tex;
 	t_texarr	e_tex;
 	t_texarr	w_tex;
+	t_texarr	door_tex;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -96,7 +98,11 @@ enum
 	NORTH = 3,
 	SOUTH = 4,
 	EAST = 5,
-	WEST = 6
+	WEST = 6,
+	DOOR_N = 7,
+	DOOR_S = 8,
+	DOOR_E = 9,
+	DOOR_W = 10,
 };
 
 typedef struct s_info
@@ -137,6 +143,7 @@ void	print_ascii_mmap(t_data *data, t_player *player);
 t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_vect dir);
 void		rotate_player(t_player *player, int direction);
+void	handle_open_door(t_info *app);
 
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);

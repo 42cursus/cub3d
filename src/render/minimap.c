@@ -52,10 +52,10 @@ int	get_tile_index(char **map, int i, int j)
 	int	index;
 
 	index = 0;
-	index += (map[i + 1][j] - '0') << 3;
-	index += (map[i][j + 1] - '0') << 2;
-	index += (map[i - 1][j] - '0') << 1;
-	index += (map[i][j - 1] - '0');
+	index += !!((map[i + 1][j] - '0')) << 3;
+	index += !!((map[i][j + 1] - '0')) << 2;
+	index += !!((map[i - 1][j] - '0')) << 1;
+	index += !!((map[i][j - 1] - '0'));
 	return (index);
 }
 
@@ -122,6 +122,12 @@ t_imgdata	build_mmap(t_info *app, void *tiles[])
 			{
 				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
 				tile.img = tiles[index];
+				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
+				place_tile_on_image(&img, &tile, j * 8, i * 8);
+			}
+			else if (app->map->map[app->map->height - i - 1][j] == 'D')
+			{
+				tile.img = tiles[15];
 				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
 				place_tile_on_image(&img, &tile, j * 8, i * 8);
 			}

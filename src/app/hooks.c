@@ -129,6 +129,10 @@ int key_win(KeySym key, void *param)
 		rotate_player(app->player, 1);
 	else if (key == LEFT)
 		rotate_player(app->player, 0);
+	else if (key == KEY_E)
+	{
+		handle_open_door(app);
+	}
 	replace_image(app);
 	on_expose(app);
 	// expose_win(app);
