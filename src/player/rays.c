@@ -209,7 +209,7 @@ void	handle_in_fronts(t_ray *ray1, t_ray *ray2, t_player *player)
 	{
 		free(ray2->in_front);
 		ray2->in_front = ray1->in_front;
-		if (ray2->in_front->distance > ray2->distance)
+		if (r1_infront_dist > ray2->distance)
 		{
 			free(ray2->in_front);
 			ray2->in_front = NULL;
@@ -219,7 +219,7 @@ void	handle_in_fronts(t_ray *ray1, t_ray *ray2, t_player *player)
 	{
 		free(ray1->in_front);
 		ray1->in_front = ray2->in_front;
-		if (ray1->in_front->distance > ray1->distance)
+		if (r2_infront_dist > ray1->distance)
 		{
 			free(ray1->in_front);
 			ray1->in_front = NULL;
