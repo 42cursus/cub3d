@@ -126,36 +126,30 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	char	y_tile;
 	char	both_tile;
 
-	// new_x = player->pos.x + dir.x;
-	// new_y = player->pos.y + dir.y;
 	new_x = player->pos.x + (dir.x * 0.1);
 	new_y = player->pos.y + (dir.y * 0.1);
 	x_tile = map[(int)player->pos.y][(int)new_x];
 	y_tile = map[(int)new_y][(int)player->pos.x];
 	both_tile = map[(int)new_y][(int)new_x];
-	// printf("(%f, %f)\n", new_x, new_y);
-	// printf("(%f, %f)\n", dir.x, dir.y);
-	// printf("x: %c\ty: %c\tboth: %c\n", x_tile, y_tile, both_tile);
-	// exit(0);
-	if (both_tile == '0')
+	if (both_tile == '0' || both_tile == 'O')
 	{
-		if (x_tile == '0')
+		if (x_tile == '0' || x_tile == 'O')
 			player->pos.x = new_x;
-		if (y_tile == '0')
+		if (y_tile == '0' || y_tile == 'O')
 			player->pos.y = new_y;
 	}
 	else
 	{
-		if (x_tile == '0' && y_tile == '0')
+		if ((x_tile == '0' || x_tile == 'O') && (y_tile == '0' || y_tile == 'O'))
 		{
 			if (get_max_direction(dir) == 'x')
 				player->pos.x = new_x;
 			else
 				player->pos.y = new_y;
 		}
-		else if (x_tile == '0')
+		else if (x_tile == '0' || x_tile == 'O')
 			player->pos.x = new_x;
-		else if (y_tile == '0')
+		else if (y_tile == '0' || y_tile == 'O')
 			player->pos.y = new_y;
 	}
 }
@@ -166,6 +160,23 @@ void	rotate_player(t_player *player, int direction)
 		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
 	else
 		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
+}
+
+void	handle_close_door(t_info *app, t_ray *in_front)
+{
+	char	*door_tile;
+	
+	if (in_front->face == DOOR_N_OPEN)
+		door_tile = &app->map->map[(int)in_front->intcpt.y - 1][(int)in_front->intcpt.x];
+	else if (in_front->face == DOOR_S_OPEN)
+		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x];
+	else if (in_front->face == DOOR_E_OPEN)
+		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x - 1];
+	else if (in_front->face == DOOR_W_OPEN)
+		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x];
+	else
+		return ;
+	*door_tile = 'D';
 }
 
 void	handle_open_door(t_info *app)
@@ -186,6 +197,8 @@ void	handle_open_door(t_info *app)
 			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x];
 		else
 			return ;
-		*door_tile = '0';
+		*door_tile = 'O';
 	}
+	if (crosshair->in_front != NULL && crosshair->in_front->distance < 1.0)
+		handle_close_door(app, crosshair->in_front);
 }

@@ -51,9 +51,10 @@ typedef struct s_vect
 
 typedef struct s_ray
 {
-	t_vect	intcpt;
-	int		face;
-	double	distance;
+	t_vect			intcpt;
+	int				face;
+	double			distance;
+	struct s_ray	*in_front;
 }	t_ray;
 
 typedef struct s_texarr
@@ -69,7 +70,8 @@ typedef	struct s_data
 	t_texarr	s_tex;
 	t_texarr	e_tex;
 	t_texarr	w_tex;
-	t_texarr	door_tex;
+	t_texarr	door_tex[2];
+	t_texarr	cannon_tex;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -103,6 +105,10 @@ enum
 	DOOR_S = 8,
 	DOOR_E = 9,
 	DOOR_W = 10,
+	DOOR_N_OPEN = 11,
+	DOOR_S_OPEN = 12,
+	DOOR_E_OPEN = 13,
+	DOOR_W_OPEN = 14,
 };
 
 typedef struct s_info

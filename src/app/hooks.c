@@ -109,6 +109,9 @@ int key_win(KeySym key, void *param)
 {
 	t_info *const app = param;
 
+	if (key == KEY_E)
+		handle_open_door(app);
+	free(app->player->rays[WIN_WIDTH / 2].in_front);
 	if (key == NUM_5 || key == ESC)
 	{
 		exit_win(app);
@@ -129,10 +132,6 @@ int key_win(KeySym key, void *param)
 		rotate_player(app->player, 1);
 	else if (key == LEFT)
 		rotate_player(app->player, 0);
-	else if (key == KEY_E)
-	{
-		handle_open_door(app);
-	}
 	replace_image(app);
 	on_expose(app);
 	// expose_win(app);

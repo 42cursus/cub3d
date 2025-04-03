@@ -19,6 +19,8 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 {
 	char	*pixel;
 
+	if (colour == 0x000042)
+		return ;
 	pixel = img->addr + (y * img->line_length + x * (img->bpp / 8));
 	*(unsigned int *)pixel = colour;
 }
@@ -137,9 +139,16 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 		texture = &app->map->w_tex;
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 	}
-	else if (ray->face >= DOOR_N)
+	else if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
-		texture = &app->map->door_tex;
+		texture = &app->map->door_tex[0];
+		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+		if (pos == 0.0)
+			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+	}
+	else if (ray->face >= DOOR_N_OPEN)
+	{
+		texture = &app->map->door_tex[1];
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 		if (pos == 0.0)
 			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
@@ -157,6 +166,12 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 		h_index = ((double)y / lineheight) * texture->y;
 		my_put_pixel(canvas, x, top + y, texture->img[h_index][pos]);
 		y++;
+	}
+	if (ray->in_front != NULL)
+	{
+		draw_slice(x, ray->in_front, app, canvas);
+		if (x != WIN_WIDTH / 2)
+			free(ray->in_front);
 	}
 }
 

@@ -474,7 +474,9 @@ int	parse_cub(t_info *app, int fd)
 	// print_map(data);
 	// exit(0);
 	data->minimap = build_mmap(app, tiles);
-	data->door_tex.img = img_to_arr((char *)"./textures/metroid_door2.xpm", app, &data->door_tex.x, &data->door_tex.y);
+	data->door_tex[0].img = img_to_arr((char *)"./textures/metroid_door2.xpm", app, &data->door_tex[0].x, &data->door_tex[0].y);
+	data->door_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &data->door_tex[1].x, &data->door_tex[1].y);
+	data->cannon_tex.img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex.x, &data->cannon_tex.y);
 	free_map_textures(app, tiles);
 	return (0);
 }
@@ -509,7 +511,9 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->s_tex);
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
-	free_tex_arr(&data->door_tex);
+	free_tex_arr(&data->door_tex[0]);
+	free_tex_arr(&data->door_tex[1]);
+	free_tex_arr(&data->cannon_tex);
 	free_split(data->map);
 	free(data);
 }

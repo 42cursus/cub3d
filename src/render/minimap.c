@@ -90,7 +90,8 @@ void	fill_image_transparency(t_imgdata *img)
 		j = 0;
 		while (j < img->width)
 		{
-			my_put_pixel(img, j, i, 0x00000000);
+			// my_put_pixel(img, j, i, 0x000042);
+			*(unsigned int *)(img->addr + (i * img->line_length + j * (img->bpp / 8))) = 0x000042;
 			j++;
 		}
 		i++;
@@ -156,8 +157,32 @@ void	place_mmap(t_info *app)
 		while (j < app->map->minimap.width)
 		{
 			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
-			if (colour != 0)
-				my_put_pixel(&canvas, j, i, colour);
+			my_put_pixel(&canvas, j, i, colour);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	place_weapon(t_info *app)
+{
+	t_imgdata	canvas;
+	t_texarr	*tex;
+	int	i;
+	int	j;
+	unsigned int	colour;
+
+	i = 0;
+	tex = &app->map->cannon_tex;
+	canvas.img = app->canvas;
+	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
+	while (i < tex->y)
+	{
+		j = 0;
+		while (j < tex->x)
+		{
+			colour = tex->img[i][j];
+			my_put_pixel(&canvas, WIN_WIDTH / 2 + j, WIN_HEIGHT - tex->y + i, colour);
 			j++;
 		}
 		i++;
@@ -167,6 +192,7 @@ void	place_mmap(t_info *app)
 void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
+	place_weapon(app);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
