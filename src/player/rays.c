@@ -75,6 +75,13 @@ void	add_in_front(t_ray *ray, int face)
 	new->in_front = in_front;
 }
 
+void	free_ray_children(t_ray *ray)
+{
+	if (ray->in_front != NULL)
+		free_ray_children(ray->in_front);
+	free(ray->in_front);
+}
+
 t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, int quadrant)
 {
 	double	gradient;
@@ -250,6 +257,8 @@ double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
 	return (fabs((cos(angle) * (intcpt.y - pos.y)) - (sin(angle) * (intcpt.x - pos.x))));
 }
 
+t_ray	ray_dda(t_data *map, t_player *player, double angle);
+
 void	cast_all_rays(t_data *map, t_player *player)
 {
 	int		i;
@@ -264,6 +273,19 @@ void	cast_all_rays(t_data *map, t_player *player)
 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
 		if (player->rays[i].in_front != NULL)
 			player->rays[i].in_front->distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].in_front->intcpt);
+		i++;
+	}
+}
+
+void	cast_all_rays_alt(t_data *map, t_player *player)
+{
+	int		i;
+
+	player->angle = atan2(player->direction.y, player->direction.x);
+	i = 0;
+	while (i < WIN_WIDTH)
+	{
+		player->rays[i] = ray_dda(map, player, player->angle_offsets[i]);
 		i++;
 	}
 }

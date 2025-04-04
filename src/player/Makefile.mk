@@ -12,5 +12,6 @@
 
 FILES   = player.c \
 		  rays.c \
+		  rays_alt.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

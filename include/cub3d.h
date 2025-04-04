@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/28 17:02:50 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 18:15:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,7 @@ typedef struct s_info
 	int			endianness;
 	t_data		*map;
 	t_player	*player;
+	size_t		last_frame;
 }	t_info;
 
 int		check_endianness(void);
@@ -159,6 +160,7 @@ void	rotate_vect_inplace(t_vect *vect, double angle);
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
+void	free_ray_children(t_ray *ray);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
