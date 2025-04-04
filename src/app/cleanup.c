@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:42:14 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/13 18:25:54 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:47:25 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ int	cleanup(t_info *app)
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);
 	free_map(app->map);
+	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	free(app->player);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 14:58:59 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:02:39 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,10 @@
 
 int		get_quadrant(double angle);
 double	get_gradient_angle(double angle);
-double	get_y_intercept(t_vect pos, double gradient);
-t_vect	get_vertical_int(double x, double gradient, double c);
-t_vect	get_horizontal_int(double y, double gradient, double c);
-double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
+double	get_y_intercept(t_fvect pos, double gradient);
+t_fvect	get_vertical_int(double x, double gradient, double c);
+t_fvect	get_horizontal_int(double y, double gradient, double c);
+double	get_cam_distance(t_fvect pos, double angle, t_fvect intcpt);
 void	add_in_front(t_ray *ray, int face);
 
 void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c)
@@ -38,7 +38,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	t_ray	ray;
 	ray.intcpt.x = floor(player->pos.x);
 	ray.intcpt.y = floor(player->pos.y);
-	t_vect	dir = rotate_vect(player->direction, angle);
+	t_fvect	dir = rotate_vect(player->direction, angle);
 
 	double	sideDistX;
 	double	sideDistY;
@@ -100,19 +100,21 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		}
 		if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == '1')
 			break ;
-		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'D')
+		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'D')
 		{
-			ray.face += 4;
-			break;
-		}
-		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
-		{
-			add_in_front(&ray, ray.face + 8);
+			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
+				add_in_front(&ray, ray.face + 8);
+			else
+				add_in_front(&ray, ray.face + 4);
+			ray.in_front->maptile.x = (int)ray.intcpt.x;
+			ray.in_front->maptile.y = (int)ray.intcpt.y;
 			ray.in_front->intcpt.x += normX;
 			ray.in_front->intcpt.y += normY;
 			calculate_ray_stuff(ray.in_front, player, gradient, c);
 		}
 	}
+	ray.maptile.x = (int)ray.intcpt.x;
+	ray.maptile.y = (int)ray.intcpt.y;
 	ray.intcpt.x += normX;
 	ray.intcpt.y += normY;
 	calculate_ray_stuff(&ray, player, gradient, c);

@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/25 20:15:33 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:10:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	ssize_t	j;
 	char	**map;
 	char	player_char;
-	t_vect	intercept;
+	t_fvect	intercept;
 	int		face;
 
 	map = data->map;
@@ -118,7 +118,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	}
 }
 
-void	move_player(t_player *player, char **map, t_vect dir)
+void	move_player(t_player *player, char **map, t_fvect dir)
 {
 	double	new_x;
 	double	new_y;
@@ -162,43 +162,36 @@ void	rotate_player(t_player *player, int direction)
 		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
 }
 
-void	handle_close_door(t_info *app, t_ray *in_front)
+void	handle_close_door(t_info *app, t_ray *crosshair)
 {
-	char	*door_tile;
+	t_anim	*anim;
 	
-	if (in_front->face == DOOR_N_OPEN)
-		door_tile = &app->map->map[(int)in_front->intcpt.y - 1][(int)in_front->intcpt.x];
-	else if (in_front->face == DOOR_S_OPEN)
-		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x];
-	else if (in_front->face == DOOR_E_OPEN)
-		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x - 1];
-	else if (in_front->face == DOOR_W_OPEN)
-		door_tile = &app->map->map[(int)in_front->intcpt.y][(int)in_front->intcpt.x];
-	else
-		return ;
-	*door_tile = 'D';
+	app->map->map[crosshair->maptile.y][crosshair->maptile.x] = 'D';
+	anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+	anim->active = 1;
+	anim->framestart = app->framecount;
 }
 
-void	handle_open_door(t_info *app)
+void	handle_open_door(t_info *app, t_ray *crosshair)
 {
-	t_ray	*crosshair;
-	char	*door_tile;
+	// t_ray	*crosshair;
+	t_anim	*anim;
+	char	*doortile;
 
-	crosshair = &app->player->rays[WIN_WIDTH / 2];
+	// crosshair = app->player->rays[WIN_WIDTH / 2].in_front;
 	if (crosshair->distance < 1.0)
 	{
-		if (crosshair->face == DOOR_N)
-			door_tile = &app->map->map[(int)crosshair->intcpt.y - 1][(int)crosshair->intcpt.x];
-		else if (crosshair->face == DOOR_S)
-			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x];
-		else if (crosshair->face == DOOR_E)
-			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x - 1];
-		else if (crosshair->face == DOOR_W)
-			door_tile = &app->map->map[(int)crosshair->intcpt.y][(int)crosshair->intcpt.x];
+		doortile = &app->map->map[crosshair->maptile.y][crosshair->maptile.x];
+		anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+		if (*doortile == 'D')
+			*doortile = 'O';
+		else if (*doortile == 'O')
+			*doortile = 'D';
 		else
 			return ;
-		*door_tile = 'O';
+		anim->active = 1;
+		anim->framestart = app->framecount;
 	}
-	if (crosshair->in_front != NULL && crosshair->in_front->distance < 1.0)
-		handle_close_door(app, crosshair->in_front);
+	if (crosshair->in_front != NULL)
+		handle_open_door(app, crosshair->in_front);
 }

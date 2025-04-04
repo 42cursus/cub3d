@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 19:26:18 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:56:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ int key_win(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == KEY_E)
-		handle_open_door(app);
+		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	if (key == NUM_5 || key == ESC)
 	{

@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 17:21:13 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/27 19:22:59 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 21:29:11 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,43 @@ void	print_pixel_arr(int width, int height, unsigned int **arr)
 	}
 }
 
+t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
+{
+	size_t		frames;
+	t_texarr	*tex;
+
+	frames = app->framecount - anim->framestart;
+	if (frames > 19)
+	{
+		anim->active = 0;
+		tex = &app->map->door_tex[1];
+	}
+	else
+		tex = &app->map->door_tex[2 + (frames / 4)];
+	return (tex);
+}
+
+t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
+{
+	size_t		frames;
+	t_texarr	*tex;
+
+	frames = app->framecount - anim->framestart;
+	if (frames > 19)
+	{
+		anim->active = 0;
+		tex = &app->map->door_tex[0];
+	}
+	else
+		tex = &app->map->door_tex[2 + (4 - (frames / 4))];
+	return (tex);
+}
+
 void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 {
 	int				pos;
 	t_texarr		*texture;
+	t_anim			*anim;
 	int				y;
 	int				top;
 	int				h_index;
@@ -141,14 +174,22 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	}
 	else if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
-		texture = &app->map->door_tex[0];
+		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
+		if (anim->active == 1)
+			texture = get_close_door_tex(anim, app);
+		else
+			texture = &app->map->door_tex[0];
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 		if (pos == 0.0)
 			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
-		texture = &app->map->door_tex[1];
+		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
+		if (anim->active == 1)
+			texture = get_open_door_tex(anim, app);
+		else
+			texture = &app->map->door_tex[1];
 		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
 		if (pos == 0.0)
 			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);

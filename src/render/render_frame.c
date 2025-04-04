@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 18:25:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:55:39 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ int	render_next_frame(void *param)
 	while (get_time_ms() - app->last_frame < 20)
 		usleep(200);
 	app->last_frame = get_time_ms();
+	app->framecount++;
 	on_expose(app);
 	return (0);
 }

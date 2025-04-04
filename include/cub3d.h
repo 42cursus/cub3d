@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 18:15:55 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:55:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "mlx.h"
 # include "mlx_int.h"
 # include <math.h>
+#include <sys/types.h>
 
 # define NUM_5 0x35 /* (53) Number 5 on the main keyboard */
 # define ESC 0xFF1B /* (53) Number 5 on the main keyboard */
@@ -32,6 +33,12 @@
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
 
+typedef struct s_animation
+{
+	int		active;
+	size_t	framestart;
+}	t_anim;
+
 typedef struct s_imgdata
 {
 	void	*img;
@@ -43,15 +50,22 @@ typedef struct s_imgdata
 	int		endian;
 }	t_imgdata;
 
-typedef struct s_vect
+typedef struct s_fvect
 {
 	double	x;
 	double	y;
+}	t_fvect;
+
+typedef struct s_vect
+{
+	int	x;
+	int	y;
 }	t_vect;
 
 typedef struct s_ray
 {
-	t_vect			intcpt;
+	t_fvect			intcpt;
+	t_vect			maptile;
 	int				face;
 	double			distance;
 	struct s_ray	*in_front;
@@ -70,14 +84,15 @@ typedef	struct s_data
 	t_texarr	s_tex;
 	t_texarr	e_tex;
 	t_texarr	w_tex;
-	t_texarr	door_tex[2];
+	t_texarr	door_tex[7];
 	t_texarr	cannon_tex;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
 	int			c_col;
 	char		**map;
-	t_vect		starting_pos;
+	t_anim		**anims;
+	t_fvect		starting_pos;
 	char		starting_dir;
 	int			height;
 	int			width;
@@ -85,8 +100,8 @@ typedef	struct s_data
 
 typedef struct s_player
 {
-	t_vect	pos;
-	t_vect	direction;
+	t_fvect	pos;
+	t_fvect	direction;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
@@ -129,6 +144,7 @@ typedef struct s_info
 	t_data		*map;
 	t_player	*player;
 	size_t		last_frame;
+	size_t		framecount;
 }	t_info;
 
 int		check_endianness(void);
@@ -148,18 +164,18 @@ void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
 
 t_player	*init_player(t_data *map);
-void		move_player(t_player *player, char **map, t_vect dir);
+void		move_player(t_player *player, char **map, t_fvect dir);
 void		rotate_player(t_player *player, int direction);
-void	handle_open_door(t_info *app);
+void	handle_open_door(t_info *app, t_ray *ray);
 
-char	get_max_direction(t_vect vect);
-t_vect	scale_vect(t_vect vect, double scalar);
-t_vect	rotate_vect(t_vect vect, double angle);
-void	rotate_vect_inplace(t_vect *vect, double angle);
+char	get_max_direction(t_fvect vect);
+t_fvect	scale_vect(t_fvect vect, double scalar);
+t_fvect	rotate_vect(t_fvect vect, double angle);
+void	rotate_vect_inplace(t_fvect *vect, double angle);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
-int		determine_face(t_vect intersect);
+int		determine_face(t_fvect intersect);
 void	free_ray_children(t_ray *ray);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
@@ -170,5 +186,7 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
 void	draw_mmap(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
+size_t	get_time_ms(void);
 
 #endif //CUB3D_H
+

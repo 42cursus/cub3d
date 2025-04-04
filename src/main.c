@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 18:14:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:55:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ int	main(int argc, char **argv)
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
 	// mlx_key_hook(app->root, &key_win, app);
-	// replace_image(app);
+	app->last_frame = get_time_ms();
+	app->framecount = 0;
 	mlx_loop(app->mlx);
 	// printf("\e[?25h");
 	cleanup(app);

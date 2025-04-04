@@ -6,22 +6,22 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 14:53:49 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/13 16:04:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 20:34:40 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
 
-t_vect	scale_vect(t_vect vect, double scalar)
+t_fvect	scale_vect(t_fvect vect, double scalar)
 {
-	t_vect	out;
+	t_fvect	out;
 
 	out.x = vect.x * scalar;
 	out.y = vect.y * scalar;
 	return (out);
 }
 
-void	rotate_vect_inplace(t_vect *vect, double angle)
+void	rotate_vect_inplace(t_fvect *vect, double angle)
 {
 	double	temp_x;
 	double	temp_y;
@@ -32,16 +32,16 @@ void	rotate_vect_inplace(t_vect *vect, double angle)
 	vect->y = temp_y;
 }
 
-t_vect	rotate_vect(t_vect vect, double angle)
+t_fvect	rotate_vect(t_fvect vect, double angle)
 {
-	t_vect	out;
+	t_fvect	out;
 
 	out = vect;
 	rotate_vect_inplace(&out, angle);
 	return (out);
 }
 
-char	get_max_direction(t_vect vect)
+char	get_max_direction(t_fvect vect)
 {
 	double	absx;
 	double	absy;

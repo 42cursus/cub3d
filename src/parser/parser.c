@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/28 14:58:35 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:46:21 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,6 +444,18 @@ int	all_fields_parsed(t_data *data)
 	return (1);
 }
 
+t_anim	**create_anim_arr(int x, int y)
+{
+	t_anim	**arr;
+	int		i;
+
+	arr = ft_calloc(y + 1, sizeof(t_anim *));
+	i = 0;
+	while (i < y)
+		arr[i++] = ft_calloc(x, sizeof(t_anim));
+	return (arr);
+}
+
 int	parse_cub(t_info *app, int fd)
 {
 	t_list	*file;
@@ -474,10 +486,16 @@ int	parse_cub(t_info *app, int fd)
 	// print_map(data);
 	// exit(0);
 	data->minimap = build_mmap(app, tiles);
-	data->door_tex[0].img = img_to_arr((char *)"./textures/metroid_door2.xpm", app, &data->door_tex[0].x, &data->door_tex[0].y);
+	data->door_tex[0].img = img_to_arr((char *)"./textures/metroid_door3.xpm", app, &data->door_tex[0].x, &data->door_tex[0].y);
 	data->door_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &data->door_tex[1].x, &data->door_tex[1].y);
+	data->door_tex[2].img = img_to_arr((char *)"./textures/metroid_door_anim1.xpm", app, &data->door_tex[2].x, &data->door_tex[2].y);
+	data->door_tex[3].img = img_to_arr((char *)"./textures/metroid_door_anim2.xpm", app, &data->door_tex[3].x, &data->door_tex[3].y);
+	data->door_tex[4].img = img_to_arr((char *)"./textures/metroid_door_anim3.xpm", app, &data->door_tex[4].x, &data->door_tex[4].y);
+	data->door_tex[5].img = img_to_arr((char *)"./textures/metroid_door_anim4.xpm", app, &data->door_tex[5].x, &data->door_tex[5].y);
+	data->door_tex[6].img = img_to_arr((char *)"./textures/metroid_door_anim5.xpm", app, &data->door_tex[6].x, &data->door_tex[6].y);
 	data->cannon_tex.img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex.x, &data->cannon_tex.y);
 	free_map_textures(app, tiles);
+	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
 }
 
@@ -507,13 +525,17 @@ void	free_tex_arr(t_texarr *texture)
 
 void	free_map(t_data *data)
 {
+	int	i;
+
 	free_tex_arr(&data->n_tex);
 	free_tex_arr(&data->s_tex);
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
-	free_tex_arr(&data->door_tex[0]);
-	free_tex_arr(&data->door_tex[1]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&data->door_tex[i++]);
 	free_tex_arr(&data->cannon_tex);
 	free_split(data->map);
+	free_split((char **)data->anims);
 	free(data);
 }
