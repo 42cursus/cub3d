@@ -179,6 +179,8 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 	char	*doortile;
 
 	// crosshair = app->player->rays[WIN_WIDTH / 2].in_front;
+	app->player->hud.active = 1;
+	app->player->hud.framestart = app->framecount;
 	if (crosshair->distance < 1.0)
 	{
 		doortile = &app->map->map[crosshair->maptile.y][crosshair->maptile.x];

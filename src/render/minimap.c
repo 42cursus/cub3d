@@ -173,7 +173,18 @@ void	place_weapon(t_info *app)
 	unsigned int	colour;
 
 	i = 0;
-	tex = &app->map->cannon_tex;
+	if (app->player->hud.active == 1)
+	{
+		if (app->framecount - app->player->hud.framestart < 10)
+			tex = &app->map->cannon_tex[1];
+		else
+		{
+			app->player->hud.active = 0;
+			tex = &app->map->cannon_tex[0];
+		}
+	}
+	else
+		tex = &app->map->cannon_tex[0];
 	canvas.img = app->canvas;
 	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
 	while (i < tex->y)
@@ -196,4 +207,5 @@ void	draw_mmap(t_info *app)
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
+	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

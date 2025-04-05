@@ -85,7 +85,7 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	door_tex[7];
-	t_texarr	cannon_tex;
+	t_texarr	cannon_tex[2];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -105,6 +105,7 @@ typedef struct s_player
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
+	t_anim	hud;
 }	t_player;
 
 enum

@@ -202,7 +202,9 @@ int	collect_map(t_list	*file, t_data *data)
 	}
 	if (current->next == NULL)
 		return (ft_list_destroy(&(current->next), NULL), 0);
-	ft_list_reverse_fun(current->next);
+	ft_list_reverse(&current->next);
+	// print_list(current->next);
+	// exit(0);
 	data->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
@@ -493,7 +495,8 @@ int	parse_cub(t_info *app, int fd)
 	data->door_tex[4].img = img_to_arr((char *)"./textures/metroid_door_anim3.xpm", app, &data->door_tex[4].x, &data->door_tex[4].y);
 	data->door_tex[5].img = img_to_arr((char *)"./textures/metroid_door_anim4.xpm", app, &data->door_tex[5].x, &data->door_tex[5].y);
 	data->door_tex[6].img = img_to_arr((char *)"./textures/metroid_door_anim5.xpm", app, &data->door_tex[6].x, &data->door_tex[6].y);
-	data->cannon_tex.img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex.x, &data->cannon_tex.y);
+	data->cannon_tex[0].img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex[0].x, &data->cannon_tex[0].y);
+	data->cannon_tex[1].img = img_to_arr((char *)"./textures/arm_cannon_big_firing.xpm", app, &data->cannon_tex[1].x, &data->cannon_tex[1].y);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
@@ -534,7 +537,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_tex[i++]);
-	free_tex_arr(&data->cannon_tex);
+	i = 0;
+	while (i < 2)
+		free_tex_arr(&data->cannon_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	free(data);
