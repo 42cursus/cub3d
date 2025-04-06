@@ -115,6 +115,8 @@ int key_win(KeySym key, void *param)
 	if (key == KEY_E)
 		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	if (key == KEY_X)
+		spawn_projectile(app->player, app->map);
 	if (key == NUM_5 || key == ESC)
 	{
 		exit_win(app);

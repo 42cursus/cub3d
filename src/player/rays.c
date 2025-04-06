@@ -62,7 +62,7 @@ int	get_quadrant(double angle)
 	return (-1);
 }
 
-void	add_in_front(t_ray *ray, int face)
+void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 {
 	t_ray	*in_front;
 	t_ray	*new;
@@ -70,6 +70,7 @@ void	add_in_front(t_ray *ray, int face)
 	new = ft_calloc(1, sizeof(*new));
 	new->intcpt = ray->intcpt;
 	new->face = face;
+	new->texture = texture;
 	in_front = ray->in_front;
 	ray->in_front = new;
 	new->in_front = in_front;
@@ -110,7 +111,7 @@ t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, 
 				}
 				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'O' && out.in_front == NULL)
 				// if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'O')
-					add_in_front(&out, DOOR_S_OPEN);
+					add_in_front(&out, DOOR_S_OPEN, &map->door_tex[1]);
 			}
 			i += 1.0f;
 		}
@@ -134,7 +135,7 @@ t_ray	get_horiz_boundary_intersect(t_data *map, t_player *player, double angle, 
 				}
 				if (map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == 'O' && out.in_front == NULL)
 				// if (map->map[(int)out.intcpt.y - 1][(int)out.intcpt.x] == 'O')
-					add_in_front(&out, DOOR_N_OPEN);
+					add_in_front(&out, DOOR_N_OPEN, &map->door_tex[1]);
 			}
 			i -= 1.0f;
 		}
@@ -170,7 +171,7 @@ t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, i
 				}
 				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'O' && out.in_front == NULL)
 				// if (map->map[(int)out.intcpt.y][(int)out.intcpt.x] == 'O')
-					add_in_front(&out, DOOR_W_OPEN);
+					add_in_front(&out, DOOR_W_OPEN, &map->door_tex[1]);
 			}
 			i += 1.0f;
 		}
@@ -193,7 +194,7 @@ t_ray	get_vert_boundary_intersect(t_data *map, t_player *player, double angle, i
 				}
 				if (map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == 'O' && out.in_front == NULL)
 				// if (map->map[(int)out.intcpt.y][(int)out.intcpt.x - 1] == 'O')
-					add_in_front(&out, DOOR_E_OPEN);
+					add_in_front(&out, DOOR_E_OPEN, &map->door_tex[1]);
 			}
 			i -= 1.0f;
 		}

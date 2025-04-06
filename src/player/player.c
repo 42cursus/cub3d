@@ -197,3 +197,14 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 	if (crosshair->in_front != NULL)
 		handle_open_door(app, crosshair->in_front);
 }
+
+void	spawn_projectile(t_player *player, t_data *map)
+{
+	t_object	*projectile;
+
+	projectile = ft_calloc(1, sizeof(*projectile));
+	projectile->pos = add_vect(player->pos, scale_vect(player->direction, 0.5));
+	projectile->dir = scale_vect(player->direction, 0.2);
+	projectile->texture = &map->cannon_tex[2];
+	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
+}

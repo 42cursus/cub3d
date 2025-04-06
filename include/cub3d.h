@@ -12,6 +12,7 @@
 
 #ifndef CUB3D_H
 # define CUB3D_H
+#include "ft/ft_stdlib.h"
 # include "libft.h"
 # include "mlx.h"
 # include "mlx_int.h"
@@ -29,6 +30,7 @@
 # define KEY_S 0x0073
 # define KEY_D 0x0064
 # define KEY_E 0x0065
+# define KEY_X 0x0078
 
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
@@ -62,21 +64,32 @@ typedef struct s_vect
 	int	y;
 }	t_vect;
 
-typedef struct s_ray
-{
-	t_fvect			intcpt;
-	t_vect			maptile;
-	int				face;
-	double			distance;
-	struct s_ray	*in_front;
-}	t_ray;
-
 typedef struct s_texarr
 {
 	unsigned int	**img;
 	int				x;
 	int				y;
 }	t_texarr;
+
+typedef struct s_object
+{
+	t_fvect		pos;
+	t_fvect		norm;
+	t_fvect		dir;
+	t_fvect		p2;
+	t_texarr	*texture;
+}	t_object;
+
+typedef struct s_ray
+{
+	t_fvect			intcpt;
+	t_vect			maptile;
+	int				face;
+	t_texarr		*texture;
+	double			pos;
+	double			distance;
+	struct s_ray	*in_front;
+}	t_ray;
 
 typedef	struct s_data
 {
@@ -85,13 +98,15 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	door_tex[7];
-	t_texarr	cannon_tex[2];
+	t_texarr	cannon_tex[3];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
 	int			c_col;
 	char		**map;
 	t_anim		**anims;
+	t_list		*objects;
+	t_object	testobj;
 	t_fvect		starting_pos;
 	char		starting_dir;
 	int			height;
@@ -168,11 +183,14 @@ t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_fvect dir);
 void		rotate_player(t_player *player, int direction);
 void	handle_open_door(t_info *app, t_ray *ray);
+void	spawn_projectile(t_player *player, t_data *map);
 
 char	get_max_direction(t_fvect vect);
 t_fvect	scale_vect(t_fvect vect, double scalar);
 t_fvect	rotate_vect(t_fvect vect, double angle);
 void	rotate_vect_inplace(t_fvect *vect, double angle);
+t_fvect	add_vect(t_fvect v1, t_fvect v2);
+double	vector_distance(t_fvect v1, t_fvect v2);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
