@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/25 20:15:33 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:10:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	ssize_t	j;
 	char	**map;
 	char	player_char;
-	t_vect	intercept;
+	t_fvect	intercept;
 	int		face;
 
 	map = data->map;
@@ -118,7 +118,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	}
 }
 
-void	move_player(t_player *player, char **map, t_vect dir)
+void	move_player(t_player *player, char **map, t_fvect dir)
 {
 	double	new_x;
 	double	new_y;
@@ -126,36 +126,30 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	char	y_tile;
 	char	both_tile;
 
-	// new_x = player->pos.x + dir.x;
-	// new_y = player->pos.y + dir.y;
 	new_x = player->pos.x + (dir.x * 0.1);
 	new_y = player->pos.y + (dir.y * 0.1);
 	x_tile = map[(int)player->pos.y][(int)new_x];
 	y_tile = map[(int)new_y][(int)player->pos.x];
 	both_tile = map[(int)new_y][(int)new_x];
-	// printf("(%f, %f)\n", new_x, new_y);
-	// printf("(%f, %f)\n", dir.x, dir.y);
-	// printf("x: %c\ty: %c\tboth: %c\n", x_tile, y_tile, both_tile);
-	// exit(0);
-	if (both_tile == '0')
+	if (both_tile == '0' || both_tile == 'O')
 	{
-		if (x_tile == '0')
+		if (x_tile == '0' || x_tile == 'O')
 			player->pos.x = new_x;
-		if (y_tile == '0')
+		if (y_tile == '0' || y_tile == 'O')
 			player->pos.y = new_y;
 	}
 	else
 	{
-		if (x_tile == '0' && y_tile == '0')
+		if ((x_tile == '0' || x_tile == 'O') && (y_tile == '0' || y_tile == 'O'))
 		{
 			if (get_max_direction(dir) == 'x')
 				player->pos.x = new_x;
 			else
 				player->pos.y = new_y;
 		}
-		else if (x_tile == '0')
+		else if (x_tile == '0' || x_tile == 'O')
 			player->pos.x = new_x;
-		else if (y_tile == '0')
+		else if (y_tile == '0' || y_tile == 'O')
 			player->pos.y = new_y;
 	}
 }
@@ -166,4 +160,40 @@ void	rotate_player(t_player *player, int direction)
 		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
 	else
 		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
+}
+
+void	handle_close_door(t_info *app, t_ray *crosshair)
+{
+	t_anim	*anim;
+	
+	app->map->map[crosshair->maptile.y][crosshair->maptile.x] = 'D';
+	anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+	anim->active = 1;
+	anim->framestart = app->framecount;
+}
+
+void	handle_open_door(t_info *app, t_ray *crosshair)
+{
+	// t_ray	*crosshair;
+	t_anim	*anim;
+	char	*doortile;
+
+	// crosshair = app->player->rays[WIN_WIDTH / 2].in_front;
+	app->player->hud.active = 1;
+	app->player->hud.framestart = app->framecount;
+	if (crosshair->distance < 1.0)
+	{
+		doortile = &app->map->map[crosshair->maptile.y][crosshair->maptile.x];
+		anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+		if (*doortile == 'D')
+			*doortile = 'O';
+		else if (*doortile == 'O')
+			*doortile = 'D';
+		else
+			return ;
+		anim->active = 1;
+		anim->framestart = app->framecount;
+	}
+	if (crosshair->in_front != NULL)
+		handle_open_door(app, crosshair->in_front);
 }

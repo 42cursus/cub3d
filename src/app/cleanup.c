@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:42:14 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/13 18:25:54 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:47:25 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,20 +21,7 @@ int	cleanup(t_info *app)
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);
 	free_map(app->map);
-	// for (int i = 0; i < WIN_WIDTH; i++)
-	// {
-	// 	char	face_char;
-	//
-	// 	if (app->player->rays[i].face == NORTH)
-	// 		face_char = 'N';
-	// 	else if (app->player->rays[i].face == SOUTH)
-	// 		face_char = 'S';
-	// 	else if (app->player->rays[i].face == EAST)
-	// 		face_char = 'E';
-	// 	else
-	// 		face_char = 'W';
-	// 	dprintf(2, "(%f, %f) %c dist: %f\n", app->player->rays[i].intcpt.x, app->player->rays[i].intcpt.y, face_char, app->player->rays[i].distance);
-	// }
+	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	free(app->player);
 	return (0);
 }

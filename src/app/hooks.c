@@ -6,12 +6,14 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/28 17:22:07 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:56:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
 #include <X11/X.h>
+
+void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_image(t_info *app)
 {
@@ -28,7 +30,8 @@ void replace_image(t_info *app)
 	im3.width = WIN_WIDTH;
 	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
 	fill_bg(&im3, app->map);
-	cast_all_rays(app->map, app->player);
+	// cast_all_rays(app->map, app->player);
+	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &im3);
 	mlx_destroy_image(app->mlx, app->canvas);
 	app->canvas = im3.img;
@@ -109,6 +112,9 @@ int key_win(KeySym key, void *param)
 {
 	t_info *const app = param;
 
+	if (key == KEY_E)
+		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	if (key == NUM_5 || key == ESC)
 	{
 		exit_win(app);
@@ -129,8 +135,8 @@ int key_win(KeySym key, void *param)
 		rotate_player(app->player, 1);
 	else if (key == LEFT)
 		rotate_player(app->player, 0);
-	replace_image(app);
-	on_expose(app);
+	// replace_image(app);
+	// on_expose(app);
 	// expose_win(app);
 	return (0);
 }

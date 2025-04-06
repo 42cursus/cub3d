@@ -6,12 +6,14 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/27 18:14:26 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:55:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stdlib.h>
 #include "../include/cub3d.h"
+
+int	render_next_frame(void *param);
 
 int	main(int argc, char **argv)
 {
@@ -36,13 +38,15 @@ int	main(int argc, char **argv)
 							   app->win.height, app->title);
 	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_mouse_hook(app->root, &mouse_win, app);
+	mlx_loop_hook(app->mlx, &render_next_frame, app);
 	mlx_hook(app->root, DestroyNotify, 0, &exit_win, app);
 	mlx_keypress_hook(app->root, &key_win, app);
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
 	// mlx_key_hook(app->root, &key_win, app);
-	// replace_image(app);
+	app->last_frame = get_time_ms();
+	app->framecount = 0;
 	mlx_loop(app->mlx);
 	// printf("\e[?25h");
 	cleanup(app);
