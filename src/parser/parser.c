@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 22:46:21 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/06 21:30:18 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -497,7 +497,7 @@ int	parse_cub(t_info *app, int fd)
 	data->door_tex[6].img = img_to_arr((char *)"./textures/metroid_door_anim5.xpm", app, &data->door_tex[6].x, &data->door_tex[6].y);
 	data->cannon_tex[0].img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex[0].x, &data->cannon_tex[0].y);
 	data->cannon_tex[1].img = img_to_arr((char *)"./textures/arm_cannon_big_firing.xpm", app, &data->cannon_tex[1].x, &data->cannon_tex[1].y);
-	data->cannon_tex[2].img = img_to_arr((char *)"./textures/projectile.xpm", app, &data->cannon_tex[2].x, &data->cannon_tex[2].y);
+	data->cannon_tex[2].img = img_to_arr((char *)"./textures/projectile2.xpm", app, &data->cannon_tex[2].x, &data->cannon_tex[2].y);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
@@ -543,5 +543,6 @@ void	free_map(t_data *data)
 		free_tex_arr(&data->cannon_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
+	ft_lstclear(&data->objects, free);
 	free(data);
 }
