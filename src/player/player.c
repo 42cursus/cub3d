@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 22:10:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/06 20:53:56 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,13 +198,15 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 		handle_open_door(app, crosshair->in_front);
 }
 
-void	spawn_projectile(t_player *player, t_data *map)
+void	spawn_projectile(t_info *app, t_player *player, t_data *map)
 {
 	t_object	*projectile;
 
+	player->hud.active = 1;
+	player->hud.framestart = app->framecount;
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->pos = add_vect(player->pos, scale_vect(player->direction, 0.5));
-	projectile->dir = scale_vect(player->direction, 0.2);
+	projectile->dir = scale_vect(player->direction, 0.4);
 	projectile->texture = &map->cannon_tex[2];
 	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
 }

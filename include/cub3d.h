@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 22:55:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/06 20:49:24 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_fvect dir);
 void		rotate_player(t_player *player, int direction);
 void	handle_open_door(t_info *app, t_ray *ray);
-void	spawn_projectile(t_player *player, t_data *map);
+void	spawn_projectile(t_info *app, t_player *player, t_data *map);
 
 char	get_max_direction(t_fvect vect);
 t_fvect	scale_vect(t_fvect vect, double scalar);

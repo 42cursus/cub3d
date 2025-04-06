@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/28 18:42:54 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/06 20:53:32 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,7 +175,7 @@ void	place_weapon(t_info *app)
 	i = 0;
 	if (app->player->hud.active == 1)
 	{
-		if (app->framecount - app->player->hud.framestart < 10)
+		if (app->framecount - app->player->hud.framestart < 6)
 			tex = &app->map->cannon_tex[1];
 		else
 		{
