@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/12 19:53:43 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/04 22:46:21 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEW", line[i++]))
+		if (!ft_strchr(" \t01NSEWD", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -202,7 +202,9 @@ int	collect_map(t_list	*file, t_data *data)
 	}
 	if (current->next == NULL)
 		return (ft_list_destroy(&(current->next), NULL), 0);
-	ft_list_reverse_fun(current->next);
+	ft_list_reverse(&current->next);
+	// print_list(current->next);
+	// exit(0);
 	data->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
@@ -217,28 +219,28 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j]))
+	if (!ft_strchr("NESW01D", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i][j - 1]))
+	if (!ft_strchr("NESW01D", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i][j + 1]))
+	if (!ft_strchr("NESW01D", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j]))
+	if (!ft_strchr("NESW01D", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01D", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01D", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01D", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01D", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
 
 int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 {
-	if ((data->map)[i][j] != '0')
+	if ((data->map)[i][j] != '0' && (data->map)[i][j] != 'D')
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
@@ -264,7 +266,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWS", map[i][j]))
+			if (ft_strchr("0NEWSD", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -335,7 +337,7 @@ int	get_col(char *str)
 	char	*endptr;
 	long	num;
 
-	num = ft_strtol(str, &endptr, 10);
+	num = ft_strtol(str, &endptr, 0);
 	if (num > 255 || num < 0)
 		return (-1);
 	if (*endptr != 0)
@@ -384,27 +386,27 @@ int	parse_colour(t_data *map, char *str, int identifier)
 	return (0);
 }
 
-int	parse_texture(t_data *data, char *str, int identifier)
+int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 {
-	char	**pathaddr;
+	t_texarr	*tex_addr;
 
 	if (identifier == NORTH)
-		pathaddr = &data->n_path;
+		tex_addr = &data->n_tex;
 	else if (identifier == SOUTH)
-		pathaddr = &data->s_path;
+		tex_addr = &data->s_tex;
 	else if (identifier == EAST)
-		pathaddr = &data->e_path;
+		tex_addr = &data->e_tex;
 	else if (identifier == WEST)
-		pathaddr = &data->w_path;
+		tex_addr = &data->w_tex;
 	else
 		return (1);
-	if (*pathaddr != NULL)
+	if (tex_addr->img != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
-	*pathaddr = ft_strdup(str);
+	tex_addr->img = img_to_arr(str, app, &tex_addr->x, &tex_addr->y);
 	return (0);
 }
 
-int	parse_line(t_data *data, char *line)
+int	parse_line(t_data *data, char *line, t_info *app)
 {
 	char	**split;
 	size_t	words;
@@ -423,19 +425,19 @@ int	parse_line(t_data *data, char *line)
 	else if (identifier < 3)
 		retval = parse_colour(data, split[1], identifier);
 	else
-		retval = parse_texture(data, split[1], identifier);
+		retval = parse_texture(data, split[1], identifier, app);
 	return (free_split(split), retval);
 }
 
 int	all_fields_parsed(t_data *data)
 {
-	if (data->n_path == NULL)
+	if (data->n_tex.img == NULL)
 		return (0);
-	if (data->s_path == NULL)
+	if (data->s_tex.img == NULL)
 		return (0);
-	if (data->e_path == NULL)
+	if (data->e_tex.img == NULL)
 		return (0);
-	if (data->w_path == NULL)
+	if (data->w_tex.img == NULL)
 		return (0);
 	if (data->f_col == -1)
 		return (0);
@@ -444,11 +446,27 @@ int	all_fields_parsed(t_data *data)
 	return (1);
 }
 
-int	parse_cub(t_data *data, int fd)
+t_anim	**create_anim_arr(int x, int y)
+{
+	t_anim	**arr;
+	int		i;
+
+	arr = ft_calloc(y + 1, sizeof(t_anim *));
+	i = 0;
+	while (i < y)
+		arr[i++] = ft_calloc(x, sizeof(t_anim));
+	return (arr);
+}
+
+int	parse_cub(t_info *app, int fd)
 {
 	t_list	*file;
 	t_list	*current;
+	t_data	*data;
+	void	*tiles[16];
 
+	data = app->map;
+	load_map_textures(app, tiles);
 	file = read_cub(fd);
 	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
@@ -459,7 +477,7 @@ int	parse_cub(t_data *data, int fd)
 	current = file;
 	while (current != NULL)
 	{
-		if (parse_line(data, current->data))
+		if (parse_line(data, current->data, app))
 			return (ft_printf("%s\n", current->data),
 				ft_list_destroy(&file, free), 1);
 		current = current->next;
@@ -467,29 +485,62 @@ int	parse_cub(t_data *data, int fd)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
+	// print_map(data);
+	// exit(0);
+	data->minimap = build_mmap(app, tiles);
+	data->door_tex[0].img = img_to_arr((char *)"./textures/metroid_door3.xpm", app, &data->door_tex[0].x, &data->door_tex[0].y);
+	data->door_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &data->door_tex[1].x, &data->door_tex[1].y);
+	data->door_tex[2].img = img_to_arr((char *)"./textures/metroid_door_anim1.xpm", app, &data->door_tex[2].x, &data->door_tex[2].y);
+	data->door_tex[3].img = img_to_arr((char *)"./textures/metroid_door_anim2.xpm", app, &data->door_tex[3].x, &data->door_tex[3].y);
+	data->door_tex[4].img = img_to_arr((char *)"./textures/metroid_door_anim3.xpm", app, &data->door_tex[4].x, &data->door_tex[4].y);
+	data->door_tex[5].img = img_to_arr((char *)"./textures/metroid_door_anim4.xpm", app, &data->door_tex[5].x, &data->door_tex[5].y);
+	data->door_tex[6].img = img_to_arr((char *)"./textures/metroid_door_anim5.xpm", app, &data->door_tex[6].x, &data->door_tex[6].y);
+	data->cannon_tex[0].img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex[0].x, &data->cannon_tex[0].y);
+	data->cannon_tex[1].img = img_to_arr((char *)"./textures/arm_cannon_big_firing.xpm", app, &data->cannon_tex[1].x, &data->cannon_tex[1].y);
+	free_map_textures(app, tiles);
+	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
 }
 
-void	print_t_map(t_data *data)
+// void	print_t_map(t_data *data)
+// {
+// 	printf("n_path:\t%s\n", data->n_path);
+// 	printf("s_path:\t%s\n", data->s_path);
+// 	printf("e_path:\t%s\n", data->e_path);
+// 	printf("w_path:\t%s\n", data->w_path);
+// 	printf("f_col:\t%#.6X\n", data->f_col);
+// 	printf("c_col:\t%#.6X\n", data->c_col);
+// 	printf("map dimensions:\t%d x %d\n", data->width, data->height);
+// 	printf("map:\n");
+// 	print_map(data);
+// 	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
+// }
+
+void	free_tex_arr(t_texarr *texture)
 {
-	printf("n_path:\t%s\n", data->n_path);
-	printf("s_path:\t%s\n", data->s_path);
-	printf("e_path:\t%s\n", data->e_path);
-	printf("w_path:\t%s\n", data->w_path);
-	printf("f_col:\t%#.6X\n", data->f_col);
-	printf("c_col:\t%#.6X\n", data->c_col);
-	printf("map dimensions:\t%d x %d\n", data->width, data->height);
-	printf("map:\n");
-	print_map(data);
-	printf("starting_pos:\t(%f, %f)\n", data->starting_pos.x, data->starting_pos.y);
+	int	i;
+
+	i = 0;
+	while (i < texture->y)
+		free(texture->img[i++]);
+	free(texture->img);
 }
 
 void	free_map(t_data *data)
 {
-	free(data->n_path);
-	free(data->s_path);
-	free(data->e_path);
-	free(data->w_path);
+	int	i;
+
+	free_tex_arr(&data->n_tex);
+	free_tex_arr(&data->s_tex);
+	free_tex_arr(&data->e_tex);
+	free_tex_arr(&data->w_tex);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&data->door_tex[i++]);
+	i = 0;
+	while (i < 2)
+		free_tex_arr(&data->cannon_tex[i++]);
 	free_split(data->map);
+	free_split((char **)data->anims);
 	free(data);
 }

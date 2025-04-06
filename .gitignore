@@ -13,10 +13,12 @@
 cub3d
 hello
 world
+log.txt
 resources/
 gdb.txt
 scratch/
 cmake_build
+gmon.out
 
 #for test
 !tester/minitest.sh

@@ -6,11 +6,11 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:25:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/10 22:25:06 by abelov           ###   ########.fr       */
+/*   Updated: 2025/03/28 17:28:28 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "../../include/cub3d.h"
 
 /**
  * The XSync function flushes the output buffer and then waits until
@@ -27,5 +27,6 @@ void on_expose(t_info *app)
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas, app->clip_x_origin,
 							app->clip_y_origin);
-	print_ascii_mmap(app->map, app->player);
+	draw_mmap(app);
+	// print_ascii_mmap(app->map, app->player);
 }

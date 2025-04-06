@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/03/11 13:31:06 by abelov           ###   ########.fr        #
+#    Updated: 2025/03/27 18:12:16 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,10 @@ INC_DIR			=  ./include
 CC				:= cc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O0
-DEBUG_FLAGS		:= -g3 -gdwarf-3 -fsanitize=address -fsanitize=undefined
+DEBUG_FLAGS		:= -g3 -gdwarf-3 \
+				   -fsanitize=address -fsanitize=undefined \
+				   # -pg \
+
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
@@ -35,7 +38,7 @@ LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app player
+SUB_DIRS		= parser utils app player render
 CUB_SRCS		:=
 
 ifndef VERBOSE
