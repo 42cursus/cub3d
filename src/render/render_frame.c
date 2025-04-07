@@ -76,11 +76,45 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
+enum e_idx
+{
+	idx_XK_a = 0,
+	idx_XK_d,
+	idx_XK_e,
+	idx_XK_s,
+	idx_XK_w,
+	idx_XK_x,
+	idx_XK_Left,
+	idx_XK_Up,
+	idx_XK_Right,
+	idx_XK_Down,
+};
+
 int	render_next_frame(void *param)
 {
-	t_info	*app;
+	t_info *const app = param;
 
-	app = param;
+	if (app->keys[idx_XK_e])
+		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	if (app->keys[idx_XK_x])
+		spawn_projectile(app, app->player, app->map);
+	if (app->keys[idx_XK_w])
+		move_player(app->player, app->map->map, app->player->direction);
+	if (app->keys[idx_XK_s])
+		move_player(app->player, app->map->map,
+					rotate_vect(app->player->direction, M_PI));
+	if (app->keys[idx_XK_a])
+		move_player(app->player, app->map->map,
+					rotate_vect(app->player->direction, M_PI_2));
+	if (app->keys[idx_XK_d])
+		move_player(app->player, app->map->map,
+					rotate_vect(app->player->direction, -M_PI_2));
+	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
+		rotate_player(app->player, 1);
+	if (app->keys[idx_XK_Left])
+		rotate_player(app->player, 0);
+
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_image(app);

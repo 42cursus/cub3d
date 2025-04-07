@@ -39,8 +39,8 @@ int	main(int argc, char **argv)
 	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_mouse_hook(app->root, &mouse_win, app);
 	mlx_loop_hook(app->mlx, &render_next_frame, app);
-	mlx_hook(app->root, DestroyNotify, 0, &exit_win, app);
-	mlx_keypress_hook(app->root, &key_win, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press, app);
+	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
