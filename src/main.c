@@ -44,6 +44,9 @@ int	main(int argc, char **argv)
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
+	// app->map->testobj.pos = app->player->pos;
+	// app->map->testobj.pos.y += 2;
+	// app->map->testobj.texture = &app->map->cannon_tex[2];
 	// mlx_key_hook(app->root, &key_win, app);
 	app->last_frame = get_time_ms();
 	app->framecount = 0;

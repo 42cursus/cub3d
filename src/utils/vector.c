@@ -41,6 +41,24 @@ t_fvect	rotate_vect(t_fvect vect, double angle)
 	return (out);
 }
 
+t_fvect	add_vect(t_fvect v1, t_fvect v2)
+{
+	t_fvect	out;
+
+	out.x = v1.x + v2.x;
+	out.y = v1.y + v2.y;
+	return (out);
+}
+
+double	vector_distance(t_fvect v1, t_fvect v2)
+{
+	t_fvect	diff;
+
+	diff.x = v2.x - v1.x;
+	diff.y = v2.y - v1.y;
+	return (sqrt(diff.x * diff.x + diff.y * diff.y));
+}
+
 char	get_max_direction(t_fvect vect)
 {
 	double	absx;

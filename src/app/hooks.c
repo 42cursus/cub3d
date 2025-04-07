@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 22:56:07 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/06 20:50:04 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,6 +115,8 @@ int key_win(KeySym key, void *param)
 	if (key == KEY_E)
 		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	if (key == KEY_X)
+		spawn_projectile(app, app->player, app->map);
 	if (key == NUM_5 || key == ESC)
 	{
 		exit_win(app);

@@ -18,7 +18,11 @@ double	get_y_intercept(t_fvect pos, double gradient);
 t_fvect	get_vertical_int(double x, double gradient, double c);
 t_fvect	get_horizontal_int(double y, double gradient, double c);
 double	get_cam_distance(t_fvect pos, double angle, t_fvect intcpt);
-void	add_in_front(t_ray *ray, int face);
+void	add_in_front(t_ray *ray, int face, t_texarr *texture);
+t_fvect	get_line_intersect(t_fvect l1p1, t_fvect l1p2, t_fvect l2p1, t_fvect l2p2);
+t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
+void	order_obj_ray(t_ray *obj, t_ray *ray);
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
 
 void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c)
 {
@@ -26,13 +30,18 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c
 
 	face_mod = ray->face % 4;
 	if (face_mod == 3 || face_mod == 0)
+	{
 		ray->intcpt = get_horizontal_int(ray->intcpt.y, gradient, c);
+		ray->pos = (int)(fmod(ray->intcpt.x, 1) * ray->texture->x);
+	}
 	else
+	{
 		ray->intcpt = get_vertical_int(ray->intcpt.x, gradient, c);
+		ray->pos = (int)(fmod(ray->intcpt.y, 1) * ray->texture->x);
+	}
 	ray->distance = get_cam_distance(player->pos, player->angle + M_PI_2, ray->intcpt);
 	if (ray->distance < 0.00001)
 		ray->distance = 0.00001;
-	// (void)player;
 }
 
 t_ray	ray_dda(t_data *map, t_player *player, double angle)
@@ -51,6 +60,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	int		normX;
 	int		normY;
 	int		faces[2];
+	t_texarr	*textures[2];
 	double	gradient;
 	double	c;
 	gradient = get_gradient_angle(player->angle + angle);
@@ -62,6 +72,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		normX = 1;
 		sideDistX = (player->pos.x - ray.intcpt.x) * deltaDistX;
 		faces[0] = EAST;
+		textures[0] = &map->e_tex;
 	}
 	else
 	{
@@ -69,6 +80,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		normX = 0;
 		sideDistX = (ray.intcpt.x + 1.0 - player->pos.x) * deltaDistX;
 		faces[0] = WEST;
+		textures[0] = &map->w_tex;
 	}
 	if (dir.y < 0)
 	{
@@ -76,6 +88,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		normY = 1;
 		sideDistY = (player->pos.y - ray.intcpt.y) * deltaDistY;
 		faces[1] = NORTH;
+		textures[1] = &map->n_tex;
 	}
 	else
 	{
@@ -83,6 +96,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		normY = 0;
 		sideDistY = (ray.intcpt.y + 1.0 - player->pos.y) * deltaDistY;
 		faces[1] = SOUTH;
+		textures[1] = &map->s_tex;
 	}
 	while (1)
 	{
@@ -91,23 +105,23 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 			sideDistX += deltaDistX;
 			ray.intcpt.x += stepX;
 			ray.face = faces[0];
-			// ray.distance = sideDistX - deltaDistX;
+			ray.texture = textures[0];
 		}
 		else
 		{
 			sideDistY += deltaDistY;
 			ray.intcpt.y += stepY;
 			ray.face = faces[1];
-			// ray.distance = sideDistY - deltaDistY;
+			ray.texture = textures[1];
 		}
 		if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == '1')
 			break ;
 		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'D')
 		{
 			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
-				add_in_front(&ray, ray.face + 8);
+				add_in_front(&ray, ray.face + 8, &map->door_tex[1]);
 			else
-				add_in_front(&ray, ray.face + 4);
+				add_in_front(&ray, ray.face + 4, &map->door_tex[0]);
 			ray.in_front->maptile.x = (int)ray.intcpt.x;
 			ray.in_front->maptile.y = (int)ray.intcpt.y;
 			ray.in_front->intcpt.x += normX;
@@ -120,5 +134,94 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	ray.intcpt.x += normX;
 	ray.intcpt.y += normY;
 	calculate_ray_stuff(&ray, player, gradient, c);
+	calc_object_collisions(map, player, &ray);
 	return (ray);
+}
+
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
+{
+	t_list	*current;
+
+	current = map->objects;
+	while (current != NULL)
+	{
+		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
+		current = current->next;
+	}
+}
+
+t_fvect	get_line_intersect(t_fvect l1p1, t_fvect l1p2, t_fvect l2p1, t_fvect l2p2)
+{
+	t_fvect	intersect;
+	double	numerator;
+	double	denominator;
+
+	numerator = ((l1p1.x * l1p2.y - l1p1.y * l1p2.x) * (l2p1.x - l2p2.x))
+				- ((l1p1.x - l1p2.x) * (l2p1.x * l2p2.y - l2p1.y * l2p2.x));
+
+	denominator = ((l1p1.x - l1p2.x) * (l2p1.y - l2p2.y))
+				- ((l1p1.y - l1p2.y) * (l2p1.x - l2p2.x));
+
+	intersect.x = numerator / denominator;
+	numerator = ((l1p1.x * l1p2.y - l1p1.y * l1p2.x) * (l2p1.y - l2p2.y))
+				- ((l1p1.y - l1p2.y) * (l2p1.x * l2p2.y - l2p1.y * l2p2.x));
+
+	intersect.y = numerator / denominator;
+	return (intersect);
+}
+
+// int	check_obj_behind(t_player *player, t_object *obj)
+// {
+// 	t_fvect	diff;
+//
+// 	diff.x = obj->pos.x - player->pos.x;
+// 	diff.y = obj->pos.y - player->pos.y;
+// }
+
+t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
+{
+	t_ray	*out;
+	t_fvect	intcpt;
+	double	dist;
+
+	// if (check_obj_behind(player, object))
+	// 	return (NULL);
+	intcpt = get_line_intersect(object->pos, object->p2, ray->intcpt, player->pos);
+	if (vector_distance(intcpt, ray->intcpt) > vector_distance(player->pos, ray->intcpt))
+		return (NULL);
+	dist = vector_distance(object->pos, intcpt);
+	if (dist > 0.5)
+		return (NULL);
+	// printf("pos: (%f, %f) norm: (%f, %f) p2: (%f, %f) intcpt: (%f, %f) dist: %f\n", object->pos.x, object->pos.y, object->norm.x, object->norm.y, object->p2.x, object->p2.y, intcpt.x, intcpt.y, dist);
+	out = ft_calloc(1, sizeof(*out));
+	out->intcpt = intcpt;
+	out->face = NONE;
+	out->texture = object->texture;
+	out->distance = get_cam_distance(player->pos, player->angle + M_PI_2, out->intcpt);
+	if (out->distance < 0.00001)
+		out->distance = 0.00001;
+	out->pos = (0.5 - dist) * ray->texture->x;
+	return (out);
+}
+
+void	order_obj_ray(t_ray *obj, t_ray *ray)
+{
+	t_ray	*current;
+	t_ray	*temp;
+
+	if (obj == NULL)
+		return ;
+	current = ray;
+	while (current->in_front != NULL)
+	{
+		if (current->in_front->distance < obj->distance)
+		{
+			temp = current->in_front;
+			current->in_front = obj;
+			obj->in_front = temp;
+			return ;
+		}
+		current = current->in_front;
+	}
+	current->in_front = obj;
 }

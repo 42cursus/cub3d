@@ -152,36 +152,38 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	int				h_index;
 	int				lineheight;
 
-	if (ray->face == NORTH)
-	{
-		texture = &app->map->n_tex;
-		pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	}
-	else if (ray->face == SOUTH)
-	{
-		texture = &app->map->s_tex;
-		pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	}
-	else if (ray->face == EAST)
-	{
-		texture = &app->map->e_tex;
-		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	}
-	else if (ray->face == WEST)
-	{
-		texture = &app->map->w_tex;
-		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	}
-	else if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
+	texture = ray->texture;
+	pos = ray->pos;
+	// if (ray->face == NORTH)
+	// {
+	// 	texture = &app->map->n_tex;
+	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+	// }
+	// else if (ray->face == SOUTH)
+	// {
+	// 	texture = &app->map->s_tex;
+	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+	// }
+	// else if (ray->face == EAST)
+	// {
+	// 	texture = &app->map->e_tex;
+	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+	// }
+	// else if (ray->face == WEST)
+	// {
+	// 	texture = &app->map->w_tex;
+	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+	// }
+	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			texture = get_close_door_tex(anim, app);
 		else
 			texture = &app->map->door_tex[0];
-		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		if (pos == 0.0)
-			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+		// if (pos == 0.0)
+		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
@@ -190,12 +192,12 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			texture = get_open_door_tex(anim, app);
 		else
 			texture = &app->map->door_tex[1];
-		pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		if (pos == 0.0)
-			pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
+		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
+		// if (pos == 0.0)
+		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
-	else
-		exit(0);
+	// else
+	// 	exit(0);
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
 	if (top < 0)
