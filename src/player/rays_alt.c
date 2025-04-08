@@ -14,12 +14,12 @@
 
 int		get_quadrant(double angle);
 double	get_gradient_angle(double angle);
-double	get_y_intercept(t_fvect pos, double gradient);
-t_fvect	get_vertical_int(double x, double gradient, double c);
-t_fvect	get_horizontal_int(double y, double gradient, double c);
-double	get_cam_distance(t_fvect pos, double angle, t_fvect intcpt);
+double	get_y_intercept(t_vect pos, double gradient);
+t_vect	get_vertical_int(double x, double gradient, double c);
+t_vect	get_horizontal_int(double y, double gradient, double c);
+double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
 void	add_in_front(t_ray *ray, int face, t_texarr *texture);
-t_fvect	get_line_intersect(t_fvect l1p1, t_fvect l1p2, t_fvect l2p1, t_fvect l2p2);
+t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
 void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
@@ -49,12 +49,16 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	t_ray	ray;
 	ray.intcpt.x = floor(player->pos.x);
 	ray.intcpt.y = floor(player->pos.y);
-	t_fvect	dir = rotate_vect(player->direction, angle);
+	t_vect	dir = rotate_vect(player->direction, angle);
+
+
+	double dir_x = dir.x == 0 ? __DBL_EPSILON__ : dir.x;
+	double dir_y = dir.y == 0 ? __DBL_EPSILON__ : dir.y;
 
 	double	sideDistX;
 	double	sideDistY;
-	double	deltaDistX = fabs(1.0 / dir.x);
-	double	deltaDistY = fabs(1.0 / dir.y);
+	double	deltaDistX = fabs(1.0 / dir_x);
+	double	deltaDistY = fabs(1.0 / dir_y);
 	int		stepX;
 	int		stepY;
 	int		normX;
@@ -150,9 +154,9 @@ void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
 	}
 }
 
-t_fvect	get_line_intersect(t_fvect l1p1, t_fvect l1p2, t_fvect l2p1, t_fvect l2p2)
+t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 {
-	t_fvect	intersect;
+	t_vect	intersect;
 	double	numerator;
 	double	denominator;
 
@@ -181,18 +185,15 @@ t_fvect	get_line_intersect(t_fvect l1p1, t_fvect l1p2, t_fvect l2p1, t_fvect l2p
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 {
 	t_ray	*out;
-	t_fvect	intcpt;
+	t_vect	intcpt;
 	double	dist;
 
-	// if (check_obj_behind(player, object))
-	// 	return (NULL);
 	intcpt = get_line_intersect(object->pos, object->p2, ray->intcpt, player->pos);
 	if (vector_distance(intcpt, ray->intcpt) > vector_distance(player->pos, ray->intcpt))
 		return (NULL);
 	dist = vector_distance(object->pos, intcpt);
 	if (dist > 0.5)
 		return (NULL);
-	// printf("pos: (%f, %f) norm: (%f, %f) p2: (%f, %f) intcpt: (%f, %f) dist: %f\n", object->pos.x, object->pos.y, object->norm.x, object->norm.y, object->p2.x, object->p2.y, intcpt.x, intcpt.y, dist);
 	out = ft_calloc(1, sizeof(*out));
 	out->intcpt = intcpt;
 	out->face = NONE;
@@ -200,6 +201,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	out->distance = get_cam_distance(player->pos, player->angle + M_PI_2, out->intcpt);
 	if (out->distance < 0.00001)
 		out->distance = 0.00001;
+	if (out->distance > ray->distance)
+		return (free(out), NULL);
 	out->pos = (0.5 - dist) * ray->texture->x;
 	return (out);
 }

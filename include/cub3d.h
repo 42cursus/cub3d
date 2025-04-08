@@ -52,17 +52,17 @@ typedef struct s_imgdata
 	int		endian;
 }	t_imgdata;
 
-typedef struct s_fvect
+typedef struct s_vect
 {
 	double	x;
 	double	y;
-}	t_fvect;
+}	t_vect;
 
-typedef struct s_vect
+typedef struct s_ivect
 {
 	int	x;
 	int	y;
-}	t_vect;
+}	t_ivect;
 
 typedef struct s_texarr
 {
@@ -73,17 +73,19 @@ typedef struct s_texarr
 
 typedef struct s_object
 {
-	t_fvect		pos;
-	t_fvect		norm;
-	t_fvect		dir;
-	t_fvect		p2;
+	int			type;
+	t_vect		pos;
+	t_vect		norm;
+	t_vect		dir;
+	t_vect		p2;
 	t_texarr	*texture;
+	t_anim		anim;
 }	t_object;
 
 typedef struct s_ray
 {
-	t_fvect			intcpt;
-	t_vect			maptile;
+	t_vect			intcpt;
+	t_ivect			maptile;
 	int				face;
 	t_texarr		*texture;
 	double			pos;
@@ -98,7 +100,9 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	door_tex[7];
-	t_texarr	cannon_tex[3];
+	t_texarr	cannon_tex[2];
+	t_texarr	crawler_tex[6];
+	t_texarr	proj_tex[5];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -107,7 +111,7 @@ typedef	struct s_data
 	t_anim		**anims;
 	t_list		*objects;
 	t_object	testobj;
-	t_fvect		starting_pos;
+	t_vect		starting_pos;
 	char		starting_dir;
 	int			height;
 	int			width;
@@ -115,8 +119,8 @@ typedef	struct s_data
 
 typedef struct s_player
 {
-	t_fvect	pos;
-	t_fvect	direction;
+	t_vect	pos;
+	t_vect	direction;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
@@ -142,6 +146,13 @@ enum
 	DOOR_W_OPEN = 14,
 };
 
+enum
+{
+	O_PROJ,
+	O_ENTITY,
+	O_PICKUP,
+};
+
 typedef struct s_info
 {
 	struct s_fdf_win
@@ -161,6 +172,7 @@ typedef struct s_info
 	t_player	*player;
 	size_t		last_frame;
 	size_t		framecount;
+	bool		keys[16];
 }	t_info;
 
 int		check_endianness(void);
@@ -170,6 +182,7 @@ int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
 int		mouse_win(unsigned int button, int x, int y, void *p);
+int		mouse_move(int x, int y, void *param);
 int		key_win(KeySym key, void *param);
 void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
 
@@ -180,21 +193,23 @@ void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
 
 t_player	*init_player(t_data *map);
-void		move_player(t_player *player, char **map, t_fvect dir);
-void		rotate_player(t_player *player, int direction);
+void		move_player(t_player *player, char **map, t_vect dir);
+void		rotate_player(t_player *player, int direction, int sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	spawn_projectile(t_info *app, t_player *player, t_data *map);
+void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir);
 
-char	get_max_direction(t_fvect vect);
-t_fvect	scale_vect(t_fvect vect, double scalar);
-t_fvect	rotate_vect(t_fvect vect, double angle);
-void	rotate_vect_inplace(t_fvect *vect, double angle);
-t_fvect	add_vect(t_fvect v1, t_fvect v2);
-double	vector_distance(t_fvect v1, t_fvect v2);
+char	get_max_direction(t_vect vect);
+t_vect	scale_vect(t_vect vect, double scalar);
+t_vect	rotate_vect(t_vect vect, double angle);
+void	rotate_vect_inplace(t_vect *vect, double angle);
+t_vect	add_vect(t_vect v1, t_vect v2);
+double	vector_distance(t_vect v1, t_vect v2);
+t_vect	vect(double x, double y);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);
-int		determine_face(t_fvect intersect);
+int		determine_face(t_vect intersect);
 void	free_ray_children(t_ray *ray);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
@@ -206,6 +221,9 @@ void	draw_rays(t_info *app, t_imgdata *canvas);
 void	draw_mmap(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
+
+int key_press(KeySym key, void *param);
+int key_release(KeySym key, void *param);
 
 #endif //CUB3D_H
 
