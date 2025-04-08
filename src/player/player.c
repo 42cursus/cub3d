@@ -66,7 +66,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	ssize_t	j;
 	char	**map;
 	char	player_char;
-	t_fvect	intercept;
+	t_vect	intercept;
 	int		face;
 
 	map = data->map;
@@ -118,7 +118,7 @@ void	print_ascii_mmap(t_data *data, t_player *player)
 	}
 }
 
-void	move_player(t_player *player, char **map, t_fvect dir)
+void	move_player(t_player *player, char **map, t_vect dir)
 {
 	double	new_x;
 	double	new_y;
@@ -207,5 +207,22 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map)
 	projectile->pos = add_vect(player->pos, scale_vect(player->direction, 0.2));
 	projectile->dir = scale_vect(player->direction, 0.5);
 	projectile->texture = &map->cannon_tex[2];
+	projectile->type = O_PROJ;
 	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
+}
+
+void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir)
+{
+	t_object	*enemy;
+	t_data		*map;
+
+	map = app->map;
+	enemy = ft_calloc(1, sizeof(*enemy));
+	enemy->pos = pos;
+	enemy->dir = dir;
+	enemy->texture = tex;
+	enemy->type = O_ENTITY;
+	enemy->anim.active = 1;
+	enemy->anim.framestart = app->framecount;
+	ft_lstadd_front(&map->objects, ft_lstnew(enemy));
 }

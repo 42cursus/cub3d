@@ -498,6 +498,12 @@ int	parse_cub(t_info *app, int fd)
 	data->cannon_tex[0].img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &data->cannon_tex[0].x, &data->cannon_tex[0].y);
 	data->cannon_tex[1].img = img_to_arr((char *)"./textures/arm_cannon_big_firing.xpm", app, &data->cannon_tex[1].x, &data->cannon_tex[1].y);
 	data->cannon_tex[2].img = img_to_arr((char *)"./textures/projectile2.xpm", app, &data->cannon_tex[2].x, &data->cannon_tex[2].y);
+	data->crawler_tex[0].img = img_to_arr((char *)"./textures/crawler1.xpm", app, &data->crawler_tex[0].x, &data->crawler_tex[0].y);
+	data->crawler_tex[1].img = img_to_arr((char *)"./textures/crawler2.xpm", app, &data->crawler_tex[1].x, &data->crawler_tex[1].y);
+	data->crawler_tex[2].img = img_to_arr((char *)"./textures/crawler3.xpm", app, &data->crawler_tex[2].x, &data->crawler_tex[2].y);
+	data->crawler_tex[3].img = img_to_arr((char *)"./textures/crawler4.xpm", app, &data->crawler_tex[3].x, &data->crawler_tex[3].y);
+	data->crawler_tex[4].img = img_to_arr((char *)"./textures/crawler5.xpm", app, &data->crawler_tex[4].x, &data->crawler_tex[4].y);
+	data->crawler_tex[5].img = img_to_arr((char *)"./textures/crawler6.xpm", app, &data->crawler_tex[5].x, &data->crawler_tex[5].y);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
@@ -541,6 +547,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 3)
 		free_tex_arr(&data->cannon_tex[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&data->crawler_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);
