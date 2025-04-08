@@ -37,10 +37,14 @@ int	main(int argc, char **argv)
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
 	mlx_expose_hook(app->root, &expose_win, app);
-	mlx_mouse_hook(app->root, &mouse_win, app);
+//	mlx_mouse_hook(app->root, &mouse_win, app);
 	mlx_loop_hook(app->mlx, &render_next_frame, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
+	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move, app);
+	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
+				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
