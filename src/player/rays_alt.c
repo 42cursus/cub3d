@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:11:09 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/09 00:02:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -204,6 +204,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (out->distance > ray->distance)
 		return (free(out), NULL);
 	out->pos = vector_distance(intcpt, object->p2) * ray->texture->x;
+	if (out->pos >= ray->texture->x)
+		out->pos = ray->texture->x;
 	// printf("pos: %f\n", out->pos);
 	return (out);
 }
