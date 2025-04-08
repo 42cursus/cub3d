@@ -15,6 +15,7 @@
 
 void	print_pixel_arr(int width, int height, unsigned int **arr);
 
+inline __attribute__((always_inline))
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 {
 	char	*pixel;
