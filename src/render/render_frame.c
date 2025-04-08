@@ -200,9 +200,9 @@ int	render_next_frame(void *param)
 		move_player(app->player, app->map->map,
 					rotate_vect(app->player->direction, -M_PI_2));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
-		rotate_player(app->player, 1);
+		rotate_player(app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
-		rotate_player(app->player, 0);
+		rotate_player(app->player, 0, 12);
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);

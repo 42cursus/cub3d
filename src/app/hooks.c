@@ -70,6 +70,25 @@ int expose_win(void *param)
 	return (EXIT_SUCCESS);
 }
 
+
+int mouse_move(int x, int y, void *param)
+{
+	t_info *const app = param;
+
+	int dx = x - WIN_WIDTH / 2;
+
+	if (dx != 0) {
+		rotate_player(app->player, dx > 0 ? 1 : 0, 24);
+		// Reset pointer to center
+		XWarpPointer(app->mlx->display, None, app->root->window, 0, 0, 0, 0, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		XFlush(app->mlx->display);
+	}
+
+	return (0);
+	int dy = y - WIN_HEIGHT / 2;
+	(void)dy;
+}
+
 int mouse_win(unsigned int button, int x, int y, void *p)
 {
 	if (button == 5 || button == 4)

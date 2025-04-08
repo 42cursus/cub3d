@@ -182,6 +182,7 @@ int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
 int		mouse_win(unsigned int button, int x, int y, void *p);
+int		mouse_move(int x, int y, void *param);
 int		key_win(KeySym key, void *param);
 void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
 
@@ -193,7 +194,7 @@ void	print_ascii_mmap(t_data *data, t_player *player);
 
 t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_vect dir);
-void		rotate_player(t_player *player, int direction);
+void		rotate_player(t_player *player, int direction, int sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	spawn_projectile(t_info *app, t_player *player, t_data *map);
 void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir);

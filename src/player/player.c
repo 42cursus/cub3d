@@ -154,12 +154,12 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	}
 }
 
-void	rotate_player(t_player *player, int direction)
+void	rotate_player(t_player *player, int direction, int sensitivity)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / 12);
+		rotate_vect_inplace(&player->direction, M_PI_4 / sensitivity);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / 12);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / sensitivity);
 }
 
 void	handle_close_door(t_info *app, t_ray *crosshair)
