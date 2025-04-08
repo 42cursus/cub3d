@@ -22,6 +22,8 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 				   -fsanitize=address -fsanitize=undefined \
+        			-fsanitize=float-divide-by-zero \
+        			-fsanitize=float-cast-overflow \
 				   # -pg \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
@@ -34,7 +36,9 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-lmlx -lft -lX11 -lXext -lm \
- 					-fsanitize=address -fsanitize=undefined
+ 					-fsanitize=address -fsanitize=undefined \
+        			-fsanitize=float-divide-by-zero \
+        			-fsanitize=float-cast-overflow
 
 SRC_DIR			= src
 

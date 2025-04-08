@@ -66,10 +66,10 @@ void	place_tile_on_image(t_imgdata *image, t_imgdata *tile, int x, int y)
 	int	colour;
 
 	i = 0;
-	while (i < 8)
+	while (i < tile->height)
 	{
 		j = 0;
-		while (j < 8)
+		while (j < tile->width)
 		{
 			colour = *(unsigned int *)(tile->addr + (i * tile->line_length + j * (tile->bpp / 8)));
 			my_put_pixel(image, x + j, y + i, colour);
@@ -200,12 +200,66 @@ void	place_weapon(t_info *app)
 	}
 }
 
+void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
+{
+	t_imgdata	canvas;
+	int			i;
+	int			j;
+	int			colour;
+
+	canvas.img = app->canvas;
+	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
+	i = 0;
+	while (i < tex->y)
+	{
+		j = 0;
+		while (j < tex->x)
+		{
+			colour = tex->img[i][j];
+			my_put_pixel(&canvas, x + j, y + i, colour);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	place_energy(t_info *app, t_data *map, t_player *player)
+{
+	int			tens;
+	int			units;
+	int			health;
+	int			backup;
+	int			max_backup;
+	int			i;
+
+	place_texarr(app, &map->energy_tex[10], 16, 48);
+	health = player->health % 100;
+	backup = player->health / 100;
+	max_backup = player->max_health / 100;
+	tens = health / 10;
+	units = health % 10;
+	place_texarr(app, &map->energy_tex[tens], 96, 48);
+	place_texarr(app, &map->energy_tex[units], 112, 48);
+	i = 0;
+	while (i < backup)
+	{
+		place_texarr(app, &map->energy_tex[11], 16 + i * 16, 32);
+		i++;
+	}
+	while (i < max_backup)
+	{
+		place_texarr(app, &map->energy_tex[12], 16 + i * 16, 32);
+		i++;
+	}
+}
+
 void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
+	place_energy(app, app->map, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
-						 floor(app->player->pos.x) * 8 + 3,
+						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

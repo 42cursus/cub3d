@@ -106,6 +106,7 @@ typedef	struct s_data
 	t_texarr	crawler_tex[6];
 	t_texarr	proj_tex[5];
 	t_texarr	explode_tex[6];
+	t_texarr	energy_tex[13];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;

@@ -458,6 +458,23 @@ t_anim	**create_anim_arr(int x, int y)
 	return (arr);
 }
 
+void	load_energy_textures(t_info *app, t_data *map)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 10)
+	{
+		ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
+		map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
+		i++;
+	}
+	map->energy_tex[10].img = img_to_arr((char *)"./textures/energy.xpm", app, &map->energy_tex[10].x, &map->energy_tex[10].y);
+	map->energy_tex[11].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &map->energy_tex[11].x, &map->energy_tex[11].y);
+	map->energy_tex[12].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &map->energy_tex[12].x, &map->energy_tex[12].y);
+}
+
 int	parse_cub(t_info *app, int fd)
 {
 	t_list	*file;
@@ -514,6 +531,7 @@ int	parse_cub(t_info *app, int fd)
 	data->explode_tex[3].img = img_to_arr((char *)"./textures/explode3.xpm", app, &data->explode_tex[3].x, &data->explode_tex[3].y);
 	data->explode_tex[4].img = img_to_arr((char *)"./textures/explode4.xpm", app, &data->explode_tex[4].x, &data->explode_tex[4].y);
 	data->explode_tex[5].img = img_to_arr((char *)"./textures/explode5.xpm", app, &data->explode_tex[5].x, &data->explode_tex[5].y);
+	load_energy_textures(app, data);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
@@ -566,6 +584,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 5)
 		free_tex_arr(&data->proj_tex[i++]);
+	i = 0;
+	while (i < 13)
+		free_tex_arr(&data->energy_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);
