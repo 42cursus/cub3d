@@ -508,6 +508,12 @@ int	parse_cub(t_info *app, int fd)
 	data->proj_tex[2].img = img_to_arr((char *)"./textures/proj1.xpm", app, &data->proj_tex[2].x, &data->proj_tex[2].y);
 	data->proj_tex[3].img = img_to_arr((char *)"./textures/proj2.xpm", app, &data->proj_tex[3].x, &data->proj_tex[3].y);
 	data->proj_tex[4].img = img_to_arr((char *)"./textures/proj3.xpm", app, &data->proj_tex[4].x, &data->proj_tex[4].y);
+	data->explode_tex[0].img = img_to_arr((char *)"./textures/explode0.xpm", app, &data->explode_tex[0].x, &data->explode_tex[0].y);
+	data->explode_tex[1].img = img_to_arr((char *)"./textures/explode1.xpm", app, &data->explode_tex[1].x, &data->explode_tex[1].y);
+	data->explode_tex[2].img = img_to_arr((char *)"./textures/explode2.xpm", app, &data->explode_tex[2].x, &data->explode_tex[2].y);
+	data->explode_tex[3].img = img_to_arr((char *)"./textures/explode3.xpm", app, &data->explode_tex[3].x, &data->explode_tex[3].y);
+	data->explode_tex[4].img = img_to_arr((char *)"./textures/explode4.xpm", app, &data->explode_tex[4].x, &data->explode_tex[4].y);
+	data->explode_tex[5].img = img_to_arr((char *)"./textures/explode5.xpm", app, &data->explode_tex[5].x, &data->explode_tex[5].y);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	return (0);
@@ -554,6 +560,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&data->crawler_tex[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&data->explode_tex[i++]);
 	i = 0;
 	while (i < 5)
 		free_tex_arr(&data->proj_tex[i++]);

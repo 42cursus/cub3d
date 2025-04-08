@@ -74,12 +74,14 @@ typedef struct s_texarr
 typedef struct s_object
 {
 	int			type;
+	int			dead;
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
 	t_vect		p2;
 	t_texarr	*texture;
 	t_anim		anim;
+	t_anim		anim2;
 }	t_object;
 
 typedef struct s_ray
@@ -103,6 +105,7 @@ typedef	struct s_data
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	proj_tex[5];
+	t_texarr	explode_tex[6];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -120,6 +123,10 @@ typedef	struct s_data
 typedef struct s_player
 {
 	t_vect	pos;
+	int		health;
+	int		max_health;
+	int		ammo;
+	int		max_ammo;
 	t_vect	direction;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];

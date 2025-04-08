@@ -65,6 +65,11 @@ int	main(int argc, char **argv)
 	app->player = init_player(app->map);
 	spawn_enemy(app, &app->map->crawler_tex[0], vect(28.0, 10.5), vect(0.02, 0.02));
 	spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
+	spawn_enemy(app, &app->map->crawler_tex[0], vect(15.0, 10.5), vect(0.02, 0.01));
+	spawn_enemy(app, &app->map->crawler_tex[0], vect(5.0, 5.5), vect(0.02, 0.0));
+	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
+	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
+	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
 	// app->map->testobj.pos = app->player->pos;
 	// app->map->testobj.pos.y += 2;
 	// app->map->testobj.texture = &app->map->cannon_tex[2];

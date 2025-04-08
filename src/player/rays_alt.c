@@ -52,8 +52,10 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	t_vect	dir = rotate_vect(player->direction, angle);
 
 
-	double dir_x = dir.x == 0 ? __DBL_EPSILON__ : dir.x;
-	double dir_y = dir.y == 0 ? __DBL_EPSILON__ : dir.y;
+	// double dir_x = dir.x == 0 ? __DBL_EPSILON__ : dir.x;
+	// double dir_y = dir.y == 0 ? __DBL_EPSILON__ : dir.y;
+	double dir_x = dir.x;
+	double dir_y = dir.y;
 
 	double	sideDistX;
 	double	sideDistY;

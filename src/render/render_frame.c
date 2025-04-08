@@ -49,7 +49,7 @@ void	start_obj_death(t_object *obj, t_info *app)
 	obj->anim.framestart = app->framecount;
 }
 
-t_list	*check_obj_proximity(t_object *obj, t_data *map)
+t_object	*check_obj_proximity(t_vect pos, t_data *map)
 {
 	t_list		*current;
 	t_object	*cur_obj;
@@ -58,10 +58,10 @@ t_list	*check_obj_proximity(t_object *obj, t_data *map)
 	while (current != NULL)
 	{
 		cur_obj = (t_object *)current->data;
-		if (cur_obj->type != O_PROJ)
+		if (cur_obj->type != O_PROJ && cur_obj->dead != 1)
 		{
-			if (vector_distance(obj->pos, cur_obj->pos) < 0.2)
-				return (current);
+			if (vector_distance(pos, cur_obj->pos) < 0.3)
+				return (cur_obj);
 		}
 		current = current->next;
 	}
@@ -74,7 +74,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 	t_anim		*anim;
 	int			frames;
 	t_vect		new_pos;
-	t_list	*closest;
+	t_object	*closest;
 
 	if (obj->anim.active == 1)
 	{
@@ -88,11 +88,13 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 			obj->texture = &app->map->proj_tex[1 + (frames / 4)];
 		return (0);
 	}
-	closest = check_obj_proximity(obj, app->map);
+	closest = check_obj_proximity(obj->pos, app->map);
 	if (closest != NULL)
 	{
 		start_obj_death(obj, app);
-		delete_object(&app->map->objects, closest);
+		closest->dead = 1;
+		closest->anim2.framestart = app->framecount;
+		closest->anim2.active = 1;
 		return (0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
@@ -128,7 +130,20 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	// t_anim		*anim;
 	t_data		*map;
 	t_vect		new_pos;
+	int			frames;
 
+	if (obj->dead == 1)
+	{
+		frames = app->framecount - obj->anim2.framestart;
+		if (frames > 17)
+		{
+			*current = delete_object(&app->map->objects, *current);
+			return (1);
+		}
+		else
+			obj->texture = &app->map->explode_tex[frames / 4];
+		return (0);
+	}
 	new_pos = add_vect(obj->pos, obj->dir);
 	map = app->map;
 	handle_enemy_anim(app, obj);
