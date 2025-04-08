@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 17:21:13 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:47:07 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:57:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,26 +165,6 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 
 	texture = ray->texture;
 	pos = ray->pos;
-	// if (ray->face == NORTH)
-	// {
-	// 	texture = &app->map->n_tex;
-	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	// }
-	// else if (ray->face == SOUTH)
-	// {
-	// 	texture = &app->map->s_tex;
-	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	// }
-	// else if (ray->face == EAST)
-	// {
-	// 	texture = &app->map->e_tex;
-	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	// }
-	// else if (ray->face == WEST)
-	// {
-	// 	texture = &app->map->w_tex;
-	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	// }
 	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
@@ -192,9 +172,6 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			texture = get_close_door_tex(anim, app);
 		else
 			texture = &app->map->door_tex[0];
-		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		// if (pos == 0.0)
-		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
@@ -203,12 +180,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			texture = get_open_door_tex(anim, app);
 		else
 			texture = &app->map->door_tex[1];
-		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		// if (pos == 0.0)
-		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
-	// else
-	// 	exit(0);
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
 	if (top < 0)
