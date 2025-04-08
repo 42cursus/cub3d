@@ -173,6 +173,7 @@ typedef struct s_info
 	size_t		last_frame;
 	size_t		framecount;
 	bool		keys[16];
+	bool		mouse[16];
 }	t_info;
 
 int		check_endianness(void);
@@ -181,7 +182,8 @@ int		exit_win(void *param);
 int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
-int		mouse_win(unsigned int button, int x, int y, void *p);
+int		mouse_release(unsigned int button, int x, int y, void *param);
+int		mouse_press(unsigned int button, int x, int y, void *param);
 int		mouse_move(int x, int y, void *param);
 int		key_win(KeySym key, void *param);
 void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);

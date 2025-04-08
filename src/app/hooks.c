@@ -89,24 +89,24 @@ int mouse_move(int x, int y, void *param)
 	(void)dy;
 }
 
-int mouse_win(unsigned int button, int x, int y, void *p)
+int mouse_release(unsigned int button, int x, int y, void *param)
 {
-	if (button == 5 || button == 4)
-	{
-		replace_image((t_info *) p);
-		on_expose((t_info *) p);
-	}
+	t_info *const app = param;
+
+	app->mouse[button] = false;
+
 	return (0);
 	((void) x, (void) y);
 }
 
-void mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param)
+int mouse_press(unsigned int button, int x, int y, void *param)
 {
 	t_info *const app = param;
 
-	win->hooks[KeyPress].hook = hook;
-	win->hooks[KeyPress].param = app;
-	win->hooks[KeyPress].mask = KeyPressMask;
+	app->mouse[button] = true;
+
+	return (0);
+	((void) x, (void) y);
 }
 
 int	get_index(KeySym key)
@@ -145,14 +145,17 @@ int key_press(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
-		return (exit_win(app));
-	else if (key == KEY_E)
-		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-	if (key == KEY_X)
-		spawn_projectile(app, app->player, app->map);
-	int idx = get_index(key);
-	if (idx != -1)
-		app->keys[idx] = true;
+		exit_win(app);
+	else
+	{
+		if (key == KEY_E)
+			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+		if (key == KEY_X)
+			spawn_projectile(app, app->player, app->map);
+		int idx = get_index(key);
+		if (idx != -1)
+			app->keys[idx] = true;
+	}
 	return (0);
 }
 

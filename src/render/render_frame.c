@@ -186,8 +186,8 @@ int	render_next_frame(void *param)
 	// if (app->keys[idx_XK_e])
 	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	// if (app->keys[idx_XK_x])
-	// 	spawn_projectile(app, app->player, app->map);
+	 if (app->mouse[1])
+	 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
 		move_player(app->player, app->map->map, app->player->direction);
 	if (app->keys[idx_XK_s])
