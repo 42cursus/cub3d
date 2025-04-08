@@ -73,8 +73,8 @@ int	main(int argc, char **argv)
 	hide_mouse_cursor(app->mlx->display, app->root->window);
 	mlx_loop(app->mlx);
 	// printf("\e[?25h");
-	cleanup(app);
 	XUndefineCursor(app->mlx->display, app->root->window);
+	cleanup(app);
 	return (EXIT_SUCCESS);
 	(void)argc;
 	(void)argv;
