@@ -157,7 +157,7 @@ void	place_mmap(t_info *app)
 		while (j < app->map->minimap.width)
 		{
 			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
-			my_put_pixel(&canvas, j, i, colour);
+			my_put_pixel(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
 			j++;
 		}
 		i++;
