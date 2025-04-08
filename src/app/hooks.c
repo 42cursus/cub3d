@@ -104,6 +104,8 @@ int mouse_press(unsigned int button, int x, int y, void *param)
 	t_info *const app = param;
 
 	app->mouse[button] = true;
+	if (button == 1)
+		spawn_projectile(app, app->player, app->map);
 
 	return (0);
 	((void) x, (void) y);
