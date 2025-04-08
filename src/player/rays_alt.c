@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/09 00:02:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/09 00:17:21 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,14 +173,6 @@ t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 	intersect.y = numerator / denominator;
 	return (intersect);
 }
-
-// int	check_obj_behind(t_player *player, t_object *obj)
-// {
-// 	t_fvect	diff;
-//
-// 	diff.x = obj->pos.x - player->pos.x;
-// 	diff.y = obj->pos.y - player->pos.y;
-// }
 
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 {
