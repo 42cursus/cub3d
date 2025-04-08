@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 17:21:13 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 21:29:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:47:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,16 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 
 void	fill_bg(t_imgdata *canvas, t_data *map)
 {
-	int	mid;
-	int	i;
-	int	j;
+	int				mid;
+	int				i;
+	int				j;
+	unsigned long	c_col;
+	unsigned long	f_col;
 
+	c_col = (unsigned long)map->c_col;
+	f_col = (unsigned long)map->f_col;
+	c_col = c_col + (c_col << 32);
+	f_col = f_col + (f_col << 32);
 	mid = WIN_HEIGHT / 2;
 	i = 0;
 	while (i <= mid)
@@ -39,8 +45,10 @@ void	fill_bg(t_imgdata *canvas, t_data *map)
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			my_put_pixel(canvas, j, i, map->c_col);
-			j++;
+			// my_put_pixel(canvas, j, i, map->c_col);
+			// j++;
+			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = c_col;
+			j += 2;
 		}
 		i++;
 	}
@@ -49,8 +57,10 @@ void	fill_bg(t_imgdata *canvas, t_data *map)
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			my_put_pixel(canvas, j, i, map->f_col);
-			j++;
+			// my_put_pixel(canvas, j, i, map->f_col);
+			// j++;
+			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = f_col;
+			j += 2;
 		}
 		i++;
 	}
