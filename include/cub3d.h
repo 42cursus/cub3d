@@ -100,8 +100,9 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	door_tex[7];
-	t_texarr	cannon_tex[3];
+	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
+	t_texarr	proj_tex[5];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;

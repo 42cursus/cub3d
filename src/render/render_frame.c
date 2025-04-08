@@ -43,29 +43,72 @@ t_list	*delete_object(t_list **obj_list, t_list *obj_node)
 	return (next);
 }
 
+void	start_obj_death(t_object *obj, t_info *app)
+{
+	obj->anim.active = 1;
+	obj->anim.framestart = app->framecount;
+}
+
+t_list	*check_obj_proximity(t_object *obj, t_data *map)
+{
+	t_list		*current;
+	t_object	*cur_obj;
+
+	current = map->objects;
+	while (current != NULL)
+	{
+		cur_obj = (t_object *)current->data;
+		if (cur_obj->type != O_PROJ)
+		{
+			if (vector_distance(obj->pos, cur_obj->pos) < 0.2)
+				return (current);
+		}
+		current = current->next;
+	}
+	return (NULL);
+}
+
 int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
 	t_anim		*anim;
-	t_data		*map;
+	int			frames;
+	t_vect		new_pos;
+	t_list	*closest;
 
-	obj->pos = add_vect(obj->pos, obj->dir);
-	map = app->map;
-	tile = &map->map[(int)obj->pos.y][(int)obj->pos.x];
-	if (*tile == '1')
+	if (obj->anim.active == 1)
 	{
-		*current = delete_object(&map->objects, *current);
-		return (1);
+		frames = app->framecount - obj->anim.framestart;
+		if (frames > 15)
+		{
+			*current = delete_object(&app->map->objects, *current);
+			return (1);
+		}
+		else
+			obj->texture = &app->map->proj_tex[1 + (frames / 4)];
+		return (0);
 	}
+	closest = check_obj_proximity(obj, app->map);
+	if (closest != NULL)
+	{
+		start_obj_death(obj, app);
+		delete_object(&app->map->objects, closest);
+		return (0);
+	}
+	new_pos = add_vect(obj->pos, obj->dir);
+	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
+	if (*tile == '1')
+		start_obj_death(obj, app);
 	else if (*tile == 'D')
 	{
-		anim = &map->anims[(int)obj->pos.y][(int)obj->pos.x];
+		anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
 		*tile = 'O';
 		anim->active = 1;
 		anim->framestart = app->framecount;
-		*current = delete_object(&map->objects, *current);
-		return (1);
+		start_obj_death(obj, app);
 	}
+	else
+		obj->pos = new_pos;
 	return (0);
 }
 
@@ -140,11 +183,11 @@ int	render_next_frame(void *param)
 {
 	t_info *const app = param;
 
-	if (app->keys[idx_XK_e])
-		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+	// if (app->keys[idx_XK_e])
+	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	if (app->keys[idx_XK_x])
-		spawn_projectile(app, app->player, app->map);
+	// if (app->keys[idx_XK_x])
+	// 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
 		move_player(app->player, app->map->map, app->player->direction);
 	if (app->keys[idx_XK_s])

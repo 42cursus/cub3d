@@ -127,6 +127,10 @@ int key_press(KeySym key, void *param)
 
 	if (key == XK_5 || key == XK_Escape)
 		return (exit_win(app));
+	else if (key == KEY_E)
+		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+	if (key == KEY_X)
+		spawn_projectile(app, app->player, app->map);
 	int idx = get_index(key);
 	if (idx != -1)
 		app->keys[idx] = true;

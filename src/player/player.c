@@ -60,63 +60,63 @@ t_player	*init_player(t_data *map)
 	return (player);
 }
 
-void	print_ascii_mmap(t_data *data, t_player *player)
-{
-	ssize_t	i;
-	ssize_t	j;
-	char	**map;
-	char	player_char;
-	t_vect	intercept;
-	int		face;
-
-	map = data->map;
-	intercept = find_ray_collision(data, player, player->angle).intcpt;
-	if (player->angle > M_PI_4 && player->angle <= 3 * M_PI_4)
-		player_char = '^';
-	else if (player->angle > 3 * M_PI_4 || player->angle <= -3 * M_PI_4)
-		player_char = '<';
-	else if (player->angle > -3 * M_PI_4 && player->angle <= -M_PI_4)
-		player_char = 'v';
-	else
-		player_char = '>';
-	ft_putstr("\e[2J\e[H");
-	printf("height: %d width: %d\n", data->height, data->width);
-	printf("ahead:\t(%f, %f) angle: %f\n", intercept.x, intercept.y, player->angle);
-	printf("pos:\t(%f, %f)\n", player->pos.x, player->pos.y);
-	printf("dir:\t(%f, %f)\n", player->direction.x, player->direction.y);
-	i = data->height;
-	while (--i >= 0)
-	{
-		j = 0;
-		while (map[i][j])
-		{
-			if (map[i][j] == ' ')
-				ft_putstr(" ");
-			else if (map[i][j] == '1')
-				ft_putstr("\e[34m#");
-			else if (map[i][j] == '0')
-				ft_putstr(" ");
-			j++;
-			write(1, " ", 1);
-		}
-		ft_putstr("\e[m\n");
-	}
-	ft_printf("\e[%d;%dH\e[1;32m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
-	i = 0;
-	while (i < WIN_WIDTH)
-	{
-		face = player->rays[i].face;
-		if (face == WEST)
-			ft_printf("\e[%d;%dH\e[1;31mW\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
-		else if (face == EAST)
-			ft_printf("\e[%d;%dH\e[1;31mE\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 - 1);
-		else if (face == NORTH)
-			ft_printf("\e[%d;%dH\e[1;31mN\e[m", data->height - (int)player->rays[i].intcpt.y + 5, (int)player->rays[i].intcpt.x * 2 + 1);
-		else if (face == SOUTH)
-			ft_printf("\e[%d;%dH\e[1;31mS\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
-		i++;
-	}
-}
+// void	print_ascii_mmap(t_data *data, t_player *player)
+// {
+// 	ssize_t	i;
+// 	ssize_t	j;
+// 	char	**map;
+// 	char	player_char;
+// 	t_vect	intercept;
+// 	int		face;
+//
+// 	map = data->map;
+// 	intercept = find_ray_collision(data, player, player->angle).intcpt;
+// 	if (player->angle > M_PI_4 && player->angle <= 3 * M_PI_4)
+// 		player_char = '^';
+// 	else if (player->angle > 3 * M_PI_4 || player->angle <= -3 * M_PI_4)
+// 		player_char = '<';
+// 	else if (player->angle > -3 * M_PI_4 && player->angle <= -M_PI_4)
+// 		player_char = 'v';
+// 	else
+// 		player_char = '>';
+// 	ft_putstr("\e[2J\e[H");
+// 	printf("height: %d width: %d\n", data->height, data->width);
+// 	printf("ahead:\t(%f, %f) angle: %f\n", intercept.x, intercept.y, player->angle);
+// 	printf("pos:\t(%f, %f)\n", player->pos.x, player->pos.y);
+// 	printf("dir:\t(%f, %f)\n", player->direction.x, player->direction.y);
+// 	i = data->height;
+// 	while (--i >= 0)
+// 	{
+// 		j = 0;
+// 		while (map[i][j])
+// 		{
+// 			if (map[i][j] == ' ')
+// 				ft_putstr(" ");
+// 			else if (map[i][j] == '1')
+// 				ft_putstr("\e[34m#");
+// 			else if (map[i][j] == '0')
+// 				ft_putstr(" ");
+// 			j++;
+// 			write(1, " ", 1);
+// 		}
+// 		ft_putstr("\e[m\n");
+// 	}
+// 	ft_printf("\e[%d;%dH\e[1;32m%c\e[m", data->height - (int)player->pos.y + 4, (int)player->pos.x * 2 + 1, player_char);
+// 	i = 0;
+// 	while (i < WIN_WIDTH)
+// 	{
+// 		face = player->rays[i].face;
+// 		if (face == WEST)
+// 			ft_printf("\e[%d;%dH\e[1;31mW\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
+// 		else if (face == EAST)
+// 			ft_printf("\e[%d;%dH\e[1;31mE\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 - 1);
+// 		else if (face == NORTH)
+// 			ft_printf("\e[%d;%dH\e[1;31mN\e[m", data->height - (int)player->rays[i].intcpt.y + 5, (int)player->rays[i].intcpt.x * 2 + 1);
+// 		else if (face == SOUTH)
+// 			ft_printf("\e[%d;%dH\e[1;31mS\e[m", data->height - (int)player->rays[i].intcpt.y + 4, (int)player->rays[i].intcpt.x * 2 + 1);
+// 		i++;
+// 	}
+// }
 
 void	move_player(t_player *player, char **map, t_vect dir)
 {
@@ -157,9 +157,9 @@ void	move_player(t_player *player, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / 8);
+		rotate_vect_inplace(&player->direction, M_PI_4 / 12);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / 8);
+		rotate_vect_inplace(&player->direction, -M_PI_4 / 12);
 }
 
 void	handle_close_door(t_info *app, t_ray *crosshair)
@@ -206,8 +206,9 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map)
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->pos = add_vect(player->pos, scale_vect(player->direction, 0.2));
 	projectile->dir = scale_vect(player->direction, 0.5);
-	projectile->texture = &map->cannon_tex[2];
+	projectile->texture = &map->proj_tex[0];
 	projectile->type = O_PROJ;
+	projectile->anim.active = 0;
 	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
 }
 
