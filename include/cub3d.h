@@ -171,6 +171,7 @@ typedef struct s_info
 	t_player	*player;
 	size_t		last_frame;
 	size_t		framecount;
+	bool		keys[16];
 }	t_info;
 
 int		check_endianness(void);
@@ -218,6 +219,9 @@ void	draw_rays(t_info *app, t_imgdata *canvas);
 void	draw_mmap(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
+
+int key_press(KeySym key, void *param);
+int key_release(KeySym key, void *param);
 
 #endif //CUB3D_H
 

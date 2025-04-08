@@ -51,10 +51,14 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	ray.intcpt.y = floor(player->pos.y);
 	t_vect	dir = rotate_vect(player->direction, angle);
 
+
+	double dir_x = dir.x == 0 ? __DBL_EPSILON__ : dir.x;
+	double dir_y = dir.y == 0 ? __DBL_EPSILON__ : dir.y;
+
 	double	sideDistX;
 	double	sideDistY;
-	double	deltaDistX = fabs(1.0 / dir.x);
-	double	deltaDistY = fabs(1.0 / dir.y);
+	double	deltaDistX = fabs(1.0 / dir_x);
+	double	deltaDistY = fabs(1.0 / dir_y);
 	int		stepX;
 	int		stepY;
 	int		normX;

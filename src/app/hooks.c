@@ -57,9 +57,6 @@ int expose_win(void *param)
 	t_imgdata im3;
 	t_info *const app = param;
 
-	t_imgdata im2;
-	int retcode;
-
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
 	if (!im3.img)
 	{
@@ -67,24 +64,9 @@ int expose_win(void *param)
 		cleanup(app);
 		exit(EXIT_FAILURE);
 	}
-	im2.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/grass.xpm",
-								&im2.width, &im2.height);
-	if (!im2.img)
-	{
-		printf(" !! KO !!\n");
-		exit(1);
-	}
-	im2.addr = mlx_get_data_addr(im2.img, &im2.bpp, &im2.line_length, &im2.endian);
-	mlx_clear_window(app->mlx,  app->root);
-	// dprintf(2, "OK (xpm %dx%d)(img bpp2: %d, sizeline2: %d endian: %d type: %d)\n",
-	// 	   xpm1_x, xpm1_y, bpp2, sl2, endian2, im2->type);
-
+	mlx_clear_window(app->mlx,  app->root);;
 	app->canvas = im3.img;
 	on_expose(app);
-	retcode = mlx_put_image_to_window(app->mlx, app->root, im2.img, 200,0);
-	mlx_destroy_image(app->mlx, im2.img);
-	if (retcode)
-		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 
@@ -108,37 +90,56 @@ void mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param
 	win->hooks[KeyPress].mask = KeyPressMask;
 }
 
-int key_win(KeySym key, void *param)
+int	get_index(KeySym key)
+{
+	size_t	i;
+	int		ret;
+	const KeySym	arr[] = {
+		XK_a,
+		XK_d,
+		XK_e,
+		XK_s,
+		XK_w,
+		XK_x,
+		XK_Left,
+		XK_Up,
+		XK_Right,
+		XK_Down,
+	};
+
+	i = 0;
+	ret = -1;
+	while (i < (sizeof(arr) / sizeof(arr[0])))
+	{
+		if (key == arr[i])
+		{
+			ret = (int)i;
+			break ;
+		}
+		i++;
+	}
+	return ret;
+}
+
+int key_press(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	if (key == KEY_E)
-		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	if (key == KEY_X)
-		spawn_projectile(app, app->player, app->map);
-	if (key == NUM_5 || key == ESC)
-	{
-		exit_win(app);
-		return (1);
-	}
-	else if (key == KEY_W)
-		move_player(app->player, app->map->map, app->player->direction);
-	else if (key == KEY_S)
-		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, M_PI));
-	else if (key == KEY_A)
-		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, M_PI_2));
-	else if (key == KEY_D)
-		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, -M_PI_2));
-	else if (key == RIGHT)
-		rotate_player(app->player, 1);
-	else if (key == LEFT)
-		rotate_player(app->player, 0);
-	// replace_image(app);
-	// on_expose(app);
-	// expose_win(app);
+	if (key == XK_5 || key == XK_Escape)
+		return (exit_win(app));
+	int idx = get_index(key);
+	if (idx != -1)
+		app->keys[idx] = true;
+	return (0);
+}
+
+
+int key_release(KeySym key, void *param)
+{
+	t_info *const app = param;
+
+	int idx = get_index(key);
+	if (idx != -1)
+		app->keys[idx] = false;
 	return (0);
 }
