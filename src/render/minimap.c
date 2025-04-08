@@ -223,34 +223,59 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
-void	place_energy(t_info *app, t_data *map, t_player *player)
+void	place_energy_backup(t_info *app, t_data *map, t_player *player)
 {
-	int			tens;
-	int			units;
-	int			health;
 	int			backup;
 	int			max_backup;
 	int			i;
+	int			y_start;
+	int			x_start;
 
-	place_texarr(app, &map->energy_tex[10], 16, 48);
-	health = player->health % 100;
 	backup = player->health / 100;
 	max_backup = player->max_health / 100;
-	tens = health / 10;
-	units = health % 10;
-	place_texarr(app, &map->energy_tex[tens], 96, 48);
-	place_texarr(app, &map->energy_tex[units], 112, 48);
 	i = 0;
+	y_start = 32;
+	x_start = 16;
 	while (i < backup)
 	{
-		place_texarr(app, &map->energy_tex[11], 16 + i * 16, 32);
+		if (i > 6)
+		{
+			x_start = -96;
+			y_start = 16;
+		}
+		place_texarr(app, &map->energy_tex[11], x_start + i * 16, y_start);
 		i++;
 	}
 	while (i < max_backup)
 	{
-		place_texarr(app, &map->energy_tex[12], 16 + i * 16, 32);
+		if (i > 6)
+		{
+			x_start = -96;
+			y_start = 16;
+		}
+		place_texarr(app, &map->energy_tex[12], x_start + i * 16, y_start);
 		i++;
 	}
+}
+
+void	place_energy(t_info *
+				  app, t_data *map, t_player *player)
+{
+	int			tens;
+	int			units;
+	int			health;
+	// int			backup;
+	// int			max_backup;
+
+	place_texarr(app, &map->energy_tex[10], 16, 48);
+	health = player->health % 100;
+	// backup = player->health / 100;
+	// max_backup = player->max_health / 100;
+	tens = health / 10;
+	units = health % 10;
+	place_texarr(app, &map->energy_tex[tens], 96, 48);
+	place_texarr(app, &map->energy_tex[units], 112, 48);
+	place_energy_backup(app, map, player);
 }
 
 void	draw_mmap(t_info *app)
