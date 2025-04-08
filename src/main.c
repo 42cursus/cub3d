@@ -15,20 +15,6 @@
 
 int	render_next_frame(void *param);
 
-void hide_mouse_cursor(Display *display, Window win)
-{
-	Pixmap blank;
-	XColor dummy;
-	char data[1] = {0};
-	Cursor cursor;
-
-	blank = XCreateBitmapFromData(display, win, data, 1, 1);
-	cursor = XCreatePixmapCursor(display, blank, blank, &dummy, &dummy, 0, 0);
-	XDefineCursor(display, win, cursor);
-	XFreeCursor(display, cursor);
-	XFreePixmap(display, blank);
-}
-
 int	main(int argc, char **argv)
 {
 	t_info *const	app = &(t_info){.title = (char *)"cub3d", .win = {
@@ -57,8 +43,8 @@ int	main(int argc, char **argv)
 	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
 	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move, app);
-	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
-				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+//	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
+//				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
@@ -76,10 +62,10 @@ int	main(int argc, char **argv)
 	// mlx_key_hook(app->root, &key_win, app);
 	app->last_frame = get_time_ms();
 	app->framecount = 0;
-	hide_mouse_cursor(app->mlx->display, app->root->window);
+	mlx_mouse_hide(app->mlx, app->root);
 	mlx_loop(app->mlx);
 	// printf("\e[?25h");
-	XUndefineCursor(app->mlx->display, app->root->window);
+	mlx_mouse_show(app->mlx, app->root);
 	cleanup(app);
 	return (EXIT_SUCCESS);
 	(void)argc;
