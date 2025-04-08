@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/06 20:47:56 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:09:58 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,32 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	(void)current;
 }
 
+int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
+{
+	t_data		*map;
+	t_player	*player;
+	int			frames;
+
+	map = app->map;
+	player = app->player;
+	frames = app->framecount - obj->anim.framestart;
+	if (frames % 10 < 5)
+		obj->texture = &map->etank_tex[0];
+	else
+		obj->texture = &map->etank_tex[1];
+	if (vector_distance(player->pos, obj->pos) < 0.3)
+	{
+		if (obj->subtype == I_ETANK)
+		{
+			player->max_health += 100;
+			player->health += 100;
+		}
+		*current = delete_object(&map->objects, *current);
+		return (1);
+	}
+	return (0);
+}
+
 void	update_objects(t_info *app, t_player *player, t_data *map)
 {
 	t_list		*current;
@@ -174,7 +200,9 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 			continue ;
 		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
-		obj->norm = rotate_vect(player->direction, -M_PI_2);
+		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
+			continue ;
+		obj->norm = rotate_vect(scale_vect(player->direction, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
 	}

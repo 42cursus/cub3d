@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/06 20:49:24 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 22:55:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ typedef struct s_texarr
 typedef struct s_object
 {
 	int			type;
+	int			subtype;
 	int			dead;
 	t_vect		pos;
 	t_vect		norm;
@@ -107,6 +108,7 @@ typedef	struct s_data
 	t_texarr	proj_tex[5];
 	t_texarr	explode_tex[6];
 	t_texarr	energy_tex[13];
+	t_texarr	etank_tex[2];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -158,7 +160,14 @@ enum
 {
 	O_PROJ,
 	O_ENTITY,
-	O_PICKUP,
+	O_ITEM,
+};
+
+enum
+{
+	P_BEAM,
+	E_ZOOMER,
+	I_ETANK,
 };
 
 typedef struct s_info
@@ -208,6 +217,7 @@ void		rotate_player(t_player *player, int direction, int sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	spawn_projectile(t_info *app, t_player *player, t_data *map);
 void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir);
+void	spawn_item(t_info *app, t_texarr *tex, t_vect pos, int subtype);
 
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);

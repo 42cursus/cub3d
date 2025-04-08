@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/06 21:28:08 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 22:59:46 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ t_player	*init_player(t_data *map)
 
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = map->starting_pos;
-	player->health = 899;
-	player->max_health = 1499;
+	player->health = 99;
+	player->max_health = 99;
 	if (map->starting_dir == 'N')
 	{
 		player->direction.x = 0;
@@ -225,7 +225,24 @@ void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir)
 	enemy->dir = dir;
 	enemy->texture = tex;
 	enemy->type = O_ENTITY;
+	enemy->subtype = E_ZOOMER;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
 	ft_lstadd_front(&map->objects, ft_lstnew(enemy));
+}
+
+void	spawn_item(t_info *app, t_texarr *tex, t_vect pos, int subtype)
+{
+	t_object	*item;
+	t_data		*map;
+
+	map = app->map;
+	item = ft_calloc(1, sizeof(*item));
+	item->pos = pos;
+	item->texture = tex;
+	item->type = O_ITEM;
+	item->subtype = subtype;
+	item->anim.active = 1;
+	item->anim.framestart = app->framecount;
+	ft_lstadd_front(&map->objects, ft_lstnew(item));
 }

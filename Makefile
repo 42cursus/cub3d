@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/03/27 18:12:16 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/04/08 23:11:34 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 				   -fsanitize=address -fsanitize=undefined \
         			-fsanitize=float-divide-by-zero \
         			-fsanitize=float-cast-overflow \
-				   # -pg \
+				   -pg \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \

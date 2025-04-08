@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/06 20:50:04 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:30:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,8 +152,13 @@ int key_press(KeySym key, void *param)
 	{
 		if (key == KEY_E)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-		if (key == KEY_X)
+		else if (key == KEY_X)
 			spawn_projectile(app, app->player, app->map);
+		// DEBUGGING
+		else if (key == XK_h)
+				app->player->health -= 10;
+		else if (key == XK_j)
+				app->player->health += 10;
 		int idx = get_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;

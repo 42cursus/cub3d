@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/06 20:53:32 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:19:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,42 +164,6 @@ void	place_mmap(t_info *app)
 	}
 }
 
-void	place_weapon(t_info *app)
-{
-	t_imgdata	canvas;
-	t_texarr	*tex;
-	int	i;
-	int	j;
-	unsigned int	colour;
-
-	i = 0;
-	if (app->player->hud.active == 1)
-	{
-		if (app->framecount - app->player->hud.framestart < 6)
-			tex = &app->map->cannon_tex[1];
-		else
-		{
-			app->player->hud.active = 0;
-			tex = &app->map->cannon_tex[0];
-		}
-	}
-	else
-		tex = &app->map->cannon_tex[0];
-	canvas.img = app->canvas;
-	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
-	while (i < tex->y)
-	{
-		j = 0;
-		while (j < tex->x)
-		{
-			colour = tex->img[i][j];
-			my_put_pixel(&canvas, WIN_WIDTH / 2 + j, WIN_HEIGHT - tex->y + i, colour);
-			j++;
-		}
-		i++;
-	}
-}
-
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 {
 	t_imgdata	canvas;
@@ -221,6 +185,25 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 		}
 		i++;
 	}
+}
+
+void	place_weapon(t_info *app)
+{
+	t_texarr	*tex;
+
+	if (app->player->hud.active == 1)
+	{
+		if (app->framecount - app->player->hud.framestart < 6)
+			tex = &app->map->cannon_tex[1];
+		else
+		{
+			app->player->hud.active = 0;
+			tex = &app->map->cannon_tex[0];
+		}
+	}
+	else
+		tex = &app->map->cannon_tex[0];
+	place_texarr(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
 }
 
 void	place_energy_backup(t_info *app, t_data *map, t_player *player)

@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/06 21:30:18 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:02:36 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -531,6 +531,8 @@ int	parse_cub(t_info *app, int fd)
 	data->explode_tex[3].img = img_to_arr((char *)"./textures/explode3.xpm", app, &data->explode_tex[3].x, &data->explode_tex[3].y);
 	data->explode_tex[4].img = img_to_arr((char *)"./textures/explode4.xpm", app, &data->explode_tex[4].x, &data->explode_tex[4].y);
 	data->explode_tex[5].img = img_to_arr((char *)"./textures/explode5.xpm", app, &data->explode_tex[5].x, &data->explode_tex[5].y);
+	data->etank_tex[0].img = img_to_arr((char *)"./textures/etank0.xpm", app, &data->etank_tex[0].x, &data->etank_tex[0].y);
+	data->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &data->etank_tex[1].x, &data->etank_tex[1].y);
 	load_energy_textures(app, data);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
@@ -587,6 +589,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 13)
 		free_tex_arr(&data->energy_tex[i++]);
+	i = 0;
+	while (i < 2)
+		free_tex_arr(&data->etank_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);

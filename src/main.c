@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/04 22:55:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 22:57:53 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ int	main(int argc, char **argv)
 	spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
 	spawn_enemy(app, &app->map->crawler_tex[0], vect(15.0, 10.5), vect(0.02, 0.01));
 	spawn_enemy(app, &app->map->crawler_tex[0], vect(5.0, 5.5), vect(0.02, 0.0));
+	spawn_item(app, &app->map->etank_tex[0], vect(20.5, 2.5), I_ETANK);
 	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
 	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
 	// spawn_enemy(app, &app->map->crawler_tex[0], vect(24.0, 10.5), vect(0.0, -0.03));
