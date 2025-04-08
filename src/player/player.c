@@ -35,7 +35,7 @@ t_player	*init_player(t_data *map)
 
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = map->starting_pos;
-	player->health = 820;
+	player->health = 899;
 	player->max_health = 1499;
 	if (map->starting_dir == 'N')
 	{
