@@ -80,7 +80,7 @@ int mouse_move(int x, int y, void *param)
 	if (dx != 0) {
 		rotate_player(app->player, dx > 0 ? 1 : 0, 24);
 		// Reset pointer to center
-		XWarpPointer(app->mlx->display, None, app->root->window, 0, 0, 0, 0, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
 	}
 
