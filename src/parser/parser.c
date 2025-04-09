@@ -509,6 +509,7 @@ void	load_super_door_tex(t_info *app, t_data *map)
 		i++;
 	}
 		map->door_super_tex[0].img = img_to_arr((char *)"./textures/metroid_door_super.xpm", app, &map->door_super_tex[0].x, &map->door_super_tex[0].y);
+		map->door_super_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &map->door_super_tex[1].x, &map->door_super_tex[1].y);
 }
 
 void	init_anims(t_data *map)

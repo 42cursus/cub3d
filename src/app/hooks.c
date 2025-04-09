@@ -18,7 +18,7 @@ void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_image(t_info *app)
 {
-	ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &app->canvas);
 }
