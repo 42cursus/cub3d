@@ -26,43 +26,34 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 	*(unsigned int *)pixel = colour;
 }
 
-void	fill_bg(t_imgdata *canvas, t_data *map)
+void	fill_bg(t_imgdata *bg, t_data *map)
 {
 	int				mid;
 	int				i;
 	int				j;
-	unsigned long	c_col;
-	unsigned long	f_col;
+	const size_t	c_col = (size_t)map->c_col + ((size_t)map->c_col << 32);
+	const size_t	f_col = (size_t)map->f_col + ((size_t)map->f_col << 32);
 
-	c_col = (unsigned long)map->c_col;
-	f_col = (unsigned long)map->f_col;
-	c_col = c_col + (c_col << 32);
-	f_col = f_col + (f_col << 32);
 	mid = WIN_HEIGHT / 2;
-	i = 0;
-	while (i <= mid)
+	i = -1;
+	while (++i <= mid)
 	{
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			// my_put_pixel(canvas, j, i, map->c_col);
-			// j++;
-			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = c_col;
+			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
 			j += 2;
 		}
-		i++;
 	}
-	while (i < WIN_HEIGHT)
+	i--;
+	while (++i < WIN_HEIGHT)
 	{
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			// my_put_pixel(canvas, j, i, map->f_col);
-			// j++;
-			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = f_col;
+			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
 			j += 2;
 		}
-		i++;
 	}
 }
 
@@ -206,10 +197,7 @@ void	draw_rays(t_info *app, t_imgdata *canvas)
 
 	player = app->player;
 	rays = player->rays;
-	i = 0;
-	while (i < WIN_WIDTH)
-	{
+	i = -1;
+	while (++i < WIN_WIDTH)
 		draw_slice(i, &rays[i], app, canvas);
-		i++;
-	}
 }

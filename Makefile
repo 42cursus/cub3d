@@ -22,9 +22,9 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 				   -pg \
-				   -fsanitize=address -fsanitize=undefined \
-				    			-fsanitize=float-divide-by-zero \
-				    			-fsanitize=float-cast-overflow \
+				    -fsanitize=address -fsanitize=undefined \
+				     			-fsanitize=float-divide-by-zero \
+				     			-fsanitize=float-cast-overflow
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
@@ -36,9 +36,9 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-lmlx -lft -lX11 -lXext -lm \
- 					-fsanitize=address -fsanitize=undefined \
- 					  			-fsanitize=float-divide-by-zero \
- 					  			-fsanitize=float-cast-overflow
+ 					 -fsanitize=address -fsanitize=undefined \
+ 					   			-fsanitize=float-divide-by-zero \
+ 					   			-fsanitize=float-cast-overflow
 
 SRC_DIR			= src
 
@@ -71,6 +71,7 @@ $(LIBFT_LIB):
 ## mlx
 $(LIBX):
 		@$(MAKE) -C $(LIBX_DIR) --no-print-directory -j8
+		@echo "LIBX BUILD COMPLETE!"
 
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
@@ -80,6 +81,7 @@ $(BUILD_DIR)/%.o: %.c
 clean:
 		@if [ -d $(BUILD_DIR) ]; then $(RM) -rf $(BUILD_DIR); fi
 		@$(MAKE) -C $(LIBFT_DIR) --no-print-directory clean
+		@#$(MAKE) -C $(LIBX_DIR) --no-print-directory clean
 
 ## fclean
 fclean: clean

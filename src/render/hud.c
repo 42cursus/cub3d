@@ -142,48 +142,40 @@ t_imgdata	build_mmap(t_info *app, void *tiles[])
 void	place_mmap(t_info *app)
 {
 	t_imgdata	*mmap;
-	t_imgdata	canvas;
+	t_imgdata	canvas = app->canvas;
 	int	i;
 	int	j;
 	int	colour;
 
-	i = 0;
+	i = -1;
 	mmap = &app->map->minimap;
-	canvas.img = app->canvas;
-	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
-	while (i < app->map->minimap.height)
+	while (++i < app->map->minimap.height)
 	{
-		j = 0;
-		while (j < app->map->minimap.width)
+		j = -1;
+		while (++j < app->map->minimap.width)
 		{
 			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
 			my_put_pixel(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
-			j++;
 		}
-		i++;
 	}
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 {
-	t_imgdata	canvas;
+	t_imgdata	canvas = app->canvas;
 	int			i;
 	int			j;
 	int			colour;
 
-	canvas.img = app->canvas;
-	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
-	i = 0;
-	while (i < tex->y)
+	i = -1;
+	while (++i < tex->y)
 	{
-		j = 0;
-		while (j < tex->x)
+		j = -1;
+		while (++j < tex->x)
 		{
 			colour = tex->img[i][j];
 			my_put_pixel(&canvas, x + j, y + i, colour);
-			j++;
 		}
-		i++;
 	}
 }
 

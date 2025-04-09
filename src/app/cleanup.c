@@ -14,7 +14,8 @@
 
 int	cleanup(t_info *app)
 {
-	mlx_destroy_image(app->mlx, app->canvas);
+	mlx_destroy_image(app->mlx, app->canvas.img);
+	mlx_destroy_image(app->mlx, app->bg.img);
 	mlx_destroy_image(app->mlx, app->map->minimap.img);
 	mlx_destroy_image(app->mlx, app->map->playertile);
 	mlx_destroy_window(app->mlx, app->root);

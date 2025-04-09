@@ -211,9 +211,8 @@ void	select_item_texture(t_info *app, t_object *obj)
 
 	map = app->map;
 	frames = app->framecount - obj->anim.framestart;
-	if (obj->subtype == I_ETANK)
-		texp = map->etank_tex;
-	else if (obj->subtype == I_SUPER)
+	texp = map->etank_tex;
+	if (obj->subtype == I_SUPER)
 		texp = map->super_tex;
 	if (frames % 10 < 5)
 		obj->texture = &texp[0];
@@ -251,8 +250,6 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 {
 	t_list		*current;
 	t_object	*obj;
-	// char		*tile;
-	// t_anim		*anim;
 
 	current = map->objects;
 	while (current != NULL)
