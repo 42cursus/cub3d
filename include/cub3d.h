@@ -77,6 +77,7 @@ typedef struct s_object
 	int			type;
 	int			subtype;
 	int			dead;
+	int			health;
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
@@ -224,7 +225,7 @@ void	print_ascii_mmap(t_data *data, t_player *player);
 void	free_split(char **split);
 
 t_player	*init_player(t_data *map);
-void		move_player(t_player *player, char **map, t_vect dir);
+void		move_entity(t_vect *pos, char **map, t_vect dir);
 void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
@@ -232,6 +233,8 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
 void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	developer_console(t_info *app, t_player *player);
+void	subtract_health(t_info *app, t_player *player, int damage);
+void	damage_enemy(t_info *app, t_object *enemy, int damage);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);

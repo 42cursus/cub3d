@@ -124,7 +124,7 @@ t_player	*init_player(t_data *map)
 // 	}
 // }
 
-void	move_player(t_player *player, char **map, t_vect dir)
+void	move_entity(t_vect *pos, char **map, t_vect dir)
 {
 	double	new_x;
 	double	new_y;
@@ -132,31 +132,31 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	char	y_tile;
 	char	both_tile;
 
-	new_x = player->pos.x + (dir.x * 0.1);
-	new_y = player->pos.y + (dir.y * 0.1);
-	x_tile = map[(int)player->pos.y][(int)new_x];
-	y_tile = map[(int)new_y][(int)player->pos.x];
+	new_x = pos->x + (dir.x * 0.1);
+	new_y = pos->y + (dir.y * 0.1);
+	x_tile = map[(int)pos->y][(int)new_x];
+	y_tile = map[(int)new_y][(int)pos->x];
 	both_tile = map[(int)new_y][(int)new_x];
 	if (both_tile == '0' || both_tile == 'O')
 	{
 		if (x_tile == '0' || x_tile == 'O')
-			player->pos.x = new_x;
+			pos->x = new_x;
 		if (y_tile == '0' || y_tile == 'O')
-			player->pos.y = new_y;
+			pos->y = new_y;
 	}
 	else
 	{
 		if ((x_tile == '0' || x_tile == 'O') && (y_tile == '0' || y_tile == 'O'))
 		{
 			if (get_max_direction(dir) == 'x')
-				player->pos.x = new_x;
+				pos->x = new_x;
 			else
-				player->pos.y = new_y;
+				pos->y = new_y;
 		}
 		else if (x_tile == '0' || x_tile == 'O')
-			player->pos.x = new_x;
+			pos->x = new_x;
 		else if (y_tile == '0' || y_tile == 'O')
-			player->pos.y = new_y;
+			pos->y = new_y;
 	}
 }
 
@@ -219,7 +219,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 		player->ammo[SUPER] -= 1;
 		if (player->ammo[SUPER] == 0)
 			player->equipped = BEAM;
-		projectile->dir = scale_vect(player->dir, 0.3);
+		projectile->dir = scale_vect(player->dir, 0.2);
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
@@ -238,6 +238,8 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
 	enemy->subtype = subtype;
+	if (subtype == E_ZOOMER)
+		enemy->health = 20;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
 	ft_lstadd_front(&map->objects, ft_lstnew(enemy));
@@ -270,7 +272,6 @@ void	developer_console(t_info *app, t_player *player)
 	ft_printf("input command:\t");
 	line = get_next_line(STDIN_FILENO);
 	line[ft_strlen(line) - 1] = 0;
-	ft_printf("%s\n", line);
 	split = ft_split(line, ' ');
 	if (ft_strcmp(split[0], "spawn") == 0)
 	{
@@ -285,7 +286,6 @@ void	developer_console(t_info *app, t_player *player)
 		if (ft_strcmp(split[1], "enemy") == 0)
 		{
 			val = ft_atoi(split[3]);
-			ft_printf("%d\n", val);
 			dir = scale_vect(vect(sin(val * M_PI_4 / 2), cos(val * M_PI_4 / 2)), 0.03);
 			if (split[4] != NULL)
 				dir = scale_vect(dir, ft_atoi(split[4]));
@@ -305,4 +305,29 @@ void	next_weapon(t_player *player)
 	while (player->ammo[next] == 0)
 		next = (next + 1) % 3;
 	player->equipped = next;
+}
+
+void	subtract_health(t_info *app, t_player *player, int damage)
+{
+	int	new_health;
+
+	new_health = player->health - damage;
+	if (new_health < 0)
+	{
+		new_health = 0;
+		printf("You died! :^(\n");
+		exit_win(app);
+	}
+	player->health = new_health;
+}
+
+void	damage_enemy(t_info *app, t_object *enemy, int damage)
+{
+	enemy->health -= damage;
+	if (enemy->health <= 0)
+	{
+		enemy->dead = 1;
+		enemy->anim2.framestart = app->framecount;
+		enemy->anim2.active = 1;
+	}
 }

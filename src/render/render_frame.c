@@ -112,9 +112,10 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 	if (closest != NULL)
 	{
 		start_obj_death(obj, app);
-		closest->dead = 1;
-		closest->anim2.framestart = app->framecount;
-		closest->anim2.active = 1;
+		if (obj->subtype == BEAM)
+			damage_enemy(app, closest, 10);
+		else if (obj->subtype == SUPER)
+			damage_enemy(app, closest, 50);
 		return (0);
 	}
 	if (obj->subtype == BEAM)
@@ -191,6 +192,13 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	}
 	else
 		obj->pos = new_pos;
+	if (vector_distance(obj->pos, app->player->pos) < 0.5)
+	{
+		subtract_health(app, app->player, 35);
+		move_entity(&app->player->pos, app->map->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
+		// app->player->pos = add_vect(app->player->pos,
+		// 					  scale_vect(normalise_vect(subtract_vect(app->player->pos, obj->pos)), 0.7));
+	}
 	return (0);
 	(void)current;
 }
@@ -286,15 +294,15 @@ int	render_next_frame(void *param)
 	 // if (app->mouse[1])
 	 // 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_player(app->player, app->map->map, app->player->dir);
+		move_entity(&app->player->pos, app->map->map, app->player->dir);
 	if (app->keys[idx_XK_s])
-		move_player(app->player, app->map->map,
+		move_entity(&app->player->pos, app->map->map,
 					rotate_vect(app->player->dir, M_PI));
 	if (app->keys[idx_XK_a])
-		move_player(app->player, app->map->map,
+		move_entity(&app->player->pos, app->map->map,
 					rotate_vect(app->player->dir, M_PI_2));
 	if (app->keys[idx_XK_d])
-		move_player(app->player, app->map->map,
+		move_entity(&app->player->pos, app->map->map,
 					rotate_vect(app->player->dir, -M_PI_2));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
 		rotate_player(app->player, 1, 12);
