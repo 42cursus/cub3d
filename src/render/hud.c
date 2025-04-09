@@ -126,7 +126,7 @@ t_imgdata	build_mmap(t_info *app, void *tiles[])
 				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
 				place_tile_on_image(&img, &tile, j * 8, i * 8);
 			}
-			else if (app->map->map[app->map->height - i - 1][j] == 'D')
+			else if (app->map->map[app->map->height - i - 1][j] == 'D' || app->map->map[app->map->height - i - 1][j] == 'L')
 			{
 				tile.img = tiles[15];
 				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
