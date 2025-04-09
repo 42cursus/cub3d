@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 22:02:39 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/09 00:39:22 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 	t_ray	ray;
 	ray.intcpt.x = floor(player->pos.x);
 	ray.intcpt.y = floor(player->pos.y);
-	t_vect	dir = rotate_vect(player->direction, angle);
+	t_vect	dir = rotate_vect(player->dir, angle);
 
 
 	double dir_x = dir.x == 0 ? __DBL_EPSILON__ : dir.x;
@@ -124,6 +124,8 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		{
 			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
 				add_in_front(&ray, ray.face + 8, &map->door_tex[1]);
+			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'L')
+				add_in_front(&ray, ray.face + 4, &map->door_super_tex[0]);
 			else
 				add_in_front(&ray, ray.face + 4, &map->door_tex[0]);
 			ray.in_front->maptile.x = (int)ray.intcpt.x;
@@ -174,14 +176,6 @@ t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 	return (intersect);
 }
 
-// int	check_obj_behind(t_player *player, t_object *obj)
-// {
-// 	t_fvect	diff;
-//
-// 	diff.x = obj->pos.x - player->pos.x;
-// 	diff.y = obj->pos.y - player->pos.y;
-// }
-
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 {
 	t_ray	*out;
@@ -203,7 +197,10 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
 		return (free(out), NULL);
-	out->pos = (0.5 - dist) * ray->texture->x;
+	out->pos = vector_distance(intcpt, object->p2) * ray->texture->x;
+	if (out->pos >= ray->texture->x)
+		out->pos = ray->texture->x - 1;
+	// printf("pos: %f\n", out->pos);
 	return (out);
 }
 

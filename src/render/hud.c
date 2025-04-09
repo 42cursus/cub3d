@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/06 20:53:32 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:19:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,10 @@ void	place_tile_on_image(t_imgdata *image, t_imgdata *tile, int x, int y)
 	int	colour;
 
 	i = 0;
-	while (i < 8)
+	while (i < tile->height)
 	{
 		j = 0;
-		while (j < 8)
+		while (j < tile->width)
 		{
 			colour = *(unsigned int *)(tile->addr + (i * tile->line_length + j * (tile->bpp / 8)));
 			my_put_pixel(image, x + j, y + i, colour);
@@ -157,7 +157,30 @@ void	place_mmap(t_info *app)
 		while (j < app->map->minimap.width)
 		{
 			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
-			my_put_pixel(&canvas, j, i, colour);
+			my_put_pixel(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
+			j++;
+		}
+		i++;
+	}
+}
+
+void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
+{
+	t_imgdata	canvas;
+	int			i;
+	int			j;
+	int			colour;
+
+	canvas.img = app->canvas;
+	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
+	i = 0;
+	while (i < tex->y)
+	{
+		j = 0;
+		while (j < tex->x)
+		{
+			colour = tex->img[i][j];
+			my_put_pixel(&canvas, x + j, y + i, colour);
 			j++;
 		}
 		i++;
@@ -166,13 +189,8 @@ void	place_mmap(t_info *app)
 
 void	place_weapon(t_info *app)
 {
-	t_imgdata	canvas;
 	t_texarr	*tex;
-	int	i;
-	int	j;
-	unsigned int	colour;
 
-	i = 0;
 	if (app->player->hud.active == 1)
 	{
 		if (app->framecount - app->player->hud.framestart < 6)
@@ -185,18 +203,78 @@ void	place_weapon(t_info *app)
 	}
 	else
 		tex = &app->map->cannon_tex[0];
-	canvas.img = app->canvas;
-	canvas.addr = mlx_get_data_addr(canvas.img, &canvas.bpp, &canvas.line_length, &canvas.endian);
-	while (i < tex->y)
+	place_texarr(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
+}
+
+void	place_energy_backup(t_info *app, t_data *map, t_player *player)
+{
+	int			backup;
+	int			max_backup;
+	int			i;
+	int			y_start;
+	int			x_start;
+
+	backup = player->health / 100;
+	max_backup = player->max_health / 100;
+	i = 0;
+	y_start = 32;
+	x_start = 16;
+	while (i < backup)
 	{
-		j = 0;
-		while (j < tex->x)
+		if (i > 6)
 		{
-			colour = tex->img[i][j];
-			my_put_pixel(&canvas, WIN_WIDTH / 2 + j, WIN_HEIGHT - tex->y + i, colour);
-			j++;
+			x_start = -96;
+			y_start = 16;
 		}
+		place_texarr(app, &map->energy_tex[11], x_start + i * 16, y_start);
 		i++;
+	}
+	while (i < max_backup)
+	{
+		if (i > 6)
+		{
+			x_start = -96;
+			y_start = 16;
+		}
+		place_texarr(app, &map->energy_tex[12], x_start + i * 16, y_start);
+		i++;
+	}
+}
+
+void	place_energy(t_info *app, t_data *map, t_player *player)
+{
+	int			tens;
+	int			units;
+	int			health;
+
+	place_texarr(app, &map->energy_tex[10], 16, 48);
+	health = player->health % 100;
+	tens = health / 10;
+	units = health % 10;
+	place_texarr(app, &map->energy_tex[tens], 96, 48);
+	place_texarr(app, &map->energy_tex[units], 112, 48);
+	place_energy_backup(app, map, player);
+}
+
+void	place_ammo(t_info *app, t_data *map, t_player *player)
+{
+	int			tens;
+	int			units;
+	
+	if (player->max_ammo[MISSILE] != 0)
+	{
+		;
+	}
+	if (player->max_ammo[SUPER] != 0)
+	{
+		tens = player->ammo[SUPER] / 10;
+		units = player->ammo[SUPER] % 10;
+		place_texarr(app, &map->energy_tex[tens], 192, 48);
+		place_texarr(app, &map->energy_tex[units], 208, 48);
+		if (player->equipped == SUPER)
+			place_texarr(app, &map->super_tex[3], 192, 16);
+		else
+			place_texarr(app, &map->super_tex[2], 192, 16);
 	}
 }
 
@@ -204,8 +282,10 @@ void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
+	place_energy(app, app->map, app->player);
+	place_ammo(app, app->map, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
-						 floor(app->player->pos.x) * 8 + 3,
+						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

@@ -59,6 +59,15 @@ t_vect	add_vect(t_vect v1, t_vect v2)
 	return (out);
 }
 
+t_vect	subtract_vect(t_vect v1, t_vect v2)
+{
+	t_vect	out;
+
+	out.x = v1.x - v2.x;
+	out.y = v1.y - v2.y;
+	return (out);
+}
+
 double	vector_distance(t_vect v1, t_vect v2)
 {
 	t_vect	diff;
@@ -78,4 +87,35 @@ char	get_max_direction(t_vect vect)
 	if (absx > absy)
 		return ('x');
 	return ('y');
+}
+
+double	vector_magnitude(t_vect vect)
+{
+	return (sqrt(vect.x * vect.x + vect.y * vect.y));
+}
+
+double	dot_product(t_vect v1, t_vect v2)
+{
+	return (v1.x * v2.x + v1.y * v2.y);
+}
+
+t_vect	normalise_vect(t_vect vect)
+{
+	double	mag;
+	t_vect	out;
+
+	mag = vector_magnitude(vect);
+	out.x = vect.x / mag;
+	out.y = vect.y / mag;
+	return (out);
+}
+
+double	vector_angle(t_vect v1, t_vect v2)
+{
+	double	dot;
+	double	det;
+
+	dot = dot_product(v1, v2);
+	det = v1.x * v2.y - v1.y * v2.x;
+	return atan2(det, dot);
 }

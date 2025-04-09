@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 FILES   = render.c \
-		  minimap.c \
+		  hud.c \
 		  render_frame.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/06 20:49:24 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 22:55:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,18 @@
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
 
+typedef struct s_texarr
+{
+	unsigned int	**img;
+	int				x;
+	int				y;
+}	t_texarr;
+
 typedef struct s_animation
 {
-	int		active;
-	size_t	framestart;
+	int			active;
+	size_t		framestart;
+	t_texarr	*tex_arr;
 }	t_anim;
 
 typedef struct s_imgdata
@@ -64,22 +72,18 @@ typedef struct s_ivect
 	int	y;
 }	t_ivect;
 
-typedef struct s_texarr
-{
-	unsigned int	**img;
-	int				x;
-	int				y;
-}	t_texarr;
-
 typedef struct s_object
 {
 	int			type;
+	int			subtype;
+	int			dead;
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
 	t_vect		p2;
 	t_texarr	*texture;
 	t_anim		anim;
+	t_anim		anim2;
 }	t_object;
 
 typedef struct s_ray
@@ -100,9 +104,14 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	door_tex[7];
+	t_texarr	door_super_tex[7];
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
-	t_texarr	proj_tex[5];
+	t_texarr	proj_tex[10];
+	t_texarr	explode_tex[6];
+	t_texarr	energy_tex[13];
+	t_texarr	etank_tex[2];
+	t_texarr	super_tex[12];
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -120,7 +129,12 @@ typedef	struct s_data
 typedef struct s_player
 {
 	t_vect	pos;
-	t_vect	direction;
+	int		health;
+	int		max_health;
+	int		ammo[3];
+	int		max_ammo[3];
+	int		equipped;
+	t_vect	dir;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
@@ -148,9 +162,23 @@ enum
 
 enum
 {
-	O_PROJ,
-	O_ENTITY,
-	O_PICKUP,
+	O_PROJ = 0,
+	O_ENTITY = 1,
+	O_ITEM = 2,
+};
+
+enum
+{
+	E_ZOOMER,
+	I_ETANK,
+	I_SUPER,
+};
+
+enum
+{
+	BEAM,
+	MISSILE,
+	SUPER,
 };
 
 typedef struct s_info
@@ -173,6 +201,7 @@ typedef struct s_info
 	size_t		last_frame;
 	size_t		framecount;
 	bool		keys[16];
+	bool		mouse[16];
 }	t_info;
 
 int		check_endianness(void);
@@ -181,7 +210,8 @@ int		exit_win(void *param);
 int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
-int		mouse_win(unsigned int button, int x, int y, void *p);
+int		mouse_release(unsigned int button, int x, int y, void *param);
+int		mouse_press(unsigned int button, int x, int y, void *param);
 int		mouse_move(int x, int y, void *param);
 int		key_win(KeySym key, void *param);
 void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
@@ -191,21 +221,30 @@ void	free_map(t_data *map);
 int		parse_cub(t_info *app, int fd);
 void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
+void	free_split(char **split);
 
 t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_vect dir);
-void		rotate_player(t_player *player, int direction, int sensitivity);
+void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
-void	spawn_projectile(t_info *app, t_player *player, t_data *map);
-void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir);
+void	next_weapon(t_player *player);
+void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
+void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
+void	spawn_item(t_info *app, t_vect pos, int subtype);
+void	developer_console(t_info *app, t_player *player);
 
+t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
+t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
-t_vect	vect(double x, double y);
+double	vector_magnitude(t_vect vect);
+t_vect	normalise_vect(t_vect vect);
+double	dot_product(t_vect v1, t_vect v2);
+double	vector_angle(t_vect v1, t_vect v2);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);

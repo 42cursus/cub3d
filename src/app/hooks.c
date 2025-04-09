@@ -6,12 +6,13 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/06 20:50:04 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:30:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
 #include <X11/X.h>
+#include <X11/Xutil.h>
 
 void	cast_all_rays_alt(t_data *map, t_player *player);
 
@@ -78,9 +79,9 @@ int mouse_move(int x, int y, void *param)
 	int dx = x - WIN_WIDTH / 2;
 
 	if (dx != 0) {
-		rotate_player(app->player, dx > 0 ? 1 : 0, 24);
+		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / dx));
 		// Reset pointer to center
-		XWarpPointer(app->mlx->display, None, app->root->window, 0, 0, 0, 0, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
 	}
 
@@ -89,24 +90,26 @@ int mouse_move(int x, int y, void *param)
 	(void)dy;
 }
 
-int mouse_win(unsigned int button, int x, int y, void *p)
+int mouse_release(unsigned int button, int x, int y, void *param)
 {
-	if (button == 5 || button == 4)
-	{
-		replace_image((t_info *) p);
-		on_expose((t_info *) p);
-	}
+	t_info *const app = param;
+
+	app->mouse[button] = false;
+
 	return (0);
 	((void) x, (void) y);
 }
 
-void mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param)
+int mouse_press(unsigned int button, int x, int y, void *param)
 {
 	t_info *const app = param;
 
-	win->hooks[KeyPress].hook = hook;
-	win->hooks[KeyPress].param = app;
-	win->hooks[KeyPress].mask = KeyPressMask;
+	app->mouse[button] = true;
+	if (button == 1)
+		spawn_projectile(app, app->player, app->map, app->player->equipped);
+
+	return (0);
+	((void) x, (void) y);
 }
 
 int	get_index(KeySym key)
@@ -145,14 +148,26 @@ int key_press(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
-		return (exit_win(app));
-	else if (key == KEY_E)
-		handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-	if (key == KEY_X)
-		spawn_projectile(app, app->player, app->map);
-	int idx = get_index(key);
-	if (idx != -1)
-		app->keys[idx] = true;
+		exit_win(app);
+	else
+	{
+		if (key == KEY_E)
+			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+		else if (key == KEY_X)
+			spawn_projectile(app, app->player, app->map, app->player->equipped);
+		// DEBUGGING
+		else if (key == XK_h)
+				app->player->health -= 10;
+		else if (key == XK_j)
+				app->player->health += 10;
+		else if (key == XK_grave)
+				developer_console(app, app->player);
+		else if (key == XK_z)
+				next_weapon(app->player);
+		int idx = get_index(key);
+		if (idx != -1)
+			app->keys[idx] = true;
+	}
 	return (0);
 }
 

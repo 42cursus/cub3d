@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 17:21:13 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 21:29:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/08 23:57:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,16 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 
 void	fill_bg(t_imgdata *canvas, t_data *map)
 {
-	int	mid;
-	int	i;
-	int	j;
+	int				mid;
+	int				i;
+	int				j;
+	unsigned long	c_col;
+	unsigned long	f_col;
 
+	c_col = (unsigned long)map->c_col;
+	f_col = (unsigned long)map->f_col;
+	c_col = c_col + (c_col << 32);
+	f_col = f_col + (f_col << 32);
 	mid = WIN_HEIGHT / 2;
 	i = 0;
 	while (i <= mid)
@@ -39,8 +45,10 @@ void	fill_bg(t_imgdata *canvas, t_data *map)
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			my_put_pixel(canvas, j, i, map->c_col);
-			j++;
+			// my_put_pixel(canvas, j, i, map->c_col);
+			// j++;
+			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = c_col;
+			j += 2;
 		}
 		i++;
 	}
@@ -49,8 +57,10 @@ void	fill_bg(t_imgdata *canvas, t_data *map)
 		j = 0;
 		while (j < WIN_WIDTH)
 		{
-			my_put_pixel(canvas, j, i, map->f_col);
-			j++;
+			// my_put_pixel(canvas, j, i, map->f_col);
+			// j++;
+			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = f_col;
+			j += 2;
 		}
 		i++;
 	}
@@ -121,9 +131,10 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	{
 		anim->active = 0;
 		tex = &app->map->door_tex[1];
+		anim->tex_arr = app->map->door_tex;
 	}
 	else
-		tex = &app->map->door_tex[2 + (frames / 4)];
+		tex = &anim->tex_arr[2 + (frames / 4)];
 	return (tex);
 }
 
@@ -155,50 +166,18 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 
 	texture = ray->texture;
 	pos = ray->pos;
-	// if (ray->face == NORTH)
-	// {
-	// 	texture = &app->map->n_tex;
-	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	// }
-	// else if (ray->face == SOUTH)
-	// {
-	// 	texture = &app->map->s_tex;
-	// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
-	// }
-	// else if (ray->face == EAST)
-	// {
-	// 	texture = &app->map->e_tex;
-	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	// }
-	// else if (ray->face == WEST)
-	// {
-	// 	texture = &app->map->w_tex;
-	// 	pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-	// }
 	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			texture = get_close_door_tex(anim, app);
-		else
-			texture = &app->map->door_tex[0];
-		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		// if (pos == 0.0)
-		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			texture = get_open_door_tex(anim, app);
-		else
-			texture = &app->map->door_tex[1];
-		// pos = (int)(fmod(ray->intcpt.y, 1) * texture->x);
-		// if (pos == 0.0)
-		// 	pos = (int)(fmod(ray->intcpt.x, 1) * texture->x);
 	}
-	// else
-	// 	exit(0);
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;
 	if (top < 0)
