@@ -131,9 +131,10 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	{
 		anim->active = 0;
 		tex = &app->map->door_tex[1];
+		anim->tex_arr = app->map->door_tex;
 	}
 	else
-		tex = &app->map->door_tex[2 + (frames / 4)];
+		tex = &anim->tex_arr[2 + (frames / 4)];
 	return (tex);
 }
 
@@ -170,16 +171,12 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			texture = get_close_door_tex(anim, app);
-		else
-			texture = &app->map->door_tex[0];
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
 		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			texture = get_open_door_tex(anim, app);
-		else
-			texture = &app->map->door_tex[1];
 	}
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
 	top = WIN_HEIGHT / 2 - lineheight / 2;

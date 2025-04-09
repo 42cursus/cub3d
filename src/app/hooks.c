@@ -12,6 +12,7 @@
 
 #include "../../include/cub3d.h"
 #include <X11/X.h>
+#include <X11/Xutil.h>
 
 void	cast_all_rays_alt(t_data *map, t_player *player);
 
@@ -78,7 +79,7 @@ int mouse_move(int x, int y, void *param)
 	int dx = x - WIN_WIDTH / 2;
 
 	if (dx != 0) {
-		rotate_player(app->player, dx > 0 ? 1 : 0, 30);
+		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / dx));
 		// Reset pointer to center
 		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
@@ -105,7 +106,7 @@ int mouse_press(unsigned int button, int x, int y, void *param)
 
 	app->mouse[button] = true;
 	if (button == 1)
-		spawn_projectile(app, app->player, app->map);
+		spawn_projectile(app, app->player, app->map, app->player->equipped);
 
 	return (0);
 	((void) x, (void) y);
@@ -153,12 +154,16 @@ int key_press(KeySym key, void *param)
 		if (key == KEY_E)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 		else if (key == KEY_X)
-			spawn_projectile(app, app->player, app->map);
+			spawn_projectile(app, app->player, app->map, app->player->equipped);
 		// DEBUGGING
 		else if (key == XK_h)
 				app->player->health -= 10;
 		else if (key == XK_j)
 				app->player->health += 10;
+		else if (key == XK_grave)
+				developer_console(app, app->player);
+		else if (key == XK_z)
+				next_weapon(app->player);
 		int idx = get_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;

@@ -265,7 +265,7 @@ void	cast_all_rays(t_data *map, t_player *player)
 	int		i;
 	double	angle;
 
-	player->angle = atan2(player->direction.y, player->direction.x);
+	player->angle = atan2(player->dir.y, player->dir.x);
 	i = 0;
 	while (i < WIN_WIDTH)
 	{
@@ -282,7 +282,7 @@ void	cast_all_rays_alt(t_data *map, t_player *player)
 {
 	int		i;
 
-	player->angle = atan2(player->direction.y, player->direction.x);
+	player->angle = atan2(player->dir.y, player->dir.x);
 	i = 0;
 	while (i < WIN_WIDTH)
 	{

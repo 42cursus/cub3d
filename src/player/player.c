@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
+#include <unistd.h>
 
 void	calculate_offsets(t_player *player)
 {
@@ -37,25 +38,28 @@ t_player	*init_player(t_data *map)
 	player->pos = map->starting_pos;
 	player->health = 99;
 	player->max_health = 99;
+	player->equipped = BEAM;
+	player->ammo[BEAM] = -1;
+	player->max_ammo[BEAM] = -1;
 	if (map->starting_dir == 'N')
 	{
-		player->direction.x = 0;
-		player->direction.y = 1;
+		player->dir.x = 0;
+		player->dir.y = 1;
 	}
 	else if (map->starting_dir == 'S')
 	{
-		player->direction.x = 0;
-		player->direction.y = -1;
+		player->dir.x = 0;
+		player->dir.y = -1;
 	}
 	else if (map->starting_dir == 'E')
 	{
-		player->direction.x = 1;
-		player->direction.y = 0;
+		player->dir.x = 1;
+		player->dir.y = 0;
 	}
 	else if (map->starting_dir == 'W')
 	{
-		player->direction.x = -1;
-		player->direction.y = 0;
+		player->dir.x = -1;
+		player->dir.y = 0;
 	}
 	// rotate_vect_inplace(&player->direction, 0.01);
 	calculate_offsets(player);
@@ -156,12 +160,12 @@ void	move_player(t_player *player, char **map, t_vect dir)
 	}
 }
 
-void	rotate_player(t_player *player, int direction, int sensitivity)
+void	rotate_player(t_player *player, int direction, double sensitivity)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->direction, M_PI_4 / sensitivity);
+		rotate_vect_inplace(&player->dir, M_PI_4 / sensitivity);
 	else
-		rotate_vect_inplace(&player->direction, -M_PI_4 / sensitivity);
+		rotate_vect_inplace(&player->dir, -M_PI_4 / sensitivity);
 }
 
 void	handle_close_door(t_info *app, t_ray *crosshair)
@@ -199,22 +203,30 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 		handle_open_door(app, crosshair->in_front);
 }
 
-void	spawn_projectile(t_info *app, t_player *player, t_data *map)
+void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 {
 	t_object	*projectile;
 
 	player->hud.active = 1;
 	player->hud.framestart = app->framecount;
 	projectile = ft_calloc(1, sizeof(*projectile));
-	projectile->pos = add_vect(player->pos, scale_vect(player->direction, 0.2));
-	projectile->dir = scale_vect(player->direction, 0.5);
-	projectile->texture = &map->proj_tex[0];
+	projectile->subtype = subtype;
+	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
+	if (subtype == BEAM)
+		projectile->dir = scale_vect(player->dir, 0.5);
+	else if (subtype == SUPER)
+	{
+		player->ammo[SUPER] -= 1;
+		if (player->ammo[SUPER] == 0)
+			player->equipped = BEAM;
+		projectile->dir = scale_vect(player->dir, 0.3);
+	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
 	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
 }
 
-void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir)
+void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 {
 	t_object	*enemy;
 	t_data		*map;
@@ -223,15 +235,15 @@ void	spawn_enemy(t_info *app, t_texarr *tex, t_vect pos, t_vect dir)
 	enemy = ft_calloc(1, sizeof(*enemy));
 	enemy->pos = pos;
 	enemy->dir = dir;
-	enemy->texture = tex;
+	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
-	enemy->subtype = E_ZOOMER;
+	enemy->subtype = subtype;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
 	ft_lstadd_front(&map->objects, ft_lstnew(enemy));
 }
 
-void	spawn_item(t_info *app, t_texarr *tex, t_vect pos, int subtype)
+void	spawn_item(t_info *app, t_vect pos, int subtype)
 {
 	t_object	*item;
 	t_data		*map;
@@ -239,10 +251,58 @@ void	spawn_item(t_info *app, t_texarr *tex, t_vect pos, int subtype)
 	map = app->map;
 	item = ft_calloc(1, sizeof(*item));
 	item->pos = pos;
-	item->texture = tex;
+	// item->texture = tex;
 	item->type = O_ITEM;
 	item->subtype = subtype;
 	item->anim.active = 1;
 	item->anim.framestart = app->framecount;
 	ft_lstadd_front(&map->objects, ft_lstnew(item));
+}
+
+void	developer_console(t_info *app, t_player *player)
+{
+	char	*line;
+	char	**split;
+	t_vect	pos;
+	t_vect	dir;
+	int		val;
+
+	ft_printf("input command:\t");
+	line = get_next_line(STDIN_FILENO);
+	line[ft_strlen(line) - 1] = 0;
+	ft_printf("%s\n", line);
+	split = ft_split(line, ' ');
+	if (ft_strcmp(split[0], "spawn") == 0)
+	{
+		pos = add_vect(player->pos, player->dir);
+		if (ft_strcmp(split[1], "item") == 0)
+		{
+			if (ft_strcmp(split[2], "etank") == 0)
+				spawn_item(app, pos, I_ETANK);
+			if (ft_strcmp(split[2], "super") == 0)
+				spawn_item(app, pos, I_SUPER);
+		}
+		if (ft_strcmp(split[1], "enemy") == 0)
+		{
+			val = ft_atoi(split[3]);
+			ft_printf("%d\n", val);
+			dir = scale_vect(vect(sin(val * M_PI_4 / 2), cos(val * M_PI_4 / 2)), 0.03);
+			if (split[4] != NULL)
+				dir = scale_vect(dir, ft_atoi(split[4]));
+			if (ft_strcmp(split[2], "zoomer") == 0)
+				spawn_enemy(app, pos, dir, E_ZOOMER);
+		}
+	}
+	free(line);
+	free_split(split);
+}
+
+void	next_weapon(t_player *player)
+{
+	int	next;
+
+	next = (player->equipped + 1) % 3;
+	while (player->ammo[next] == 0)
+		next = (next + 1) % 3;
+	player->equipped = next;
 }

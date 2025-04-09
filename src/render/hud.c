@@ -241,19 +241,14 @@ void	place_energy_backup(t_info *app, t_data *map, t_player *player)
 	}
 }
 
-void	place_energy(t_info *
-				  app, t_data *map, t_player *player)
+void	place_energy(t_info *app, t_data *map, t_player *player)
 {
 	int			tens;
 	int			units;
 	int			health;
-	// int			backup;
-	// int			max_backup;
 
 	place_texarr(app, &map->energy_tex[10], 16, 48);
 	health = player->health % 100;
-	// backup = player->health / 100;
-	// max_backup = player->max_health / 100;
 	tens = health / 10;
 	units = health % 10;
 	place_texarr(app, &map->energy_tex[tens], 96, 48);
@@ -261,11 +256,34 @@ void	place_energy(t_info *
 	place_energy_backup(app, map, player);
 }
 
+void	place_ammo(t_info *app, t_data *map, t_player *player)
+{
+	int			tens;
+	int			units;
+	
+	if (player->max_ammo[MISSILE] != 0)
+	{
+		;
+	}
+	if (player->max_ammo[SUPER] != 0)
+	{
+		tens = player->ammo[SUPER] / 10;
+		units = player->ammo[SUPER] % 10;
+		place_texarr(app, &map->energy_tex[tens], 192, 48);
+		place_texarr(app, &map->energy_tex[units], 208, 48);
+		if (player->equipped == SUPER)
+			place_texarr(app, &map->super_tex[3], 192, 16);
+		else
+			place_texarr(app, &map->super_tex[2], 192, 16);
+	}
+}
+
 void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
 	place_energy(app, app->map, app->player);
+	place_ammo(app, app->map, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
