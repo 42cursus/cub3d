@@ -18,34 +18,9 @@ void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_image(t_info *app)
 {
-	t_imgdata im3;
-
-	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	if (!im3.img)
-	{
-		ft_printf(" !! KO !!\n");
-		cleanup(app);
-		exit(EXIT_FAILURE);
-	}
-	im3.height = WIN_HEIGHT;
-	im3.width = WIN_WIDTH;
-	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
-	fill_bg(&im3, app->map);
-	// cast_all_rays(app->map, app->player);
+	ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
-	draw_rays(app, &im3);
-	mlx_destroy_image(app->mlx, app->canvas);
-	app->canvas = im3.img;
-	// mlx_put_image_to_window(app->mlx, app->root,
-	// 						app->canvas, app->clip_x_origin,
-	// 						app->clip_y_origin);
-}
-
-int exit_win(void *param)
-{
-	t_info *const app = param;
-	mlx_loop_end(app->mlx);
-	return (0);
+	draw_rays(app, &app->canvas);
 }
 
 /**
@@ -56,17 +31,31 @@ int exit_win(void *param)
 int expose_win(void *param)
 {
 	t_imgdata im3;
+	t_imgdata bg;
 	t_info *const app = param;
 
+
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	if (!im3.img)
+	bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	if (!im3.img || !bg.img)
 	{
 		ft_printf(" !! KO !!\n");
 		cleanup(app);
 		exit(EXIT_FAILURE);
 	}
-	mlx_clear_window(app->mlx,  app->root);;
-	app->canvas = im3.img;
+
+	im3.height = WIN_HEIGHT;
+	im3.width = WIN_WIDTH;
+	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
+
+	bg.height = WIN_HEIGHT;
+	bg.width = WIN_WIDTH;
+	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
+
+	fill_bg(&bg, app->map);
+	app->canvas = im3;
+	app->bg = bg;
+	mlx_clear_window(app->mlx,  app->root);
 	on_expose(app);
 	return (EXIT_SUCCESS);
 }
@@ -148,7 +137,7 @@ int key_press(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
-		exit_win(app);
+		app->mlx->end_loop = 1;
 	else
 	{
 		if (key == KEY_E)

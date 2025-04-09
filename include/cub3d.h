@@ -51,7 +51,7 @@ typedef struct s_animation
 
 typedef struct s_imgdata
 {
-	void	*img;
+	t_img	*img;
 	char	*addr;
 	int		width;
 	int		height;
@@ -192,7 +192,8 @@ typedef struct s_info
 	t_win_list	*root;
 	double		zoom;
 	char 		*title;
-	t_img		*canvas;
+	t_imgdata	canvas;
+	t_imgdata	bg;
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
@@ -206,7 +207,6 @@ typedef struct s_info
 
 int		check_endianness(void);
 void	on_expose(t_info *app);
-int		exit_win(void *param);
 int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
@@ -251,7 +251,7 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 void	free_ray_children(t_ray *ray);
 
-void	fill_bg(t_imgdata *canvas, t_data *map);
+void	fill_bg(t_imgdata *bg, t_data *map);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
