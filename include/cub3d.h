@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/08 22:55:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/10 21:59:50 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,6 +248,7 @@ double	vector_magnitude(t_vect vect);
 t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
+void	*fast_memcpy_test(void *dest, const void *src, size_t n);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);

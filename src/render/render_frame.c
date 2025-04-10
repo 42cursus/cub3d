@@ -6,12 +6,11 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:09:58 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/10 21:44:18 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
-#include <math.h>
 #include <sys/time.h>
 
 size_t	get_time_ms(void)

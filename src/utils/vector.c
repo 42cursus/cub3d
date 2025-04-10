@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 14:53:49 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 20:34:40 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/10 21:59:35 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,4 +118,30 @@ double	vector_angle(t_vect v1, t_vect v2)
 	dot = dot_product(v1, v2);
 	det = v1.x * v2.y - v1.y * v2.x;
 	return atan2(det, dot);
+}
+
+void	*fast_memcpy_test(void *dest, const void *src, size_t n)
+{
+	char *const			save_pointer = dest;
+	unsigned long		*l_dest;
+	unsigned long		*l_src;
+	// size_t				blocks;
+	// size_t				left;
+
+	if (!src && !dest)
+		return (NULL);
+	l_dest = (unsigned long *)dest;
+	l_src = (unsigned long *)src;
+	// blocks = n / 8;
+	// left = n % 8;
+	while (n > 7)
+	{
+		*l_dest++ = *l_src++;
+		n -= 8;
+	}
+	dest = l_dest;
+	src = l_src;
+	while (n--)
+		*(unsigned char *)dest++ = *(unsigned char *)src++;
+	return (save_pointer);
 }

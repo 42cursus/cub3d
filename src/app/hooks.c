@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/08 23:30:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/10 22:07:47 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@ void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_image(t_info *app)
 {
-	memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	// ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	// ft_memcpy(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &app->canvas);
 }
