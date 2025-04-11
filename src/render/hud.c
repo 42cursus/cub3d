@@ -185,7 +185,7 @@ void	place_weapon(t_info *app)
 
 	if (app->player->hud.active == 1)
 	{
-		if (app->framecount - app->player->hud.framestart < 6)
+		if (app->framecount - app->player->hud.framestart < 6 * FR_SCALE)
 			tex = &app->map->cannon_tex[1];
 		else
 		{
