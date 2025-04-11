@@ -43,8 +43,7 @@ int	main(int argc, char **argv)
 	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
 	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move, app);
-	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
-	GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+//	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
