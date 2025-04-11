@@ -123,34 +123,65 @@ double vector_angle(t_vect v1, t_vect v2)
 #include <immintrin.h>
 #include <stdint.h>
 
-void *fast_memcpy_test(int *dst, const int *src, size_t count)
+void memcpy_avx2_nt(void *dst, const void *src, size_t count)
 {
 	size_t i = 0;
+	const size_t stride = 32; // 256-bit = 32 bytes
+	const size_t prefetch_distance = 256; // ahead by 256 bytes
 
 	// Process 8 integers (256 bits) at a time
 	if (((uintptr_t) src % 32 == 0) && ((uintptr_t) dst % 32 == 0))
 	{
-		while (i + 7 < count) // Use non-temporal store
+		while (i + stride - 1 < count) // Use non-temporal store
 		{
+//			if (i + prefetch_distance < count)
+			_mm_prefetch((const char *) (src + i + prefetch_distance),
+						 _MM_HINT_T0);
 			__m256i chunk = _mm256_load_si256((const __m256i *) (src + i));
 			_mm256_stream_si256((__m256i *) (dst + i), chunk);
-			i += 8;
+			i += stride;
 		}
 		_mm_sfence();        // Ensure the stores are globally visible
 	}
 	else  // Fallback to unaligned AVX2
 	{
-		while (i + 7 < count)
+		while (i + stride - 1 < count)
 		{
 			__m256i chunk = _mm256_loadu_si256((const __m256i *) (src + i));
 			_mm256_storeu_si256((__m256i *) (dst + i), chunk);
-			i += 8;
+			i += stride;
 		}
 	}
 
 	i--;
 	while (++i < count)
-		dst[i] = src[i]; 	// Copy remaining integers (if any)
+		((uint8_t *)dst)[i] = ((const uint8_t *)src)[i];
+}
 
+void memcpy_sse2(void *dst_void, const void *src_void, size_t size)
+{
+	uint8_t *dst = (uint8_t *)dst_void;
+	const uint8_t *src = (const uint8_t *)src_void;
+
+	size_t i = 0;
+	const size_t stride = 16;
+
+	for (; i + stride - 1 < size; i += stride) {
+		__m128i chunk = _mm_loadu_si128((const __m128i *)(src + i));
+		_mm_storeu_si128((__m128i *)(dst + i), chunk);
+	}
+
+	for (; i < size; ++i)
+		((uint8_t *)dst)[i] = ((const uint8_t *)src)[i];
+}
+
+void *fast_memcpy_test(int *dst, const int *src, size_t size)
+{
+	if (__builtin_cpu_supports("avx2"))
+		memcpy_avx2_nt(dst, src, size);
+	else if (__builtin_cpu_supports("sse2"))
+		memcpy_sse2(dst, src, size);
+	else
+		ft_memcpy(dst, src, size);
 	return (dst);
 }

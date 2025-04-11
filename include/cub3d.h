@@ -257,6 +257,7 @@ t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
+void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays(t_data *map, t_player *player);

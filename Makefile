@@ -17,7 +17,7 @@ LIBX_DIR		=  ./lib/mlx
 BUILD_DIR		= build
 INC_DIR			=  ./include
 
-CC				:= cc
+CC				:= clang
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \

@@ -33,6 +33,7 @@ set(FT_CFLAGS
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
         -O3
+        -pg
         -masm=att
         -g3 -gdwarf-3
         -fasynchronous-unwind-tables
@@ -45,11 +46,13 @@ set(FT_CFLAGS
 )
 
 set(COMMON_LDFLAGS
-        -fsanitize=address
-        -fsanitize=undefined
-        -fno-sanitize-recover=all
-        -fsanitize=float-divide-by-zero
-        -fsanitize=float-cast-overflow)
+        -pg
+#        -fsanitize=address
+#        -fsanitize=undefined
+#        -fno-sanitize-recover=all
+#        -fsanitize=float-divide-by-zero
+#        -fsanitize=float-cast-overflow
+)
 
 #===========================================================================
 
