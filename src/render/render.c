@@ -170,7 +170,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			texture = get_open_door_tex(anim, app);
 	}
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
-	top = WIN_HEIGHT / 2 - lineheight / 2;
+	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
 	if (top < 0)
 		y = 0 - top;
 	else

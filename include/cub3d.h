@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1200
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 200
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -118,6 +118,7 @@ typedef	struct s_data
 	t_texarr	explode_tex[6];
 	t_texarr	energy_tex[13];
 	t_texarr	etank_tex[2];
+	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
 	void		*playertile;
 	t_imgdata	minimap;
@@ -142,6 +143,7 @@ typedef struct s_player
 	int		max_ammo[3];
 	int		equipped;
 	t_vect	dir;
+	int		vert_offset;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
@@ -179,6 +181,7 @@ enum
 	E_ZOOMER,
 	I_ETANK,
 	I_SUPER,
+	I_MISSILE,
 };
 
 enum

@@ -82,8 +82,10 @@ void	select_missile_tex(t_object *obj, t_player *player, t_data *map)
 	double		angle;
 	int			index;
 
-	// if (obj->subtype == SUPER)
+	if (obj->subtype == SUPER)
 		tex = map->super_tex + 4;
+	else
+		tex = map->missile_tex + 4;
 	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
 	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
 	angle = vector_angle(obj->dir, add_vect(player->dir,
@@ -109,10 +111,10 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 			*current = delete_object(&app->map->objects, *current);
 			return (1);
 		}
-		else if (obj->subtype == SUPER)
-			obj->texture = &app->map->proj_tex[5 + (frames / 5)];
-		else
+		else if (obj->subtype == BEAM)
 			obj->texture = &app->map->proj_tex[1 + (frames / 5)];
+		else
+			obj->texture = &app->map->proj_tex[5 + (frames / 4)];
 		return (0);
 	}
 	closest = check_obj_proximity(obj->pos, app->map);
@@ -123,11 +125,14 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 			damage_enemy(app, closest, 10);
 		else if (obj->subtype == SUPER)
 			damage_enemy(app, closest, 50);
+		else if (obj->subtype == MISSILE)
+			damage_enemy(app, closest, 30);
 		return (0);
 	}
 	if (obj->subtype == BEAM)
 		obj->texture = &app->map->proj_tex[0];
-	else if (obj->subtype == SUPER)
+	// else if (obj->subtype == SUPER)
+	else
 		select_missile_tex(obj, app->player, app->map);
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
@@ -221,6 +226,8 @@ void	select_item_texture(t_info *app, t_object *obj)
 	texp = map->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = map->super_tex;
+	if (obj->subtype == I_MISSILE)
+		texp = map->missile_tex;
 	if (frames % 10 < 5)
 		obj->texture = &texp[0];
 	else
@@ -235,7 +242,7 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 	map = app->map;
 	player = app->player;
 	select_item_texture(app, obj);
-	if (vector_distance(player->pos, obj->pos) < 0.3)
+	if (vector_distance(player->pos, obj->pos) < 0.5)
 	{
 		if (obj->subtype == I_ETANK)
 		{
@@ -246,6 +253,11 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		{
 			player->max_ammo[SUPER] += 5;
 			player->ammo[SUPER] += 5;
+		}
+		else if (obj->subtype == I_MISSILE)
+		{
+			player->max_ammo[MISSILE] += 10;
+			player->ammo[MISSILE] += 10;
 		}
 		*current = delete_object(&map->objects, *current);
 		return (1);

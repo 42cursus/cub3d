@@ -214,10 +214,10 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
 	if (subtype == BEAM)
 		projectile->dir = scale_vect(player->dir, 0.5 / FR_SCALE);
-	else if (subtype == SUPER)
+	else
 	{
-		player->ammo[SUPER] -= 1;
-		if (player->ammo[SUPER] == 0)
+		player->ammo[subtype] -= 1;
+		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / FR_SCALE);
 	}

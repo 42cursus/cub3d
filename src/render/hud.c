@@ -252,21 +252,31 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 {
 	int			tens;
 	int			units;
+	int			hundreds;
 	
 	if (player->max_ammo[MISSILE] != 0)
 	{
-		;
+		hundreds = player->ammo[MISSILE] / 100;
+		tens = player->ammo[MISSILE] / 10;
+		units = player->ammo[MISSILE] % 10;
+		place_texarr(app, &map->energy_tex[hundreds], 160, 48);
+		place_texarr(app, &map->energy_tex[tens], 176, 48);
+		place_texarr(app, &map->energy_tex[units], 192, 48);
+		if (player->equipped == MISSILE)
+			place_texarr(app, &map->missile_tex[3], 160, 16);
+		else
+			place_texarr(app, &map->missile_tex[2], 160, 16);
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
 		tens = player->ammo[SUPER] / 10;
 		units = player->ammo[SUPER] % 10;
-		place_texarr(app, &map->energy_tex[tens], 192, 48);
-		place_texarr(app, &map->energy_tex[units], 208, 48);
+		place_texarr(app, &map->energy_tex[tens], 224, 48);
+		place_texarr(app, &map->energy_tex[units], 240, 48);
 		if (player->equipped == SUPER)
-			place_texarr(app, &map->super_tex[3], 192, 16);
+			place_texarr(app, &map->super_tex[3], 224, 16);
 		else
-			place_texarr(app, &map->super_tex[2], 192, 16);
+			place_texarr(app, &map->super_tex[2], 224, 16);
 	}
 }
 

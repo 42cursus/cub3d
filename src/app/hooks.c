@@ -155,6 +155,10 @@ int key_press(KeySym key, void *param)
 				developer_console(app, app->player);
 		else if (key == XK_z)
 				next_weapon(app->player);
+		else if (key == UP)
+				app->player->vert_offset += 10;
+		else if (key == DOWN)
+				app->player->vert_offset -= 10;
 		int idx = get_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;

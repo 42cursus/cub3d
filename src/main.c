@@ -43,8 +43,8 @@ int	main(int argc, char **argv)
 	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
 	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move, app);
-	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
-	GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	// XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask,
+	// GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
@@ -58,7 +58,7 @@ int	main(int argc, char **argv)
 	spawn_enemy(app,  vect(18.5, 4.5), vect(0.03, 0.0), E_ZOOMER);
 	spawn_item(app, vect(20.5, 2.5), I_ETANK);
 	spawn_item(app, vect(18.5, 2.5), I_SUPER);
-	spawn_item(app, vect(23.5, 2.5), I_SUPER);
+	spawn_item(app, vect(23.5, 2.5), I_MISSILE);
 	spawn_item(app, vect(10.5, 10.5), I_ETANK);
 	app->last_frame = get_time_us();
 	app->framecount = 0;

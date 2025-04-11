@@ -461,6 +461,24 @@ t_anim	**create_anim_arr(int x, int y)
 	return (arr);
 }
 
+
+void	load_missile_textures(t_info *app, t_data *map)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 8)
+	{
+		ft_snprintf(buf, 50, "./textures/missile%c.xpm", i + '0');
+		map->missile_tex[i + 4].img = img_to_arr(buf, app, &map->missile_tex[i + 4].x, &map->missile_tex[i + 4].y);
+		i++;
+	}
+	map->missile_tex[0].img = img_to_arr((char *)"./textures/missile_pu0.xpm", app, &map->missile_tex[0].x, &map->missile_tex[0].y);
+	map->missile_tex[1].img = img_to_arr((char *)"./textures/missile_pu1.xpm", app, &map->missile_tex[1].x, &map->missile_tex[1].y);
+	map->missile_tex[2].img = img_to_arr((char *)"./textures/missile_off.xpm", app, &map->missile_tex[2].x, &map->missile_tex[2].y);
+	map->missile_tex[3].img = img_to_arr((char *)"./textures/missile_on.xpm", app, &map->missile_tex[3].x, &map->missile_tex[3].y);
+}
 void	load_super_textures(t_info *app, t_data *map)
 {
 	int		i;
@@ -600,6 +618,7 @@ int	parse_cub(t_info *app, int fd)
 	data->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &data->etank_tex[1].x, &data->etank_tex[1].y);
 	load_energy_textures(app, data);
 	load_super_textures(app, data);
+	load_missile_textures(app, data);
 	load_super_door_tex(app, data);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
@@ -665,6 +684,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 12)
 		free_tex_arr(&data->super_tex[i++]);
+	i = 0;
+	while (i < 12)
+		free_tex_arr(&data->missile_tex[i++]);
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_super_tex[i++]);
