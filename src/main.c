@@ -13,7 +13,10 @@
 #include <stdlib.h>
 #include "../include/cub3d.h"
 
-int	render_next_frame(void *param);
+int	exit_win(t_info *const	app)
+{
+	exit(cleanup(app));
+}
 
 int	main(int argc, char **argv)
 {
@@ -34,16 +37,13 @@ int	main(int argc, char **argv)
 	app->mlx = mlx_init();
 	if (app->mlx == NULL)
 		exit(EXIT_FAILURE);
+
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
 	mlx_expose_hook(app->root, &expose_win, app);
-	mlx_loop_hook(app->mlx, &render_next_frame, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press, app);
-	mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *)&mouse_press, app);
-	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release, app);
-	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release, app);
-	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move, app);
-//	XGrabPointer(app->mlx->display, app->root->window, True, PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	mlx_loop_hook(app->mlx, &loop_hook, app);
+	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
+	switch_game_state(app, INITIAL);
 
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
@@ -59,12 +59,16 @@ int	main(int argc, char **argv)
 	spawn_item(app, vect(18.5, 2.5), I_SUPER);
 	spawn_item(app, vect(23.5, 2.5), I_SUPER);
 	spawn_item(app, vect(10.5, 10.5), I_ETANK);
+
 	app->last_frame = get_time_us();
 	app->framecount = 0;
 	// app->last_frame_us = get_time_us();
 	app->frametime = 5000;
+
 	mlx_mouse_hide(app->mlx, app->root);
+
 	mlx_loop(app->mlx);
+
 	mlx_mouse_show(app->mlx, app->root);
 	cleanup(app);
 	return (EXIT_SUCCESS);

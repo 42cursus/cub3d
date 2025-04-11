@@ -32,8 +32,8 @@
 # define KEY_E 0x0065
 # define KEY_X 0x0078
 
-# define WIN_HEIGHT 900
-# define WIN_WIDTH 1200
+# define WIN_HEIGHT 768
+# define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
 # define FRAMERATE 100
@@ -188,6 +188,13 @@ enum
 	SUPER,
 };
 
+typedef enum e_game_state
+{
+	INITIAL,
+	PLAY,
+	GAME_OVER
+}	t_game_state;
+
 typedef struct s_info
 {
 	struct s_fdf_win
@@ -212,6 +219,7 @@ typedef struct s_info
 	size_t		framecount;
 	bool		keys[16];
 	bool		mouse[16];
+	t_game_state state;
 }	t_info;
 
 int		check_endianness(void);
@@ -219,9 +227,9 @@ void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_image(t_info *app);
 int		expose_win(void *param);
-int		mouse_release(unsigned int button, int x, int y, void *param);
-int		mouse_press(unsigned int button, int x, int y, void *param);
-int		mouse_move(int x, int y, void *param);
+int		mouse_release_play(unsigned int button, int x, int y, void *param);
+int		mouse_press_play(unsigned int button, int x, int y, void *param);
+int		mouse_move_play(int x, int y, void *param);
 int		key_win(KeySym key, void *param);
 void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
 
@@ -275,8 +283,18 @@ t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 
-int key_press(KeySym key, void *param);
-int key_release(KeySym key, void *param);
+int key_press_over(KeySym key, void *param);
+int key_press_play(KeySym key, void *param);
+int key_press_initial(KeySym key, void *param);
+int key_release_play(KeySym key, void *param);
+int key_release_initial(KeySym key, void *param);
+
+int switch_game_state(t_info *app, t_game_state new_state);
+int	loop_hook(void *param);
+int	render_initial(t_info *const app);
+int	render_play(t_info *const app);
+int	render_game_over(t_info *const app);
+void fill_everything_with_blood(t_imgdata *bg);
 
 #endif //CUB3D_H
 
