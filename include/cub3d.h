@@ -35,6 +35,12 @@
 # define WIN_HEIGHT 900
 # define WIN_WIDTH 1200
 
+#ifndef FRAMERATE
+# define FRAMERATE 100
+#endif
+#define FR_SCALE (FRAMERATE / 50)
+#define FRAMETIME (1000000 / FRAMERATE)
+
 typedef struct s_texarr
 {
 	unsigned int	**img;
@@ -201,6 +207,8 @@ typedef struct s_info
 	t_data		*map;
 	t_player	*player;
 	size_t		last_frame;
+	// size_t		last_frame_us;
+	size_t		frametime;
 	size_t		framecount;
 	bool		keys[16];
 	bool		mouse[16];
@@ -264,6 +272,7 @@ void	draw_rays(t_info *app, t_imgdata *canvas);
 void	draw_mmap(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
+size_t	get_time_us(void);
 
 int key_press(KeySym key, void *param);
 int key_release(KeySym key, void *param);

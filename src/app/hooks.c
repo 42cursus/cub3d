@@ -70,7 +70,7 @@ int mouse_move(int x, int y, void *param)
 	int dx = x - WIN_WIDTH / 2;
 
 	if (dx != 0) {
-		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / dx));
+		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / (dx * FR_SCALE)));
 		// Reset pointer to center
 		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);

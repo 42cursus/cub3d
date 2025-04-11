@@ -22,6 +22,8 @@ int	main(int argc, char **argv)
 	}};
 	int		cubfd;
 
+	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
+	// exit(0);
 	if (argc != 2)
 		return (printf("Error: incorrect no. arguments\n"), 1);
 	cubfd = open(argv[1], O_RDONLY);
@@ -58,8 +60,10 @@ int	main(int argc, char **argv)
 	spawn_item(app, vect(18.5, 2.5), I_SUPER);
 	spawn_item(app, vect(23.5, 2.5), I_SUPER);
 	spawn_item(app, vect(10.5, 10.5), I_ETANK);
-	app->last_frame = get_time_ms();
+	app->last_frame = get_time_us();
 	app->framecount = 0;
+	// app->last_frame_us = get_time_us();
+	app->frametime = 5000;
 	mlx_mouse_hide(app->mlx, app->root);
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->root);

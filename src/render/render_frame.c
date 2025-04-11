@@ -21,6 +21,14 @@ size_t	get_time_ms(void)
 	return (current_time.tv_sec * 1000 + current_time.tv_usec / 1000);
 }
 
+size_t	get_time_us(void)
+{
+	struct timeval	current_time;
+
+	gettimeofday(&current_time, NULL);
+	return (current_time.tv_sec * 1000000 + current_time.tv_usec);
+}
+
 t_list	*delete_object(t_list **obj_list, t_list *obj_node)
 {
 	t_list	*current;
@@ -95,7 +103,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->anim.active == 1)
 	{
-		frames = app->framecount - obj->anim.framestart;
+		frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
 		if (frames > 19)
 		{
 			*current = delete_object(&app->map->objects, *current);
@@ -155,9 +163,9 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 	int		frame_mod;
 	t_data	*map;
 
-	frame_mod = (app->framecount - enemy->anim.framestart) % 30;
+	frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
 	map = app->map;
-	enemy->texture = &map->crawler_tex[frame_mod / 5];
+	enemy->texture = &map->crawler_tex[frame_mod / (5 * FR_SCALE)];
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
@@ -170,7 +178,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->dead == 1)
 	{
-		frames = app->framecount - obj->anim2.framestart;
+		frames = (app->framecount - obj->anim2.framestart) / FR_SCALE;
 		if (frames > 17)
 		{
 			*current = delete_object(&app->map->objects, *current);
@@ -209,7 +217,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	t_texarr	*texp;
 
 	map = app->map;
-	frames = app->framecount - obj->anim.framestart;
+	frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
 	texp = map->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = map->super_tex;
@@ -283,6 +291,7 @@ enum e_idx
 int	render_next_frame(void *param)
 {
 	t_info *const app = param;
+	size_t				time;
 
 	// if (app->keys[idx_XK_e])
 	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
@@ -310,9 +319,12 @@ int	render_next_frame(void *param)
 	replace_image(app);
 	// printf("player_pos:\t(%f, %f)\n", app->player->pos.x, app->player->pos.y);
 	// exit(0);
-	while (get_time_ms() - app->last_frame < 20)
-		usleep(200);
-	app->last_frame = get_time_ms();
+	while (get_time_us() - app->last_frame < FRAMETIME)
+		usleep(100);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	return (0);
