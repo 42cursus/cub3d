@@ -120,28 +120,24 @@ double	vector_angle(t_vect v1, t_vect v2)
 	return atan2(det, dot);
 }
 
-void	*fast_memcpy_test(void *dest, const void *src, size_t n)
-{
-	char *const			save_pointer = dest;
-	unsigned long		*l_dest;
-	unsigned long		*l_src;
-	// size_t				blocks;
-	// size_t				left;
+#include <immintrin.h>
 
-	if (!src && !dest)
-		return (NULL);
-	l_dest = (unsigned long *)dest;
-	l_src = (unsigned long *)src;
-	// blocks = n / 8;
-	// left = n % 8;
-	while (n > 7)
-	{
-		*l_dest++ = *l_src++;
-		n -= 8;
+void	*fast_memcpy_test(int *dst, const int *src, size_t count)
+{
+	size_t i = 0;
+
+	// Process 8 integers (256 bits) at a time
+	while (i + 7 < count) {
+		__m256i data = _mm256_loadu_si256((const __m256i *)(src + i));
+		_mm256_storeu_si256((__m256i *)(dst + i), data);
+		i += 8;
 	}
-	dest = l_dest;
-	src = l_src;
-	while (n--)
-		*(unsigned char *)dest++ = *(unsigned char *)src++;
-	return (save_pointer);
+
+	// Copy remaining integers (if any)
+	while (i < count) {
+		dst[i] = src[i];
+		i++;
+	}
+
+	return (dst);
 }

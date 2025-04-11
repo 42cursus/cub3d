@@ -132,8 +132,8 @@ void	move_entity(t_vect *pos, char **map, t_vect dir)
 	char	y_tile;
 	char	both_tile;
 
-	new_x = pos->x + (dir.x * 0.1);
-	new_y = pos->y + (dir.y * 0.1);
+	new_x = pos->x + (dir.x * 0.1 / FR_SCALE);
+	new_y = pos->y + (dir.y * 0.1 / FR_SCALE);
 	x_tile = map[(int)pos->y][(int)new_x];
 	y_tile = map[(int)new_y][(int)pos->x];
 	both_tile = map[(int)new_y][(int)new_x];
@@ -163,9 +163,9 @@ void	move_entity(t_vect *pos, char **map, t_vect dir)
 void	rotate_player(t_player *player, int direction, double sensitivity)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->dir, M_PI_4 / sensitivity);
+		rotate_vect_inplace(&player->dir, M_PI_4 / (sensitivity * FR_SCALE));
 	else
-		rotate_vect_inplace(&player->dir, -M_PI_4 / sensitivity);
+		rotate_vect_inplace(&player->dir, -M_PI_4 / (sensitivity * FR_SCALE));
 }
 
 void	handle_close_door(t_info *app, t_ray *crosshair)
@@ -213,13 +213,13 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
 	if (subtype == BEAM)
-		projectile->dir = scale_vect(player->dir, 0.5);
+		projectile->dir = scale_vect(player->dir, 0.5 / FR_SCALE);
 	else if (subtype == SUPER)
 	{
 		player->ammo[SUPER] -= 1;
 		if (player->ammo[SUPER] == 0)
 			player->equipped = BEAM;
-		projectile->dir = scale_vect(player->dir, 0.2);
+		projectile->dir = scale_vect(player->dir, 0.2 / FR_SCALE);
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
@@ -234,7 +234,7 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	map = app->map;
 	enemy = ft_calloc(1, sizeof(*enemy));
 	enemy->pos = pos;
-	enemy->dir = dir;
+	enemy->dir = scale_vect(dir, 1.0 / FR_SCALE);
 	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
 	enemy->subtype = subtype;

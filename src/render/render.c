@@ -117,7 +117,7 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texarr	*tex;
 
-	frames = app->framecount - anim->framestart;
+	frames = (app->framecount - anim->framestart) / FR_SCALE;
 	if (frames > 19)
 	{
 		anim->active = 0;
@@ -134,7 +134,7 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texarr	*tex;
 
-	frames = app->framecount - anim->framestart;
+	frames = (app->framecount - anim->framestart) / FR_SCALE;
 	if (frames > 19)
 	{
 		anim->active = 0;

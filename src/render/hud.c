@@ -270,12 +270,33 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 	}
 }
 
+void	place_fps(t_info *app, t_data *map)
+{
+	int			digit;
+	int			fps;
+	int			x;
+	int			y;
+
+	fps = 1000000 / app->frametime;
+	y = WIN_HEIGHT - 32;
+	x = WIN_WIDTH - 32;
+	while (fps > 0)
+	{
+		digit = fps % 10;
+		fps /= 10;
+		place_texarr(app, &map->energy_tex[digit], x, y);
+		x -= 16;
+	}
+}
+
 void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
 	place_energy(app, app->map, app->player);
 	place_ammo(app, app->map, app->player);
+	// if (app->framecount % (5) == 0)
+	place_fps(app, app->map);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);

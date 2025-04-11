@@ -19,7 +19,7 @@ void	cast_all_rays_alt(t_data *map, t_player *player);
 void replace_image(t_info *app)
 {
 	// ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	fast_memcpy_test(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH);
 	// ft_memcpy(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &app->canvas);
@@ -70,7 +70,7 @@ int mouse_move(int x, int y, void *param)
 	int dx = x - WIN_WIDTH / 2;
 
 	if (dx != 0) {
-		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / dx));
+		rotate_player(app->player, dx > 0 ? 1 : 0, fabs(600.0 / (dx * FR_SCALE)));
 		// Reset pointer to center
 		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
