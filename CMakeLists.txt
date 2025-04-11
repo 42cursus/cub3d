@@ -23,6 +23,7 @@ set(FT_CFLAGS
         -Wall -Wextra -Werror
         -Wwrite-strings
         -Wimplicit
+        -mavx
 #        -Wformat -Werror=format-security
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
@@ -30,7 +31,7 @@ set(FT_CFLAGS
         -fstack-protector-strong
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
-        -O0
+        -O3
         -masm=att
         -g3 -gdwarf-3
         -fasynchronous-unwind-tables
