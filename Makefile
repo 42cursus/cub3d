@@ -26,7 +26,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 				    #  			-fsanitize=float-divide-by-zero \
 				    #  			-fsanitize=float-cast-overflow
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
 
