@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
-# define FRAMERATE 200
+# define FRAMERATE 100
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -110,6 +110,7 @@ typedef	struct s_data
 	t_texarr	s_tex;
 	t_texarr	e_tex;
 	t_texarr	w_tex;
+	t_texarr	floor_tex;
 	t_texarr	door_tex[7];
 	t_texarr	door_super_tex[7];
 	t_texarr	cannon_tex[2];
@@ -298,6 +299,8 @@ int	render_initial(t_info *const app);
 int	render_play(t_info *const app);
 int	render_game_over(t_info *const app);
 void fill_everything_with_blood(t_imgdata *bg);
+
+void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 #endif //CUB3D_H
 
