@@ -208,35 +208,30 @@ int switch_game_state(t_info *const app, t_game_state new_state)
 //		}
 //	};
 
+//	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
+
 	if (new_state == INITIAL)
-	{
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press_initial, app);
-		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release_initial, app);
-		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *)&mouse_press_play, app);
-		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release_play, app);
-		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move_play, app);
-	}
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_initial, app);
 	else if (new_state == PLAY)
 	{
 		fill_bg(&app->bg, app->map);
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press_play, app);
-		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *)&mouse_press_play, app);
-		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *)&mouse_release_play, app);
-		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
-		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *)&mouse_move_play, app);
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+		mlx_int_set_win_event_mask(app->mlx);
 	}
 	else if (new_state == GAME_OVER)
 	{
 		fill_everything_with_blood(&app->bg);
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *)&key_press_over, app);
-		mlx_hook(app->root, ButtonPress, ButtonPressMask, NULL, app);
-		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, NULL, app);
-		mlx_hook(app->root, KeyRelease, KeyReleaseMask, NULL, app);
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over,
+				 app);
+		mlx_int_set_win_event_mask(app->mlx);
 	}
 	else
-		return(-1);
+		return (-1);
 
-//	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
 	app->state = new_state;
 
 	return (0);

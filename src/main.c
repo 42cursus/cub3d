@@ -40,8 +40,8 @@ int	main(int argc, char **argv)
 
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
-	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_loop_hook(app->mlx, &loop_hook, app);
+	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
 	switch_game_state(app, INITIAL);
 
@@ -72,6 +72,4 @@ int	main(int argc, char **argv)
 	mlx_mouse_show(app->mlx, app->root);
 	cleanup(app);
 	return (EXIT_SUCCESS);
-	(void)argc;
-	(void)argv;
 }
