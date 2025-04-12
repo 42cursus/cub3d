@@ -13,14 +13,16 @@
 #include "../../include/cub3d.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+#include <sysexits.h>
 
 void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_image(t_info *app)
 {
-	// ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH);
-	// ft_memcpy(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+//	ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+//	memcpy_sse2(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+//	ft_memcpy(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &app->canvas);
 }
@@ -54,7 +56,7 @@ int expose_win(void *param)
 	bg.width = WIN_WIDTH;
 	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
 
-	fill_bg(&bg, app->map);
+	fill_everything_with_blood(&bg);
 	app->canvas = im3;
 	app->bg = bg;
 	mlx_clear_window(app->mlx,  app->root);
@@ -63,7 +65,7 @@ int expose_win(void *param)
 }
 
 
-int mouse_move(int x, int y, void *param)
+int mouse_move_play(int x, int y, void *param)
 {
 	t_info *const app = param;
 
@@ -81,7 +83,7 @@ int mouse_move(int x, int y, void *param)
 	(void)dy;
 }
 
-int mouse_release(unsigned int button, int x, int y, void *param)
+int mouse_release_play(unsigned int button, int x, int y, void *param)
 {
 	t_info *const app = param;
 
@@ -91,7 +93,7 @@ int mouse_release(unsigned int button, int x, int y, void *param)
 	((void) x, (void) y);
 }
 
-int mouse_press(unsigned int button, int x, int y, void *param)
+int mouse_press_play(unsigned int button, int x, int y, void *param)
 {
 	t_info *const app = param;
 
@@ -134,12 +136,134 @@ int	get_index(KeySym key)
 	return ret;
 }
 
-int key_press(KeySym key, void *param)
+int	loop_hook(void *param)
+{
+	t_info *const app = param;
+
+	if (app->state == INITIAL)
+		render_initial(app);
+	else if (app->state == PLAY)
+		render_play(app);
+	else if (app->state == GAME_OVER)
+		render_game_over(app);
+	else
+		return (EX_DATAERR);
+	return (0);
+}
+
+int switch_game_state(t_info *const app, t_game_state new_state)
+{
+
+//	t_event_list		hooks[3][MLX_MAX_EVENT] = {
+//		[INITIAL] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_initial,
+//				.param = app,
+//			},
+//			[Expose] = {
+//				.mask = ExposureMask,
+//				.hook = (void *) &expose_win,
+//				.param = app,
+//			},
+//		},
+//		[PLAY] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_play,
+//				.param = app,
+//			},
+//			[KeyRelease] = {
+//				.mask = KeyReleaseMask,
+//				.hook = (void *) &key_release_play,
+//				.param = app,
+//			},
+//			[ButtonPress] = {
+//				.mask = ButtonPressMask,
+//				.hook = (void *) &mouse_press_play,
+//				.param = app,
+//			},
+//			[ButtonRelease] = {
+//				.mask = ButtonReleaseMask,
+//				.hook = (void *) &mouse_release_play,
+//				.param = app,
+//			},
+//			[MotionNotify] = {
+//				.mask = PointerMotionMask,
+//				.hook = (void *) &mouse_move_play,
+//				.param = app,
+//			},
+//			[Expose] = {
+//				.mask = ExposureMask,
+//				.hook = (void *) &expose_win,
+//				.param = app,
+//			},
+//		},
+//		[GAME_OVER] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_over,
+//				.param = app,
+//			}
+//		}
+//	};
+
+//	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
+
+	if (new_state == INITIAL)
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_initial, app);
+	else if (new_state == PLAY)
+	{
+		fill_bg(&app->bg, app->map);
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+		mlx_int_set_win_event_mask(app->mlx);
+	}
+	else if (new_state == GAME_OVER)
+	{
+		fill_everything_with_blood(&app->bg);
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over,
+				 app);
+		mlx_int_set_win_event_mask(app->mlx);
+	}
+	else
+		return (-1);
+
+	app->state = new_state;
+
+	return (0);
+}
+
+
+int key_press_initial(KeySym key, void *param)
+{
+	t_info *const app = param;
+	if (key == XK_5 || key == XK_Escape)
+		app->mlx->end_loop = 1;
+	else if (key == XK_space)
+		switch_game_state(app, PLAY);
+	return (0);
+}
+
+
+int key_press_over(KeySym key, void *param)
 {
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
 		app->mlx->end_loop = 1;
+	return (0);
+}
+
+int key_press_play(KeySym key, void *param)
+{
+	t_info *const app = param;
+
+	if (key == XK_5 || key == XK_Escape)
+		switch_game_state(app, GAME_OVER);
 	else
 	{
 		if (key == KEY_E)
@@ -167,7 +291,17 @@ int key_press(KeySym key, void *param)
 }
 
 
-int key_release(KeySym key, void *param)
+int key_release_initial(KeySym key, void *param)
+{
+	t_info *const app = param;
+
+	int idx = get_index(key);
+	if (idx != -1)
+		app->keys[idx] = false;
+	return (0);
+}
+
+int key_release_play(KeySym key, void *param)
 {
 	t_info *const app = param;
 

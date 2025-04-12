@@ -12,6 +12,7 @@
 
 #include "../../include/cub3d.h"
 #include <sys/time.h>
+#include <sysexits.h>
 
 size_t	get_time_ms(void)
 {
@@ -300,9 +301,89 @@ enum e_idx
 	idx_XK_Down,
 };
 
-int	render_next_frame(void *param)
+void fill_everything_with_blood(t_imgdata *bg)
 {
-	t_info *const app = param;
+	int				mid;
+	int				i;
+	int				j;
+	const size_t	ff_col = 0x0bff0000;
+	const size_t	cc_col = 0x00ff5555;
+
+	const size_t	c_col = (size_t)cc_col + ((size_t)cc_col << 32);
+	const size_t	f_col = (size_t)ff_col + ((size_t)ff_col << 32);
+
+	mid = WIN_HEIGHT / 2;
+	i = -1;
+	while (++i <= mid)
+	{
+		j = 0;
+		while (j < WIN_WIDTH)
+		{
+			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
+			j += 2;
+		}
+	}
+	i--;
+	while (++i < WIN_HEIGHT)
+	{
+		j = 0;
+		while (j < WIN_WIDTH)
+		{
+			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
+			j += 2;
+		}
+	}
+}
+
+
+void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
+{
+	t_imgdata	canvas = app->canvas;
+	int			i;
+	int			j;
+	int			colour;
+
+	i = -1;
+	while (++i < tex->y)
+	{
+		j = -1;
+		while (++j < tex->x)
+		{
+			colour = tex->img[i][j];
+			my_put_pixel(&canvas, x + j, y + i, colour);
+		}
+	}
+}
+
+void	draw_game_over_text(t_info *app)
+{
+	int	digit;
+	int	i;
+	int x;
+
+	i = -1;
+
+	x = WIN_WIDTH / 2;
+	while (++i < 9)
+	{
+		digit = i;
+		place_game_over(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
+		x -= 16;
+	}
+}
+
+int	render_game_over(t_info *const app)
+{
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	draw_game_over_text(app);
+	mlx_put_image_to_window(app->mlx, app->root,
+							app->canvas.img, app->clip_x_origin,
+							app->clip_y_origin);
+	return (0);
+}
+
+int	render_play(t_info *const app)
+{
 	size_t				time;
 
 	// if (app->keys[idx_XK_e])
@@ -339,5 +420,12 @@ int	render_next_frame(void *param)
 	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
+	return (0);
+}
+
+
+int	render_initial(t_info *const app)
+{
+	render_game_over(app);
 	return (0);
 }
