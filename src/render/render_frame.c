@@ -336,7 +336,7 @@ void fill_everything_with_blood(t_imgdata *bg)
 }
 
 
-void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
+void	place_loose(t_info *app, t_texarr *tex, int x, int y)
 {
 	int					i;
 	int					j;
@@ -355,7 +355,7 @@ void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
-void	draw_game_over_text(t_info *app)
+void	draw_loose_text(t_info *app)
 {
 	int	digit;
 	int	i;
@@ -367,15 +367,15 @@ void	draw_game_over_text(t_info *app)
 	while (++i < 9)
 	{
 		digit = i;
-		place_game_over(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
+		place_loose(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
 		x -= 16;
 	}
 }
 
-int	render_game_over(t_info *const app)
+int	render_loose(t_info *const app)
 {
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// draw_game_over_text(app);
+	// draw_loose_text(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas.img, app->clip_x_origin,
@@ -427,6 +427,6 @@ int	render_play(t_info *const app)
 
 int	render_initial(t_info *const app)
 {
-	render_game_over(app);
+	render_loose(app);
 	return (0);
 }
