@@ -40,15 +40,25 @@ void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour)
 	(*(unsigned int (*)[img->height][img->width])img->addr)[y][x] = colour;
 }
 
-void replace_bg(t_info *app)
+void replace_bg(t_info *app, char *tex_file)
 {
 	t_imgdata bg;
 
 	mlx_destroy_image(app->mlx, app->bg.img);
-	bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
-	bg.height = WIN_HEIGHT;
-	bg.width = WIN_WIDTH;
+	if (tex_file)
+	{
+		bg.img = mlx_xpm_file_to_image(app->mlx, tex_file, &bg.width, &bg.height);
+		if (!bg.img)
+			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
+		bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
+	}
+	else
+	{
+		bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
+		bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
+		bg.height = WIN_HEIGHT;
+		bg.width = WIN_WIDTH;
+	}
 	app->bg = bg;
 }
 

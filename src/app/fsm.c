@@ -139,9 +139,65 @@ t_ret_code do_state_loose(void *param)
 	t_info *const app = param;
 
 	mlx_loop(app->mlx);
-	return (ok);
+	return (app->rc);
 }
 
+
+//	t_event_list		hooks[3][MLX_MAX_EVENT] = {
+//		[INITIAL] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_initial,
+//				.param = app,
+//			},
+//			[Expose] = {
+//				.mask = ExposureMask,
+//				.hook = (void *) &expose_win,
+//				.param = app,
+//			},
+//		},
+//		[PLAY] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_play,
+//				.param = app,
+//			},
+//			[KeyRelease] = {
+//				.mask = KeyReleaseMask,
+//				.hook = (void *) &key_release_play,
+//				.param = app,
+//			},
+//			[ButtonPress] = {
+//				.mask = ButtonPressMask,
+//				.hook = (void *) &mouse_press_play,
+//				.param = app,
+//			},
+//			[ButtonRelease] = {
+//				.mask = ButtonReleaseMask,
+//				.hook = (void *) &mouse_release_play,
+//				.param = app,
+//			},
+//			[MotionNotify] = {
+//				.mask = PointerMotionMask,
+//				.hook = (void *) &mouse_move_play,
+//				.param = app,
+//			},
+//			[Expose] = {
+//				.mask = ExposureMask,
+//				.hook = (void *) &expose_win,
+//				.param = app,
+//			},
+//		},
+//		[GAME_OVER] = {
+//			[KeyPress] = {
+//				.mask = KeyPressMask,
+//				.hook = (void *) &key_press_loose,
+//				.param = app,
+//			}
+//		}
+//	};
+
+//	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
 void do_initial_to_menu(void *param)
 {
 	t_info *const app = param;
@@ -164,7 +220,7 @@ void do_menu_to_play(void *param)
 {
 	t_info *const app = param;
 
-	replace_bg(app);
+	replace_bg(app, NULL);
 	fill_bg(&app->bg, app->map);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
@@ -207,9 +263,16 @@ void do_play_to_loose(void *param)
 {
 	t_info *const app = param;
 
+	app->mlx->end_loop = 0;
+	replace_bg(app, (char *) "./textures/wall.xpm");
 	fill_everything_with_blood(&app->bg);
 	mlx_loop_hook(app->mlx, &render_loose, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_loose, app);
+
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
 void do_play_to_end(void *param)

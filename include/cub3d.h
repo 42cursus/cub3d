@@ -274,7 +274,7 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 void	free_ray_children(t_ray *ray);
 
-void	replace_bg(t_info *app);
+void replace_bg(t_info *app, char *tex_file);
 void	fill_bg(t_imgdata *bg, t_data *map);
 void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);

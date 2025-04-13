@@ -126,83 +126,6 @@ int	get_index(KeySym key)
 	return ret;
 }
 
-int switch_game_state(t_info *const app, t_state new_state)
-{
-
-//	t_event_list		hooks[3][MLX_MAX_EVENT] = {
-//		[INITIAL] = {
-//			[KeyPress] = {
-//				.mask = KeyPressMask,
-//				.hook = (void *) &key_press_initial,
-//				.param = app,
-//			},
-//			[Expose] = {
-//				.mask = ExposureMask,
-//				.hook = (void *) &expose_win,
-//				.param = app,
-//			},
-//		},
-//		[PLAY] = {
-//			[KeyPress] = {
-//				.mask = KeyPressMask,
-//				.hook = (void *) &key_press_play,
-//				.param = app,
-//			},
-//			[KeyRelease] = {
-//				.mask = KeyReleaseMask,
-//				.hook = (void *) &key_release_play,
-//				.param = app,
-//			},
-//			[ButtonPress] = {
-//				.mask = ButtonPressMask,
-//				.hook = (void *) &mouse_press_play,
-//				.param = app,
-//			},
-//			[ButtonRelease] = {
-//				.mask = ButtonReleaseMask,
-//				.hook = (void *) &mouse_release_play,
-//				.param = app,
-//			},
-//			[MotionNotify] = {
-//				.mask = PointerMotionMask,
-//				.hook = (void *) &mouse_move_play,
-//				.param = app,
-//			},
-//			[Expose] = {
-//				.mask = ExposureMask,
-//				.hook = (void *) &expose_win,
-//				.param = app,
-//			},
-//		},
-//		[GAME_OVER] = {
-//			[KeyPress] = {
-//				.mask = KeyPressMask,
-//				.hook = (void *) &key_press_loose,
-//				.param = app,
-//			}
-//		}
-//	};
-
-//	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
-
-	if (new_state == STATE_INITIAL)
-		;
-	else if (new_state == STATE_PLAY)
-	{
-		;
-	}
-	else if (new_state == STATE_LOOSE)
-	{
-		;
-	}
-	else
-		return (-1);
-	mlx_int_set_win_event_mask(app->mlx);
-	app->state = new_state;
-	return (0);
-}
-
-
 int key_press_menu(KeySym key, void *param)
 {
 	t_info *const app = param;
@@ -224,7 +147,10 @@ int key_press_loose(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
+	{
 		app->mlx->end_loop = 1;
+		app->rc = fail;
+	}
 	return (0);
 }
 
