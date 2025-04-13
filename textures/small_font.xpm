@@ -1,0 +1,15 @@
+/* XPM */
+static char *dummy[]={
+"288 8 4 1",
+". c #000042",
+"a c #283888",
+"# c #2c398a",
+"b c #f8f8f8",
+".######.#######..######.#######.################.######.########.######.....#######.########....####.######.####.######.#######..######.#######..###############################################################.aaaaaa...aaaa..aaaaaaa.aaaaaaa...aaaaa.aaaaaaaa.aaaaaa.aaaaaaaa.aaaaaa..aaaaaa.",
+"##bbbb###bbbbb####bbbb###bbbbb###bbbbbb##bbbbbb###bbbb#.#bb##bb#.#bbbb#.....#bb##bb##bb##bb#....#bb#.#bb#b###bb###bbbb###bbbbb####bbbb###bbbbb####bbbbb##bbbbbb##bb##bb##bb##bb#bb#bb#bb#bb##bb##bb##bb##bbbbbb#aabbbbaa.aabba..abbbbbaaabbbbbaa.aabbba.abbbbbaaaabbbba.abbbbbbaaabbbbaaaabbbbaa",
+"#bb##bb##bb##bb##bb##bb##bb##bb##bb######bb######bb######bb##bb#.##bb##.....#bb##bb#bb###bb#....#bbb#bbb#bb##bb##bb##bb##bb##bb##bb##bb##bb##bb##bb########bb####bb##bb##bb##bb#bb#bb#bb#bb##bb##bb##bb#.####bb#abbaabba.abbba...aaaabbaaaaaabbaaababba.abbaaaa.abbaaaa.aaaaabbaabbaabbaabbaabba",
+"#bbbbbb##bbbbb###bb######bb##bb##bbbbb#.#bbbbb#.#bb#bbb##bbbbbb#..#bb#..#####bb##bbbb##.#bb#....#bb#b#bb#bbb#bb##bb##bb##bbbbb###bb##bb##bbbbb####bbb###..#bb#..#bb##bb##bb##bb#bb#bb#bb##bbbb####bbbb####bbbb##abbaabba.aabba..aabbbbaa.abbbbaaabaabbaaabbbbbaaabbbbbaa..aabbaaaabbbbaaaabbbbba",
+"#bb##bb##bb##bb##bb##bb##bb##bb##bb######bb####.#bb##bb##bb##bb#.##bb##.#bb##bb##bbbbb#.#bb######bb#b#bb#bb#bbb##bb##bb##bb####.#bb##bb##bb##bb#####bbb#..#bb#..#bb##bb##bb#bb##bb#bb#bb#bb##bb#.##bb##.#bb####.abbaabba..abba..abbaaaaaaaaaabbaabbbbbbaaaaaabbaabbaabba..abbaa.abbaabba.aaaabba",
+"#bb##bb##bbbbb####bbbb###bbbbb###bbbbbb##bb#....##bbbbb##bb##bb#.#bbbb#.##bbbb###bb##bb##bbbbbb##bb###bb#bb###b###bbbb###bb#....##bbbb###bb##bb##bbbbb##..#bb#..##bbbb###bbbb##.bbbbbbb##bb##bb#..#bb#..#bbbbbb#aabbbbaa..abba..abbbbbbaabbbbbaaaaaabbaaabbbbbaaaabbbbaa..abba..aabbbbaa.abbbbaa",
+"###############..######.#######.############.....###############.######..######.####################.#######.###.######.####.....###bbb################...####...######.######..################..####..########.aaaaaa...aaaa..aaaaaaaaaaaaaaa....aaaa.aaaaaaa..aaaaaa...aaaa...aaaaaa..aaaaaa.",
+"...................................................................................................................................#####........................................................................................................................................................"};

@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "cub3d.h"
+
 t_state run_state(t_info *app, int argc, char **argv)
 {
 	state_func_t *state_fun;
@@ -112,88 +114,117 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	mlx_mouse_show(app->mlx, app->root);
 	return (ok);
+	(void)argc;
 }
 
 t_ret_code do_state_menu(void *param)
 {
 	t_info *const app = param;
 	return (ok);
+	(void)app;
 }
 
 t_ret_code do_state_play(void *param)
 {
 	t_info *const app = param;
 	return (ok);
+	(void)app;
 }
 
 t_ret_code do_state_win(void *param)
 {
 	t_info *const app = param;
 	return (ok);
+	(void)app;
 }
 
 t_ret_code do_state_loose(void *param)
 {
 	t_info *const app = param;
 	return (ok);
+	(void)app;
 }
 
 void do_initial_to_menu(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_initial_to_end(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_menu_to_play(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_menu_to_end(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_play_to_menu(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_play_to_win(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_play_to_loose(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_play_to_end(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_loose_to_menu(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_loose_to_end(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_win_to_menu(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }
 
 void do_win_to_end(void *param)
 {
 	t_info *const app = param;
+	return ;
+	(void)app;
 }

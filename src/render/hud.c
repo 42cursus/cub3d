@@ -175,6 +175,104 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
+// void	place_char_8(char c, t_info *app, int x, int y)
+// {
+// 	t_imgdata	canvas = app->canvas;
+// 	int			i;
+// 	int			j;
+// 	int			start_x;
+//
+// 	if (!ft_isalnum(c))
+// 		return ;
+// 	c = ft_tolower(c);
+// 	if (ft_isalpha(c))
+// 		start_x = (c - 'a') * 8;
+// 	else
+// 		start_x = (c - '0') * 8 + 208;
+// 	i = -1;
+// 	while (++i < 8)
+// 	{
+// 		j = -1;
+// 		while (++j < 8)
+// 			my_put_pixel_32(&canvas, x + j, y + i, app->map->alphabet.img[i][j + start_x]);
+// 	}
+// }
+//
+// void	place_char_16(char c, t_info *app, int x, int y)
+// {
+// 	t_imgdata	canvas = app->canvas;
+// 	int			i;
+// 	int			j;
+// 	int			start_x;
+//
+// 	if (!ft_isalnum(c))
+// 		return ;
+// 	c = ft_tolower(c);
+// 	if (ft_isalpha(c))
+// 		start_x = (c - 'a') * 8;
+// 	else
+// 		start_x = (c - '0') * 8 + 208;
+// 	i = -1;
+// 	while (++i < 16)
+// 	{
+// 		j = -1;
+// 		while (++j < 16)
+// 		{
+// 			my_put_pixel_32(&canvas, x + j, y + i, app->map->alphabet.img[i / 2][(j / 2) + start_x]);
+// 		}
+// 	}
+// }
+
+void	place_char(char c, t_info *app, t_ivect pos, int scalar)
+{
+	t_imgdata	canvas = app->canvas;
+	int			i;
+	int			j;
+	int			start_x;
+
+	if (!ft_isalnum(c))
+		return ;
+	if (scalar < 1)
+		return ;
+	c = ft_tolower(c);
+	if (ft_isalpha(c))
+		start_x = (c - 'a') * 8;
+	else
+		start_x = (c - '0') * 8 + 208;
+	i = -1;
+	while (++i < 8 * scalar)
+	{
+		j = -1;
+		while (++j < 8 * scalar)
+		{
+			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, app->map->alphabet.img[i / scalar][(j / scalar) + start_x]);
+		}
+	}
+}
+
+void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
+{
+	int	i;
+	int	pos_x;
+	int	pos_y;
+
+	i = -1;
+	pos_x = pos.x;
+	pos_y = pos.y;
+	while (str[++i])
+	{
+		if (ft_isalnum(str[i]))
+			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		else if (str[i] == '\n')
+		{
+			pos_y += 8 * scalar;
+			pos_x = pos.x;
+			continue ;
+		}
+		pos_x += 8 * scalar;
+	}
+}
+
 void	place_weapon(t_info *app)
 {
 	t_texarr	*tex;
@@ -207,47 +305,43 @@ void	place_energy_backup(t_info *app, t_data *map, t_player *player)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &map->energy_tex[11], start.x + i * 16, start.y);
+		place_texarr(app, &map->energy_tex[1], start.x + i * 16, start.y);
 		i++;
 	}
 	while (i < max_backup)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &map->energy_tex[12], start.x + i * 16, start.y);
+		place_texarr(app, &map->energy_tex[2], start.x + i * 16, start.y);
 		i++;
 	}
 }
 
 void	place_energy(t_info *app, t_data *map, t_player *player)
 {
-	int			tens;
-	int			units;
 	int			health;
+	char		buf[3];
 
-	place_texarr(app, &map->energy_tex[10], 16, 48);
+	place_texarr(app, &map->energy_tex[0], 16, 48);
 	health = player->health % 100;
-	tens = health / 10;
-	units = health % 10;
-	place_texarr(app, &map->energy_tex[tens], 96, 48);
-	place_texarr(app, &map->energy_tex[units], 112, 48);
+	buf[0] = (health / 10) + '0';
+	buf[1] = (health % 10) + '0';
+	buf[2] = 0;
+	place_str(buf, app, (t_ivect){96, 48}, 2);
 	place_energy_backup(app, map, player);
 }
 
 void	place_ammo(t_info *app, t_data *map, t_player *player)
 {
-	int			tens;
-	int			units;
-	int			hundreds;
+	char		buf[4];
 	
+	buf[3] = 0;
 	if (player->max_ammo[MISSILE] != 0)
 	{
-		hundreds = player->ammo[MISSILE] / 100;
-		tens = player->ammo[MISSILE] / 10;
-		units = player->ammo[MISSILE] % 10;
-		place_texarr(app, &map->energy_tex[hundreds], 160, 48);
-		place_texarr(app, &map->energy_tex[tens], 176, 48);
-		place_texarr(app, &map->energy_tex[units], 192, 48);
+		buf[0] = player->ammo[MISSILE] / 100 + '0';
+		buf[1] = player->ammo[MISSILE] / 10 + '0';
+		buf[2] = player->ammo[MISSILE] % 10 + '0';
+		place_str(buf, app, (t_ivect){160, 48}, 2);
 		if (player->equipped == MISSILE)
 			place_texarr(app, &map->missile_tex[3], 160, 16);
 		else
@@ -255,10 +349,10 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
-		tens = player->ammo[SUPER] / 10;
-		units = player->ammo[SUPER] % 10;
-		place_texarr(app, &map->energy_tex[tens], 224, 48);
-		place_texarr(app, &map->energy_tex[units], 240, 48);
+		buf[0] = player->ammo[SUPER] / 10 + '0';
+		buf[1] = player->ammo[SUPER] % 10 + '0';
+		buf[2] = 0;
+		place_str(buf, app, (t_ivect){224, 48}, 2);
 		if (player->equipped == SUPER)
 			place_texarr(app, &map->super_tex[3], 224, 16);
 		else
@@ -266,7 +360,7 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 	}
 }
 
-void	place_fps(t_info *app, t_data *map)
+void	place_fps(t_info *app)
 {
 	int			digit;
 	int			fps;
@@ -280,7 +374,7 @@ void	place_fps(t_info *app, t_data *map)
 	{
 		digit = fps % 10;
 		fps /= 10;
-		place_texarr(app, &map->energy_tex[digit], x, y);
+		place_char(digit + '0', app, (t_ivect){x, y}, 2);
 		x -= 16;
 	}
 }
@@ -292,7 +386,7 @@ void	draw_mmap(t_info *app)
 	place_energy(app, app->map, app->player);
 	place_ammo(app, app->map, app->player);
 	// if (app->framecount % (5) == 0)
-	place_fps(app, app->map);
+	place_fps(app);
 	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);

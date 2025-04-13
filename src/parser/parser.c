@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDL", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLM", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLM", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLM", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i][j + 1]))
+	if (!ft_strchr("NESW01DML", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i + 1][j]))
+	if (!ft_strchr("NESW01DML", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DML", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DML", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DML", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DL", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DML", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -243,7 +243,7 @@ int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 	char	tile;
 
 	tile = (data->map)[i][j];
-	if (tile != '0' && tile != 'D' && tile != 'L')
+	if (!ft_strchr("0DLM", tile))
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
@@ -269,7 +269,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDL", map[i][j]))
+			if (ft_strchr("0NEWSDLM", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -499,19 +499,19 @@ void	load_super_textures(t_info *app, t_data *map)
 
 void	load_energy_textures(t_info *app, t_data *map)
 {
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 10)
-	{
-		ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
-		map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
-		i++;
-	}
-	map->energy_tex[10].img = img_to_arr((char *)"./textures/energy.xpm", app, &map->energy_tex[10].x, &map->energy_tex[10].y);
-	map->energy_tex[11].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &map->energy_tex[11].x, &map->energy_tex[11].y);
-	map->energy_tex[12].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &map->energy_tex[12].x, &map->energy_tex[12].y);
+	// int		i;
+	// char	buf[50];
+	//
+	// i = 0;
+	// while (i < 10)
+	// {
+	// 	ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
+	// 	map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
+	// 	i++;
+	// }
+	map->energy_tex[0].img = img_to_arr((char *)"./textures/energy.xpm", app, &map->energy_tex[0].x, &map->energy_tex[0].y);
+	map->energy_tex[1].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &map->energy_tex[1].x, &map->energy_tex[1].y);
+	map->energy_tex[2].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &map->energy_tex[2].x, &map->energy_tex[2].y);
 }
 
 void	load_super_door_tex(t_info *app, t_data *map)
@@ -528,6 +528,22 @@ void	load_super_door_tex(t_info *app, t_data *map)
 	}
 		map->door_super_tex[0].img = img_to_arr((char *)"./textures/metroid_door_super.xpm", app, &map->door_super_tex[0].x, &map->door_super_tex[0].y);
 		map->door_super_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &map->door_super_tex[1].x, &map->door_super_tex[1].y);
+}
+
+void	load_missile_door_tex(t_info *app, t_data *map)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 5)
+	{
+		ft_snprintf(buf, 50, "./textures/metroid_door_missile_anim%c.xpm", i + 1 + '0');
+		map->door_missile_tex[i + 2].img = img_to_arr(buf, app, &map->door_missile_tex[i + 2].x, &map->door_missile_tex[i + 2].y);
+		i++;
+	}
+		map->door_missile_tex[0].img = img_to_arr((char *)"./textures/metroid_door_missile.xpm", app, &map->door_missile_tex[0].x, &map->door_missile_tex[0].y);
+		map->door_missile_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &map->door_missile_tex[1].x, &map->door_missile_tex[1].y);
 }
 
 void	init_anims(t_data *map)
@@ -547,6 +563,8 @@ void	init_anims(t_data *map)
 				map->anims[i][j].tex_arr = map->door_tex;
 			else if (tile == 'L')
 				map->anims[i][j].tex_arr = map->door_super_tex;
+			else if (tile == 'M')
+				map->anims[i][j].tex_arr = map->door_missile_tex;
 			j++;
 		}
 		i++;
@@ -618,10 +636,12 @@ int	parse_cub(t_info *app, int fd)
 	data->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &data->etank_tex[1].x, &data->etank_tex[1].y);
 	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	data->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &data->title.x, &data->title.y);
+	data->alphabet.img = img_to_arr((char *)"./textures/small_font.xpm", app, &data->alphabet.x, &data->alphabet.y);
 	load_energy_textures(app, data);
 	load_super_textures(app, data);
 	load_missile_textures(app, data);
 	load_super_door_tex(app, data);
+	load_missile_door_tex(app, data);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	init_anims(data);
@@ -662,6 +682,9 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->s_tex);
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
+	free_tex_arr(&data->title);
+	free_tex_arr(&data->alphabet);
+	free_tex_arr(&data->floor_tex);
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_tex[i++]);
@@ -678,7 +701,7 @@ void	free_map(t_data *data)
 	while (i < 10)
 		free_tex_arr(&data->proj_tex[i++]);
 	i = 0;
-	while (i < 13)
+	while (i < 3)
 		free_tex_arr(&data->energy_tex[i++]);
 	i = 0;
 	while (i < 2)
@@ -692,6 +715,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_super_tex[i++]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&data->door_missile_tex[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);

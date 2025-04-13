@@ -322,6 +322,16 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 	player->health = new_health;
 }
 
+void	add_health(t_player *player, int health)
+{
+	int	new_health;
+
+	new_health = player->health + health;
+	if (new_health > player->max_health)
+		new_health = player->max_health;
+	player->health = new_health;
+}
+
 void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;

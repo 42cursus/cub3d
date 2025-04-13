@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 50
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -113,15 +113,17 @@ typedef	struct s_data
 	t_texarr	floor_tex;
 	t_texarr	door_tex[7];
 	t_texarr	door_super_tex[7];
+	t_texarr	door_missile_tex[7];
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	proj_tex[10];
 	t_texarr	explode_tex[6];
-	t_texarr	energy_tex[13];
+	t_texarr	energy_tex[3];
 	t_texarr	etank_tex[2];
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
 	t_texarr	title;
+	t_texarr	alphabet;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -248,6 +250,7 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
+void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 
 t_vect	vect(double x, double y);
@@ -275,6 +278,7 @@ void	fill_bg(t_imgdata *bg, t_data *map);
 void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
+void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
