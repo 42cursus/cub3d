@@ -499,19 +499,19 @@ void	load_super_textures(t_info *app, t_data *map)
 
 void	load_energy_textures(t_info *app, t_data *map)
 {
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 10)
-	{
-		ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
-		map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
-		i++;
-	}
-	map->energy_tex[10].img = img_to_arr((char *)"./textures/energy.xpm", app, &map->energy_tex[10].x, &map->energy_tex[10].y);
-	map->energy_tex[11].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &map->energy_tex[11].x, &map->energy_tex[11].y);
-	map->energy_tex[12].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &map->energy_tex[12].x, &map->energy_tex[12].y);
+	// int		i;
+	// char	buf[50];
+	//
+	// i = 0;
+	// while (i < 10)
+	// {
+	// 	ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
+	// 	map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
+	// 	i++;
+	// }
+	map->energy_tex[0].img = img_to_arr((char *)"./textures/energy.xpm", app, &map->energy_tex[0].x, &map->energy_tex[0].y);
+	map->energy_tex[1].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &map->energy_tex[1].x, &map->energy_tex[1].y);
+	map->energy_tex[2].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &map->energy_tex[2].x, &map->energy_tex[2].y);
 }
 
 void	load_super_door_tex(t_info *app, t_data *map)
@@ -682,7 +682,7 @@ void	free_map(t_data *data)
 	while (i < 10)
 		free_tex_arr(&data->proj_tex[i++]);
 	i = 0;
-	while (i < 13)
+	while (i < 3)
 		free_tex_arr(&data->energy_tex[i++]);
 	i = 0;
 	while (i < 2)
