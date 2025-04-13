@@ -198,6 +198,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim2.framestart) / FR_SCALE;
 		if (frames > 17)
 		{
+			spawn_item(app, obj->pos, I_HEALTH);
 			*current = delete_object(&app->map->objects, *current);
 			return (1);
 		}
@@ -238,8 +239,15 @@ void	select_item_texture(t_info *app, t_object *obj)
 	texp = map->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = map->super_tex;
-	if (obj->subtype == I_MISSILE)
+	else if (obj->subtype == I_MISSILE)
 		texp = map->missile_tex;
+	else if (obj->subtype == I_HEALTH)
+	{
+		texp = map->health_pu;
+		obj->texture = &texp[(frames % 20) / 5];
+		// obj->texture = &texp[0];
+		return ;
+	}
 	if (frames % 10 < 5)
 		obj->texture = &texp[0];
 	else
@@ -271,6 +279,8 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 			player->max_ammo[MISSILE] += 10;
 			player->ammo[MISSILE] += 10;
 		}
+		else if (obj->subtype == I_HEALTH)
+			add_health(player, 20);
 		*current = delete_object(&map->objects, *current);
 		return (1);
 	}

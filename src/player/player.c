@@ -223,7 +223,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
-	ft_lstadd_front(&map->objects, ft_lstnew(projectile));
+	ft_lstadd_back(&map->objects, ft_lstnew(projectile));
 }
 
 void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
@@ -242,7 +242,7 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 		enemy->health = 20;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
-	ft_lstadd_front(&map->objects, ft_lstnew(enemy));
+	ft_lstadd_back(&map->objects, ft_lstnew(enemy));
 }
 
 void	spawn_item(t_info *app, t_vect pos, int subtype)
@@ -258,7 +258,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->subtype = subtype;
 	item->anim.active = 1;
 	item->anim.framestart = app->framecount;
-	ft_lstadd_front(&map->objects, ft_lstnew(item));
+	ft_lstadd_back(&map->objects, ft_lstnew(item));
 }
 
 void	developer_console(t_info *app, t_player *player)
@@ -282,6 +282,10 @@ void	developer_console(t_info *app, t_player *player)
 				spawn_item(app, pos, I_ETANK);
 			if (ft_strcmp(split[2], "super") == 0)
 				spawn_item(app, pos, I_SUPER);
+			if (ft_strcmp(split[2], "health") == 0)
+				spawn_item(app, pos, I_HEALTH);
+			if (ft_strcmp(split[2], "missile") == 0)
+				spawn_item(app, pos, I_MISSILE);
 		}
 		if (ft_strcmp(split[1], "enemy") == 0)
 		{
