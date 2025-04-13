@@ -17,13 +17,10 @@
 
 void	cast_all_rays_alt(t_data *map, t_player *player);
 
-void replace_image(t_info *app)
+void replace_frame(t_info *app)
 {
-//	ft_memmove(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->map, app->player);
-//	memcpy_sse2(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-//	ft_memcpy(app->canvas.addr, app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	cast_all_rays_alt(app->map, app->player);
 	draw_rays(app, &app->canvas);
 }
@@ -39,25 +36,17 @@ int expose_win(void *param)
 	t_imgdata bg;
 	t_info *const app = param;
 
-
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	bg.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/wall.xpm", &bg.width, &bg.height);
 	if (!im3.img || !bg.img)
-	{
-		ft_printf(" !! KO !!\n");
-		cleanup(app);
-		exit(EXIT_FAILURE);
-	}
+		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 
 	im3.height = WIN_HEIGHT;
 	im3.width = WIN_WIDTH;
 	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
 
-	bg.height = WIN_HEIGHT;
-	bg.width = WIN_WIDTH;
 	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
 
-	fill_everything_with_blood(&bg);
 	app->canvas = im3;
 	app->bg = bg;
 	mlx_clear_window(app->mlx,  app->root);
@@ -215,26 +204,23 @@ int switch_game_state(t_info *const app, t_game_state new_state)
 		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_initial, app);
 	else if (new_state == PLAY)
 	{
+		replace_bg(app);
 		fill_bg(&app->bg, app->map);
 		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
 		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
 		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
 		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
-		mlx_int_set_win_event_mask(app->mlx);
 	}
 	else if (new_state == GAME_OVER)
 	{
 		fill_everything_with_blood(&app->bg);
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over,
-				 app);
-		mlx_int_set_win_event_mask(app->mlx);
+		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over, app);
 	}
 	else
 		return (-1);
-
+	mlx_int_set_win_event_mask(app->mlx);
 	app->state = new_state;
-
 	return (0);
 }
 

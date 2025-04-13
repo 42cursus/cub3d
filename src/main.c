@@ -48,17 +48,36 @@ int	main(int argc, char **argv)
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), 1);
 	app->player = init_player(app->map);
-	spawn_enemy(app,  vect(28.0, 10.5), vect(0.02, 0.02), E_ZOOMER);
-	spawn_enemy(app,  vect(24.0, 10.5), vect(0.0, -0.03), E_ZOOMER);
-	spawn_enemy(app,  vect(15.0, 10.5), vect(0.02, 0.01), E_ZOOMER);
-	spawn_enemy(app,  vect(5.0, 5.5), vect(0.02, 0.0), E_ZOOMER);
-	spawn_enemy(app,  vect(12.5, 1.5), vect(0.0, 0.03), E_ZOOMER);
-	spawn_enemy(app,  vect(10.5, 5.5), vect(0.0, -0.03), E_ZOOMER);
-	spawn_enemy(app,  vect(18.5, 4.5), vect(0.03, 0.0), E_ZOOMER);
-	spawn_item(app, vect(20.5, 2.5), I_ETANK);
-	spawn_item(app, vect(18.5, 2.5), I_SUPER);
-	spawn_item(app, vect(23.5, 2.5), I_MISSILE);
-	spawn_item(app, vect(10.5, 10.5), I_ETANK);
+
+	struct s_thing
+	{
+		t_vect		pos;
+		t_vect		dir;
+		t_etype		type;
+		t_subtype	subtype;
+	} things[] = {
+		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
+		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
+		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
+		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
+		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
+		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
+		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+	};
+
+	int i = -1;
+	while (++i < (int)(sizeof(things) / sizeof(things[0])))
+	{
+		struct s_thing *thing = &things[i];
+		if (thing->type == O_ENTITY)
+			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
+		else
+			spawn_item(app, thing->pos, thing->subtype);
+	}
 
 	app->last_frame = get_time_us();
 	app->framecount = 0;
