@@ -546,6 +546,20 @@ void	load_missile_door_tex(t_info *app, t_data *map)
 		map->door_missile_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &map->door_missile_tex[1].x, &map->door_missile_tex[1].y);
 }
 
+void	load_health_pu_tex(t_info *app, t_data *map)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 4)
+	{
+		ft_snprintf(buf, 50, "./textures/health_pu%c.xpm", i + '0');
+		map->health_pu[i].img = img_to_arr(buf, app, &map->health_pu[i].x, &map->health_pu[i].y);
+		i++;
+	}
+}
+
 void	init_anims(t_data *map)
 {
 	int		i;
@@ -642,6 +656,7 @@ int	parse_cub(t_info *app, int fd)
 	load_missile_textures(app, data);
 	load_super_door_tex(app, data);
 	load_missile_door_tex(app, data);
+	load_health_pu_tex(app, data);
 	free_map_textures(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	init_anims(data);
@@ -718,6 +733,9 @@ void	free_map(t_data *data)
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_missile_tex[i++]);
+	i = 0;
+	while (i < 4)
+		free_tex_arr(&data->health_pu[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);

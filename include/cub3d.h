@@ -32,11 +32,11 @@
 # define KEY_E 0x0065
 # define KEY_X 0x0078
 
-# define WIN_HEIGHT 768
-# define WIN_WIDTH 1024
+# define WIN_HEIGHT 900
+# define WIN_WIDTH 1200
 
 #ifndef FRAMERATE
-# define FRAMERATE 50
+# define FRAMERATE 100
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -122,6 +122,7 @@ typedef	struct s_data
 	t_texarr	etank_tex[2];
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
+	t_texarr	health_pu[4];
 	t_texarr	title;
 	t_texarr	alphabet;
 	void		*playertile;
@@ -186,6 +187,7 @@ typedef enum e_subtype
 	I_ETANK,
 	I_SUPER,
 	I_MISSILE,
+	I_HEALTH,
 }	t_subtype;
 
 enum
