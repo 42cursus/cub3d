@@ -72,7 +72,7 @@ void	place_tile_on_image(t_imgdata *image, t_imgdata *tile, int x, int y)
 		while (j < tile->width)
 		{
 			colour = *(unsigned int *)(tile->addr + (i * tile->line_length + j * (tile->bpp / 8)));
-			my_put_pixel(image, x + j, y + i, colour);
+			my_put_pixel_32(image, x + j, y + i, colour);
 			j++;
 		}
 		i++;
@@ -155,7 +155,7 @@ void	place_mmap(t_info *app)
 		while (++j < app->map->minimap.width)
 		{
 			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
-			my_put_pixel(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
+			my_put_pixel_32(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
 		}
 	}
 }
@@ -165,17 +165,13 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 	t_imgdata	canvas = app->canvas;
 	int			i;
 	int			j;
-	int			colour;
 
 	i = -1;
 	while (++i < tex->y)
 	{
 		j = -1;
 		while (++j < tex->x)
-		{
-			colour = tex->img[i][j];
-			my_put_pixel(&canvas, x + j, y + i, colour);
-		}
+			my_put_pixel_32(&canvas, x + j, y + i, tex->img[i][j]);
 	}
 }
 
@@ -200,35 +196,25 @@ void	place_weapon(t_info *app)
 
 void	place_energy_backup(t_info *app, t_data *map, t_player *player)
 {
-	int			backup;
-	int			max_backup;
+	const int	backup = player->health / 100;
+	const int	max_backup = player->max_health / 100;
 	int			i;
-	int			y_start;
-	int			x_start;
+	t_ivect		start;
 
-	backup = player->health / 100;
-	max_backup = player->max_health / 100;
 	i = 0;
-	y_start = 32;
-	x_start = 16;
+	start = (t_ivect){32, 16};
 	while (i < backup)
 	{
 		if (i > 6)
-		{
-			x_start = -96;
-			y_start = 16;
-		}
-		place_texarr(app, &map->energy_tex[11], x_start + i * 16, y_start);
+			start = (t_ivect) {-96, 16};
+		place_texarr(app, &map->energy_tex[11], start.x + i * 16, start.y);
 		i++;
 	}
 	while (i < max_backup)
 	{
 		if (i > 6)
-		{
-			x_start = -96;
-			y_start = 16;
-		}
-		place_texarr(app, &map->energy_tex[12], x_start + i * 16, y_start);
+			start = (t_ivect) {-96, 16};
+		place_texarr(app, &map->energy_tex[12], start.x + i * 16, start.y);
 		i++;
 	}
 }

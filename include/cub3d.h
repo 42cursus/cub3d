@@ -170,20 +170,20 @@ enum
 	DOOR_W_OPEN = 14,
 };
 
-enum
+typedef	enum e_type
 {
 	O_PROJ = 0,
 	O_ENTITY = 1,
 	O_ITEM = 2,
-};
+}	t_etype;
 
-enum
+typedef enum e_subtype
 {
 	E_ZOOMER,
 	I_ETANK,
 	I_SUPER,
 	I_MISSILE,
-};
+}	t_subtype;
 
 enum
 {
@@ -229,7 +229,7 @@ typedef struct s_info
 int		check_endianness(void);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
-void	replace_image(t_info *app);
+void	replace_frame(t_info *app);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -276,7 +276,9 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 void	free_ray_children(t_ray *ray);
 
+void	replace_bg(t_info *app);
 void	fill_bg(t_imgdata *bg, t_data *map);
+void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
