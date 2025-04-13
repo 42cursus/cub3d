@@ -338,10 +338,10 @@ void fill_everything_with_blood(t_imgdata *bg)
 
 void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
 {
-	t_imgdata	canvas = app->canvas;
-	int			i;
-	int			j;
-	int			colour;
+	int					i;
+	int					j;
+	unsigned int		colour;
+	t_imgdata *const	canvas = &app->canvas;
 
 	i = -1;
 	while (++i < tex->y)
@@ -350,7 +350,7 @@ void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
 		while (++j < tex->x)
 		{
 			colour = tex->img[i][j];
-			my_put_pixel(&canvas, x + j, y + i, colour);
+			my_put_pixel_32(canvas, x + j, y + i, colour);
 		}
 	}
 }
@@ -410,7 +410,7 @@ int	render_play(t_info *const app)
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
-	replace_image(app);
+	replace_frame(app);
 	// printf("player_pos:\t(%f, %f)\n", app->player->pos.x, app->player->pos.y);
 	// exit(0);
 	while (get_time_us() - app->last_frame < FRAMETIME)

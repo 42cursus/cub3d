@@ -25,35 +25,55 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
 	pixel = img->addr + (y * img->line_length + x * (img->bpp / 8));
 	*(unsigned int *)pixel = colour;
 }
+/**
+ * we assume that image bits_per_pixel is 32 bit
+ * @param img
+ * @param x
+ * @param y
+ * @param colour
+ */
+inline __attribute__((always_inline))
+void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour)
+{
+	if (colour == 0x000042)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->addr)[y][x] = colour;
+}
+
+void replace_bg(t_info *app)
+{
+	t_imgdata bg;
+
+	mlx_destroy_image(app->mlx, app->bg.img);
+	bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
+	bg.height = WIN_HEIGHT;
+	bg.width = WIN_WIDTH;
+	app->bg = bg;
+}
 
 void	fill_bg(t_imgdata *bg, t_data *map)
 {
 	int				mid;
 	int				i;
 	int				j;
-	const size_t	c_col = (size_t)map->c_col + ((size_t)map->c_col << 32);
-	const size_t	f_col = (size_t)map->f_col + ((size_t)map->f_col << 32);
+	unsigned int	c_col = map->c_col;
+	unsigned int	f_col = map->f_col;
 
 	mid = WIN_HEIGHT / 2;
 	i = -1;
 	while (++i <= mid)
 	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
-			j += 2;
-		}
+		j = -1;
+		while (++j < WIN_WIDTH)
+			my_put_pixel_32(bg, j, i, c_col);
 	}
 	i--;
 	while (++i < WIN_HEIGHT)
 	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
-			j += 2;
-		}
+		j = -1;
+		while (++j < WIN_WIDTH)
+			my_put_pixel_32(bg, j, i, f_col);
 	}
 }
 
@@ -67,10 +87,7 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 	texture.img = mlx_xpm_file_to_image(app->mlx, (char *) filename,
 								&texture.width, &texture.height);
 	if (!texture.img)
-	{
-		printf(" !! KO !!\n");
-		exit(1);
-	}
+		exit(((void) printf(" !! KO !!\n"), cleanup(app)));
 	texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_length, &texture.endian);
 	*x = texture.width;
 	*y = texture.height;
@@ -78,17 +95,14 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 	i = 0;
 	while (i < texture.height)
 		arr[i++] = malloc(texture.width * sizeof(int));
-	i = 0;
-	while (i < texture.height)
+	i = -1;
+	while (++i < texture.height)
 	{
-		j = 0;
-		while (j < texture.width)
-		{
-			arr[i][j] = *(unsigned int *)
-				(texture.addr + (i * texture.line_length + j * (texture.bpp / 8)));
-			j++;
-		}
-		i++;
+		j = -1;
+		while (++j < texture.width)
+			arr[i][j] = *(unsigned int *) (texture.addr +
+										   (i * texture.line_length +
+											j * (texture.bpp / 8)));
 	}
 	mlx_destroy_image(app->mlx, texture.img);
 	return (arr);
@@ -99,16 +113,12 @@ void	print_pixel_arr(int width, int height, unsigned int **arr)
 	int	i;
 	int	j;
 
-	i = 0;
-	while (i < height)
+	i = -1;
+	while (++i < height)
 	{
-		j = 0;
-		while (j < width)
-		{
+		j = -1;
+		while (++j < width)
 			printf("%x\t", arr[i][j]);
-			j++;
-		}
-		i++;
 	}
 }
 
@@ -147,15 +157,14 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 
 void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 {
-	int				pos;
-	t_texarr		*texture;
-	t_anim			*anim;
-	int				y;
-	int				top;
-	int				h_index;
-	int				lineheight;
+	int					pos;
+	const t_texarr		*texture =  ray->texture;
+	t_anim				*anim;
+	int					y;
+	int					top;
+	int					h_index;
+	int					lineheight;
 
-	texture = ray->texture;
 	pos = ray->pos;
 	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
@@ -178,7 +187,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	while (y < lineheight && y + top < WIN_HEIGHT)
 	{
 		h_index = ((double)y / lineheight) * texture->y;
-		my_put_pixel(canvas, x, top + y, texture->img[h_index][pos]);
+		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
 		y++;
 	}
 	if (ray->in_front != NULL)
