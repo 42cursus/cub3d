@@ -259,9 +259,9 @@ int key_press_play(KeySym key, void *param)
 			spawn_projectile(app, app->player, app->map, app->player->equipped);
 		// DEBUGGING
 		else if (key == XK_h)
-				app->player->health -= 10;
+				subtract_health(app, app->player, 10);
 		else if (key == XK_j)
-				app->player->health += 10;
+				add_health(app->player, 10);
 		else if (key == XK_grave)
 				developer_console(app, app->player);
 		else if (key == XK_z)

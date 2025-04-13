@@ -113,6 +113,7 @@ typedef	struct s_data
 	t_texarr	floor_tex;
 	t_texarr	door_tex[7];
 	t_texarr	door_super_tex[7];
+	t_texarr	door_missile_tex[7];
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	proj_tex[10];
@@ -256,6 +257,7 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
+void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 
 t_vect	vect(double x, double y);

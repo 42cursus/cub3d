@@ -158,6 +158,17 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		}
 		start_obj_death(obj, app);
 	}
+	else if (*tile == 'M')
+	{
+		if (obj->subtype != BEAM)
+		{
+			anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
+			*tile = 'O';
+			anim->active = 1;
+			anim->framestart = app->framecount;
+		}
+		start_obj_death(obj, app);
+	}
 	else
 		// if (obj->subtype != SUPER)
 			obj->pos = new_pos;
@@ -198,7 +209,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	map = app->map;
 	handle_enemy_anim(app, obj);
 	tile = &map->map[(int)new_pos.y][(int)new_pos.x];
-	if (*tile == '1' || *tile == 'D')
+	if (ft_strchr("DML1", *tile))
 	{
 		obj->dir.x *= -1;
 		obj->dir.y *= -1;
