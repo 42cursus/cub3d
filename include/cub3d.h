@@ -121,6 +121,7 @@ typedef	struct s_data
 	t_texarr	etank_tex[2];
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
+	t_texarr	title;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -278,6 +279,7 @@ void	free_ray_children(t_ray *ray);
 
 void	fill_bg(t_imgdata *bg, t_data *map);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
+void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
