@@ -126,21 +126,6 @@ int	get_index(KeySym key)
 	return ret;
 }
 
-int	loop_hook(void *param)
-{
-	t_info *const app = param;
-
-	if (app->state == STATE_INITIAL)
-		render_initial(app);
-	else if (app->state == STATE_PLAY)
-		render_play(app);
-	else if (app->state == STATE_LOOSE)
-		render_loose(app);
-	else
-		return (EX_DATAERR);
-	return (0);
-}
-
 int switch_game_state(t_info *const app, t_state new_state)
 {
 
@@ -192,7 +177,7 @@ int switch_game_state(t_info *const app, t_state new_state)
 //		[GAME_OVER] = {
 //			[KeyPress] = {
 //				.mask = KeyPressMask,
-//				.hook = (void *) &key_press_over,
+//				.hook = (void *) &key_press_loose,
 //				.param = app,
 //			}
 //		}
@@ -201,21 +186,14 @@ int switch_game_state(t_info *const app, t_state new_state)
 //	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
 
 	if (new_state == STATE_INITIAL)
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_initial, app);
+		;
 	else if (new_state == STATE_PLAY)
 	{
-		replace_bg(app);
-		fill_bg(&app->bg, app->map);
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
-		mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
-		mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
-		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
-		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+		;
 	}
 	else if (new_state == STATE_LOOSE)
 	{
-		fill_everything_with_blood(&app->bg);
-		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over, app);
+		;
 	}
 	else
 		return (-1);
@@ -225,18 +203,23 @@ int switch_game_state(t_info *const app, t_state new_state)
 }
 
 
-int key_press_initial(KeySym key, void *param)
+int key_press_menu(KeySym key, void *param)
 {
 	t_info *const app = param;
 	if (key == XK_5 || key == XK_Escape)
+	{
 		app->mlx->end_loop = 1;
+		app->rc = fail;
+	}
 	else if (key == XK_space)
-		switch_game_state(app, STATE_PLAY);
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
 	return (0);
 }
 
-
-int key_press_over(KeySym key, void *param)
+int key_press_loose(KeySym key, void *param)
 {
 	t_info *const app = param;
 
@@ -250,7 +233,10 @@ int key_press_play(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
-		switch_game_state(app, STATE_LOOSE);
+	{
+		app->rc = repeat;
+		app->mlx->end_loop = 1;
+	}
 	else
 	{
 		if (key == KEY_E)
@@ -278,7 +264,7 @@ int key_press_play(KeySym key, void *param)
 }
 
 
-int key_release_initial(KeySym key, void *param)
+int key_release_menu(KeySym key, void *param)
 {
 	t_info *const app = param;
 

@@ -220,6 +220,7 @@ typedef struct s_info
 	bool		keys[16];
 	bool		mouse[16];
 	t_state		state;
+	t_ret_code	rc;
 }	t_info;
 
 int		check_endianness(void);
@@ -288,17 +289,16 @@ t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 
-int key_press_over(KeySym key, void *param);
 int key_press_play(KeySym key, void *param);
-int key_press_initial(KeySym key, void *param);
 int key_release_play(KeySym key, void *param);
-int key_release_initial(KeySym key, void *param);
+int key_press_menu(KeySym key, void *param);
+int key_release_menu(KeySym key, void *param);
+int key_press_loose(KeySym key, void *param);
 
 int switch_game_state(t_info *app, t_state new_state);
-int	loop_hook(void *param);
-int	render_initial(t_info *const app);
-int	render_play(t_info *const app);
-int	render_loose(t_info *const app);
+int	render_menu(void *param);
+int	render_play(void *app);
+int	render_loose(void *param);
 void fill_everything_with_blood(t_imgdata *bg);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);

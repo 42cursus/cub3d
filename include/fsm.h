@@ -83,11 +83,11 @@ t_ret_code do_state_win(void *param);
 t_ret_code do_state_loose(void *param);
 
 static state_func_t *const state_table[NUM_STATES] = {
-	(void *)do_state_initial,
-	do_state_menu,
-	do_state_play,
-	do_state_win,
-	do_state_loose,
+	[STATE_INITIAL] = (void *)do_state_initial,
+	[STATE_MENU] = do_state_menu,
+	[STATE_PLAY] = do_state_play,
+	[STATE_LOOSE] = do_state_loose,
+	[STATE_WIN] = do_state_win,
 	NULL
 };
 

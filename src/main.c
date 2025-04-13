@@ -19,8 +19,6 @@ int	main(int argc, char **argv)
 		.width = WIN_WIDTH, .height = WIN_HEIGHT
 	}};
 
-	if (argc != 2)
-		return (printf("Error: incorrect arg no\n"), EXIT_FAILURE);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);
 	cleanup(app);

@@ -14,21 +14,23 @@
 
 t_state run_state(t_info *app, int argc, char **argv)
 {
-	state_func_t *state_fun;
-	t_transition_func *transition_func;
-	t_transition transition;
-	t_ret_code rc;
-	size_t i;
+	state_func_t		*state_fun;
+	t_transition_func	*transition_func;
+	t_transition		transition;
+	t_ret_code			rc;
+	size_t				i;
 
-	state_fun = state_table[app->state];
-	if (state_fun == (void *) do_state_initial)
+
+	if (app->state == STATE_INITIAL)
 		rc = do_state_initial(app, argc, argv);
 	else
+	{
+		state_fun = state_table[app->state];
 		rc = state_fun(app);
+	}
 	i = 0;
 	transition.dst_state = app->state;
-	while (++i <
-		   (int) (sizeof(state_transitions) / sizeof(state_transitions[0])))
+	while (i < (int) (sizeof(state_transitions) / sizeof(state_transitions[0])))
 	{
 		transition = state_transitions[i++];
 		if (transition.src_state == app->state && transition.ret_code == rc)
@@ -45,33 +47,48 @@ int	exit_win(t_info *const	app)
 	exit(cleanup(app));
 }
 
-
 t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	int				cubfd;
 
 	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
-
-	int			cubfd;
+	if (argc != 2)
+		return (printf("Error: incorrect arg no\n"), fail);
 	cubfd = open(argv[1], O_RDONLY);
 	if (cubfd == -1)
-		return (printf("Error: failed to open map\n"), 1);
+		return (printf("Error: failed to open map\n"), fail);
 	app->map = init_map();
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
+
 	if (app->mlx == NULL)
-		exit(EXIT_FAILURE);
+		return (printf("Error: failed to open map\n"), fail);
+	if (parse_cub(app, cubfd))
+		return (free_map(app->map), fail);
+	app->player = init_player(app->map);
 
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
-	mlx_loop_hook(app->mlx, &loop_hook, app);
-	mlx_expose_hook(app->root, &expose_win, app);
-	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
-	switch_game_state(app, STATE_INITIAL);
 
-	if (parse_cub(app, cubfd))
-		return (free_map(app->map), 1);
-	app->player = init_player(app->map);
+	app->last_frame = get_time_us();
+	app->framecount = 0;
+	// app->last_frame_us = get_time_us();
+	app->frametime = 5000;
+	return (ok);
+}
+
+t_ret_code do_state_menu(void *param)
+{
+	t_info *const app = param;
+
+	mlx_loop(app->mlx);
+	return (app->rc);
+}
+
+t_ret_code do_state_play(void *param)
+{
+	t_info *const app = param;
 
 	struct s_thing
 	{
@@ -103,32 +120,11 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 			spawn_item(app, thing->pos, thing->subtype);
 	}
 
-	app->last_frame = get_time_us();
-	app->framecount = 0;
-	// app->last_frame_us = get_time_us();
-	app->frametime = 5000;
-
 	mlx_mouse_hide(app->mlx, app->root);
-
 	mlx_loop(app->mlx);
-
 	mlx_mouse_show(app->mlx, app->root);
-	return (ok);
-	(void)argc;
-}
 
-t_ret_code do_state_menu(void *param)
-{
-	t_info *const app = param;
-	return (ok);
-	(void)app;
-}
-
-t_ret_code do_state_play(void *param)
-{
-	t_info *const app = param;
-	return (ok);
-	(void)app;
+	return (app->rc);
 }
 
 t_ret_code do_state_win(void *param)
@@ -141,20 +137,25 @@ t_ret_code do_state_win(void *param)
 t_ret_code do_state_loose(void *param)
 {
 	t_info *const app = param;
+
+	mlx_loop(app->mlx);
 	return (ok);
-	(void)app;
 }
 
 void do_initial_to_menu(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
+	mlx_expose_hook(app->root, &expose_win, app);
+	mlx_loop_hook(app->mlx, &render_menu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_menu, app);
 }
 
 void do_initial_to_end(void *param)
 {
 	t_info *const app = param;
+
 	return ;
 	(void)app;
 }
@@ -162,8 +163,16 @@ void do_initial_to_end(void *param)
 void do_menu_to_play(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	replace_bg(app);
+	fill_bg(&app->bg, app->map);
+	mlx_loop_hook(app->mlx, &render_play, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 }
 
 void do_menu_to_end(void *param)
@@ -176,8 +185,15 @@ void do_menu_to_end(void *param)
 void do_play_to_menu(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	app->mlx->end_loop = 0;
+	mlx_loop_hook(app->mlx, &render_menu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_menu, app);
+
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
 void do_play_to_win(void *param)
@@ -190,8 +206,10 @@ void do_play_to_win(void *param)
 void do_play_to_loose(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	fill_everything_with_blood(&app->bg);
+	mlx_loop_hook(app->mlx, &render_loose, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_loose, app);
 }
 
 void do_play_to_end(void *param)

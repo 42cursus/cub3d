@@ -383,8 +383,10 @@ void	draw_loose_text(t_info *app)
 	}
 }
 
-int	render_loose(t_info *const app)
+int	render_loose(void *param)
 {
+	t_info *const app = param;
+
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_loose_text(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
@@ -395,9 +397,10 @@ int	render_loose(t_info *const app)
 	return (0);
 }
 
-int	render_play(t_info *const app)
+int	render_play(void *param)
 {
 	size_t				time;
+	t_info *const app = param;
 
 	// if (app->keys[idx_XK_e])
 	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
@@ -436,9 +439,10 @@ int	render_play(t_info *const app)
 	return (0);
 }
 
-
-int	render_initial(t_info *const app)
+int	render_menu(void *param)
 {
+	t_info *const app = param;
+
 	render_loose(app);
 	return (0);
 }
