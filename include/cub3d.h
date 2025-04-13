@@ -12,12 +12,12 @@
 
 #ifndef CUB3D_H
 # define CUB3D_H
-#include "ft/ft_stdlib.h"
+# include <math.h>
+# include <sys/types.h>
 # include "libft.h"
 # include "mlx.h"
 # include "mlx_int.h"
-# include <math.h>
-#include <sys/types.h>
+# include "fsm.h"
 
 # define NUM_5 0x35 /* (53) Number 5 on the main keyboard */
 # define ESC 0xFF1B /* (53) Number 5 on the main keyboard */
@@ -197,13 +197,6 @@ enum
 	SUPER,
 };
 
-typedef enum e_game_state
-{
-	INITIAL,
-	PLAY,
-	GAME_OVER
-}	t_game_state;
-
 typedef struct s_info
 {
 	struct s_fdf_win
@@ -228,7 +221,7 @@ typedef struct s_info
 	size_t		framecount;
 	bool		keys[16];
 	bool		mouse[16];
-	t_game_state state;
+	t_state		state;
 }	t_info;
 
 int		check_endianness(void);
@@ -303,14 +296,17 @@ int key_press_initial(KeySym key, void *param);
 int key_release_play(KeySym key, void *param);
 int key_release_initial(KeySym key, void *param);
 
-int switch_game_state(t_info *app, t_game_state new_state);
+int switch_game_state(t_info *app, t_state new_state);
 int	loop_hook(void *param);
 int	render_initial(t_info *const app);
 int	render_play(t_info *const app);
-int	render_game_over(t_info *const app);
+int	render_loose(t_info *const app);
 void fill_everything_with_blood(t_imgdata *bg);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);
+
+
+t_state run_state(t_info *app, int argc, char **argv);
 
 #endif //CUB3D_H
 

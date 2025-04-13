@@ -357,46 +357,46 @@ void fill_everything_with_blood(t_imgdata *bg)
 }
 
 
-// void	place_game_over(t_info *app, t_texarr *tex, int x, int y)
-// {
-// 	int					i;
-// 	int					j;
-// 	unsigned int		colour;
-// 	t_imgdata *const	canvas = &app->canvas;
-//
-// 	i = -1;
-// 	while (++i < tex->y)
-// 	{
-// 		j = -1;
-// 		while (++j < tex->x)
-// 		{
-// 			colour = tex->img[i][j];
-// 			my_put_pixel_32(canvas, x + j, y + i, colour);
-// 		}
-// 	}
-// }
+void	place_loose(t_info *app, t_texarr *tex, int x, int y)
+{
+	int					i;
+	int					j;
+	unsigned int		colour;
+	t_imgdata *const	canvas = &app->canvas;
 
-// void	draw_game_over_text(t_info *app)
-// {
-// 	int	digit;
-// 	int	i;
-// 	int x;
-//
-// 	i = -1;
-//
-// 	x = WIN_WIDTH / 2;
-// 	while (++i < 9)
-// 	{
-// 		digit = i;
-// 		place_game_over(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
-// 		x -= 16;
-// 	}
-// }
+	i = -1;
+	while (++i < tex->y)
+	{
+		j = -1;
+		while (++j < tex->x)
+		{
+			colour = tex->img[i][j];
+			my_put_pixel_32(canvas, x + j, y + i, colour);
+		}
+	}
+}
 
-int	render_game_over(t_info *const app)
+void	draw_loose_text(t_info *app)
+{
+	int	digit;
+	int	i;
+	int x;
+
+	i = -1;
+
+	x = WIN_WIDTH / 2;
+	while (++i < 9)
+	{
+		digit = i;
+		place_loose(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
+		x -= 16;
+	}
+}
+
+int	render_loose(t_info *const app)
 {
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// draw_game_over_text(app);
+	// draw_loose_text(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
 	place_str((char *)"Hello this is a test\nfor a multi line\nstring\n0123456789", app, (t_ivect){200, 400}, 2);
 	mlx_put_image_to_window(app->mlx, app->root,
@@ -449,6 +449,6 @@ int	render_play(t_info *const app)
 
 int	render_initial(t_info *const app)
 {
-	render_game_over(app);
+	render_loose(app);
 	return (0);
 }

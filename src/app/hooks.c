@@ -130,18 +130,18 @@ int	loop_hook(void *param)
 {
 	t_info *const app = param;
 
-	if (app->state == INITIAL)
+	if (app->state == STATE_INITIAL)
 		render_initial(app);
-	else if (app->state == PLAY)
+	else if (app->state == STATE_PLAY)
 		render_play(app);
-	else if (app->state == GAME_OVER)
-		render_game_over(app);
+	else if (app->state == STATE_LOOSE)
+		render_loose(app);
 	else
 		return (EX_DATAERR);
 	return (0);
 }
 
-int switch_game_state(t_info *const app, t_game_state new_state)
+int switch_game_state(t_info *const app, t_state new_state)
 {
 
 //	t_event_list		hooks[3][MLX_MAX_EVENT] = {
@@ -200,9 +200,9 @@ int switch_game_state(t_info *const app, t_game_state new_state)
 
 //	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
 
-	if (new_state == INITIAL)
+	if (new_state == STATE_INITIAL)
 		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_initial, app);
-	else if (new_state == PLAY)
+	else if (new_state == STATE_PLAY)
 	{
 		replace_bg(app);
 		fill_bg(&app->bg, app->map);
@@ -212,7 +212,7 @@ int switch_game_state(t_info *const app, t_game_state new_state)
 		mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 		mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 	}
-	else if (new_state == GAME_OVER)
+	else if (new_state == STATE_LOOSE)
 	{
 		fill_everything_with_blood(&app->bg);
 		mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_over, app);
@@ -231,7 +231,7 @@ int key_press_initial(KeySym key, void *param)
 	if (key == XK_5 || key == XK_Escape)
 		app->mlx->end_loop = 1;
 	else if (key == XK_space)
-		switch_game_state(app, PLAY);
+		switch_game_state(app, STATE_PLAY);
 	return (0);
 }
 
@@ -250,7 +250,7 @@ int key_press_play(KeySym key, void *param)
 	t_info *const app = param;
 
 	if (key == XK_5 || key == XK_Escape)
-		switch_game_state(app, GAME_OVER);
+		switch_game_state(app, STATE_LOOSE);
 	else
 	{
 		if (key == KEY_E)
