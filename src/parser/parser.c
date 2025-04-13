@@ -618,6 +618,7 @@ int	parse_cub(t_info *app, int fd)
 	data->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &data->etank_tex[1].x, &data->etank_tex[1].y);
 	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	data->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &data->title.x, &data->title.y);
+	data->alphabet.img = img_to_arr((char *)"./textures/small_font.xpm", app, &data->alphabet.x, &data->alphabet.y);
 	load_energy_textures(app, data);
 	load_super_textures(app, data);
 	load_missile_textures(app, data);
@@ -662,6 +663,9 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->s_tex);
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
+	free_tex_arr(&data->title);
+	free_tex_arr(&data->alphabet);
+	free_tex_arr(&data->floor_tex);
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&data->door_tex[i++]);

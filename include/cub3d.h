@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 50
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -122,6 +122,7 @@ typedef	struct s_data
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
 	t_texarr	title;
+	t_texarr	alphabet;
 	void		*playertile;
 	t_imgdata	minimap;
 	int			f_col;
@@ -282,6 +283,7 @@ void	fill_bg(t_imgdata *bg, t_data *map);
 void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
+void	place_str(char *str, t_info *app, int x, int y);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);

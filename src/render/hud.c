@@ -175,6 +175,49 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
+void	place_char(char c, t_info *app, int x, int y)
+{
+	t_imgdata	canvas = app->canvas;
+	int			i;
+	int			j;
+	int			start_x;
+
+	if (!ft_isalpha(c))
+		return ;
+	c = ft_tolower(c);
+	start_x = (c - 'a') * 16;
+	i = -1;
+	while (++i < 16)
+	{
+		j = -1;
+		while (++j < 16)
+			my_put_pixel_32(&canvas, x + j, y + i, app->map->alphabet.img[i][j + start_x]);
+	}
+}
+
+void	place_str(char *str, t_info *app, int x, int y)
+{
+	int	i;
+	int	pos_x;
+	int	pos_y;
+
+	i = -1;
+	pos_x = x;
+	pos_y = y;
+	while (str[++i])
+	{
+		if (ft_isalpha(str[i]))
+			place_char(str[i], app, pos_x, pos_y);
+		else if (str[i] == '\n')
+		{
+			pos_y += 16;
+			pos_x = x;
+			continue ;
+		}
+		pos_x += 16;
+	}
+}
+
 void	place_weapon(t_info *app)
 {
 	t_texarr	*tex;

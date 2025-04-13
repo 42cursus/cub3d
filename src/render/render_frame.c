@@ -377,6 +377,7 @@ int	render_game_over(t_info *const app)
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_game_over_text(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	place_str((char *)"Hello this is a test\nfor a multi line\nstring", app, 200, 400);
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas.img, app->clip_x_origin,
 							app->clip_y_origin);
