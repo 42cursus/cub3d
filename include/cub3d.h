@@ -32,8 +32,8 @@
 # define KEY_E 0x0065
 # define KEY_X 0x0078
 
-# define WIN_HEIGHT 900
-# define WIN_WIDTH 1200
+# define WIN_HEIGHT 768
+# define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
 # define FRAMERATE 100
@@ -103,6 +103,19 @@ typedef struct s_ray
 	double			distance;
 	struct s_ray	*in_front;
 }	t_ray;
+
+//
+//typedef enum e_textures
+//{
+//	DOOR_TEX = 0,
+//
+//}	t_etext;
+//
+//
+//t_texarr textures[] = {
+//	[DOOR_TEX] = {},
+//
+//};
 
 typedef	struct s_data
 {
