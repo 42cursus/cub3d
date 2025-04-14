@@ -406,9 +406,9 @@ int	render_loose(void *param)
 
 	// fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_loose_text(app);
-	update_objects(app, app->player, app->map);
-	on_expose(app);
-	replace_frame(app);
+	// update_objects(app, app->player, app->map);
+	// on_expose(app);
+	// replace_frame(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);

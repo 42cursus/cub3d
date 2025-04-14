@@ -89,43 +89,15 @@ t_ret_code do_state_mmenu(void *param)
 
 t_ret_code do_state_load(void *param)
 {
-	return ok;
+	t_info *const app = param;
+	return (ok);
+	(void)app;
 }
 
 t_ret_code do_state_play(void *param)
 {
 	t_info *const app = param;
 
-	struct s_thing
-	{
-		t_vect		pos;
-		t_vect		dir;
-		t_etype		type;
-		t_subtype	subtype;
-	} things[] = {
-		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
-		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
-		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
-		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
-		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
-		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
-		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
-		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
-	};
-
-	int i = -1;
-	while (++i < (int)(sizeof(things) / sizeof(things[0])))
-	{
-		struct s_thing *thing = &things[i];
-		if (thing->type == O_ENTITY)
-			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
-		else
-			spawn_item(app, thing->pos, thing->subtype);
-	}
 
 	mlx_mouse_hide(app->mlx, app->root);
 	mlx_loop(app->mlx);
@@ -140,7 +112,7 @@ t_ret_code do_state_pmenu(void *param)
 	t_info *const app = param;
 
 	mlx_loop(app->mlx);
-	return ok;
+	return (app->rc);
 }
 
 t_ret_code do_state_win(void *param)
@@ -235,6 +207,10 @@ void do_initial_to_end(void *param)
 
 void do_mmenu_to_load(void *param)
 {
+	t_info *const app = param;
+
+	return ;
+	(void)app;
 
 }
 
@@ -242,6 +218,36 @@ void do_load_to_play(void *param)
 {
 	t_info *const app = param;
 
+	struct s_thing
+	{
+		t_vect		pos;
+		t_vect		dir;
+		t_etype		type;
+		t_subtype	subtype;
+	} things[] = {
+		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
+		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
+		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
+		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
+		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
+		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
+		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
+	};
+
+	int i = -1;
+	while (++i < (int)(sizeof(things) / sizeof(things[0])))
+	{
+		struct s_thing *thing = &things[i];
+		if (thing->type == O_ENTITY)
+			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
+		else
+			spawn_item(app, thing->pos, thing->subtype);
+	}
 	replace_bg(app, NULL);
 	fill_bg(&app->bg, app->map);
 	mlx_loop_hook(app->mlx, &render_play, app);
@@ -255,6 +261,10 @@ void do_load_to_play(void *param)
 
 void do_load_to_end(void *param)
 {
+	t_info *const app = param;
+
+	return ;
+	(void)app;
 
 }
 
@@ -313,17 +323,33 @@ void do_pmenu_to_play(void *param)
 {
 	t_info *const app = param;
 
-
+	replace_bg(app, NULL);
+	fill_bg(&app->bg, app->map);
+	mlx_loop_hook(app->mlx, &render_play, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 }
 
 void do_pmenu_to_mmenu(void *param)
 {
 
+	t_info *const app = param;
+
+	return ;
+	(void)app;
 }
 
 void do_pmenu_to_end(void *param)
 {
 
+	t_info *const app = param;
+
+	return ;
+	(void)app;
 }
 
 void do_loose_to_mmenu(void *param)
