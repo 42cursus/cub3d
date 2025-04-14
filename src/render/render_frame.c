@@ -462,6 +462,8 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
@@ -486,8 +488,8 @@ int render_pmenu(void *param)
 	t_info *const app = param;
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 432}, 4);
-	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
+	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);

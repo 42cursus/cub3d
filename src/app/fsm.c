@@ -339,7 +339,7 @@ void do_pmenu_to_mmenu(void *param)
 	t_info *const app = param;
 
 	replace_bg(app, (char *)"./textures/wall.xpm");
-	fill_bg(&app->bg, app->map);
+
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 
