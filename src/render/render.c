@@ -141,8 +141,8 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	if (frames > 19)
 	{
 		anim->active = 0;
-		tex = &app->map->door_tex[1];
-		anim->tex_arr = app->map->door_tex;
+		tex = &app->shtex->door_tex[1];
+		anim->tex_arr = app->shtex->door_tex;
 	}
 	else
 		tex = &anim->tex_arr[2 + (frames / 4)];
@@ -158,10 +158,10 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	if (frames > 19)
 	{
 		anim->active = 0;
-		tex = &app->map->door_tex[0];
+		tex = &app->shtex->door_tex[0];
 	}
 	else
-		tex = &app->map->door_tex[2 + (4 - (frames / 4))];
+		tex = &app->shtex->door_tex[2 + (4 - (frames / 4))];
 	return (tex);
 }
 

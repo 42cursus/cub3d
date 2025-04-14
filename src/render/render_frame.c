@@ -77,16 +77,16 @@ t_object	*check_obj_proximity(t_vect pos, t_data *map)
 	return (NULL);
 }
 
-void	select_missile_tex(t_object *obj, t_player *player, t_data *map)
+void	select_missile_tex(t_object *obj, t_player *player, t_info *app)
 {
 	t_texarr	*tex;
 	double		angle;
 	int			index;
 
 	if (obj->subtype == SUPER)
-		tex = map->super_tex + 4;
+		tex = app->shtex->super_tex + 4;
 	else
-		tex = map->missile_tex + 4;
+		tex = app->shtex->missile_tex + 4;
 	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
 	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
 	angle = vector_angle(obj->dir, add_vect(player->dir,
@@ -113,9 +113,9 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 			return (1);
 		}
 		else if (obj->subtype == BEAM)
-			obj->texture = &app->map->proj_tex[1 + (frames / 5)];
+			obj->texture = &app->shtex->proj_tex[1 + (frames / 5)];
 		else
-			obj->texture = &app->map->proj_tex[5 + (frames / 4)];
+			obj->texture = &app->shtex->proj_tex[5 + (frames / 4)];
 		return (0);
 	}
 	closest = check_obj_proximity(obj->pos, app->map);
@@ -131,10 +131,10 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		return (0);
 	}
 	if (obj->subtype == BEAM)
-		obj->texture = &app->map->proj_tex[0];
+		obj->texture = &app->shtex->proj_tex[0];
 	// else if (obj->subtype == SUPER)
 	else
-		select_missile_tex(obj, app->player, app->map);
+		select_missile_tex(obj, app->player, app);
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
 	if (*tile == '1')
@@ -178,11 +178,9 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 void	handle_enemy_anim(t_info *app, t_object *enemy)
 {
 	int		frame_mod;
-	t_data	*map;
 
 	frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
-	map = app->map;
-	enemy->texture = &map->crawler_tex[frame_mod / (5 * FR_SCALE)];
+	enemy->texture = &app->shtex->crawler_tex[frame_mod / (5 * FR_SCALE)];
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
@@ -203,7 +201,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			return (1);
 		}
 		else
-			obj->texture = &app->map->explode_tex[frames / 4];
+			obj->texture = &app->shtex->explode_tex[frames / 4];
 		return (0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
@@ -230,22 +228,20 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 
 void	select_item_texture(t_info *app, t_object *obj)
 {
-	t_data		*map;
 	int			frames;
 	t_texarr	*texp;
 
-	map = app->map;
 	frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
-	texp = map->etank_tex;
+	texp = app->shtex->etank_tex;
 	if (obj->subtype == I_SUPER)
-		texp = map->super_tex;
+		texp = app->shtex->super_tex;
 	else if (obj->subtype == I_MISSILE)
-		texp = map->missile_tex;
+		texp = app->shtex->missile_tex;
 	else if (obj->subtype == I_TROPHY)
-		texp = map->trophy_tex;
+		texp = app->shtex->trophy_tex;
 	else if (obj->subtype == I_HEALTH)
 	{
-		texp = map->health_pu;
+		texp = app->shtex->health_pu;
 		obj->texture = &texp[(frames % 20) / 5];
 		// obj->texture = &texp[0];
 		return ;
@@ -395,7 +391,7 @@ void	draw_loose_text(t_info *app)
 	while (++i < 9)
 	{
 		digit = i;
-		place_loose(app, &app->map->energy_tex[digit], x, WIN_HEIGHT / 2);
+		place_loose(app, &app->shtex->energy_tex[digit], x, WIN_HEIGHT / 2);
 		x -= 16;
 	}
 }
@@ -404,12 +400,12 @@ int	render_loose(void *param)
 {
 	t_info *const app = param;
 
-	 fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	 draw_loose_text(app);
-	 update_objects(app, app->player, app->map);
-	 on_expose(app);
-	 replace_frame(app);
-	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	draw_loose_text(app);
+	update_objects(app, app->player, app->map);
+	on_expose(app);
+	replace_frame(app);
+	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
 	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
@@ -466,7 +462,7 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
 	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
@@ -489,7 +485,7 @@ int render_pmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 432}, 4);
 	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 

@@ -32,7 +32,7 @@ void	load_map_textures(t_info *app, void *tiles[])
 		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
 		i++;
 	}
-	app->map->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
+	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
 void	free_map_textures(t_info *app, void *tiles[])
@@ -245,7 +245,7 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 		j = -1;
 		while (++j < 8 * scalar)
 		{
-			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, app->map->alphabet.img[i / scalar][(j / scalar) + start_x]);
+			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, app->shtex->alphabet.img[i / scalar][(j / scalar) + start_x]);
 		}
 	}
 }
@@ -311,19 +311,19 @@ void	place_weapon(t_info *app)
 	if (app->player->hud.active == 1)
 	{
 		if (app->framecount - app->player->hud.framestart < 6 * FR_SCALE)
-			tex = &app->map->cannon_tex[1];
+			tex = &app->shtex->cannon_tex[1];
 		else
 		{
 			app->player->hud.active = 0;
-			tex = &app->map->cannon_tex[0];
+			tex = &app->shtex->cannon_tex[0];
 		}
 	}
 	else
-		tex = &app->map->cannon_tex[0];
+		tex = &app->shtex->cannon_tex[0];
 	place_texarr(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
 }
 
-void	place_energy_backup(t_info *app, t_data *map, t_player *player)
+void	place_energy_backup(t_info *app, t_player *player)
 {
 	const int	backup = player->health / 100;
 	const int	max_backup = player->max_health / 100;
@@ -336,33 +336,33 @@ void	place_energy_backup(t_info *app, t_data *map, t_player *player)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &map->energy_tex[1], start.x + i * 16, start.y);
+		place_texarr(app, &app->shtex->energy_tex[1], start.x + i * 16, start.y);
 		i++;
 	}
 	while (i < max_backup)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &map->energy_tex[2], start.x + i * 16, start.y);
+		place_texarr(app, &app->shtex->energy_tex[2], start.x + i * 16, start.y);
 		i++;
 	}
 }
 
-void	place_energy(t_info *app, t_data *map, t_player *player)
+void	place_energy(t_info *app, t_player *player)
 {
 	int			health;
 	char		buf[3];
 
-	place_texarr(app, &map->energy_tex[0], 16, 48);
+	place_texarr(app, &app->shtex->energy_tex[0], 16, 48);
 	health = player->health % 100;
 	buf[0] = (health / 10) + '0';
 	buf[1] = (health % 10) + '0';
 	buf[2] = 0;
 	place_str(buf, app, (t_ivect){96, 48}, 2);
-	place_energy_backup(app, map, player);
+	place_energy_backup(app, player);
 }
 
-void	place_ammo(t_info *app, t_data *map, t_player *player)
+void	place_ammo(t_info *app, t_player *player)
 {
 	char		buf[4];
 	
@@ -374,9 +374,9 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 		buf[2] = player->ammo[MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
 		if (player->equipped == MISSILE)
-			place_texarr(app, &map->missile_tex[3], 160, 16);
+			place_texarr(app, &app->shtex->missile_tex[3], 160, 16);
 		else
-			place_texarr(app, &map->missile_tex[2], 160, 16);
+			place_texarr(app, &app->shtex->missile_tex[2], 160, 16);
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
@@ -385,9 +385,9 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 		buf[2] = 0;
 		place_str(buf, app, (t_ivect){224, 48}, 2);
 		if (player->equipped == SUPER)
-			place_texarr(app, &map->super_tex[3], 224, 16);
+			place_texarr(app, &app->shtex->super_tex[3], 224, 16);
 		else
-			place_texarr(app, &map->super_tex[2], 224, 16);
+			place_texarr(app, &app->shtex->super_tex[2], 224, 16);
 	}
 }
 
@@ -414,12 +414,12 @@ void	draw_mmap(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
-	place_energy(app, app->map, app->player);
-	place_ammo(app, app->map, app->player);
+	place_energy(app, app->player);
+	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)
 	place_fps(app);
-	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile,
+	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
-	mlx_put_image_to_window(app->mlx, app->root, app->map->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

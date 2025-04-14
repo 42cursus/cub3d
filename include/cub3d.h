@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1024
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 50
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
@@ -117,13 +117,8 @@ typedef struct s_ray
 //
 //};
 
-typedef	struct s_data
+typedef struct s_shtex
 {
-	t_texarr	n_tex;
-	t_texarr	s_tex;
-	t_texarr	e_tex;
-	t_texarr	w_tex;
-	t_texarr	floor_tex;
 	t_texarr	door_tex[7];
 	t_texarr	door_super_tex[7];
 	t_texarr	door_missile_tex[7];
@@ -140,13 +135,21 @@ typedef	struct s_data
 	t_texarr	title;
 	t_texarr	alphabet;
 	void		*playertile;
+}	t_shtex;
+
+typedef	struct s_data
+{
+	t_texarr	n_tex;
+	t_texarr	s_tex;
+	t_texarr	e_tex;
+	t_texarr	w_tex;
+	t_texarr	floor_tex;
 	t_imgdata	minimap;
 	int			f_col;
 	int			c_col;
 	char		**map;
 	t_anim		**anims;
 	t_list		*objects;
-	t_object	testobj;
 	t_vect		starting_pos;
 	char		starting_dir;
 	int			height;
@@ -228,6 +231,7 @@ typedef struct s_info
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
+	t_shtex		*shtex;
 	t_data		*map;
 	t_player	*player;
 	size_t		last_frame;
@@ -257,6 +261,7 @@ int		parse_cub(t_info *app, int fd);
 void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
 void	free_split(char **split);
+void	load_shtex(t_info *app);
 
 t_player	*init_player(t_data *map);
 void		move_entity(t_vect *pos, char **map, t_vect dir);
@@ -287,7 +292,7 @@ void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
-void	cast_all_rays(t_data *map, t_player *player);
+void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 void	free_ray_children(t_ray *ray);
 

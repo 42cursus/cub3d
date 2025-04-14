@@ -65,10 +65,10 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map\n"), fail);
+	load_shtex(app);
 	if (parse_cub(app, cubfd))
 		return (free_map(app->map), fail);
 	app->player = init_player(app->map);
-
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
 
