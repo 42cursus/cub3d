@@ -249,7 +249,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	}
 	else
 		obj->pos = new_pos;
-	if (vector_distance(obj->pos, app->player->pos) < 0.5)
+	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		subtract_health(app, app->player, 35);
 		move_entity(&app->player->pos, app->map->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));

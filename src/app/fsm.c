@@ -379,6 +379,17 @@ void do_loose_to_mmenu(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	replace_bg(app, (char *)"./textures/wall.xpm");
+
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
 void do_loose_to_end(void *param)

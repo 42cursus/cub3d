@@ -167,6 +167,7 @@ typedef struct s_player
 	int		ammo[3];
 	int		max_ammo[3];
 	int		equipped;
+	int		dead;
 	t_vect	dir;
 	int		vert_offset;
 	double	angle;

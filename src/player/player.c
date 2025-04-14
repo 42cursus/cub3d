@@ -322,6 +322,7 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 	{
 		new_health = 0;
 		printf("You died! :^(\n");
+		player->dead = 1;
 		app->rc = fail;
 		app->mlx->end_loop = 1;
 	}
