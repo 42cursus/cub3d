@@ -241,6 +241,8 @@ void	select_item_texture(t_info *app, t_object *obj)
 		texp = map->super_tex;
 	else if (obj->subtype == I_MISSILE)
 		texp = map->missile_tex;
+	else if (obj->subtype == I_TROPHY)
+		texp = map->trophy_tex;
 	else if (obj->subtype == I_HEALTH)
 	{
 		texp = map->health_pu;
@@ -281,6 +283,11 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		}
 		else if (obj->subtype == I_HEALTH)
 			add_health(player, 20);
+		else if (obj->subtype == I_TROPHY)
+		{
+			app->rc = ok;
+			app->mlx->end_loop = 1;
+		}
 		*current = delete_object(&map->objects, *current);
 		return (1);
 	}

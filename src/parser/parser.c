@@ -651,6 +651,8 @@ int	parse_cub(t_info *app, int fd)
 	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	data->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &data->title.x, &data->title.y);
 	data->alphabet.img = img_to_arr((char *)"./textures/small_font.xpm", app, &data->alphabet.x, &data->alphabet.y);
+	data->trophy_tex[0].img = img_to_arr((char *)"./textures/trophy0.xpm", app, &data->trophy_tex[0].x, &data->trophy_tex[0].y);
+	data->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &data->trophy_tex[1].x, &data->trophy_tex[1].y);
 	load_energy_textures(app, data);
 	load_super_textures(app, data);
 	load_missile_textures(app, data);

@@ -108,6 +108,7 @@ t_ret_code do_state_play(void *param)
 		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
 		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
 		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
 	};
 
 	int i = -1;
