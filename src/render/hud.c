@@ -32,7 +32,6 @@ void	load_map_textures(t_info *app, void *tiles[])
 		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
 		i++;
 	}
-	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
 void	free_map_textures(t_info *app, void *tiles[])

@@ -621,12 +621,15 @@ int	parse_cub(t_info *app, char *filename)
 	data->anims = create_anim_arr(data->width, data->height);
 	init_anims(app, data);
 	free_map_textures(app, tiles);
+	close(fd);
 	return (0);
 }
 
 void	load_shtex(t_info *app)
 {
 	t_shtex	*shtex;
+	int	x;
+	int	y;
 
 	shtex = ft_calloc(1, sizeof(*shtex));
 	app->shtex = shtex;
@@ -673,6 +676,7 @@ void	load_shtex(t_info *app)
 	load_super_door_tex(app);
 	load_missile_door_tex(app);
 	load_health_pu_tex(app);
+	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
 // void	print_t_map(t_data *data)
@@ -758,5 +762,6 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 4)
 		free_tex_arr(&app->shtex->health_pu[i++]);
+	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }

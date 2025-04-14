@@ -48,12 +48,19 @@ int	exit_win(t_info *const	app)
 	exit(cleanup(app));
 }
 
+void	cleanup_map(t_info *app)
+{
+	mlx_destroy_image(app->mlx, app->map->minimap.img);
+	free_map(app->map);
+	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	free(app->player);
+}
+
 t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 
 	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
-	app->map = init_map();
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
@@ -203,6 +210,7 @@ void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
 
+	app->map = init_map();
 	if (parse_cub(app, (char *)"./maps/test.cub"))
 	{
 		free_map(app->map);
@@ -316,8 +324,8 @@ void do_play_to_loose(void *param)
 void do_play_to_end(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	cleanup_map(app);
 }
 
 void do_pmenu_to_play(void *param)
@@ -339,6 +347,7 @@ void do_pmenu_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
+	cleanup_map(app);
 	replace_bg(app, (char *)"./textures/wall.xpm");
 
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -357,34 +366,33 @@ void do_pmenu_to_end(void *param)
 
 	t_info *const app = param;
 
-	return ;
-	(void)app;
+	cleanup_map(app);
 }
 
 void do_loose_to_mmenu(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	cleanup_map(app);
 }
 
 void do_loose_to_end(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	cleanup_map(app);
 }
 
 void do_win_to_mmenu(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	cleanup_map(app);
 }
 
 void do_win_to_end(void *param)
 {
 	t_info *const app = param;
-	return ;
-	(void)app;
+
+	cleanup_map(app);
 }
