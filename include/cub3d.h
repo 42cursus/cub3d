@@ -308,6 +308,7 @@ void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
 void	draw_mmap(t_info *app);
+void	free_shtex(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
