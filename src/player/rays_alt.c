@@ -199,9 +199,9 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
 		return (free(out), NULL);
-	out->pos = vector_distance(intcpt, object->p2) * ray->texture->x;
-	if (out->pos >= ray->texture->x)
-		out->pos = ray->texture->x - 1;
+	out->pos = vector_distance(intcpt, object->p2) * out->texture->x;
+	if (out->pos >= out->texture->x)
+		out->pos = out->texture->x - 1;
 	// printf("pos: %f\n", out->pos);
 	return (out);
 }

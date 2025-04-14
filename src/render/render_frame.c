@@ -179,8 +179,35 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 {
 	int		frame_mod;
 
-	frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
-	enemy->texture = &app->shtex->crawler_tex[frame_mod / (5 * FR_SCALE)];
+	if (enemy->subtype == E_ZOOMER)
+	{
+		frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
+		enemy->texture = &app->shtex->crawler_tex[frame_mod / (5 * FR_SCALE)];
+	}
+	else if (enemy->subtype == E_PHANTOON)
+	{
+		frame_mod = ((app->framecount - enemy->anim.framestart) % (80 * FR_SCALE)) / 8;
+		if (frame_mod == 0)
+			enemy->texture = &app->shtex->phantoon[0];
+		else if (frame_mod == 1)
+			enemy->texture = &app->shtex->phantoon[1];
+		else if (frame_mod == 2)
+			enemy->texture = &app->shtex->phantoon[2];
+		else if (frame_mod == 3)
+			enemy->texture = &app->shtex->phantoon[1];
+		else if (frame_mod == 4)
+			enemy->texture = &app->shtex->phantoon[0];
+		else if (frame_mod == 5)
+			enemy->texture = &app->shtex->phantoon[0];
+		else if (frame_mod == 6)
+			enemy->texture = &app->shtex->phantoon[3];
+		else if (frame_mod == 7)
+			enemy->texture = &app->shtex->phantoon[4];
+		else if (frame_mod == 8)
+			enemy->texture = &app->shtex->phantoon[3];
+		else
+			enemy->texture = &app->shtex->phantoon[0];
+	}
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)

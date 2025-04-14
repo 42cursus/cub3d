@@ -240,6 +240,8 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->subtype = subtype;
 	if (subtype == E_ZOOMER)
 		enemy->health = 20;
+	else if (subtype == E_PHANTOON)
+		enemy->health = 500;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
 	ft_lstadd_back(&map->objects, ft_lstnew(enemy));

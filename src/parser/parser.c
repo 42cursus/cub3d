@@ -560,6 +560,20 @@ void	load_health_pu_tex(t_info *app)
 	}
 }
 
+void	load_phantoon_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 5)
+	{
+		ft_snprintf(buf, 50, "./textures/phantoon%c.xpm", i + '0');
+		app->shtex->phantoon[i].img = img_to_arr(buf, app, &app->shtex->phantoon[i].x, &app->shtex->phantoon[i].y);
+		i++;
+	}
+}
+
 void	init_anims(t_info *app, t_data *map)
 {
 	int		i;
@@ -676,6 +690,7 @@ void	load_shtex(t_info *app)
 	load_super_door_tex(app);
 	load_missile_door_tex(app);
 	load_health_pu_tex(app);
+	load_phantoon_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
@@ -762,6 +777,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 4)
 		free_tex_arr(&app->shtex->health_pu[i++]);
+	i = 0;
+	while (i < 5)
+		free_tex_arr(&app->shtex->phantoon[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }

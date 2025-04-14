@@ -132,6 +132,7 @@ typedef struct s_shtex
 	t_texarr	super_tex[12];
 	t_texarr	health_pu[4];
 	t_texarr	trophy_tex[2];
+	t_texarr	phantoon[5];
 	t_texarr	title;
 	t_texarr	alphabet;
 	void		*playertile;
@@ -201,6 +202,7 @@ typedef	enum e_type
 typedef enum e_subtype
 {
 	E_ZOOMER,
+	E_PHANTOON,
 	I_ETANK,
 	I_SUPER,
 	I_MISSILE,

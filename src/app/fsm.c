@@ -241,6 +241,7 @@ void do_load_to_play(void *param)
 		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
 		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
 		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+		{{26.5,  11.5}, {0.0, 0.0}, O_ENTITY, E_PHANTOON},
 		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
 		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
 		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
