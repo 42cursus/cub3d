@@ -410,9 +410,9 @@ int	render_loose(void *param)
 	on_expose(app);
 	replace_frame(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
-	place_str((char *)	"PRESS [SPACE] TO BEGIN\n\n"
-					  		"          OR\n\n"
-							"	   [ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2 - 178, 400}, 2);
+	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas.img, app->clip_x_origin,
 							app->clip_y_origin);

@@ -284,6 +284,7 @@ void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
+void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  void *tiles[]);
 void	free_map_textures(t_info *app, void *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);

@@ -275,6 +275,35 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
+void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
+{
+	int	i;
+	int	pos_x;
+	int	pos_y;
+	int	start_x;
+	int	width;
+
+	i = 0;
+	width = ft_strlen(str) * 8 * scalar;
+	start_x = pos.x - width / 2;
+	pos_x = start_x;
+	pos_y = pos.y;
+	while (str[i])
+	{
+		if (ft_isalnum(str[i]))
+			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		else if (str[i] == '\n')
+		{
+			pos_y += 8 * scalar;
+			pos_x = start_x;
+			i++;
+			continue ;
+		}
+		i++;
+		pos_x += 8 * scalar;
+	}
+}
+
 void	place_weapon(t_info *app)
 {
 	t_texarr	*tex;
