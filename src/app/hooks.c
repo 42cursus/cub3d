@@ -33,8 +33,13 @@ int expose_win(void *param)
 {
 	t_imgdata im3;
 	t_imgdata bg;
+	t_imgdata	stillshot;
 	t_info *const app = param;
 
+	stillshot.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	stillshot.addr = mlx_get_data_addr(stillshot.img, &stillshot.bpp, &stillshot.line_length, &stillshot.endian);
+	stillshot.height = WIN_HEIGHT;
+	stillshot.width = WIN_WIDTH;
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
 	bg.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/wall.xpm", &bg.width, &bg.height);
 	if (!im3.img || !bg.img)
@@ -48,6 +53,7 @@ int expose_win(void *param)
 
 	app->canvas = im3;
 	app->bg = bg;
+	app->stillshot = stillshot;
 	mlx_clear_window(app->mlx,  app->root);
 	on_expose(app);
 	return (EXIT_SUCCESS);

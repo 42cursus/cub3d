@@ -488,6 +488,7 @@ int render_pmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->stillshot.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
 	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);

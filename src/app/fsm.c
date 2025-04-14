@@ -209,6 +209,7 @@ void do_initial_to_end(void *param)
 void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
+	char	*mapfile;
 
 	app->map = init_map();
 	if (parse_cub(app, (char *)"./maps/test.cub"))
@@ -289,6 +290,10 @@ void do_play_to_pmenu(void *param)
 	t_info *const app = param;
 
 	app->mlx->end_loop = 0;
+	
+	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	replace_frame(app);
+	fast_memcpy_test((int *)app->stillshot.addr, (int *)app->canvas.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
 

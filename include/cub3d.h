@@ -228,6 +228,7 @@ typedef struct s_info
 	char 		*title;
 	t_imgdata	canvas;
 	t_imgdata	bg;
+	t_imgdata	stillshot;
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
