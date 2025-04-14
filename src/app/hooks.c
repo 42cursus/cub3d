@@ -125,7 +125,7 @@ int	get_index(KeySym key)
 	return ret;
 }
 
-int key_press_menu(KeySym key, void *param)
+int key_press_mmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
 	if (key == XK_5 || key == XK_Escape)
@@ -140,6 +140,42 @@ int key_press_menu(KeySym key, void *param)
 	}
 	return (0);
 }
+
+int key_release_mmenu(KeySym key, void *param)
+{
+	t_info *const app = param;
+
+	int idx = get_index(key);
+	if (idx != -1)
+		app->keys[idx] = false;
+	return (0);
+}
+
+
+int key_press_pmenu(KeySym key, void *param)
+{
+	t_info *const app = param;
+	if (key == XK_5)
+	{
+		app->mlx->end_loop = 1;
+		app->rc = repeat;
+	}
+	else if (key == XK_space  || key == XK_Escape)
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
+	return (0);
+}
+
+int key_release_pmenu(KeySym key, void *param)
+{
+	t_info *const app = param;
+	return (0);
+	(void)app;
+	(void)key;
+}
+
 
 int key_press_loose(KeySym key, void *param)
 {
@@ -185,17 +221,6 @@ int key_press_play(KeySym key, void *param)
 		if (idx != -1)
 			app->keys[idx] = true;
 	}
-	return (0);
-}
-
-
-int key_release_menu(KeySym key, void *param)
-{
-	t_info *const app = param;
-
-	int idx = get_index(key);
-	if (idx != -1)
-		app->keys[idx] = false;
 	return (0);
 }
 

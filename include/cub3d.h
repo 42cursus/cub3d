@@ -315,12 +315,17 @@ size_t	get_time_us(void);
 
 int key_press_play(KeySym key, void *param);
 int key_release_play(KeySym key, void *param);
-int key_press_menu(KeySym key, void *param);
-int key_release_menu(KeySym key, void *param);
+int key_press_mmenu(KeySym key, void *param);
+int key_release_mmenu(KeySym key, void *param);
+
+int key_press_pmenu(KeySym key, void *param);
+int key_release_pmenu(KeySym key, void *param);
+
 int key_press_loose(KeySym key, void *param);
 
 int switch_game_state(t_info *app, t_state new_state);
-int	render_menu(void *param);
+int	render_mmenu(void *param);
+int	render_pmenu(void *param);
 int	render_play(void *app);
 int	render_loose(void *param);
 void fill_everything_with_blood(t_imgdata *bg);
