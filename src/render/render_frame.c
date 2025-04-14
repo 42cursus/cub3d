@@ -454,6 +454,7 @@ int	render_play(void *param)
 	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
+	draw_mmap(app);
 	return (0);
 }
 

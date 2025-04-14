@@ -51,14 +51,8 @@ int	exit_win(t_info *const	app)
 t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
-	int				cubfd;
 
 	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
-	if (argc != 2)
-		return (printf("Error: incorrect arg no\n"), fail);
-	cubfd = open(argv[1], O_RDONLY);
-	if (cubfd == -1)
-		return (printf("Error: failed to open map\n"), fail);
 	app->map = init_map();
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
@@ -66,9 +60,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map\n"), fail);
 	load_shtex(app);
-	if (parse_cub(app, cubfd))
-		return (free_map(app->map), fail);
-	app->player = init_player(app->map);
 	app->root = mlx_new_window(app->mlx, app->win.width,
 							   app->win.height, app->title);
 
@@ -77,6 +68,8 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	// app->last_frame_us = get_time_us();
 	app->frametime = 5000;
 	return (ok);
+	(void)argc;
+	(void)argv;
 }
 
 t_ret_code do_state_mmenu(void *param)
@@ -210,6 +203,13 @@ void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
 
+	if (parse_cub(app, (char *)"./maps/test.cub"))
+	{
+		free_map(app->map);
+		app->rc = fail;
+		return ;
+	}
+	app->player = init_player(app->map);
 	return ;
 	(void)app;
 

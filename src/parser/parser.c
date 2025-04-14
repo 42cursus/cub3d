@@ -585,13 +585,15 @@ void	init_anims(t_info *app, t_data *map)
 	}
 }
 
-int	parse_cub(t_info *app, int fd)
+int	parse_cub(t_info *app, char *filename)
 {
+	int		fd;
 	t_list	*file;
 	t_list	*current;
 	t_data	*data;
 	void	*tiles[16];
 
+	fd = open(filename, O_RDONLY);
 	data = app->map;
 	load_map_textures(app, tiles);
 	file = read_cub(fd);

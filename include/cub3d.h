@@ -257,7 +257,7 @@ void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param
 
 t_data	*init_map(void);
 void	free_map(t_data *map);
-int		parse_cub(t_info *app, int fd);
+int		parse_cub(t_info *app, char *filename);
 void	print_t_map(t_data *map);
 void	print_ascii_mmap(t_data *data, t_player *player);
 void	free_split(char **split);
