@@ -241,6 +241,8 @@ void	select_item_texture(t_info *app, t_object *obj)
 		texp = map->super_tex;
 	else if (obj->subtype == I_MISSILE)
 		texp = map->missile_tex;
+	else if (obj->subtype == I_TROPHY)
+		texp = map->trophy_tex;
 	else if (obj->subtype == I_HEALTH)
 	{
 		texp = map->health_pu;
@@ -281,6 +283,11 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		}
 		else if (obj->subtype == I_HEALTH)
 			add_health(player, 20);
+		else if (obj->subtype == I_TROPHY)
+		{
+			app->rc = ok;
+			app->mlx->end_loop = 1;
+		}
 		*current = delete_object(&map->objects, *current);
 		return (1);
 	}
@@ -397,12 +404,15 @@ int	render_loose(void *param)
 {
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	// fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_loose_text(app);
+	update_objects(app, app->player, app->map);
+	on_expose(app);
+	replace_frame(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
-	place_str((char *)	"PRESS [SPACE] TO BEGIN\n\n"
-					  		"           OR\n\n"
-							"	  [ESC] TO EXIT", app, (t_ivect){200, 400}, 2);
+	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
 	mlx_put_image_to_window(app->mlx, app->root,
 							app->canvas.img, app->clip_x_origin,
 							app->clip_y_origin);

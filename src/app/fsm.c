@@ -10,9 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <fsm.h>
-
-#include "cub3d.h"
+#include "../../include/cub3d.h"
+#include "../../include/fsm.h"
 
 t_state run_state(t_info *app, int argc, char **argv)
 {
@@ -97,6 +96,37 @@ t_ret_code do_state_play(void *param)
 {
 	t_info *const app = param;
 
+	struct s_thing
+	{
+		t_vect		pos;
+		t_vect		dir;
+		t_etype		type;
+		t_subtype	subtype;
+	} things[] = {
+		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
+		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
+		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
+		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
+		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
+		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
+		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
+	};
+
+	int i = -1;
+	while (++i < (int)(sizeof(things) / sizeof(things[0])))
+	{
+		struct s_thing *thing = &things[i];
+		if (thing->type == O_ENTITY)
+			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
+		else
+			spawn_item(app, thing->pos, thing->subtype);
+	}
+
 	mlx_mouse_hide(app->mlx, app->root);
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->root);
@@ -127,8 +157,6 @@ t_ret_code do_state_loose(void *param)
 	mlx_loop(app->mlx);
 	return (app->rc);
 }
-
-
 
 
 //	t_event_list		hooks[3][MLX_MAX_EVENT] = {
