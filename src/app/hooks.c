@@ -139,8 +139,15 @@ int key_press_mmenu(KeySym key, void *param)
 		app->mlx->end_loop = 1;
 		app->rc = fail;
 	}
-	else if (key == XK_space)
+	else if (key == XK_1)
 	{
+		ft_strlcpy(app->mapname, "./maps/test.cub", 50);
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
+	else if (key == XK_2)
+	{
+		ft_strlcpy(app->mapname, "./maps/test4.cub", 50);
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
@@ -191,6 +198,11 @@ int key_press_loose(KeySym key, void *param)
 	{
 		app->mlx->end_loop = 1;
 		app->rc = fail;
+	}
+	if (key == XK_space)
+	{
+		app->mlx->end_loop = 1;
+		app->rc = repeat;
 	}
 	return (0);
 }

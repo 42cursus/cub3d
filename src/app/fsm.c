@@ -209,10 +209,9 @@ void do_initial_to_end(void *param)
 void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
-	char	*mapfile;
 
 	app->map = init_map();
-	if (parse_cub(app, (char *)"./maps/test.cub"))
+	if (parse_cub(app, (char *)app->mapname))
 	{
 		free_map(app->map);
 		app->rc = fail;

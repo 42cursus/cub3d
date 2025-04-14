@@ -243,6 +243,7 @@ typedef struct s_info
 	bool		mouse[16];
 	t_state		state;
 	t_ret_code	rc;
+	char		mapname[50];
 }	t_info;
 
 int		check_endianness(void);
