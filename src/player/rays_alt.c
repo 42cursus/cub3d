@@ -44,7 +44,7 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c
 		ray->distance = 0.00001;
 }
 
-t_ray	ray_dda(t_data *map, t_player *player, double angle)
+t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 {
 	t_ray	ray;
 	ray.intcpt.x = floor(player->pos.x);
@@ -123,13 +123,13 @@ t_ray	ray_dda(t_data *map, t_player *player, double angle)
 		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'D')
 		{
 			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
-				add_in_front(&ray, ray.face + 8, &map->door_tex[1]);
+				add_in_front(&ray, ray.face + 8, &app->shtex->door_tex[1]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'L')
-				add_in_front(&ray, ray.face + 4, &map->door_super_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_super_tex[0]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'M')
-				add_in_front(&ray, ray.face + 4, &map->door_missile_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_missile_tex[0]);
 			else
-				add_in_front(&ray, ray.face + 4, &map->door_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_tex[0]);
 			ray.in_front->maptile.x = (int)ray.intcpt.x;
 			ray.in_front->maptile.y = (int)ray.intcpt.y;
 			ray.in_front->intcpt.x += normX;

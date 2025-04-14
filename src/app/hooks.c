@@ -15,13 +15,12 @@
 #include <X11/Xutil.h>
 #include <sysexits.h>
 
-void	cast_all_rays_alt(t_data *map, t_player *player);
 
 void replace_frame(t_info *app)
 {
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->map, app->player);
-	cast_all_rays_alt(app->map, app->player);
+	cast_all_rays_alt(app, app->map, app->player);
 	draw_rays(app, &app->canvas);
 }
 
