@@ -192,8 +192,8 @@ void do_initial_to_mmenu(void *param)
 
 	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
 	mlx_expose_hook(app->root, &expose_win, app);
-	mlx_loop_hook(app->mlx, &render_menu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_menu, app);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 }
 
 void do_initial_to_end(void *param)
@@ -280,8 +280,8 @@ void do_play_to_pmenu(void *param)
 	t_info *const app = param;
 
 	app->mlx->end_loop = 0;
-	mlx_loop_hook(app->mlx, &render_menu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_menu, app);
+	mlx_loop_hook(app->mlx, &render_pmenu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
@@ -336,11 +336,19 @@ void do_pmenu_to_play(void *param)
 
 void do_pmenu_to_mmenu(void *param)
 {
-
 	t_info *const app = param;
 
-	return ;
-	(void)app;
+	replace_bg(app, (char *)"./textures/wall.xpm");
+	fill_bg(&app->bg, app->map);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
 void do_pmenu_to_end(void *param)

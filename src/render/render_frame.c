@@ -404,11 +404,11 @@ int	render_loose(void *param)
 {
 	t_info *const app = param;
 
-	// fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// draw_loose_text(app);
-	// update_objects(app, app->player, app->map);
-	// on_expose(app);
-	// replace_frame(app);
+	 fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	 draw_loose_text(app);
+	 update_objects(app, app->player, app->map);
+	 on_expose(app);
+	 replace_frame(app);
 	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
@@ -461,10 +461,47 @@ int	render_play(void *param)
 	return (0);
 }
 
-int	render_menu(void *param)
+int	render_mmenu(void *param)
 {
+	size_t				time;
 	t_info *const app = param;
 
-	render_loose(app);
+	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
+
+	while (get_time_us() - app->last_frame < FRAMETIME)
+		usleep(100);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+
+	mlx_put_image_to_window(app->mlx, app->root,
+							app->canvas.img, app->clip_x_origin,
+							app->clip_y_origin);
+	return (0);
+}
+
+
+int render_pmenu(void *param)
+{
+	size_t				time;
+	t_info *const app = param;
+
+	place_texarr(app, &app->map->title, (WIN_WIDTH - app->map->title.x) / 2, 100);
+	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 432}, 4);
+	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+
+	while (get_time_us() - app->last_frame < FRAMETIME)
+		usleep(100);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+
+	mlx_put_image_to_window(app->mlx, app->root,
+							app->canvas.img, app->clip_x_origin,
+							app->clip_y_origin);
+
 	return (0);
 }

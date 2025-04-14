@@ -185,3 +185,4 @@ void *fast_memcpy_test(int *dst, const int *src, size_t size)
 		ft_memcpy(dst, src, size);
 	return (dst);
 }
+
