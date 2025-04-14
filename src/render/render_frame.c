@@ -401,7 +401,7 @@ void fill_everything_with_blood(t_imgdata *bg)
 }
 
 
-void	place_loose(t_info *app, t_texarr *tex, int x, int y)
+void	place_lose(t_info *app, t_texarr *tex, int x, int y)
 {
 	int					i;
 	int					j;
@@ -420,7 +420,7 @@ void	place_loose(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
-void	draw_loose_text(t_info *app)
+void	draw_lose_text(t_info *app)
 {
 	int	digit;
 	int	i;
@@ -432,17 +432,17 @@ void	draw_loose_text(t_info *app)
 	while (++i < 9)
 	{
 		digit = i;
-		place_loose(app, &app->shtex->energy_tex[digit], x, WIN_HEIGHT / 2);
+		place_lose(app, &app->shtex->energy_tex[digit], x, WIN_HEIGHT / 2);
 		x -= 16;
 	}
 }
 
-int	render_loose(void *param)
+int	render_lose(void *param)
 {
 	t_info *const app = param;
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// draw_loose_text(app);
+	// draw_lose_text(app);
 	update_objects(app, app->player, app->map);
 	on_expose(app);
 	replace_frame(app);
