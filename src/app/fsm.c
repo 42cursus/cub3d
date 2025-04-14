@@ -118,8 +118,9 @@ t_ret_code do_state_pmenu(void *param)
 t_ret_code do_state_win(void *param)
 {
 	t_info *const app = param;
-	return (ok);
-	(void)app;
+
+	mlx_loop(app->mlx);
+	return (app->rc);
 }
 
 t_ret_code do_state_loose(void *param)

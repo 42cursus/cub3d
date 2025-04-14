@@ -22,6 +22,7 @@ int	cleanup(t_info *app)
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);
 	free_map(app->map);
+	free_shtex(app);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	free(app->player);
 	return (0);

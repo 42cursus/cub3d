@@ -706,46 +706,55 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
 	free_tex_arr(&data->floor_tex);
-	// free_tex_arr(&data->title);
-	// free_tex_arr(&data->alphabet);
-	// i = 0;
-	// while (i < 7)
-	// 	free_tex_arr(&data->door_tex[i++]);
-	// i = 0;
-	// while (i < 2)
-	// 	free_tex_arr(&data->cannon_tex[i++]);
-	// i = 0;
-	// while (i < 6)
-	// 	free_tex_arr(&data->crawler_tex[i++]);
-	// i = 0;
-	// while (i < 6)
-	// 	free_tex_arr(&data->explode_tex[i++]);
-	// i = 0;
-	// while (i < 10)
-	// 	free_tex_arr(&data->proj_tex[i++]);
-	// i = 0;
-	// while (i < 3)
-	// 	free_tex_arr(&data->energy_tex[i++]);
-	// i = 0;
-	// while (i < 2)
-	// 	free_tex_arr(&data->etank_tex[i++]);
-	// i = 0;
-	// while (i < 12)
-	// 	free_tex_arr(&data->super_tex[i++]);
-	// i = 0;
-	// while (i < 12)
-	// 	free_tex_arr(&data->missile_tex[i++]);
-	// i = 0;
-	// while (i < 7)
-	// 	free_tex_arr(&data->door_super_tex[i++]);
-	// i = 0;
-	// while (i < 7)
-	// 	free_tex_arr(&data->door_missile_tex[i++]);
-	// i = 0;
-	// while (i < 4)
-	// 	free_tex_arr(&data->health_pu[i++]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);
 	free(data);
+}
+
+void	free_shtex(t_info *app)
+{
+	int	i;
+
+	free_tex_arr(&app->shtex->title);
+	free_tex_arr(&app->shtex->alphabet);
+	free_tex_arr(&app->shtex->trophy_tex[0]);
+	free_tex_arr(&app->shtex->trophy_tex[1]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&app->shtex->door_tex[i++]);
+	i = 0;
+	while (i < 2)
+		free_tex_arr(&app->shtex->cannon_tex[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&app->shtex->crawler_tex[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&app->shtex->explode_tex[i++]);
+	i = 0;
+	while (i < 10)
+		free_tex_arr(&app->shtex->proj_tex[i++]);
+	i = 0;
+	while (i < 3)
+		free_tex_arr(&app->shtex->energy_tex[i++]);
+	i = 0;
+	while (i < 2)
+		free_tex_arr(&app->shtex->etank_tex[i++]);
+	i = 0;
+	while (i < 12)
+		free_tex_arr(&app->shtex->super_tex[i++]);
+	i = 0;
+	while (i < 12)
+		free_tex_arr(&app->shtex->missile_tex[i++]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&app->shtex->door_super_tex[i++]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&app->shtex->door_missile_tex[i++]);
+	i = 0;
+	while (i < 4)
+		free_tex_arr(&app->shtex->health_pu[i++]);
+	free(app->shtex);
 }
