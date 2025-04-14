@@ -123,6 +123,7 @@ typedef	struct s_data
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
 	t_texarr	health_pu[4];
+	t_texarr	trophy_tex[2];
 	t_texarr	title;
 	t_texarr	alphabet;
 	void		*playertile;
@@ -188,6 +189,7 @@ typedef enum e_subtype
 	I_SUPER,
 	I_MISSILE,
 	I_HEALTH,
+	I_TROPHY
 }	t_subtype;
 
 enum
