@@ -256,10 +256,10 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	int	pos_x;
 	int	pos_y;
 
-	i = -1;
+	i = 0;
 	pos_x = pos.x;
 	pos_y = pos.y;
-	while (str[++i])
+	while (str[i])
 	{
 		if (ft_isalnum(str[i]))
 			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
@@ -267,8 +267,10 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 		{
 			pos_y += 8 * scalar;
 			pos_x = pos.x;
+			i++;
 			continue ;
 		}
+		i++;
 		pos_x += 8 * scalar;
 	}
 }
@@ -339,7 +341,7 @@ void	place_ammo(t_info *app, t_data *map, t_player *player)
 	if (player->max_ammo[MISSILE] != 0)
 	{
 		buf[0] = player->ammo[MISSILE] / 100 + '0';
-		buf[1] = player->ammo[MISSILE] / 10 + '0';
+		buf[1] = (player->ammo[MISSILE] / 10) % 10 + '0';
 		buf[2] = player->ammo[MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
 		if (player->equipped == MISSILE)
