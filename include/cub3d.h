@@ -131,6 +131,8 @@ typedef struct s_shtex
 	t_texarr	missile_tex[12];
 	t_texarr	super_tex[12];
 	t_texarr	health_pu[4];
+	t_texarr	missile_ammo[2];
+	t_texarr	super_ammo[2];
 	t_texarr	trophy_tex[2];
 	t_texarr	phantoon[5];
 	t_texarr	title;
@@ -206,6 +208,8 @@ typedef enum e_subtype
 	I_ETANK,
 	I_SUPER,
 	I_MISSILE,
+	I_AMMO_M,
+	I_AMMO_S,
 	I_HEALTH,
 	I_TROPHY
 }	t_subtype;
@@ -279,6 +283,7 @@ void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
 void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
+void	add_ammo(t_player *player, int type);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);

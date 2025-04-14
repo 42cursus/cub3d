@@ -574,6 +574,27 @@ void	load_phantoon_tex(t_info *app)
 	}
 }
 
+void	load_ammo_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 2)
+	{
+		ft_snprintf(buf, 50, "./textures/missile_ammo%c.xpm", i + '0');
+		app->shtex->missile_ammo[i].img = img_to_arr(buf, app, &app->shtex->missile_ammo[i].x, &app->shtex->missile_ammo[i].y);
+		i++;
+	}
+	i = 0;
+	while (i < 2)
+	{
+		ft_snprintf(buf, 50, "./textures/super_ammo%c.xpm", i + '0');
+		app->shtex->super_ammo[i].img = img_to_arr(buf, app, &app->shtex->super_ammo[i].x, &app->shtex->super_ammo[i].y);
+		i++;
+	}
+}
+
 void	init_anims(t_info *app, t_data *map)
 {
 	int		i;
@@ -690,6 +711,7 @@ void	load_shtex(t_info *app)
 	load_super_door_tex(app);
 	load_missile_door_tex(app);
 	load_health_pu_tex(app);
+	load_ammo_tex(app);
 	load_phantoon_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
@@ -741,6 +763,10 @@ void	free_shtex(t_info *app)
 	free_tex_arr(&app->shtex->alphabet);
 	free_tex_arr(&app->shtex->trophy_tex[0]);
 	free_tex_arr(&app->shtex->trophy_tex[1]);
+	free_tex_arr(&app->shtex->super_ammo[0]);
+	free_tex_arr(&app->shtex->super_ammo[1]);
+	free_tex_arr(&app->shtex->missile_ammo[0]);
+	free_tex_arr(&app->shtex->missile_ammo[1]);
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&app->shtex->door_tex[i++]);

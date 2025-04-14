@@ -338,6 +338,19 @@ void	add_health(t_player *player, int health)
 	player->health = new_health;
 }
 
+void	add_ammo(t_player *player, int type)
+{
+	int	new_ammo;
+
+	if (type == MISSILE)
+		new_ammo = player->ammo[MISSILE] + 5;
+	else
+		new_ammo = player->ammo[SUPER] + 1;
+	if (new_ammo > player->max_ammo[type])
+		new_ammo = player->max_ammo[type];
+	player->ammo[type] = new_ammo;
+}
+
 void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;

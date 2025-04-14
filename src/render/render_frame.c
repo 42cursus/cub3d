@@ -223,7 +223,14 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim2.framestart) / FR_SCALE;
 		if (frames > 17)
 		{
-			spawn_item(app, obj->pos, I_HEALTH);
+
+			frames = app->framecount % 3;
+			if (frames == 0)
+				spawn_item(app, obj->pos, I_HEALTH);
+			else if (frames == 1)
+				spawn_item(app, obj->pos, I_AMMO_M);
+			else
+				spawn_item(app, obj->pos, I_AMMO_S);
 			*current = delete_object(&app->map->objects, *current);
 			return (1);
 		}
@@ -266,11 +273,14 @@ void	select_item_texture(t_info *app, t_object *obj)
 		texp = app->shtex->missile_tex;
 	else if (obj->subtype == I_TROPHY)
 		texp = app->shtex->trophy_tex;
+	else if (obj->subtype == I_AMMO_M)
+		texp = app->shtex->missile_ammo;
+	else if (obj->subtype == I_AMMO_S)
+		texp = app->shtex->super_ammo;
 	else if (obj->subtype == I_HEALTH)
 	{
 		texp = app->shtex->health_pu;
 		obj->texture = &texp[(frames % 20) / 5];
-		// obj->texture = &texp[0];
 		return ;
 	}
 	if (frames % 10 < 5)
@@ -306,6 +316,10 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		}
 		else if (obj->subtype == I_HEALTH)
 			add_health(player, 20);
+		else if (obj->subtype == I_AMMO_M)
+			add_ammo(player, MISSILE);
+		else if (obj->subtype == I_AMMO_S)
+			add_ammo(player, SUPER);
 		else if (obj->subtype == I_TROPHY)
 		{
 			app->rc = ok;
