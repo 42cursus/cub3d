@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/15 13:15:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 15:39:40 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,6 +210,43 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 	}
 }
 
+double	rand_range(double lower, double upper)
+{
+	double	output;
+	double	diff;
+
+	diff = upper - lower;
+	output = (rand() / (RAND_MAX / diff)) + lower;
+	return (output);
+}
+
+void	spawn_drops(t_info *app, t_object *obj, int no)
+{
+	double	seed;
+	t_vect	pos;
+
+	if (app->player->ammo[SUPER] == app->player->max_ammo[SUPER]
+		&& app->player->ammo[MISSILE] == app->player->max_ammo[MISSILE]
+		&& app->player->health == app->player->max_health)
+		return ;
+	while (no-- > 0)
+	{
+		pos.x = rand_range(-0.5, 0.5);
+		pos.y = rand_range(-0.5, 0.5);
+		pos = (add_vect(pos, obj->pos));
+		seed = rand_range(0.0, 1.0);
+		// printf("%f\n", seed);
+		if (seed < 0.2 && app->player->ammo[SUPER] != app->player->max_ammo[SUPER])
+			spawn_item(app, pos, I_AMMO_S);
+		else if (seed < 0.6 && app->player->ammo[MISSILE] != app->player->max_ammo[MISSILE])
+			spawn_item(app, pos, I_AMMO_M);
+		else if (app->player->health != app->player->max_health)
+			spawn_item(app, pos, I_HEALTH);
+		else
+			no++;
+	}
+}
+
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
@@ -223,14 +260,10 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim2.framestart) / FR_SCALE;
 		if (frames > 17)
 		{
-
-			frames = app->framecount % 3;
-			if (frames == 0)
-				spawn_item(app, obj->pos, I_HEALTH);
-			else if (frames == 1)
-				spawn_item(app, obj->pos, I_AMMO_M);
-			else
-				spawn_item(app, obj->pos, I_AMMO_S);
+			if (obj->subtype == E_ZOOMER)
+				spawn_drops(app, obj, 1);
+			else if (obj->subtype == E_PHANTOON)
+				spawn_drops(app, obj, 15);
 			*current = delete_object(&app->map->objects, *current);
 			return (1);
 		}
@@ -443,8 +476,9 @@ int	render_lose(void *param)
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_lose_text(app);
+	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
-	on_expose(app);
+	// on_expose(app);
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
