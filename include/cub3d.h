@@ -331,9 +331,12 @@ int key_release_mmenu(KeySym key, void *param);
 int key_press_pmenu(KeySym key, void *param);
 int key_release_pmenu(KeySym key, void *param);
 
-int key_press_lose(KeySym key, void *param);
+int key_press_loose(KeySym key, void *param);
+int key_release_loose(KeySym key, void *param);
 
-int switch_game_state(t_info *app, t_state new_state);
+int key_press_win(KeySym key, void *param);
+int key_release_win(KeySym key, void *param);
+
 int	render_mmenu(void *param);
 int	render_pmenu(void *param);
 int	render_play(void *app);
