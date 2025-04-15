@@ -195,7 +195,12 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 			obj->texture = &app->shtex->proj_tex[5 + (frames / 4)];
 		return (0);
 	}
-	obj->texture = &app->shtex->proj_tex[0];
+	// obj->texture = &app->shtex->proj_tex[0];
+	if (vector_distance(obj->pos, app->player->pos) < 0.2)
+	{
+		subtract_health(app, app->player, 20);
+		start_obj_death(obj, app);
+	}
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
 	if (ft_strchr("1LDM", *tile))
