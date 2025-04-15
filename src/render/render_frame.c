@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/15 15:39:40 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 19:11:50 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ t_object	*check_obj_proximity(t_vect pos, t_data *map)
 	while (current != NULL)
 	{
 		cur_obj = (t_object *)current->data;
-		if (cur_obj->type != O_PROJ && cur_obj->dead != 1)
+		if (cur_obj->type == O_ENTITY && cur_obj->dead != 1)
 		{
 			if (vector_distance(pos, cur_obj->pos) < 0.3)
 				return (cur_obj);
@@ -175,6 +175,36 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 	return (0);
 }
 
+int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
+{
+	char		*tile;
+	int			frames;
+	t_vect		new_pos;
+
+	if (obj->anim.active == 1)
+	{
+		frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
+		if (frames > 19)
+		{
+			*current = delete_object(&app->map->objects, *current);
+			return (1);
+		}
+		else if (obj->subtype == BEAM)
+			obj->texture = &app->shtex->proj_tex[1 + (frames / 5)];
+		else
+			obj->texture = &app->shtex->proj_tex[5 + (frames / 4)];
+		return (0);
+	}
+	obj->texture = &app->shtex->proj_tex[0];
+	new_pos = add_vect(obj->pos, obj->dir);
+	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
+	if (ft_strchr("1LDM", *tile))
+		start_obj_death(obj, app);
+	else
+		obj->pos = new_pos;
+	return (0);
+}
+
 void	handle_enemy_anim(t_info *app, t_object *enemy)
 {
 	int		frame_mod;
@@ -247,6 +277,34 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 	}
 }
 
+void	phantoon_ai(t_info *app, t_object *obj)
+{
+	int		frames;
+	t_vect	norm_diff;
+
+	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
+	frames = (app->framecount % (100 * FR_SCALE));
+	if (obj->health > 350)
+	{
+		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
+		if (frames % (25 * FR_SCALE) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+	}
+	else if (obj->health > 100)
+	{
+		if (frames == 0)
+			obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
+		else if (frames > 50 * FR_SCALE)
+		{
+			obj->dir = (t_vect){0.0, 0.0};
+			if (frames % (10 * FR_SCALE) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+		}
+	}
+	else
+		obj->dir = scale_vect(norm_diff, 0.08 / FR_SCALE);
+}
+
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
@@ -272,13 +330,16 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		return (0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
+	if (obj->subtype == E_PHANTOON)
+		phantoon_ai(app, obj);
 	map = app->map;
 	handle_enemy_anim(app, obj);
 	tile = &map->map[(int)new_pos.y][(int)new_pos.x];
 	if (ft_strchr("DML1", *tile))
 	{
-		obj->dir.x *= -1;
-		obj->dir.y *= -1;
+		// obj->dir.x *= -1;
+		// obj->dir.y *= -1;
+		rotate_vect_inplace(&obj->dir, rand_range(-M_PI, M_PI));
 	}
 	else
 		obj->pos = new_pos;
@@ -378,6 +439,8 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
+			continue ;
+		if (obj->type == O_EPROJ && handle_enemy_projectile(app, obj, &current))
 			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);

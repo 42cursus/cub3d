@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 13:15:26 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 18:50:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,7 @@ typedef	enum e_type
 	O_PROJ = 0,
 	O_ENTITY = 1,
 	O_ITEM = 2,
+	O_EPROJ = 3,
 }	t_etype;
 
 typedef enum e_subtype
@@ -294,6 +295,7 @@ void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
+void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir);
 void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	developer_console(t_info *app, t_player *player);

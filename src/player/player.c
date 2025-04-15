@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 22:59:46 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 19:20:47 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -226,6 +226,19 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	ft_lstadd_back(&map->objects, ft_lstnew(projectile));
 }
 
+void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
+{
+	t_object	*projectile;
+
+	projectile = ft_calloc(1, sizeof(*projectile));
+	// projectile->subtype = subtype;
+	projectile->type = O_EPROJ;
+	projectile->pos = enemy->pos;
+	projectile->dir = dir;
+	projectile->texture = &app->shtex->proj_tex[0];
+	ft_lstadd_back(&app->map->objects, ft_lstnew(projectile));
+}
+
 void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 {
 	t_object	*enemy;
@@ -288,6 +301,8 @@ void	developer_console(t_info *app, t_player *player)
 				spawn_item(app, pos, I_HEALTH);
 			if (ft_strcmp(split[2], "missile") == 0)
 				spawn_item(app, pos, I_MISSILE);
+			if (ft_strcmp(split[2], "trophy") == 0)
+				spawn_item(app, pos, I_TROPHY);
 		}
 		if (ft_strcmp(split[1], "enemy") == 0)
 		{
