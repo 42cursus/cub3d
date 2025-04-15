@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/10 21:44:18 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 13:15:51 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -507,10 +507,11 @@ int	render_mmenu(void *param)
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	place_str_centred((char *)	"[2] for level 2", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
-	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
-	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 496}, 2);
+	// place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	// place_str_centred((char *)	"[2] for level 2", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	// place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
+	// place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 496}, 2);
+	draw_menu_items(app);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
@@ -523,7 +524,6 @@ int	render_mmenu(void *param)
 							app->clip_y_origin);
 	return (0);
 }
-
 
 int render_pmenu(void *param)
 {

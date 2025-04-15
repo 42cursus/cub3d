@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/13 16:58:12 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/15 13:47:20 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,11 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
+	app->map_ids = ft_calloc(argc - 1, sizeof(char *));
+	int	i = 0;
+	while (++i < argc)
+		app->map_ids[i - 1] = argv[i];
+	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map\n"), fail);
 	load_shtex(app);
@@ -195,6 +200,9 @@ void do_initial_to_mmenu(void *param)
 	mlx_expose_hook(app->root, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_initial_to_end(void *param)
@@ -204,7 +212,6 @@ void do_initial_to_end(void *param)
 	return ;
 	(void)app;
 }
-
 
 void do_mmenu_to_load(void *param)
 {
@@ -376,6 +383,9 @@ void do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_pmenu_to_end(void *param)

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/10 21:59:50 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 13:15:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,19 @@ typedef struct s_ray
 //	[DOOR_TEX] = {},
 //
 //};
+
+typedef enum e_menustate
+{
+	MAIN,
+	LVL_SELECT,
+}	t_emenus;
+
+typedef struct s_menustate
+{
+	t_emenus	state;
+	int			selected;
+	int			no_items;
+}	t_menustate;
 
 typedef struct s_shtex
 {
@@ -241,6 +254,8 @@ typedef struct s_info
 	int			endianness;
 	t_shtex		*shtex;
 	t_data		*map;
+	char		**map_ids;
+	int			no_maps;
 	t_player	*player;
 	size_t		last_frame;
 	// size_t		last_frame_us;
@@ -250,6 +265,7 @@ typedef struct s_info
 	bool		mouse[16];
 	t_state		state;
 	t_ret_code	rc;
+	t_menustate	menu_state;
 	char		mapname[50];
 }	t_info;
 
@@ -345,6 +361,9 @@ void fill_everything_with_blood(t_imgdata *bg);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
+void	menu_select_current(t_info *app);
+void	draw_menu_items(t_info *app);
+void	change_menu_selection(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
 

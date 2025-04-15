@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/10 22:07:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/15 13:16:56 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,12 @@ int key_press_mmenu(KeySym key, void *param)
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
+	else if (key == XK_Up)
+		change_menu_selection(app, -1);
+	else if (key == XK_Down)
+		change_menu_selection(app, 1);
+	else if (key == XK_space)
+		menu_select_current(app);
 	return (0);
 }
 
