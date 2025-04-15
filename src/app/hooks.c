@@ -223,7 +223,7 @@ int key_press_win(KeySym key, void *param)
 	if (key == XK_5 || key == XK_Escape)
 	{
 		app->mlx->end_loop = 1;
-		app->rc = ok;
+		app->rc = fail;
 	}
 	if (key == XK_space)
 	{

@@ -60,7 +60,7 @@ static t_transition state_transitions[] = {
 	{STATE_LOOSE,   ok,     STATE_END},
 	{STATE_LOOSE,   repeat, STATE_MMENU},
 	{STATE_LOOSE,   fail,   STATE_END},
-	{STATE_WIN,     ok,     STATE_END},
+	{STATE_WIN,     ok,     STATE_LOAD},
 	{STATE_WIN,     fail,   STATE_END},
 	{STATE_WIN,     repeat, STATE_MMENU},
 };
@@ -82,6 +82,7 @@ void do_loose_to_mmenu(void *param);
 void do_loose_to_end(void *param);
 void do_win_to_mmenu(void *param);
 void do_win_to_end(void *param);
+void do_win_to_load(void *param);
 
 static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_INITIAL] = {[STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
@@ -90,7 +91,7 @@ static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_PLAY] = { [STATE_PMENU] = do_play_to_pmenu, [STATE_LOOSE] = do_play_to_loose, [STATE_WIN] = do_play_to_win, [STATE_END] = do_play_to_end},
 	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu, [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
 	[STATE_LOOSE] = {[STATE_MMENU] = do_loose_to_mmenu, [STATE_END] = do_loose_to_end},
-	[STATE_WIN] = {[STATE_MMENU] = do_win_to_mmenu, [STATE_END] = do_win_to_end},
+	[STATE_WIN] = {[STATE_LOAD] = do_win_to_load, [STATE_MMENU] = do_win_to_mmenu, [STATE_END] = do_win_to_end},
 };
 
 t_ret_code do_state_initial(void *param, int argc, char **argv);

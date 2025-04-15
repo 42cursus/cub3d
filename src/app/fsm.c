@@ -290,7 +290,8 @@ void do_play_to_pmenu(void *param)
 	t_info *const app = param;
 
 	app->mlx->end_loop = 0;
-	
+
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	replace_frame(app);
 	fast_memcpy_test((int *)app->stillshot.addr, (int *)app->canvas.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
@@ -307,15 +308,16 @@ void do_play_to_win(void *param)
 {
 	t_info *const app = param;
 
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, (char *) "./textures/wall.xpm");
 	fill_everything_with_blood(&app->bg);
 	mlx_loop_hook(app->mlx, &render_lose, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_loose, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_win, app);
+	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_win, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
@@ -323,15 +325,16 @@ void do_play_to_loose(void *param)
 {
 	t_info *const app = param;
 
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, (char *) "./textures/wall.xpm");
 	fill_everything_with_blood(&app->bg);
 	mlx_loop_hook(app->mlx, &render_lose, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_loose, app);
+	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_loose, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
@@ -409,6 +412,24 @@ void do_loose_to_end(void *param)
 }
 
 void do_win_to_mmenu(void *param)
+{
+	t_info *const app = param;
+
+	cleanup_map(app);
+	replace_bg(app, (char *)"./textures/wall.xpm");
+
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+}
+
+void do_win_to_load(void *param)
 {
 	t_info *const app = param;
 
