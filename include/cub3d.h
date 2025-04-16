@@ -78,6 +78,12 @@ typedef struct s_ivect
 	int	y;
 }	t_ivect;
 
+typedef struct s_cvect
+{
+	char	x;
+	char	y;
+}	t_cvect;
+
 typedef struct s_object
 {
 	int			type;
@@ -238,6 +244,20 @@ enum
 	SUPER,
 };
 
+enum e_idx
+{
+	idx_XK_a = 0,
+	idx_XK_d,
+	idx_XK_e,
+	idx_XK_s,
+	idx_XK_w,
+	idx_XK_x,
+	idx_XK_Left,
+	idx_XK_Up,
+	idx_XK_Right,
+	idx_XK_Down,
+};
+
 typedef struct s_info
 {
 	struct s_fdf_win
@@ -365,8 +385,7 @@ int	render_play(void *app);
 int	render_load(void *app);
 int	render_lose(void *param);
 int	render_win(void *param);
-void fill_everything_with_blood(t_imgdata *bg);
-void fill_everything_with_love(t_imgdata *bg);
+void fill_everything(t_imgdata *bg, int f_col, int c_col);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 

@@ -240,6 +240,7 @@ int key_press_win(KeySym key, void *param)
 int key_release_win(KeySym key, void *param)
 {
 	t_info *const app = param;
+
 	return (0);
 	(void)app;
 	(void)key;

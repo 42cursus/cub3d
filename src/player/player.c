@@ -126,37 +126,34 @@ t_player	*init_player(t_data *map)
 
 void	move_entity(t_vect *pos, char **map, t_vect dir)
 {
-	double	new_x;
-	double	new_y;
-	char	x_tile;
-	char	y_tile;
+	t_vect	new_pos;
+	t_cvect	tile;
 	char	both_tile;
 
-	new_x = pos->x + (dir.x * 0.1 / FR_SCALE);
-	new_y = pos->y + (dir.y * 0.1 / FR_SCALE);
-	x_tile = map[(int)pos->y][(int)new_x];
-	y_tile = map[(int)new_y][(int)pos->x];
-	both_tile = map[(int)new_y][(int)new_x];
+	new_pos.x = pos->x + (dir.x * 0.1 / FR_SCALE);
+	new_pos.y = pos->y + (dir.y * 0.1 / FR_SCALE);
+	tile = (t_cvect){map[(int)pos->y][(int)new_pos.x], map[(int)new_pos.y][(int)pos->x]};
+	both_tile = map[(int)new_pos.y][(int)new_pos.x];
 	if (both_tile == '0' || both_tile == 'O')
 	{
-		if (x_tile == '0' || x_tile == 'O')
-			pos->x = new_x;
-		if (y_tile == '0' || y_tile == 'O')
-			pos->y = new_y;
+		if (tile.x == '0' || tile.x == 'O')
+			pos->x = new_pos.x;
+		if (tile.y == '0' || tile.y == 'O')
+			pos->y = new_pos.y;
 	}
 	else
 	{
-		if ((x_tile == '0' || x_tile == 'O') && (y_tile == '0' || y_tile == 'O'))
+		if ((tile.x == '0' || tile.x == 'O') && (tile.y == '0' || tile.y == 'O'))
 		{
 			if (get_max_direction(dir) == 'x')
-				pos->x = new_x;
+				pos->x = new_pos.x;
 			else
-				pos->y = new_y;
+				pos->y = new_pos.y;
 		}
-		else if (x_tile == '0' || x_tile == 'O')
-			pos->x = new_x;
-		else if (y_tile == '0' || y_tile == 'O')
-			pos->y = new_y;
+		else if (tile.x == '0' || tile.x == 'O')
+			pos->x = new_pos.x;
+		else if (tile.y == '0' || tile.y == 'O')
+			pos->y = new_pos.y;
 	}
 }
 

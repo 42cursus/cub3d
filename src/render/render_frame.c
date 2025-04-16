@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/16 13:25:02 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/16 12:41:32 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -454,123 +454,27 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-enum e_idx
+void fill_everything(t_imgdata *bg, const int f_col, const int c_col)
 {
-	idx_XK_a = 0,
-	idx_XK_d,
-	idx_XK_e,
-	idx_XK_s,
-	idx_XK_w,
-	idx_XK_x,
-	idx_XK_Left,
-	idx_XK_Up,
-	idx_XK_Right,
-	idx_XK_Down,
-};
+	const int	mid = WIN_HEIGHT / 2;
+	int			i;
+	int			j;
 
-
-void fill_everything_with_love(t_imgdata *bg)
-{
-	int				mid;
-	int				i;
-	int				j;
-	const size_t	cc_col = 0x0b00FF00;
-	const size_t	ff_col = 0x00ff5555;
-
-	const size_t	c_col = (size_t)cc_col + ((size_t)cc_col << 32);
-	const size_t	f_col = (size_t)ff_col + ((size_t)ff_col << 32);
-
-	mid = WIN_HEIGHT / 2;
 	i = -1;
 	while (++i <= mid)
-	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
-			j += 2;
-		}
-	}
-	i--;
-	while (++i < WIN_HEIGHT)
-	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
-			j += 2;
-		}
-	}
-}
-
-void fill_everything_with_blood(t_imgdata *bg)
-{
-	int				mid;
-	int				i;
-	int				j;
-	const size_t	ff_col = 0x0bff0000;
-	const size_t	cc_col = 0x00ff5555;
-
-	const size_t	c_col = (size_t)cc_col + ((size_t)cc_col << 32);
-	const size_t	f_col = (size_t)ff_col + ((size_t)ff_col << 32);
-
-	mid = WIN_HEIGHT / 2;
-	i = -1;
-	while (++i <= mid)
-	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
-			j += 2;
-		}
-	}
-	i--;
-	while (++i < WIN_HEIGHT)
-	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			*(size_t *)(bg->addr + (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
-			j += 2;
-		}
-	}
-}
-
-
-void	place_lose(t_info *app, t_texarr *tex, int x, int y)
-{
-	int					i;
-	int					j;
-	unsigned int		colour;
-	t_imgdata *const	canvas = &app->canvas;
-
-	i = -1;
-	while (++i < tex->y)
 	{
 		j = -1;
-		while (++j < tex->x)
-		{
-			colour = tex->img[i][j];
-			my_put_pixel_32(canvas, x + j, y + i, colour);
-		}
+		while (++j < WIN_WIDTH)
+			*(size_t *) (bg->addr +
+						 (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
 	}
-}
-
-void	draw_lose_text(t_info *app)
-{
-	int	digit;
-	int	i;
-	int x;
-
-	i = -1;
-
-	x = WIN_WIDTH / 2;
-	while (++i < 9)
+	i--;
+	while (++i < WIN_HEIGHT)
 	{
-		digit = i;
-		place_lose(app, &app->shtex->energy_tex[digit], x, WIN_HEIGHT / 2);
-		x -= 16;
+		j = -1;
+		while (++j < WIN_WIDTH)
+			*(size_t *) (bg->addr +
+						 (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
 	}
 }
 
@@ -597,8 +501,8 @@ int	render_win(void *param)
 
 int	render_lose(void *param)
 {
-	t_info *const app = param;
 	size_t			time;
+	t_info *const	app = param;
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
@@ -611,6 +515,7 @@ int	render_lose(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
+	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	return (0);
@@ -620,7 +525,6 @@ int	render_load(void *param)
 {
 	size_t				time;
 	t_info *const app = param;
-
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
@@ -702,9 +606,7 @@ int	render_mmenu(void *param)
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
 
-	mlx_put_image_to_window(app->mlx, app->root,
-							app->canvas.img, app->clip_x_origin,
-							app->clip_y_origin);
+	on_expose(app);
 	return (0);
 }
 
@@ -723,10 +625,6 @@ int render_pmenu(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-
-	mlx_put_image_to_window(app->mlx, app->root,
-							app->canvas.img, app->clip_x_origin,
-							app->clip_y_origin);
-
+	on_expose(app);
 	return (0);
 }

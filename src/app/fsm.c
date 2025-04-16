@@ -325,8 +325,7 @@ void do_play_to_win(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, NULL);
-	fill_everything_with_love(&app->bg);
-
+	fill_everything(&app->bg, 0x00ff5555, 0x0b00FF00);
 	mlx_loop_hook(app->mlx, &render_win, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_win, app);
@@ -348,7 +347,7 @@ void do_play_to_lose(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, NULL);
-	fill_everything_with_blood(&app->bg);
+	fill_everything(&app->bg, 0x0bff0000, 0x00ff5555);
 	mlx_loop_hook(app->mlx, &render_lose, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_lose, app);
