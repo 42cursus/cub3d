@@ -343,6 +343,7 @@ void	free_shtex(t_info *app);
 t_imgdata	build_mmap(t_info *app, void *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
+double	rand_range(double lower, double upper);
 
 int key_press_play(KeySym key, void *param);
 int key_release_play(KeySym key, void *param);

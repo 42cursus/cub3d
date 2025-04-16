@@ -241,37 +241,37 @@ void do_load_to_play(void *param)
 {
 	t_info *const app = param;
 
-	struct s_thing
-	{
-		t_vect		pos;
-		t_vect		dir;
-		t_etype		type;
-		t_subtype	subtype;
-	} things[] = {
-		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
-		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
-		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
-		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
-		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
-		{{26.5,  11.5}, {0.0, 0.03}, O_ENTITY, E_PHANTOON},
-		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
-		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
-		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
-	};
-
-	int i = -1;
-	while (++i < (int)(sizeof(things) / sizeof(things[0])))
-	{
-		struct s_thing *thing = &things[i];
-		if (thing->type == O_ENTITY)
-			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
-		else
-			spawn_item(app, thing->pos, thing->subtype);
-	}
+	// struct s_thing
+	// {
+	// 	t_vect		pos;
+	// 	t_vect		dir;
+	// 	t_etype		type;
+	// 	t_subtype	subtype;
+	// } things[] = {
+	// 	{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
+	// 	{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
+	// 	{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
+	// 	{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+	// 	{{26.5,  11.5}, {0.0, 0.03}, O_ENTITY, E_PHANTOON},
+	// 	{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
+	// 	{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
+	// 	{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
+	// 	{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+	// 	{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
+	// };
+	//
+	// int i = -1;
+	// while (++i < (int)(sizeof(things) / sizeof(things[0])))
+	// {
+	// 	struct s_thing *thing = &things[i];
+	// 	if (thing->type == O_ENTITY)
+	// 		spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
+	// 	else
+	// 		spawn_item(app, thing->pos, thing->subtype);
+	// }
 	replace_bg(app, NULL);
 	fill_bg(&app->bg, app->map);
 	mlx_loop_hook(app->mlx, &render_play, app);
