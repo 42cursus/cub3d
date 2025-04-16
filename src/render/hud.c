@@ -174,6 +174,23 @@ void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 	}
 }
 
+void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
+{
+	t_imgdata	canvas = app->canvas;
+	int			i;
+	int			j;
+	double		step;
+
+	step = 1.0 / scalar;
+	i = -1;
+	while (++i < tex->y)
+	{
+		j = -1;
+		while (++j < tex->x)
+			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, tex->img[(int)(i * step)][(int)(j * step)]);
+	}
+}
+
 // void	place_char_8(char c, t_info *app, int x, int y)
 // {
 // 	t_imgdata	canvas = app->canvas;

@@ -293,21 +293,22 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
 		if (frames % (25 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.2 / FR_SCALE));
 	}
 	else if (obj->health > 100)
 	{
 		if (frames == 0)
-			obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
+			// obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
+			obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / FR_SCALE), rand_range(-M_PI_2, M_PI_2));
 		else if (frames > 50 * FR_SCALE)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
 			if (frames % (10 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.1, 0.1)), 0.2 / FR_SCALE));
 		}
 	}
 	else
-		obj->dir = scale_vect(norm_diff, 0.08 / FR_SCALE);
+		obj->dir = scale_vect(norm_diff, 0.09 / FR_SCALE);
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
@@ -590,7 +591,7 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, app->bg.width * app->bg.height * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	// place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);

@@ -40,17 +40,50 @@ void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour)
 	(*(unsigned int (*)[img->height][img->width])img->addr)[y][x] = colour;
 }
 
+t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
+{
+	t_vect	steps;
+	t_ivect	iter;
+	t_vect	pos;
+	t_imgdata	scaled;
+
+	u_int (*const pixels)[image->height][image->width] = (void *)image->addr;
+	scaled.img = mlx_new_image(app->mlx, new_x, new_y);
+	scaled.addr = mlx_get_data_addr(scaled.img, &scaled.bpp, &scaled.line_length, &scaled.endian);
+	scaled.width = new_x;
+	scaled.height = new_y;
+	u_int (*const scaled_pixels)[scaled.height][scaled.width] = (void *)scaled.addr;
+	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
+	iter.y = -1;
+	pos.y = 0;
+	while (++iter.y < new_y)
+	{
+		iter.x = -1;
+		pos.x = 0;
+		while (++iter.x < new_x)
+		{
+			(*scaled_pixels)[iter.y][iter.x] = (*pixels)[(int)pos.y][(int)pos.x];
+			pos.x += steps.x;
+		}
+		pos.y += steps.y;
+	}
+	mlx_destroy_image(app->mlx, image->img);
+	return (scaled);
+}
+
 void replace_bg(t_info *app, char *tex_file)
 {
 	t_imgdata bg;
 
-	mlx_destroy_image(app->mlx, app->bg.img);
+	if (app->bg.img != NULL)
+		mlx_destroy_image(app->mlx, app->bg.img);
 	if (tex_file)
 	{
 		bg.img = mlx_xpm_file_to_image(app->mlx, tex_file, &bg.width, &bg.height);
 		if (!bg.img)
 			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
 		bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
+		bg = scale_image(app, &bg, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
 	{

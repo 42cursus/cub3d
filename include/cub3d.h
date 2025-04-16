@@ -32,11 +32,11 @@
 # define KEY_E 0x0065
 # define KEY_X 0x0078
 
-# define WIN_HEIGHT 768
-# define WIN_WIDTH 1024
+# define WIN_HEIGHT 960
+# define WIN_WIDTH 1280
 
 #ifndef FRAMERATE
-# define FRAMERATE 50
+# define FRAMERATE 100
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
