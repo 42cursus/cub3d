@@ -329,6 +329,8 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 {
 	int	new_health;
 
+	if (player->dead == 1)
+		return ;
 	new_health = player->health - damage;
 	if (new_health < 0)
 	{

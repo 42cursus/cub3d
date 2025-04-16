@@ -45,8 +45,7 @@ void	menu_select_current(t_info *app)
 			menu_state->no_items = 3;
 			return ;
 		}
-		// ft_strlcpy(app->mapname, app->map_ids[menu_state->selected], 50);
-		app->current_level = app->menu_state.selected;
+		app->current_level = menu_state->selected;
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}

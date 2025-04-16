@@ -480,6 +480,7 @@ void fill_everything(t_imgdata *bg, const size_t f_col, const size_t c_col)
 int	render_win(void *param)
 {
 	t_info *const app = param;
+	size_t			time;
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
@@ -487,9 +488,12 @@ int	render_win(void *param)
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	// place_str_centred((char *)	"YOU WON", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	// place_str_centred((char *)	"PRESS [SPACE] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
-
+	while (get_time_us() - app->last_frame < FRAMETIME)
+		usleep(100);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+	app->framecount++;
 	on_expose(app);
 	return (0);
 }
@@ -500,17 +504,19 @@ int	render_lose(void *param)
 	t_info *const	app = param;
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// draw_lose_text(app);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
+	while (get_time_us() - app->last_frame < FRAMETIME)
+		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
 	// app->last_frame_us = get_time_us();
-	app->framecount++;	on_expose(app);
+	app->framecount++;
+	on_expose(app);
 	return (0);
 }
 
@@ -526,7 +532,6 @@ int	render_load(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	if (app->framecount == FRAMERATE / 2)
 	{
