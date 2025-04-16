@@ -32,8 +32,8 @@
 # define KEY_E 0x0065
 # define KEY_X 0x0078
 
-# define WIN_HEIGHT 1080
-# define WIN_WIDTH 1440
+# define WIN_HEIGHT 960
+# define WIN_WIDTH 1280
 
 #ifndef FRAMERATE
 # define FRAMERATE 50

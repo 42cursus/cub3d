@@ -42,39 +42,30 @@ void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour)
 
 t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
 {
-	double	step_x;
-	double	step_y;
-	int	i;
-	int	j;
-	double	x;
-	double	y;
+	t_vect	steps;
+	t_ivect	iter;
+	t_vect	pos;
 	t_imgdata	scaled;
-	u_int (*const pixels)[image->height][image->width] = (void *)image->addr;
 
+	u_int (*const pixels)[image->height][image->width] = (void *)image->addr;
 	scaled.img = mlx_new_image(app->mlx, new_x, new_y);
 	scaled.addr = mlx_get_data_addr(scaled.img, &scaled.bpp, &scaled.line_length, &scaled.endian);
 	scaled.width = new_x;
 	scaled.height = new_y;
 	u_int (*const scaled_pixels)[scaled.height][scaled.width] = (void *)scaled.addr;
-	step_x = (double)image->width / new_x;
-	step_y = (double)image->height / new_y;
-	i = 0;
-	y = 0;
-	while (i < new_y)
+	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
+	iter.y = -1;
+	pos.y = 0;
+	while (++iter.y < new_y)
 	{
-		j = 0;
-		x = 0;
-		while (j < new_x)
+		iter.x = -1;
+		pos.x = 0;
+		while (++iter.x < new_x)
 		{
-			// printf("scaled: (%d, %d) orig: (%f, %f) col: %x\n", j, i, x, y, (*pixels)[(int)y][(int)x]);
-			// (*(unsigned int (*)[scaled.height][scaled.width])scaled.addr)[i][j] = 
-			// 	(*(unsigned int (*)[image->height][image->width])image->addr)[(int)y][(int)x];
-			(*scaled_pixels)[i][j] = (*pixels)[(int)y][(int)x];
-			x += step_x;
-			j++;
+			(*scaled_pixels)[iter.y][iter.x] = (*pixels)[(int)pos.y][(int)pos.x];
+			pos.x += steps.x;
 		}
-		y += step_y;
-		i++;
+		pos.y += steps.y;
 	}
 	mlx_destroy_image(app->mlx, image->img);
 	return (scaled);
