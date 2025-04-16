@@ -21,7 +21,6 @@ void	menu_select_current(t_info *app)
 	{
 		if (menu_state->selected == 0)
 		{
-			ft_strlcpy(app->mapname, app->map_ids[0], 50);
 			app->rc = ok;
 			app->mlx->end_loop = 1;
 		}
@@ -46,8 +45,19 @@ void	menu_select_current(t_info *app)
 			menu_state->no_items = 3;
 			return ;
 		}
-		ft_strlcpy(app->mapname, app->map_ids[menu_state->selected], 50);
+		// ft_strlcpy(app->mapname, app->map_ids[menu_state->selected], 50);
+		app->current_level = app->menu_state.selected;
 		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
+	if (menu_state->state == WIN || menu_state->state == LOSE)
+	{
+		if (menu_state->selected == 0)
+			app->rc = ok;
+		if (menu_state->selected == 1)
+			app->rc = repeat;
+		if (menu_state->selected == 2)
+			app->rc = fail;
 		app->mlx->end_loop = 1;
 	}
 }
@@ -79,6 +89,24 @@ void	draw_menu_items(t_info *app)
 		place_str_centred((char *)"back", app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
 		pos.x = WIN_WIDTH / 2 - 160;
 		pos.y = 330 + (menu_state->selected * 48);
+	}
+	if (menu_state->state == WIN)
+	{
+		place_str_centred((char *)	"You win", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
+		place_str_centred((char *)	"NEXT LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
+		place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
+		place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+		pos.x = WIN_WIDTH / 2 - 220;
+		pos.y = 392 + (menu_state->selected * 48);
+	}
+	if (menu_state->state == LOSE)
+	{
+		place_str_centred((char *)	"You died", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
+		place_str_centred((char *)	"RETRY LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
+		place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
+		place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+		pos.x = WIN_WIDTH / 2 - 220;
+		pos.y = 392 + (menu_state->selected * 48);
 	}
 	place_texarr(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
 }

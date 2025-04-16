@@ -582,8 +582,9 @@ int	render_win(void *param)
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"YOU WON", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	place_str_centred((char *)	"PRESS [SPACE] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	draw_menu_items(app);
+	// place_str_centred((char *)	"YOU WON", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	// place_str_centred((char *)	"PRESS [SPACE] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
 
 	on_expose(app);
 	return (0);
@@ -599,9 +600,10 @@ int	render_lose(void *param)
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
-	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
+	draw_menu_items(app);
+	// place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
+	// place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
+	// place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
 	on_expose(app);
 	return (0);
 }
@@ -621,7 +623,7 @@ int	render_load(void *param)
 	app->last_frame = time;
 	// app->last_frame_us = get_time_us();
 	app->framecount++;
-	if (app->framecount == FRAMERATE)
+	if (app->framecount == FRAMERATE / 2)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
