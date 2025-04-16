@@ -36,7 +36,7 @@
 # define WIN_WIDTH 1280
 
 #ifndef FRAMERATE
-# define FRAMERATE 50
+# define FRAMERATE 100
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
