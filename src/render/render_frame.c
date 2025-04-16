@@ -514,7 +514,6 @@ int	render_lose(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	return (0);
