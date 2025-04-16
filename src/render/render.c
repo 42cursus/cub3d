@@ -53,6 +53,8 @@ t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
 
 	scaled.img = mlx_new_image(app->mlx, new_x, new_y);
 	scaled.addr = mlx_get_data_addr(scaled.img, &scaled.bpp, &scaled.line_length, &scaled.endian);
+	scaled.width = new_x;
+	scaled.height = new_y;
 	u_int (*const scaled_pixels)[scaled.height][scaled.width] = (void *)scaled.addr;
 	step_x = (double)image->width / new_x;
 	step_y = (double)image->height / new_y;
@@ -64,7 +66,7 @@ t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
 		x = 0;
 		while (j < new_x)
 		{
-			printf("scaled: (%d, %d) orig: (%f, %f)\n", j, i, x, y);
+			// printf("scaled: (%d, %d) orig: (%f, %f) col: %x\n", j, i, x, y, (*pixels)[(int)y][(int)x]);
 			// (*(unsigned int (*)[scaled.height][scaled.width])scaled.addr)[i][j] = 
 			// 	(*(unsigned int (*)[image->height][image->width])image->addr)[(int)y][(int)x];
 			(*scaled_pixels)[i][j] = (*pixels)[(int)y][(int)x];
