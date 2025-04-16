@@ -257,9 +257,9 @@ int key_press_play(KeySym key, void *param)
 	}
 	else
 	{
-		if (key == KEY_E)
+		if (key == XK_e)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-		else if (key == KEY_X)
+		else if (key == XK_x)
 			spawn_projectile(app, app->player, app->map, app->player->equipped);
 		// DEBUGGING
 		else if (key == XK_h)
@@ -270,9 +270,9 @@ int key_press_play(KeySym key, void *param)
 				developer_console(app, app->player);
 		else if (key == XK_z)
 				next_weapon(app->player);
-		else if (key == UP)
+		else if (key == XK_Up)
 				app->player->vert_offset += 10;
-		else if (key == DOWN)
+		else if (key == XK_Down)
 				app->player->vert_offset -= 10;
 		int idx = get_index(key);
 		if (idx != -1)

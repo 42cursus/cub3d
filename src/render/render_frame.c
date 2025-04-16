@@ -454,27 +454,26 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void fill_everything(t_imgdata *bg, const int f_col, const int c_col)
+void fill_with_colour(t_imgdata *bg, int f_col, int c_col)
 {
 	const int	mid = WIN_HEIGHT / 2;
 	int			i;
 	int			j;
 
+	u_int (*pixels)[bg->height][bg->width] = (void *)bg->addr;
 	i = -1;
 	while (++i <= mid)
 	{
 		j = -1;
 		while (++j < WIN_WIDTH)
-			*(size_t *) (bg->addr +
-						 (i * bg->line_length + j * (bg->bpp / 8))) = c_col;
+			(*pixels)[i][j] = c_col;
 	}
 	i--;
 	while (++i < WIN_HEIGHT)
 	{
 		j = -1;
 		while (++j < WIN_WIDTH)
-			*(size_t *) (bg->addr +
-						 (i * bg->line_length + j * (bg->bpp / 8))) = f_col;
+			(*pixels)[i][j] = f_col;
 	}
 }
 
@@ -515,7 +514,6 @@ int	render_lose(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	return (0);
@@ -572,14 +570,11 @@ int	render_play(void *param)
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	// printf("player_pos:\t(%f, %f)\n", app->player->pos.x, app->player->pos.y);
-	// exit(0);
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	draw_mmap(app);
@@ -594,10 +589,6 @@ int	render_mmenu(void *param)
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, app->bg.width * app->bg.height * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	// place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	// place_str_centred((char *)	"[2] for level 2", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
-	// place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
-	// place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 496}, 2);
 	draw_menu_items(app);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)

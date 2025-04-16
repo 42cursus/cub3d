@@ -95,31 +95,6 @@ void replace_bg(t_info *app, char *tex_file)
 	app->bg = bg;
 }
 
-void	fill_bg(t_imgdata *bg, t_data *map)
-{
-	int				mid;
-	int				i;
-	int				j;
-	unsigned int	c_col = map->c_col;
-	unsigned int	f_col = map->f_col;
-
-	mid = WIN_HEIGHT / 2;
-	i = -1;
-	while (++i <= mid)
-	{
-		j = -1;
-		while (++j < WIN_WIDTH)
-			my_put_pixel_32(bg, j, i, c_col);
-	}
-	i--;
-	while (++i < WIN_HEIGHT)
-	{
-		j = -1;
-		while (++j < WIN_WIDTH)
-			my_put_pixel_32(bg, j, i, f_col);
-	}
-}
-
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 {
 	t_imgdata		texture;
