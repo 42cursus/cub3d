@@ -267,6 +267,7 @@ typedef struct s_info
 	t_state		state;
 	t_ret_code	rc;
 	t_menustate	menu_state;
+	int 		current_level;
 	char		mapname[50];
 }	t_info;
 
@@ -358,8 +359,11 @@ int key_release_win(KeySym key, void *param);
 int	render_mmenu(void *param);
 int	render_pmenu(void *param);
 int	render_play(void *app);
+int	render_load(void *app);
 int	render_lose(void *param);
+int	render_win(void *param);
 void fill_everything_with_blood(t_imgdata *bg);
+void fill_everything_with_love(t_imgdata *bg);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 

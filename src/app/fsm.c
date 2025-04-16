@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 18:12:19 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/16 12:51:16 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,9 @@ t_ret_code do_state_mmenu(void *param)
 t_ret_code do_state_load(void *param)
 {
 	t_info *const app = param;
+
+	mlx_loop(app->mlx);
+
 	return (ok);
 	(void)app;
 }
@@ -218,13 +221,17 @@ void do_mmenu_to_load(void *param)
 	t_info *const app = param;
 
 	app->map = init_map();
-	if (parse_cub(app, (char *)app->mapname))
+	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
 		free_map(app->map);
 		app->rc = fail;
 		return ;
 	}
 	app->player = init_player(app->map);
+//	replace_bg(app, (char *) "./textures/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	app->mlx->end_loop = 0;
+	app->framecount = 0;
 	return ;
 	(void)app;
 
@@ -317,15 +324,18 @@ void do_play_to_win(void *param)
 
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
-	replace_bg(app, (char *) "./textures/wall.xpm");
-	fill_everything_with_blood(&app->bg);
-	mlx_loop_hook(app->mlx, &render_lose, app);
+	replace_bg(app, NULL);
+	fill_everything_with_love(&app->bg);
+
+	mlx_loop_hook(app->mlx, &render_win, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_win, app);
 	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_win, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	if (app->current_level < app->no_maps - 1)
+		app->current_level++;
 }
 
 void do_play_to_lose(void *param)
@@ -334,7 +344,7 @@ void do_play_to_lose(void *param)
 
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
-	replace_bg(app, (char *) "./textures/wall.xpm");
+	replace_bg(app, NULL);
 	fill_everything_with_blood(&app->bg);
 	mlx_loop_hook(app->mlx, &render_lose, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_lose, app);
@@ -444,6 +454,24 @@ void do_win_to_load(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	app->map = init_map();
+	if (parse_cub(app, app->map_ids[app->current_level]))
+	{
+		free_map(app->map);
+		app->rc = fail;
+		return ;
+	}
+	app->player = init_player(app->map);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_bg(app, (char *) "./textures/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->root, KeyPress, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->framecount = 0;
 }
 
 void do_win_to_end(void *param)

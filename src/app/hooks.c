@@ -234,7 +234,7 @@ int key_press_win(KeySym key, void *param)
 	if (key == XK_space)
 	{
 		app->mlx->end_loop = 1;
-		app->rc = repeat;
+		app->rc = ok;
 	}
 	return (0);
 }
