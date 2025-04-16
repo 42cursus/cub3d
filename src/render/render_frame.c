@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/16 12:41:32 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/16 13:25:02 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -592,6 +592,7 @@ int	render_win(void *param)
 int	render_lose(void *param)
 {
 	t_info *const app = param;
+	size_t			time;
 
 	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// draw_lose_text(app);
@@ -602,6 +603,11 @@ int	render_lose(void *param)
 	place_str_centred((char *)	"PRESS [SPACE] TO BEGIN", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
 	place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+	// app->last_frame_us = get_time_us();
+	app->framecount++;
 	on_expose(app);
 	return (0);
 }
