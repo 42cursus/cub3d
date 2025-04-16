@@ -121,6 +121,8 @@ typedef enum e_menustate
 {
 	MAIN,
 	LVL_SELECT,
+	WIN,
+	LOSE,
 }	t_emenus;
 
 typedef struct s_menustate
