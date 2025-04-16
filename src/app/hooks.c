@@ -32,7 +32,6 @@ void replace_frame(t_info *app)
 int expose_win(void *param)
 {
 	t_imgdata im3;
-	t_imgdata bg;
 	t_imgdata	stillshot;
 	t_info *const app = param;
 
@@ -41,18 +40,17 @@ int expose_win(void *param)
 	stillshot.height = WIN_HEIGHT;
 	stillshot.width = WIN_WIDTH;
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	bg.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/wall.xpm", &bg.width, &bg.height);
-	if (!im3.img || !bg.img)
+	replace_bg(app, (char *)"./textures/wall.xpm");
+	// bg.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/wall.xpm", &bg.width, &bg.height);
+	if (!im3.img)
 		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 
 	im3.height = WIN_HEIGHT;
 	im3.width = WIN_WIDTH;
 	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
 
-	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
 
 	app->canvas = im3;
-	app->bg = bg;
 	app->stillshot = stillshot;
 	mlx_clear_window(app->mlx,  app->root);
 	on_expose(app);

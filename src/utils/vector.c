@@ -134,8 +134,8 @@ void memcpy_avx2_nt(void *dst, const void *src, size_t count)
 	{
 		while (i + stride - 1 < count) // Use non-temporal store
 		{
-//			if (i + prefetch_distance < count)
-			_mm_prefetch((const char *) (src + i + prefetch_distance),
+			if (i + prefetch_distance < count)
+				_mm_prefetch((const char *) (src + i + prefetch_distance),
 						 _MM_HINT_T0);
 			__m256i chunk = _mm256_load_si256((const __m256i *) (src + i));
 			_mm256_stream_si256((__m256i *) (dst + i), chunk);

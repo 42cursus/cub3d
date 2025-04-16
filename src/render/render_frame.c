@@ -687,7 +687,7 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, app->bg.width * app->bg.height * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	// place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
