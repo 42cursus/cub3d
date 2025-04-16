@@ -241,37 +241,37 @@ void do_load_to_play(void *param)
 {
 	t_info *const app = param;
 
-	struct s_thing
-	{
-		t_vect		pos;
-		t_vect		dir;
-		t_etype		type;
-		t_subtype	subtype;
-	} things[] = {
-		{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
-		{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
-		{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
-		{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
-		{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-		{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
-		{{26.5,  11.5}, {0.0, 0.03}, O_ENTITY, E_PHANTOON},
-		{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
-		{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
-		{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
-		{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
-	};
-
-	int i = -1;
-	while (++i < (int)(sizeof(things) / sizeof(things[0])))
-	{
-		struct s_thing *thing = &things[i];
-		if (thing->type == O_ENTITY)
-			spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
-		else
-			spawn_item(app, thing->pos, thing->subtype);
-	}
+	// struct s_thing
+	// {
+	// 	t_vect		pos;
+	// 	t_vect		dir;
+	// 	t_etype		type;
+	// 	t_subtype	subtype;
+	// } things[] = {
+	// 	{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
+	// 	{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
+	// 	{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
+	// 	{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
+	// 	{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
+	// 	{{26.5,  11.5}, {0.0, 0.03}, O_ENTITY, E_PHANTOON},
+	// 	{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
+	// 	{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
+	// 	{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
+	// 	{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
+	// 	{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
+	// };
+	//
+	// int i = -1;
+	// while (++i < (int)(sizeof(things) / sizeof(things[0])))
+	// {
+	// 	struct s_thing *thing = &things[i];
+	// 	if (thing->type == O_ENTITY)
+	// 		spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
+	// 	else
+	// 		spawn_item(app, thing->pos, thing->subtype);
+	// }
 	replace_bg(app, NULL);
 	fill_bg(&app->bg, app->map);
 	mlx_loop_hook(app->mlx, &render_play, app);
@@ -325,10 +325,9 @@ void do_play_to_win(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, NULL);
-	fill_everything_with_love(&app->bg);
-
+	fill_everything(&app->bg, 0x00ff5555, 0x0b00FF00);
 	mlx_loop_hook(app->mlx, &render_win, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_win, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_win, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
@@ -336,6 +335,9 @@ void do_play_to_win(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	if (app->current_level < app->no_maps - 1)
 		app->current_level++;
+	app->menu_state.state = WIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_play_to_lose(void *param)
@@ -345,14 +347,17 @@ void do_play_to_lose(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_bg(app, NULL);
-	fill_everything_with_blood(&app->bg);
+	fill_everything(&app->bg, 0x0bff0000, 0x00ff5555);
 	mlx_loop_hook(app->mlx, &render_lose, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_lose, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_lose, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = LOSE;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_play_to_end(void *param)
@@ -422,6 +427,9 @@ void do_lose_to_mmenu(void *param)
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_lose_to_end(void *param)
@@ -447,9 +455,37 @@ void do_win_to_mmenu(void *param)
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
 }
 
 void do_win_to_load(void *param)
+{
+	t_info *const app = param;
+
+	cleanup_map(app);
+	app->map = init_map();
+	if (parse_cub(app, app->map_ids[app->current_level]))
+	{
+		free_map(app->map);
+		app->rc = fail;
+		return ;
+	}
+	app->player = init_player(app->map);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_bg(app, (char *) "./textures/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->root, KeyPress, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->framecount = 0;
+}
+
+void do_lose_to_load(void *param)
 {
 	t_info *const app = param;
 

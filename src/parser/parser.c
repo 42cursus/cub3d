@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLM", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZP", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLM", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZP", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLM", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZP", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DML", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -243,7 +243,7 @@ int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 	char	tile;
 
 	tile = (data->map)[i][j];
-	if (!ft_strchr("0DLM", tile))
+	if (ft_strchr("NESW", tile))
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
@@ -253,6 +253,8 @@ int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 		(data->map)[i][j] = '0';
 		*start_found = 1;
 	}
+	// else if (ft_strchr("mestZP", tile))
+	// 	(data->map)[i][j] = '0';
 	return (1);
 }
 
@@ -269,7 +271,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLM", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZP", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -620,6 +622,39 @@ void	init_anims(t_info *app, t_data *map)
 	}
 }
 
+void	spawn_map_objects(t_info *app, t_data *data)
+{
+	char	**map;
+	int		i;
+	int		j;
+
+	map = data->map;
+	i = -1;
+	while (++i < data->height)
+	{
+		j = -1;
+		while (++j < data->width)
+		{
+			if (ft_strchr("mestZP", map[i][j]))
+			{
+				if (map[i][j] == 'm')
+					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
+				else if (map[i][j] == 't')
+					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_TROPHY);
+				else if (map[i][j] == 's')
+					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_SUPER);
+				else if (map[i][j] == 'e')
+					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_ETANK);
+				else if (map[i][j] == 'Z')
+					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
+				else if (map[i][j] == 'P')
+					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0.0, 0.03}, E_PHANTOON);
+				map[i][j] = '0';
+			}
+		}
+	}
+}
+
 int	parse_cub(t_info *app, char *filename)
 {
 	int		fd;
@@ -652,6 +687,7 @@ int	parse_cub(t_info *app, char *filename)
 	// print_map(data);
 	// exit(0);
 	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
+	spawn_map_objects(app, data);
 	data->minimap = build_mmap(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	init_anims(app, data);

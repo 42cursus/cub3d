@@ -14,6 +14,7 @@ cub3d
 hello
 world
 log.txt
+/textures/skybox.xpm
 resources/
 gdb.txt
 scratch/
