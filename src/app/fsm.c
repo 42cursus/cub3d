@@ -128,7 +128,7 @@ t_ret_code do_state_win(void *param)
 	return (app->rc);
 }
 
-t_ret_code do_state_loose(void *param)
+t_ret_code do_state_lose(void *param)
 {
 	t_info *const app = param;
 
@@ -328,7 +328,7 @@ void do_play_to_win(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
-void do_play_to_loose(void *param)
+void do_play_to_lose(void *param)
 {
 	t_info *const app = param;
 
@@ -337,8 +337,8 @@ void do_play_to_loose(void *param)
 	replace_bg(app, (char *) "./textures/wall.xpm");
 	fill_everything_with_blood(&app->bg);
 	mlx_loop_hook(app->mlx, &render_lose, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_loose, app);
-	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_loose, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_lose, app);
+	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_lose, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
@@ -396,7 +396,7 @@ void do_pmenu_to_end(void *param)
 	cleanup_map(app);
 }
 
-void do_loose_to_mmenu(void *param)
+void do_lose_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
@@ -414,7 +414,7 @@ void do_loose_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
-void do_loose_to_end(void *param)
+void do_lose_to_end(void *param)
 {
 	t_info *const app = param;
 

@@ -196,7 +196,7 @@ int key_release_pmenu(KeySym key, void *param)
 }
 
 
-int key_press_loose(KeySym key, void *param)
+int key_press_lose(KeySym key, void *param)
 {
 	t_info *const app = param;
 
@@ -214,7 +214,7 @@ int key_press_loose(KeySym key, void *param)
 }
 
 
-int key_release_loose(KeySym key, void *param)
+int key_release_lose(KeySym key, void *param)
 {
 	t_info *const app = param;
 	return (0);
