@@ -12,15 +12,15 @@
 
 #include "../../include/cub3d.h"
 
-void	load_map_textures(t_info *app, void *tiles[])
+void	load_map_textures(t_info *app, t_img *tiles[])
 {
 	int		i;
 	char	buf[50];
 	int		x;
 	int		y;
 
-	i = 0;
-	while (i < 16)
+	i = -1;
+	while (++i < 16)
 	{
 		ft_snprintf(buf, 40, "./textures/mmap/MAP%c%c%c%c.xpm",
 			  // ((i & 16) >> 4) + '0',
@@ -28,22 +28,17 @@ void	load_map_textures(t_info *app, void *tiles[])
 			  ((i & 4) >> 2) + '0',
 			  ((i & 2) >> 1) + '0',
 			  (i & 1) + '0');
-		// printf("%s\n", buf);
 		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
-		i++;
 	}
 }
 
-void	free_map_textures(t_info *app, void *tiles[])
+void	free_map_textures(t_info *app, t_img *tiles[])
 {
 	int	i;
 
-	i = 0;
-	while (i < 16)
-	{
+	i = -1;
+	while (++i < 16)
 		mlx_destroy_image(app->mlx, tiles[i]);
-		i++;
-	}
 }
 
 int	get_tile_index(char **map, int i, int j)
@@ -58,128 +53,110 @@ int	get_tile_index(char **map, int i, int j)
 	return (index);
 }
 
-void	place_tile_on_image(t_imgdata *image, t_imgdata *tile, int x, int y)
+void	place_tile_on_image(t_img *image, t_img *tile, int x, int y)
 {
 	int	i;
 	int	j;
 	int	colour;
 
-	i = 0;
-	while (i < tile->height)
+	i = -1;
+	while (++i < tile->height)
 	{
-		j = 0;
-		while (j < tile->width)
+		j = -1;
+		while (++j < tile->width)
 		{
-			colour = *(unsigned int *)(tile->addr + (i * tile->line_length + j * (tile->bpp / 8)));
+			colour = *(unsigned int *)(tile->data + (i * tile->size_line + j * (tile->bpp / 8)));
 			my_put_pixel_32(image, x + j, y + i, colour);
-			j++;
 		}
-		i++;
 	}
 }
 
-void	fill_image_transparency(t_imgdata *img)
+void	fill_image_transparency(t_img *img)
 {
 	int	i;
 	int	j;
 
-	i = 0;
-	while (i < img->height)
+	i = -1;
+	u_int (*const pixels)[img->height][img->width] = (void *)img->data;
+	while (++i < img->height)
 	{
-		j = 0;
-		while (j < img->width)
-		{
-			// my_put_pixel(img, j, i, 0x000042);
-			*(unsigned int *)(img->addr + (i * img->line_length + j * (img->bpp / 8))) = 0x000042;
-			j++;
-		}
-		i++;
+		j = -1;
+		while (++j < img->width)
+			(*pixels)[i][j] = MLX_TRANSPARENT;
 	}
 }
 
-t_imgdata	build_mmap(t_info *app, void *tiles[])
+t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
-	t_imgdata	img;
-	t_imgdata	tile;
-	int			i;
-	int			j;
-	int			index;
+	t_img	*img;
+	int		i;
+	int		j;
+	int		index;
 
-	img.img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-	img.addr = mlx_get_data_addr(img.img, &img.bpp, &img.line_length, &img.endian);
-	img.height = app->map->height * 8;
-	img.width = app->map->width * 8;
-	tile.width = 8;
-	tile.height = 8;
-	fill_image_transparency(&img);
-	i = 0;
-	while (i < app->map->height)
+	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
+	fill_image_transparency(img);
+	i = -1;
+	while (++i < app->map->height)
 	{
-		j = 0;
-		while (j < app->map->width)
+		j = -1;
+		while (++j < app->map->width)
 		{
 			if (app->map->map[app->map->height - i - 1][j] == '0')
 			{
 				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				tile.img = tiles[index];
-				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
-				place_tile_on_image(&img, &tile, j * 8, i * 8);
+				place_tile_on_image(img, tiles[index], j * 8, i * 8);
 			}
-			else if (app->map->map[app->map->height - i - 1][j] == 'D' || app->map->map[app->map->height - i - 1][j] == 'L')
-			{
-				tile.img = tiles[15];
-				tile.addr = mlx_get_data_addr(tile.img, &tile.bpp, &tile.line_length, &tile.endian);
-				place_tile_on_image(&img, &tile, j * 8, i * 8);
-			}
-			j++;
+			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
+					 app->map->map[app->map->height - i - 1][j] == 'L')
+				place_tile_on_image(img, tiles[15], j * 8, i * 8);
+
 		}
-		i++;
 	}
 	return (img);
 }
 
 void	place_mmap(t_info *app)
 {
-	t_imgdata	*mmap;
-	t_imgdata	canvas = app->canvas;
+	t_img	*mmap;
+	t_img	*canvas = app->canvas;
 	int	i;
 	int	j;
 	int	colour;
 
 	i = -1;
-	mmap = &app->map->minimap;
-	while (++i < app->map->minimap.height)
+	mmap = app->map->minimap;
+	while (++i < app->map->minimap->height)
 	{
 		j = -1;
-		while (++j < app->map->minimap.width)
+		while (++j < app->map->minimap->width)
 		{
-			colour = *(unsigned int *)(mmap->addr + (i * mmap->line_length + j * (mmap->bpp / 8)));
-			my_put_pixel_32(&canvas, j + (WIN_WIDTH - mmap->width), i, colour);
+			colour = *(unsigned int *)(mmap->data + (i * mmap->size_line + j * (mmap->bpp / 8)));
+			my_put_pixel_32(canvas, j + (WIN_WIDTH - mmap->width), i, colour);
 		}
 	}
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
 {
-	t_imgdata	canvas = app->canvas;
-	int			i;
-	int			j;
+	t_img	*canvas = app->canvas;
+	int		i;
+	int		j;
 
 	i = -1;
 	while (++i < tex->y)
 	{
 		j = -1;
 		while (++j < tex->x)
-			my_put_pixel_32(&canvas, x + j, y + i, tex->img[i][j]);
+			my_put_pixel_32(canvas, x + j, y + i, tex->img[i][j]);
 	}
 }
 
 void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
 {
-	t_imgdata	canvas = app->canvas;
-	int			i;
-	int			j;
-	double		step;
+	t_img	*canvas = app->canvas;
+	int		i;
+	int		j;
+	double	step;
 
 	step = 1.0 / scalar;
 	i = -1;
@@ -187,7 +164,7 @@ void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
 	{
 		j = -1;
 		while (++j < tex->x)
-			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, tex->img[(int)(i * step)][(int)(j * step)]);
+			my_put_pixel_32(canvas, pos.x + j, pos.y + i, tex->img[(int)(i * step)][(int)(j * step)]);
 	}
 }
 
@@ -241,10 +218,10 @@ void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
 
 void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 {
-	t_imgdata	canvas = app->canvas;
-	int			i;
-	int			j;
-	int			start_x;
+	t_img	*canvas = app->canvas;
+	int		i;
+	int		j;
+	int		start_x;
 
 	if (!ft_isalnum(c))
 		return ;
@@ -260,9 +237,9 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 	{
 		j = -1;
 		while (++j < 8 * scalar)
-		{
-			my_put_pixel_32(&canvas, pos.x + j, pos.y + i, app->shtex->alphabet.img[i / scalar][(j / scalar) + start_x]);
-		}
+			my_put_pixel_32(canvas, pos.x + j, pos.y + i,
+							app->shtex->alphabet.img[i / scalar][(j / scalar) +
+																 start_x]);
 	}
 }
 

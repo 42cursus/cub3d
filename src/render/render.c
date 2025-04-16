@@ -16,13 +16,13 @@
 void	print_pixel_arr(int width, int height, unsigned int **arr);
 
 inline __attribute__((always_inline))
-void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
+void	my_put_pixel(t_img *img, int x, int y, int colour)
 {
 	char	*pixel;
 
-	if (colour == 0x000042)
+	if (colour == MLX_TRANSPARENT)
 		return ;
-	pixel = img->addr + (y * img->line_length + x * (img->bpp / 8));
+	pixel = img->data + (y * img->size_line + x * (img->bpp / 8));
 	*(unsigned int *)pixel = colour;
 }
 /**
@@ -33,26 +33,24 @@ void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
  * @param colour
  */
 inline __attribute__((always_inline))
-void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour)
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
-	if (colour == 0x000042)
+	if (colour == MLX_TRANSPARENT)
 		return ;
-	(*(unsigned int (*)[img->height][img->width])img->addr)[y][x] = colour;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
-t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
+t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
 	t_vect	steps;
 	t_ivect	iter;
 	t_vect	pos;
-	t_imgdata	scaled;
+	t_img	*scaled;
 
-	u_int (*const pixels)[image->height][image->width] = (void *)image->addr;
-	scaled.img = mlx_new_image(app->mlx, new_x, new_y);
-	scaled.addr = mlx_get_data_addr(scaled.img, &scaled.bpp, &scaled.line_length, &scaled.endian);
-	scaled.width = new_x;
-	scaled.height = new_y;
-	u_int (*const scaled_pixels)[scaled.height][scaled.width] = (void *)scaled.addr;
+	u_int (*const pixels)[image->height][image->width] = (void *)image->data;
+	scaled = mlx_new_image(app->mlx, new_x, new_y);
+
+	u_int (*const scaled_pixels)[scaled->height][scaled->width] = (void *)scaled->data;
 	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
 	iter.y = -1;
 	pos.y = 0;
@@ -67,62 +65,55 @@ t_imgdata	scale_image(t_info *app, t_imgdata *image, int new_x, int new_y)
 		}
 		pos.y += steps.y;
 	}
-	mlx_destroy_image(app->mlx, image->img);
+	mlx_destroy_image(app->mlx, image);
 	return (scaled);
 }
 
 void replace_bg(t_info *app, char *tex_file)
 {
-	t_imgdata bg;
+	t_img *bg;
+	t_img tmp;
 
-	if (app->bg.img != NULL)
-		mlx_destroy_image(app->mlx, app->bg.img);
+	if (app->bg != NULL)
+		mlx_destroy_image(app->mlx, app->bg);
 	if (tex_file)
 	{
-		bg.img = mlx_xpm_file_to_image(app->mlx, tex_file, &bg.width, &bg.height);
-		if (!bg.img)
+		bg = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+		if (!bg)
 			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
-		bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
-		bg = scale_image(app, &bg, WIN_WIDTH, WIN_HEIGHT);
+		bg = scale_image(app, bg, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
-	{
-		bg.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-		bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
-		bg.height = WIN_HEIGHT;
-		bg.width = WIN_WIDTH;
-	}
+		bg = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->bg = bg;
 }
 
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 {
-	t_imgdata		texture;
+	t_img			*texture;
+	t_img			tmp;
 	unsigned int	**arr;
 	int				i;
 	int				j;
 
-	texture.img = mlx_xpm_file_to_image(app->mlx, (char *) filename,
-								&texture.width, &texture.height);
-	if (!texture.img)
+	texture = mlx_xpm_file_to_image(app->mlx, (char *) filename, &tmp.width, &tmp.height);
+	if (!texture)
 		exit(((void) printf(" !! KO !!\n"), cleanup(app)));
-	texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_length, &texture.endian);
-	*x = texture.width;
-	*y = texture.height;
-	arr = malloc(texture.height * sizeof(int *));
+	u_int (*const pixels)[texture->height][texture->width] = (void *)texture->data;
+	*x = texture->width;
+	*y = texture->height;
+	arr = (u_int **)malloc(texture->height * sizeof(int *));
 	i = 0;
-	while (i < texture.height)
-		arr[i++] = malloc(texture.width * sizeof(int));
+	while (i < texture->height)
+		arr[i++] = (u_int *)malloc(texture->width * sizeof(int));
 	i = -1;
-	while (++i < texture.height)
+	while (++i < texture->height)
 	{
 		j = -1;
-		while (++j < texture.width)
-			arr[i][j] = *(unsigned int *) (texture.addr +
-										   (i * texture.line_length +
-											j * (texture.bpp / 8)));
+		while (++j < texture->width)
+			arr[i][j] = (*pixels)[i][j];
 	}
-	mlx_destroy_image(app->mlx, texture.img);
+	mlx_destroy_image(app->mlx, texture);
 	return (arr);
 }
 
@@ -173,7 +164,7 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	return (tex);
 }
 
-void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
+void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 {
 	int					pos;
 	const t_texarr		*texture =  ray->texture;
@@ -216,7 +207,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	}
 }
 
-void	draw_rays(t_info *app, t_imgdata *canvas)
+void	draw_rays(t_info *app, t_img *canvas)
 {
 	t_player	*player;
 	t_ray		*rays;

@@ -32,6 +32,7 @@
 # define MLX_LIGHT_RED 0x00ff5555
 # define MLX_RED 0x0bff0000
 # define MLX_GREEN 0x0b00FF00
+# define MLX_TRANSPARENT 0x000042
 
 typedef struct s_texarr
 {
@@ -47,16 +48,16 @@ typedef struct s_animation
 	t_texarr	*tex_arr;
 }	t_anim;
 
-typedef struct s_imgdata
-{
-	t_img	*img;
-	char	*addr;
-	int		width;
-	int		height;
-	int		bpp;
-	int		line_length;
-	int		endian;
-}	t_imgdata;
+//typedef struct s_imgdata
+//{
+//	t_img	*img;
+//	char	*data;
+//	int		width;
+//	int		height;
+//	int		bpp;
+//	int		size_line;
+//	int		endian;
+//}	t_imgdata;
 
 typedef struct s_vect
 {
@@ -160,7 +161,7 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	floor_tex;
-	t_imgdata	minimap;
+	t_img		*minimap;
 	int			f_col;
 	int			c_col;
 	char		**map;
@@ -261,9 +262,9 @@ typedef struct s_info
 	t_win_list	*root;
 	double		zoom;
 	char 		*title;
-	t_imgdata	canvas;
-	t_imgdata	bg;
-	t_imgdata	stillshot;
+	t_img		*canvas;
+	t_img		*bg;
+	t_img		*stillshot;
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
@@ -333,19 +334,19 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_bg(t_info *app, char *tex_file);
-void	fill_with_colour(t_imgdata *bg, int f_col, int c_col);
-void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
-void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
+void	fill_with_colour(t_img *bg, int f_col, int c_col);
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
+void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
-void	load_map_textures(t_info *app,  void *tiles[]);
-void	free_map_textures(t_info *app, void *tiles[]);
+void	load_map_textures(t_info *app,  t_img *tiles[]);
+void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
-void	draw_rays(t_info *app, t_imgdata *canvas);
+void	draw_rays(t_info *app, t_img *canvas);
 void	draw_mmap(t_info *app);
 void	free_shtex(t_info *app);
-t_imgdata	build_mmap(t_info *app, void *tiles[]);
+t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
@@ -371,6 +372,7 @@ int	render_load(void *app);
 int	render_lose(void *param);
 int	render_win(void *param);
 
+void	draw_sky(t_info *app);
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 void	menu_select_current(t_info *app);

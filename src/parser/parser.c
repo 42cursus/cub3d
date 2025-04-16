@@ -661,7 +661,7 @@ int	parse_cub(t_info *app, char *filename)
 	t_list	*file;
 	t_list	*current;
 	t_data	*data;
-	void	*tiles[16];
+	t_img	*tiles[16];
 
 	fd = open(filename, O_RDONLY);
 	data = app->map;
@@ -684,8 +684,6 @@ int	parse_cub(t_info *app, char *filename)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
-	// print_map(data);
-	// exit(0);
 	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	spawn_map_objects(app, data);
 	data->minimap = build_mmap(app, tiles);

@@ -454,13 +454,13 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void fill_with_colour(t_imgdata *bg, int f_col, int c_col)
+void fill_with_colour(t_img *bg, int f_col, int c_col)
 {
 	const int	mid = WIN_HEIGHT / 2;
 	int			i;
 	int			j;
 
-	u_int (*pixels)[bg->height][bg->width] = (void *)bg->addr;
+	u_int (*pixels)[bg->height][bg->width] = (void *)bg->data;
 	i = -1;
 	while (++i <= mid)
 	{
@@ -482,7 +482,7 @@ int	render_win(void *param)
 	t_info *const app = param;
 	size_t			time;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
@@ -503,7 +503,7 @@ int	render_lose(void *param)
 	size_t			time;
 	t_info *const	app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
@@ -524,7 +524,7 @@ int	render_load(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
@@ -539,6 +539,12 @@ int	render_load(void *param)
 	}
 	on_expose(app);
 	return (0);
+}
+
+void draw_sky(t_info *const app)
+{
+	return ;
+	(void)app;
 }
 
 int	render_play(void *param)
@@ -569,6 +575,7 @@ int	render_play(void *param)
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
+	draw_sky(app);
 	replace_frame(app);
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
@@ -586,7 +593,7 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, app->bg.width * app->bg.height * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
@@ -606,7 +613,7 @@ int render_pmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->stillshot.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
 	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
