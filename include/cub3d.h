@@ -385,7 +385,7 @@ int	render_play(void *app);
 int	render_load(void *app);
 int	render_lose(void *param);
 int	render_win(void *param);
-void fill_everything(t_imgdata *bg, size_t f_col, size_t c_col);
+void fill_everything(t_imgdata *bg, int f_col, int c_col);
 
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 

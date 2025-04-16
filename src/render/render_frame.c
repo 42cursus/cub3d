@@ -453,7 +453,7 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void fill_everything(t_imgdata *bg, const size_t f_col, const size_t c_col)
+void fill_everything(t_imgdata *bg, const int f_col, const int c_col)
 {
 	const int	mid = WIN_HEIGHT / 2;
 	int			i;
