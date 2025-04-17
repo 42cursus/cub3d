@@ -293,21 +293,22 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
 		if (frames % (25 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.2 / FR_SCALE));
 	}
 	else if (obj->health > 100)
 	{
 		if (frames == 0)
-			obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
+			// obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
+			obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / FR_SCALE), rand_range(-M_PI_2, M_PI_2));
 		else if (frames > 50 * FR_SCALE)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
 			if (frames % (10 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.25, 0.25)), 0.2 / FR_SCALE));
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.1, 0.1)), 0.2 / FR_SCALE));
 		}
 	}
 	else
-		obj->dir = scale_vect(norm_diff, 0.08 / FR_SCALE);
+		obj->dir = scale_vect(norm_diff, 0.09 / FR_SCALE);
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
@@ -482,7 +483,7 @@ int	render_win(void *param)
 	t_info *const app = param;
 	size_t			time;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
@@ -503,7 +504,7 @@ int	render_lose(void *param)
 	size_t			time;
 	t_info *const	app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
@@ -541,6 +542,12 @@ int	render_load(void *param)
 	return (0);
 }
 
+void draw_sky(t_info *const app)
+{
+	return ;
+	(void)app;
+}
+
 int	render_play(void *param)
 {
 	size_t				time;
@@ -569,15 +576,13 @@ int	render_play(void *param)
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
+	draw_sky(app);
 	replace_frame(app);
-	// printf("player_pos:\t(%f, %f)\n", app->player->pos.x, app->player->pos.y);
-	// exit(0);
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
-	// app->last_frame_us = get_time_us();
 	app->framecount++;
 	on_expose(app);
 	draw_mmap(app);
@@ -589,13 +594,9 @@ int	render_mmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	// place_str_centred((char *)	"PRESS [1] for level 1", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	// place_str_centred((char *)	"[2] for level 2", app, (t_ivect){WIN_WIDTH / 2, 432}, 2);
-	// place_str_centred((char *)	"OR", app, (t_ivect){WIN_WIDTH / 2, 464}, 2);
-	// place_str_centred((char *)	"[ESC] TO EXIT", app, (t_ivect){WIN_WIDTH / 2, 496}, 2);
 	draw_menu_items(app);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
@@ -613,7 +614,7 @@ int render_pmenu(void *param)
 	size_t				time;
 	t_info *const app = param;
 
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->stillshot.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
 	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);

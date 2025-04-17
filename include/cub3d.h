@@ -19,27 +19,20 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
-# define NUM_5 0x35 /* (53) Number 5 on the main keyboard */
-# define ESC 0xFF1B /* (53) Number 5 on the main keyboard */
-# define UP 65362
-# define DOWN 65364
-# define RIGHT 65363
-# define LEFT 65361
-# define KEY_W 0x0077
-# define KEY_A 0x0061
-# define KEY_S 0x0073
-# define KEY_D 0x0064
-# define KEY_E 0x0065
-# define KEY_X 0x0078
-
-# define WIN_HEIGHT 768
-# define WIN_WIDTH 1024
+# define WIN_HEIGHT 960
+# define WIN_WIDTH 1280
 
 #ifndef FRAMERATE
-# define FRAMERATE 50
+# define FRAMERATE 100
 #endif
 #define FR_SCALE (FRAMERATE / 50)
 #define FRAMETIME (1000000 / FRAMERATE)
+
+# define MLX_LIME 0x0000ff55
+# define MLX_LIGHT_RED 0x00ff5555
+# define MLX_RED 0x0bff0000
+# define MLX_GREEN 0x0b00FF00
+# define MLX_TRANSPARENT 0x000042
 
 typedef struct s_texarr
 {
@@ -55,16 +48,16 @@ typedef struct s_animation
 	t_texarr	*tex_arr;
 }	t_anim;
 
-typedef struct s_imgdata
-{
-	t_img	*img;
-	char	*addr;
-	int		width;
-	int		height;
-	int		bpp;
-	int		line_length;
-	int		endian;
-}	t_imgdata;
+//typedef struct s_imgdata
+//{
+//	t_img	*img;
+//	char	*data;
+//	int		width;
+//	int		height;
+//	int		bpp;
+//	int		size_line;
+//	int		endian;
+//}	t_imgdata;
 
 typedef struct s_vect
 {
@@ -168,7 +161,7 @@ typedef	struct s_data
 	t_texarr	e_tex;
 	t_texarr	w_tex;
 	t_texarr	floor_tex;
-	t_imgdata	minimap;
+	t_img		*minimap;
 	int			f_col;
 	int			c_col;
 	char		**map;
@@ -269,9 +262,9 @@ typedef struct s_info
 	t_win_list	*root;
 	double		zoom;
 	char 		*title;
-	t_imgdata	canvas;
-	t_imgdata	bg;
-	t_imgdata	stillshot;
+	t_img		*canvas;
+	t_img		*bg;
+	t_img		*stillshot;
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
@@ -281,7 +274,6 @@ typedef struct s_info
 	int			no_maps;
 	t_player	*player;
 	size_t		last_frame;
-	// size_t		last_frame_us;
 	size_t		frametime;
 	size_t		framecount;
 	bool		keys[16];
@@ -290,7 +282,6 @@ typedef struct s_info
 	t_ret_code	rc;
 	t_menustate	menu_state;
 	int 		current_level;
-	char		mapname[50];
 }	t_info;
 
 int		check_endianness(void);
@@ -301,14 +292,10 @@ int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
 int		mouse_move_play(int x, int y, void *param);
-int		key_win(KeySym key, void *param);
-void	mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param);
 
 t_data	*init_map(void);
 void	free_map(t_data *map);
 int		parse_cub(t_info *app, char *filename);
-void	print_t_map(t_data *map);
-void	print_ascii_mmap(t_data *data, t_player *player);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
 
@@ -342,25 +329,24 @@ double	vector_angle(t_vect v1, t_vect v2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
-t_ray	find_ray_collision(t_data *map, t_player *player, double angle);
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
-int		determine_face(t_vect intersect);
+t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
-void replace_bg(t_info *app, char *tex_file);
-void	fill_bg(t_imgdata *bg, t_data *map);
-void	my_put_pixel_32(t_imgdata *img, int x, int y, unsigned int colour);
-void	my_put_pixel(t_imgdata *img, int x, int y, int colour);
+void	replace_bg(t_info *app, char *tex_file);
+void	fill_with_colour(t_img *bg, int f_col, int c_col);
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
+void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
-void	load_map_textures(t_info *app,  void *tiles[]);
-void	free_map_textures(t_info *app, void *tiles[]);
+void	load_map_textures(t_info *app,  t_img *tiles[]);
+void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
-void	draw_rays(t_info *app, t_imgdata *canvas);
+void	draw_rays(t_info *app, t_img *canvas);
 void	draw_mmap(t_info *app);
 void	free_shtex(t_info *app);
-t_imgdata	build_mmap(t_info *app, void *tiles[]);
+t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
@@ -387,6 +373,7 @@ int	render_lose(void *param);
 int	render_win(void *param);
 void fill_everything(t_imgdata *bg, int f_col, int c_col);
 
+void	draw_sky(t_info *app);
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 void	menu_select_current(t_info *app);
@@ -396,4 +383,3 @@ void	change_menu_selection(t_info *app, int dir);
 t_state run_state(t_info *app, int argc, char **argv);
 
 #endif //CUB3D_H
-

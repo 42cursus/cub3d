@@ -50,7 +50,7 @@ int	exit_win(t_info *const	app)
 
 void	cleanup_map(t_info *app)
 {
-	mlx_destroy_image(app->mlx, app->map->minimap.img);
+	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	free(app->player);
@@ -80,8 +80,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	// app->last_frame_us = get_time_us();
 	app->frametime = 5000;
 	return (ok);
-	(void)argc;
-	(void)argv;
 }
 
 t_ret_code do_state_mmenu(void *param)
@@ -273,7 +271,7 @@ void do_load_to_play(void *param)
 	// 		spawn_item(app, thing->pos, thing->subtype);
 	// }
 	replace_bg(app, NULL);
-	fill_bg(&app->bg, app->map);
+	fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
@@ -308,7 +306,7 @@ void do_play_to_pmenu(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	replace_frame(app);
-	fast_memcpy_test((int *)app->stillshot.addr, (int *)app->canvas.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
 
@@ -372,7 +370,7 @@ void do_pmenu_to_play(void *param)
 	t_info *const app = param;
 
 	replace_bg(app, NULL);
-	fill_bg(&app->bg, app->map);
+	fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);

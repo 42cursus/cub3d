@@ -18,10 +18,10 @@
 
 void replace_frame(t_info *app)
 {
-	fast_memcpy_test((int *)app->canvas.addr, (int *)app->bg.addr, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->map, app->player);
 	cast_all_rays_alt(app, app->map, app->player);
-	draw_rays(app, &app->canvas);
+	draw_rays(app, app->canvas);
 }
 
 /**
@@ -31,29 +31,20 @@ void replace_frame(t_info *app)
  */
 int expose_win(void *param)
 {
-	t_imgdata im3;
-	t_imgdata bg;
-	t_imgdata	stillshot;
+	t_img	*canvas;
+	t_img	*stillshot;
 	t_info *const app = param;
 
-	stillshot.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	stillshot.addr = mlx_get_data_addr(stillshot.img, &stillshot.bpp, &stillshot.line_length, &stillshot.endian);
-	stillshot.height = WIN_HEIGHT;
-	stillshot.width = WIN_WIDTH;
-	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	bg.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/wall.xpm", &bg.width, &bg.height);
-	if (!im3.img || !bg.img)
+	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+
+	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	replace_bg(app, (char *)"./textures/wall.xpm");
+	if (!canvas || !stillshot)
 		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 
-	im3.height = WIN_HEIGHT;
-	im3.width = WIN_WIDTH;
-	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
-
-	bg.addr = mlx_get_data_addr(bg.img, &bg.bpp, &bg.line_length, &bg.endian);
-
-	app->canvas = im3;
-	app->bg = bg;
+	app->canvas = canvas;
 	app->stillshot = stillshot;
+
 	mlx_clear_window(app->mlx,  app->root);
 	on_expose(app);
 	return (EXIT_SUCCESS);
@@ -259,9 +250,9 @@ int key_press_play(KeySym key, void *param)
 	}
 	else
 	{
-		if (key == KEY_E)
+		if (key == XK_e)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-		else if (key == KEY_X)
+		else if (key == XK_x)
 			spawn_projectile(app, app->player, app->map, app->player->equipped);
 		// DEBUGGING
 		else if (key == XK_h)
@@ -272,9 +263,9 @@ int key_press_play(KeySym key, void *param)
 				developer_console(app, app->player);
 		else if (key == XK_z)
 				next_weapon(app->player);
-		else if (key == UP)
+		else if (key == XK_Up)
 				app->player->vert_offset += 10;
-		else if (key == DOWN)
+		else if (key == XK_Down)
 				app->player->vert_offset -= 10;
 		int idx = get_index(key);
 		if (idx != -1)

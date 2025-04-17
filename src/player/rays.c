@@ -235,48 +235,10 @@ void	handle_in_fronts(t_ray *ray1, t_ray *ray2, t_player *player)
 	}
 }
 
-// t_ray	find_ray_collision(t_data *map, t_player *player, double angle)
-// {
-// 	t_ray	hor_int;
-// 	t_ray	vert_int;
-// 	int		quadrant;
-//
-// 	quadrant = get_quadrant(angle);
-// 	hor_int = get_horiz_boundary_intersect(map, player, angle, quadrant);
-// 	vert_int = get_vert_boundary_intersect(map, player, angle, quadrant);
-// 	hor_int.distance = (pow(hor_int.intcpt.x - player->pos.x, 2) + pow(hor_int.intcpt.y - player->pos.y, 2));
-// 	vert_int.distance = (pow(vert_int.intcpt.x - player->pos.x, 2) + pow(vert_int.intcpt.y - player->pos.y, 2));
-// 	if (hor_int.in_front != NULL || vert_int.in_front != NULL)
-// 		handle_in_fronts(&hor_int, &vert_int, player);
-// 	if (hor_int.distance > vert_int.distance)
-// 		return (vert_int);
-// 	return (hor_int);
-// }
-
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
 {
 	return (fabs((cos(angle) * (intcpt.y - pos.y)) - (sin(angle) * (intcpt.x - pos.x))));
 }
-
-t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
-
-// void	cast_all_rays(t_data *map, t_player *player)
-// {
-// 	int		i;
-// 	double	angle;
-//
-// 	player->angle = atan2(player->dir.y, player->dir.x);
-// 	i = 0;
-// 	while (i < WIN_WIDTH)
-// 	{
-// 		angle = player->angle + player->angle_offsets[i];
-// 		player->rays[i] = find_ray_collision(map, player, angle);
-// 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
-// 		if (player->rays[i].in_front != NULL)
-// 			player->rays[i].in_front->distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].in_front->intcpt);
-// 		i++;
-// 	}
-// }
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 {
@@ -290,22 +252,3 @@ void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 		i++;
 	}
 }
-
-// void	cast_all_rays(t_data *map, t_player *player)
-// {
-// 	int		i;
-// 	double	step;
-// 	double	angle;
-//
-// 	step = M_PI_2 / WIN_WIDTH;
-// 	player->angle = atan2(player->direction.y, player->direction.x);
-// 	angle = player->angle + M_PI_4;
-// 	i = 0;
-// 	while (i < WIN_WIDTH)
-// 	{
-// 		player->rays[i] = find_ray_collision(map, player, angle);
-// 		player->rays[i].distance = get_cam_distance(player->pos, player->angle + M_PI_2, player->rays[i].intcpt);
-// 		angle -= step;
-// 		i++;
-// 	}
-// }
