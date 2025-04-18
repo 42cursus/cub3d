@@ -246,15 +246,15 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 	int			j;
 	int			start_x;
 
-	if (!ft_isalnum(c))
+	if (!ft_isprint(c))
 		return ;
 	if (scalar < 1)
 		return ;
-	c = ft_tolower(c);
-	if (ft_isalpha(c))
-		start_x = (c - 'a') * 8;
-	else
-		start_x = (c - '0') * 8 + 208;
+	// c = ft_tolower(c);
+	// if (ft_isalpha(c))
+	start_x = (c - ' ') * 8;
+	// else
+	// 	start_x = (c - '0') * 8 + 208;
 	i = -1;
 	while (++i < 8 * scalar)
 	{
@@ -277,9 +277,9 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		if (ft_isalnum(str[i]))
-			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		else if (str[i] == '\n')
+		// if (ft_isalnum(str[i]))
+		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		if (str[i] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = pos.x;
@@ -306,9 +306,9 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		if (ft_isalnum(str[i]))
-			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		else if (str[i] == '\n')
+		// if (ft_isalnum(str[i]))
+		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		if (str[i] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = start_x;
