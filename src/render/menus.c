@@ -61,6 +61,8 @@ void	menu_select_current(t_info *app)
 	}
 }
 
+void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app);
+
 void	draw_menu_items(t_info *app)
 {
 	t_menustate	*menu_state;
@@ -71,11 +73,12 @@ void	draw_menu_items(t_info *app)
 	menu_state = &app->menu_state;
 	if (menu_state->state == MAIN)
 	{
-		place_str_centred((char *)	"START", app, (t_ivect){WIN_WIDTH / 2, 360}, 4);
-		place_str_centred((char *)	"LEVEL SELECT", app, (t_ivect){WIN_WIDTH / 2, 424}, 4);
-		place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 488}, 4);
-		pos.x = WIN_WIDTH / 2 - 250;
-		pos.y = 334 + (menu_state->selected * 64);
+		// place_str_centred((char *)	"START", app, (t_ivect){WIN_WIDTH / 2, 360}, 4);
+		// place_str_centred((char *)	"LEVEL SELECT", app, (t_ivect){WIN_WIDTH / 2, 424}, 4);
+		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 488}, 4);
+		// pos.x = WIN_WIDTH / 2 - 250;
+		// pos.y = 334 + (menu_state->selected * 64);
+		place_menu((const char *[]){"START", "LEVEL SELECT", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 	}
 	else if (menu_state->state == LVL_SELECT)
 	{
@@ -88,26 +91,28 @@ void	draw_menu_items(t_info *app)
 		place_str_centred((char *)"back", app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
 		pos.x = WIN_WIDTH / 2 - 160;
 		pos.y = 330 + (menu_state->selected * 48);
+		place_texarr(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
 	}
 	if (menu_state->state == WIN)
 	{
 		place_str_centred((char *)	"You win", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		place_str_centred((char *)	"NEXT LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
-		place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
-		place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
-		pos.x = WIN_WIDTH / 2 - 220;
-		pos.y = 392 + (menu_state->selected * 48);
+		// place_str_centred((char *)	"NEXT LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
+		// place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
+		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+		// pos.x = WIN_WIDTH / 2 - 220;
+		// pos.y = 392 + (menu_state->selected * 48);
+		place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == LOSE)
 	{
 		place_str_centred((char *)	"You died", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		place_str_centred((char *)	"RETRY LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
-		place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
-		place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
-		pos.x = WIN_WIDTH / 2 - 220;
-		pos.y = 392 + (menu_state->selected * 48);
+		// place_str_centred((char *)	"RETRY LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
+		// place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
+		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+		// pos.x = WIN_WIDTH / 2 - 220;
+		// pos.y = 392 + (menu_state->selected * 48);
+		place_menu((const char *[]){"retry level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
-	place_texarr(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
 }
 
 void	change_menu_selection(t_info *app, int dir)

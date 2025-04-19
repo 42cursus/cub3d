@@ -320,6 +320,26 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
+void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
+{
+	int	start_y;
+	int	start_x;
+	int	y;
+	int	i;
+
+	start_y = pos.y - ((((app->menu_state.no_items * 2) - 1) * 8 * scalar) / 2);
+	y = start_y;
+	i = 0;
+	while (i < app->menu_state.no_items)
+	{
+		place_str_centred((char *)strings[i++], app, (t_ivect){pos.x, y}, scalar);
+		y += scalar * 16;
+	}
+	start_x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
+	y = start_y + (app->menu_state.selected * 16 * scalar) - 32;
+	place_texarr(app, &app->shtex->trophy_tex[0], start_x, y);
+}
+
 void	place_weapon(t_info *app)
 {
 	t_texarr	*tex;
