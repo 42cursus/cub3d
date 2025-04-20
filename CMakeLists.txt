@@ -23,6 +23,8 @@ set(FT_CFLAGS
         -Wall -Wextra -Werror
         -Wwrite-strings
         -Wimplicit
+        -mavx
+        -mavx2
 #        -Wformat -Werror=format-security
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
@@ -31,6 +33,7 @@ set(FT_CFLAGS
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
         -O0
+        -pg
         -masm=att
         -g3 -gdwarf-3
         -fasynchronous-unwind-tables
@@ -39,14 +42,17 @@ set(FT_CFLAGS
         -fsanitize=undefined
         -fno-sanitize-recover=all
         -fsanitize=float-divide-by-zero
-        -fsanitize=float-cast-overflow)
+        -fsanitize=float-cast-overflow
+)
 
 set(COMMON_LDFLAGS
+        -pg
         -fsanitize=address
         -fsanitize=undefined
         -fno-sanitize-recover=all
         -fsanitize=float-divide-by-zero
-        -fsanitize=float-cast-overflow)
+        -fsanitize=float-cast-overflow
+)
 
 #===========================================================================
 
@@ -144,6 +150,7 @@ target_include_directories(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} "${TARGET_LIBRARIES}")
 target_link_options(${TARGET_NAME} PRIVATE ${COMMON_LDFLAGS})
 target_compile_options(${TARGET_NAME} PRIVATE "${FT_CFLAGS}")
+target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
         OUTPUT_NAME "${PROJECT_NAME}")

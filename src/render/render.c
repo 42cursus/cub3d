@@ -16,90 +16,104 @@
 void	print_pixel_arr(int width, int height, unsigned int **arr);
 
 inline __attribute__((always_inline))
-void	my_put_pixel(t_imgdata *img, int x, int y, int colour)
+void	my_put_pixel(t_img *img, int x, int y, int colour)
 {
 	char	*pixel;
 
-	if (colour == 0x000042)
+	if (colour == MLX_TRANSPARENT)
 		return ;
-	pixel = img->addr + (y * img->line_length + x * (img->bpp / 8));
+	pixel = img->data + (y * img->size_line + x * (img->bpp / 8));
 	*(unsigned int *)pixel = colour;
 }
-
-void	fill_bg(t_imgdata *canvas, t_data *map)
+/**
+ * we assume that image bits_per_pixel is 32 bit
+ * @param img
+ * @param x
+ * @param y
+ * @param colour
+ */
+inline __attribute__((always_inline))
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
-	int				mid;
-	int				i;
-	int				j;
-	unsigned long	c_col;
-	unsigned long	f_col;
+	if (colour == MLX_TRANSPARENT)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+}
 
-	c_col = (unsigned long)map->c_col;
-	f_col = (unsigned long)map->f_col;
-	c_col = c_col + (c_col << 32);
-	f_col = f_col + (f_col << 32);
-	mid = WIN_HEIGHT / 2;
-	i = 0;
-	while (i <= mid)
+t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
+{
+	t_vect	steps;
+	t_ivect	iter;
+	t_vect	pos;
+	t_img	*scaled;
+
+	u_int (*const pixels)[image->height][image->width] = (void *)image->data;
+	scaled = mlx_new_image(app->mlx, new_x, new_y);
+
+	u_int (*const scaled_pixels)[scaled->height][scaled->width] = (void *)scaled->data;
+	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
+	iter.y = -1;
+	pos.y = 0;
+	while (++iter.y < new_y)
 	{
-		j = 0;
-		while (j < WIN_WIDTH)
+		iter.x = -1;
+		pos.x = 0;
+		while (++iter.x < new_x)
 		{
-			// my_put_pixel(canvas, j, i, map->c_col);
-			// j++;
-			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = c_col;
-			j += 2;
+			(*scaled_pixels)[iter.y][iter.x] = (*pixels)[(int)pos.y][(int)pos.x];
+			pos.x += steps.x;
 		}
-		i++;
+		pos.y += steps.y;
 	}
-	while (i < WIN_HEIGHT)
+	mlx_destroy_image(app->mlx, image);
+	return (scaled);
+}
+
+void replace_bg(t_info *app, char *tex_file)
+{
+	t_img *bg;
+	t_img tmp;
+
+	if (app->bg != NULL)
+		mlx_destroy_image(app->mlx, app->bg);
+	if (tex_file)
 	{
-		j = 0;
-		while (j < WIN_WIDTH)
-		{
-			// my_put_pixel(canvas, j, i, map->f_col);
-			// j++;
-			*(unsigned long *)(canvas->addr + (i * canvas->line_length + j * (canvas->bpp / 8))) = f_col;
-			j += 2;
-		}
-		i++;
+		bg = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+		if (!bg)
+			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
+		bg = scale_image(app, bg, WIN_WIDTH, WIN_HEIGHT);
 	}
+	else
+		bg = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	app->bg = bg;
 }
 
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 {
-	t_imgdata		texture;
+	t_img			*texture;
+	t_img			tmp;
 	unsigned int	**arr;
 	int				i;
 	int				j;
 
-	texture.img = mlx_xpm_file_to_image(app->mlx, (char *) filename,
-								&texture.width, &texture.height);
-	if (!texture.img)
-	{
-		printf(" !! KO !!\n");
-		exit(1);
-	}
-	texture.addr = mlx_get_data_addr(texture.img, &texture.bpp, &texture.line_length, &texture.endian);
-	*x = texture.width;
-	*y = texture.height;
-	arr = malloc(texture.height * sizeof(int *));
+	texture = mlx_xpm_file_to_image(app->mlx, (char *) filename, &tmp.width, &tmp.height);
+	if (!texture)
+		exit(((void) printf(" !! KO !!\n"), cleanup(app)));
+	u_int (*const pixels)[texture->height][texture->width] = (void *)texture->data;
+	*x = texture->width;
+	*y = texture->height;
+	arr = (u_int **)malloc(texture->height * sizeof(int *));
 	i = 0;
-	while (i < texture.height)
-		arr[i++] = malloc(texture.width * sizeof(int));
-	i = 0;
-	while (i < texture.height)
+	while (i < texture->height)
+		arr[i++] = (u_int *)malloc(texture->width * sizeof(int));
+	i = -1;
+	while (++i < texture->height)
 	{
-		j = 0;
-		while (j < texture.width)
-		{
-			arr[i][j] = *(unsigned int *)
-				(texture.addr + (i * texture.line_length + j * (texture.bpp / 8)));
-			j++;
-		}
-		i++;
+		j = -1;
+		while (++j < texture->width)
+			arr[i][j] = (*pixels)[i][j];
 	}
-	mlx_destroy_image(app->mlx, texture.img);
+	mlx_destroy_image(app->mlx, texture);
 	return (arr);
 }
 
@@ -108,16 +122,12 @@ void	print_pixel_arr(int width, int height, unsigned int **arr)
 	int	i;
 	int	j;
 
-	i = 0;
-	while (i < height)
+	i = -1;
+	while (++i < height)
 	{
-		j = 0;
-		while (j < width)
-		{
+		j = -1;
+		while (++j < width)
 			printf("%x\t", arr[i][j]);
-			j++;
-		}
-		i++;
 	}
 }
 
@@ -126,12 +136,12 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texarr	*tex;
 
-	frames = app->framecount - anim->framestart;
+	frames = (app->framecount - anim->framestart) / FR_SCALE;
 	if (frames > 19)
 	{
 		anim->active = 0;
-		tex = &app->map->door_tex[1];
-		anim->tex_arr = app->map->door_tex;
+		tex = &app->shtex->door_tex[1];
+		anim->tex_arr = app->shtex->door_tex;
 	}
 	else
 		tex = &anim->tex_arr[2 + (frames / 4)];
@@ -143,28 +153,27 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texarr	*tex;
 
-	frames = app->framecount - anim->framestart;
+	frames = (app->framecount - anim->framestart) / FR_SCALE;
 	if (frames > 19)
 	{
 		anim->active = 0;
-		tex = &app->map->door_tex[0];
+		tex = &app->shtex->door_tex[0];
 	}
 	else
-		tex = &app->map->door_tex[2 + (4 - (frames / 4))];
+		tex = &app->shtex->door_tex[2 + (4 - (frames / 4))];
 	return (tex);
 }
 
-void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
+void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 {
-	int				pos;
-	t_texarr		*texture;
-	t_anim			*anim;
-	int				y;
-	int				top;
-	int				h_index;
-	int				lineheight;
+	int					pos;
+	const t_texarr		*texture =  ray->texture;
+	t_anim				*anim;
+	int					y;
+	int					top;
+	int					h_index;
+	int					lineheight;
 
-	texture = ray->texture;
 	pos = ray->pos;
 	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
@@ -179,7 +188,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 			texture = get_open_door_tex(anim, app);
 	}
 	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
-	top = WIN_HEIGHT / 2 - lineheight / 2;
+	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
 	if (top < 0)
 		y = 0 - top;
 	else
@@ -187,7 +196,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	while (y < lineheight && y + top < WIN_HEIGHT)
 	{
 		h_index = ((double)y / lineheight) * texture->y;
-		my_put_pixel(canvas, x, top + y, texture->img[h_index][pos]);
+		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
 		y++;
 	}
 	if (ray->in_front != NULL)
@@ -198,7 +207,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_imgdata *canvas)
 	}
 }
 
-void	draw_rays(t_info *app, t_imgdata *canvas)
+void	draw_rays(t_info *app, t_img *canvas)
 {
 	t_player	*player;
 	t_ray		*rays;
@@ -206,10 +215,7 @@ void	draw_rays(t_info *app, t_imgdata *canvas)
 
 	player = app->player;
 	rays = player->rays;
-	i = 0;
-	while (i < WIN_WIDTH)
-	{
+	i = -1;
+	while (++i < WIN_WIDTH)
 		draw_slice(i, &rays[i], app, canvas);
-		i++;
-	}
 }
