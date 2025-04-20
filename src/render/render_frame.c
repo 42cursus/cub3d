@@ -454,25 +454,25 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void fill_with_colour(t_img *bg, int f_col, int c_col)
+void fill_with_colour(t_img *img, int f_col, int c_col)
 {
-	const int	mid = WIN_HEIGHT / 2;
+	const int	mid = img->height / 2;
 	int			i;
 	int			j;
 
-	u_int (*pixels)[bg->height][bg->width] = (void *)bg->data;
+	u_int (*pixels)[img->height][img->width] = (void *)img->data;
 	i = -1;
 	while (++i <= mid)
 	{
 		j = -1;
-		while (++j < WIN_WIDTH)
+		while (++j < img->width)
 			(*pixels)[i][j] = c_col;
 	}
 	i--;
-	while (++i < WIN_HEIGHT)
+	while (++i < img->height)
 	{
 		j = -1;
-		while (++j < WIN_WIDTH)
+		while (++j < img->width)
 			(*pixels)[i][j] = f_col;
 	}
 }

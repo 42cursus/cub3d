@@ -334,7 +334,7 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_bg(t_info *app, char *tex_file);
-void	fill_with_colour(t_img *bg, int f_col, int c_col);
+void	fill_with_colour(t_img *img, int f_col, int c_col);
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);

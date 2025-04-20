@@ -71,21 +71,6 @@ void	place_tile_on_image(t_img *image, t_img *tile, int x, int y)
 	}
 }
 
-void	fill_image_transparency(t_img *img)
-{
-	int	i;
-	int	j;
-
-	i = -1;
-	u_int (*const pixels)[img->height][img->width] = (void *)img->data;
-	while (++i < img->height)
-	{
-		j = -1;
-		while (++j < img->width)
-			(*pixels)[i][j] = MLX_TRANSPARENT;
-	}
-}
-
 t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
 	t_img	*img;
@@ -94,7 +79,7 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 	int		index;
 
 	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-	fill_image_transparency(img);
+	fill_with_colour(img, MLX_TRANSPARENT, MLX_TRANSPARENT);
 	i = -1;
 	while (++i < app->map->height)
 	{
