@@ -223,15 +223,15 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 	int		j;
 	int		start_x;
 
-	if (!ft_isalnum(c))
+	if (!ft_isprint(c))
 		return ;
 	if (scalar < 1)
 		return ;
-	c = ft_tolower(c);
-	if (ft_isalpha(c))
-		start_x = (c - 'a') * 8;
-	else
-		start_x = (c - '0') * 8 + 208;
+	// c = ft_tolower(c);
+	// if (ft_isalpha(c))
+	start_x = (c - ' ') * 8;
+	// else
+	// 	start_x = (c - '0') * 8 + 208;
 	i = -1;
 	while (++i < 8 * scalar)
 	{
@@ -254,9 +254,9 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		if (ft_isalnum(str[i]))
-			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		else if (str[i] == '\n')
+		// if (ft_isalnum(str[i]))
+		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		if (str[i] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = pos.x;
@@ -283,9 +283,9 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		if (ft_isalnum(str[i]))
-			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		else if (str[i] == '\n')
+		// if (ft_isalnum(str[i]))
+		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		if (str[i] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = start_x;
@@ -295,6 +295,26 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 		i++;
 		pos_x += 8 * scalar;
 	}
+}
+
+void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
+{
+	int	start_y;
+	int	start_x;
+	int	y;
+	int	i;
+
+	start_y = pos.y - ((((app->menu_state.no_items * 2) - 1) * 8 * scalar) / 2);
+	y = start_y;
+	i = 0;
+	while (i < app->menu_state.no_items)
+	{
+		place_str_centred((char *)strings[i++], app, (t_ivect){pos.x, y}, scalar);
+		y += scalar * 16;
+	}
+	start_x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
+	y = start_y + (app->menu_state.selected * 16 * scalar) - 32;
+	place_texarr(app, &app->shtex->trophy_tex[0], start_x, y);
 }
 
 void	place_weapon(t_info *app)

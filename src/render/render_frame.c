@@ -617,6 +617,8 @@ int render_pmenu(void *param)
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
 	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
+	place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
+	place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
