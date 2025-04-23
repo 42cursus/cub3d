@@ -543,6 +543,8 @@ int	render_load(void *param)
 
 void draw_sky(t_info *const app)
 {
+
+
 	return ;
 	(void)app;
 }

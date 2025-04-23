@@ -38,7 +38,7 @@ int expose_win(void *param)
 	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 
 	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	replace_bg(app, (char *)"./textures/wall.xpm");
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	if (!canvas || !stillshot)
 		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 

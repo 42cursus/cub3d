@@ -69,23 +69,23 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	return (scaled);
 }
 
-void replace_bg(t_info *app, char *tex_file)
+void replace_image(t_info *app, t_img **img, char *tex_file)
 {
-	t_img *bg;
+	t_img *new;
 	t_img tmp;
 
-	if (app->bg != NULL)
-		mlx_destroy_image(app->mlx, app->bg);
+	if (*img != NULL)
+		mlx_destroy_image(app->mlx, *img);
 	if (tex_file)
 	{
-		bg = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
-		if (!bg)
+		new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+		if (!new)
 			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
-		bg = scale_image(app, bg, WIN_WIDTH, WIN_HEIGHT);
+		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
-		bg = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
-	app->bg = bg;
+		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	*img = new;
 }
 
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
