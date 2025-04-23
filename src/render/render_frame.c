@@ -544,6 +544,7 @@ int	render_load(void *param)
 void draw_sky(t_info *const app)
 {
 	int i = -1;
+	double	angle = app->player->angle;
 	t_img *sky = app->skybox;
 	t_img *bg = app->bg;
 
