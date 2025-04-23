@@ -39,6 +39,7 @@ int expose_win(void *param)
 
 	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	replace_image(app, &app->skybox, (char *) "./textures/skybox.xpm");
 	if (!canvas || !stillshot)
 		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 

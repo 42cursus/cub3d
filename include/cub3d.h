@@ -263,6 +263,7 @@ typedef struct s_info
 	double		zoom;
 	char 		*title;
 	t_img		*canvas;
+	t_img		*skybox;
 	t_img		*bg;
 	t_img		*stillshot;
 	int			clip_x_origin;

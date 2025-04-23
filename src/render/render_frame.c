@@ -543,10 +543,18 @@ int	render_load(void *param)
 
 void draw_sky(t_info *const app)
 {
+	int i = -1;
+	t_img *sky = app->skybox;
+	t_img *bg = app->bg;
 
-
-	return ;
-	(void)app;
+	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
+	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+	while(++i < WIN_HEIGHT / 2)
+	{
+		int j = -1;
+		while (++j < WIN_WIDTH)
+			(*pixels_bg)[i][j] = (*pixels_sky)[i][j];
+	}
 }
 
 int	render_play(void *param)
