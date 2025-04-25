@@ -81,7 +81,13 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 		new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
 		if (!new)
 			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
-		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
+		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
+		{
+			int new_x = new->width * (WIN_HEIGHT / new->height);
+			new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
+		}
+		else
+			new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
 		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
