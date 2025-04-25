@@ -1,2 +1,2 @@
 -I
-/home/fintan/fortytwo/cub3d/include
+./include
