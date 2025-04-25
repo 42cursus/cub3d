@@ -149,6 +149,7 @@ typedef struct s_shtex
 	t_texarr	super_ammo[2];
 	t_texarr	trophy_tex[2];
 	t_texarr	phantoon[5];
+	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
 	void		*playertile;
