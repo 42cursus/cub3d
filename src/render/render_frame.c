@@ -562,18 +562,22 @@ void draw_sky(t_info *const app)
 	t_img	*const	bg = app->bg;
 	int 			offset;
 
-	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) % sky->width;
-	printf("angle: %f, offset: %d\n", angle, offset);
+	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) / 2;
 
 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
 	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+
+	int source_x;
 
 	i = -1;
 	while(++i < sky->height)
 	{
 		j = -1;
 		while (++j < WIN_WIDTH)
-			(*pixels_bg)[i][j] = (*pixels_sky)[i][j - offset];
+		{
+			source_x = (j - offset + sky->width) % sky->width;
+			(*pixels_bg)[i][j] = (*pixels_sky)[i][source_x];
+		}
 	}
 }
 

@@ -83,8 +83,8 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
 		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
 		{
-//			int new_x = new->width * (WIN_HEIGHT / new->height);
-//			new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
+			int new_x = new->width * (WIN_HEIGHT / new->height);
+			new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
 		}
 		else
 			new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
