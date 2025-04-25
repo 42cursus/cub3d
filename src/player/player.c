@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/15 19:20:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:52:20 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,6 +209,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
+	projectile->texture = &app->shtex->proj_tex[0];
 	if (subtype == BEAM)
 		projectile->dir = scale_vect(player->dir, 0.5 / FR_SCALE);
 	else

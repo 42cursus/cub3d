@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/16 12:41:32 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/25 13:45:23 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -556,6 +556,8 @@ void draw_sky(t_info *const app)
 		while (++j < WIN_WIDTH)
 			(*pixels_bg)[i][j] = (*pixels_sky)[i][j];
 	}
+	return ;
+	(void)angle;
 }
 
 int	render_play(void *param)
