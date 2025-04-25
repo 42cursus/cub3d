@@ -555,21 +555,26 @@ int	render_load(void *param)
 
 void draw_sky(t_info *const app)
 {
-	int i = -1;
-	double	angle = app->player->angle;
-	t_img *sky = app->skybox;
-	t_img *bg = app->bg;
+	int				i;
+	int				j;
+	const double	angle = app->player->angle;
+	t_img	*const	sky = app->skybox;
+	t_img	*const	bg = app->bg;
+	int 			offset;
+
+	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) % sky->width;
+	printf("angle: %f, offset: %d\n", angle, offset);
 
 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
 	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
-	while(++i < WIN_HEIGHT / 2)
+
+	i = -1;
+	while(++i < sky->height)
 	{
-		int j = -1;
+		j = -1;
 		while (++j < WIN_WIDTH)
-			(*pixels_bg)[i][j] = (*pixels_sky)[i][j];
+			(*pixels_bg)[i][j] = (*pixels_sky)[i][j - offset];
 	}
-	return ;
-	(void)angle;
 }
 
 int	render_play(void *param)

@@ -243,12 +243,10 @@ double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 {
 	int		i;
+	t_vect	dir = player->dir;
 
-	player->angle = atan2(player->dir.y, player->dir.x);
-	i = 0;
-	while (i < WIN_WIDTH)
-	{
+	player->angle = atan2(dir.y, dir.x);
+	i = -1;
+	while (++i < WIN_WIDTH)
 		player->rays[i] = ray_dda(app, map, player, player->angle_offsets[i]);
-		i++;
-	}
 }
