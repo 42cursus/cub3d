@@ -290,6 +290,8 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	int		frames;
 	t_vect	norm_diff;
 
+	if (app->map->boss_active == 0)
+		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
 	frames = (app->framecount % (100 * FR_SCALE));
 	if (obj->health > 350)
@@ -319,7 +321,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
 	// t_anim		*anim;
-	t_data		*map;
+	t_data		*map;;
 	t_vect		new_pos;
 	int			frames;
 
@@ -356,7 +358,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		subtract_health(app, app->player, 35);
-		move_entity(&app->player->pos, app->map->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
+		move_entity(&app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
 		// app->player->pos = add_vect(app->player->pos,
 		// 					  scale_vect(normalise_vect(subtract_vect(app->player->pos, obj->pos)), 0.7));
 	}
@@ -443,6 +445,22 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 	return (0);
 }
 
+int	handle_trigger(t_info *app, t_object *obj, t_list **current)
+{
+	if (obj->subtype == T_BOSS)
+	{
+		if (vector_distance(obj->pos, app->player->pos) < 0.6)
+		{
+			toggle_boss_doors(app);
+			app->map->boss_active = 1;
+			app->map->boss_obj->dir = (t_vect){0.0, 0.03};
+			*current = delete_object(&app->map->objects, *current);
+			return (1);
+		}
+	}
+	return (0);
+}
+
 void	update_objects(t_info *app, t_player *player, t_data *map)
 {
 	t_list		*current;
@@ -459,6 +477,8 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
 			continue ;
 		if (obj->type == O_EPROJ && handle_enemy_projectile(app, obj, &current))
+			continue ;
+		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
@@ -583,15 +603,15 @@ int	render_play(void *param)
 	 // if (app->mouse[1])
 	 // 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_entity(&app->player->pos, app->map->map, app->player->dir);
+		move_entity(&app->player->pos, app->map, app->player->dir);
 	if (app->keys[idx_XK_s])
-		move_entity(&app->player->pos, app->map->map,
+		move_entity(&app->player->pos, app->map,
 					rotate_vect(app->player->dir, M_PI));
 	if (app->keys[idx_XK_a])
-		move_entity(&app->player->pos, app->map->map,
+		move_entity(&app->player->pos, app->map,
 					rotate_vect(app->player->dir, M_PI_2));
 	if (app->keys[idx_XK_d])
-		move_entity(&app->player->pos, app->map->map,
+		move_entity(&app->player->pos, app->map,
 					rotate_vect(app->player->dir, -M_PI_2));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
 		rotate_player(app->player, 1, 12);
