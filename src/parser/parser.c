@@ -574,6 +574,13 @@ void	load_phantoon_tex(t_info *app)
 		app->shtex->phantoon[i].img = img_to_arr(buf, app, &app->shtex->phantoon[i].x, &app->shtex->phantoon[i].y);
 		i++;
 	}
+	i = 0;
+	while (i < 6)
+	{
+		ft_snprintf(buf, 50, "./textures/phantoon_eye%c.xpm", i + '0');
+		app->shtex->phantoon_proj[i].img = img_to_arr(buf, app, &app->shtex->phantoon_proj[i].x, &app->shtex->phantoon_proj[i].y);
+		i++;
+	}
 }
 
 void	load_ammo_tex(t_info *app)
@@ -840,6 +847,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 5)
 		free_tex_arr(&app->shtex->phantoon[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&app->shtex->phantoon_proj[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }

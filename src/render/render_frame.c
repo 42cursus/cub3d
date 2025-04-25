@@ -184,16 +184,19 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 	if (obj->anim.active == 1)
 	{
 		frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
-		if (frames > 19)
+		if (frames > 15)
 		{
 			*current = delete_object(&app->map->objects, *current);
 			return (1);
 		}
-		else if (obj->subtype == BEAM)
-			obj->texture = &app->shtex->proj_tex[1 + (frames / 5)];
 		else
-			obj->texture = &app->shtex->proj_tex[5 + (frames / 4)];
+			obj->texture = &app->shtex->phantoon_proj[2 + (frames / 4)];
 		return (0);
+	}
+	else
+	{
+		frames = app->framecount % 12;
+		obj->texture = &app->shtex->phantoon_proj[(frames / 4)];
 	}
 	// obj->texture = &app->shtex->proj_tex[0];
 	if (vector_distance(obj->pos, app->player->pos) < 0.2)
@@ -292,19 +295,20 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (obj->health > 350)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
-		if (frames % (25 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.2 / FR_SCALE));
+		if (frames % (10 * FR_SCALE) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / FR_SCALE));
 	}
 	else if (obj->health > 100)
 	{
 		if (frames == 0)
 			// obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
-			obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / FR_SCALE), rand_range(-M_PI_2, M_PI_2));
-		else if (frames > 50 * FR_SCALE)
+			// obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / FR_SCALE), rand_range(-M_PI_2, M_PI_2));
+			obj->dir = rotate_vect(scale_vect(norm_diff, 0.09 / FR_SCALE), rand_range(-0.1, 0.1));
+		else if (frames > 60 * FR_SCALE)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
-			if (frames % (10 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.1, 0.1)), 0.2 / FR_SCALE));
+			if (frames % (3 * FR_SCALE) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / FR_SCALE));
 		}
 	}
 	else
@@ -417,9 +421,17 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		else if (obj->subtype == I_HEALTH)
 			add_health(player, 20);
 		else if (obj->subtype == I_AMMO_M)
+		{
+			if (app->player->ammo[MISSILE] == app->player->max_ammo[MISSILE])
+				return (0);
 			add_ammo(player, MISSILE);
+		}
 		else if (obj->subtype == I_AMMO_S)
+		{
+			if (app->player->ammo[SUPER] == app->player->max_ammo[SUPER])
+				return (0);
 			add_ammo(player, SUPER);
+		}
 		else if (obj->subtype == I_TROPHY)
 		{
 			app->rc = ok;
