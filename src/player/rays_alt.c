@@ -120,7 +120,7 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 		}
 		if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == '1')
 			break ;
-		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'D')
+		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'B')
 		{
 			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
 				add_in_front(&ray, ray.face + 8, &app->shtex->door_tex[1]);
@@ -128,6 +128,8 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 				add_in_front(&ray, ray.face + 4, &app->shtex->door_super_tex[0]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'M')
 				add_in_front(&ray, ray.face + 4, &app->shtex->door_missile_tex[0]);
+			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'B')
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_boss_tex[!map->boss_active]);
 			else
 				add_in_front(&ray, ray.face + 4, &app->shtex->door_tex[0]);
 			ray.in_front->maptile.x = (int)ray.intcpt.x;

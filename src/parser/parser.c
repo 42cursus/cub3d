@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLMemstZP", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZPBb", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZP", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZPBb", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZP", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZPBb", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZP", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -271,7 +271,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZP", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZPBb", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -548,6 +548,22 @@ void	load_missile_door_tex(t_info *app)
 		app->shtex->door_missile_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_missile_tex[1].x, &app->shtex->door_missile_tex[1].y);
 }
 
+void	load_boss_door_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 5)
+	{
+		ft_snprintf(buf, 50, "./textures/metroid_door_boss_anim%c.xpm", i + 1 + '0');
+		app->shtex->door_boss_tex[i + 2].img = img_to_arr(buf, app, &app->shtex->door_boss_tex[i + 2].x, &app->shtex->door_boss_tex[i + 2].y);
+		i++;
+	}
+		app->shtex->door_boss_tex[0].img = img_to_arr((char *)"./textures/metroid_door_boss.xpm", app, &app->shtex->door_boss_tex[0].x, &app->shtex->door_boss_tex[0].y);
+		app->shtex->door_boss_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_boss_tex[1].x, &app->shtex->door_boss_tex[1].y);
+}
+
 void	load_health_pu_tex(t_info *app)
 {
 	int		i;
@@ -623,6 +639,8 @@ void	init_anims(t_info *app, t_data *map)
 				map->anims[i][j].tex_arr = app->shtex->door_super_tex;
 			else if (tile == 'M')
 				map->anims[i][j].tex_arr = app->shtex->door_missile_tex;
+			else if (tile == 'B')
+				map->anims[i][j].tex_arr = app->shtex->door_boss_tex;
 			j++;
 		}
 		i++;
@@ -642,12 +660,14 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		j = -1;
 		while (++j < data->width)
 		{
-			if (ft_strchr("mestZP", map[i][j]))
+			if (ft_strchr("mestZPb", map[i][j]))
 			{
 				if (map[i][j] == 'm')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
 				else if (map[i][j] == 't')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_TROPHY);
+				else if (map[i][j] == 'b')
+					spawn_trigger(app, (t_vect){j + 0.5, i + 0.5}, T_BOSS);
 				else if (map[i][j] == 's')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_SUPER);
 				else if (map[i][j] == 'e')
@@ -655,7 +675,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				else if (map[i][j] == 'Z')
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
 				else if (map[i][j] == 'P')
-					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0.0, 0.03}, E_PHANTOON);
+					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
 				map[i][j] = '0';
 			}
 		}
@@ -744,6 +764,7 @@ void	load_shtex(t_info *app)
 	app->shtex->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &app->shtex->etank_tex[1].x, &app->shtex->etank_tex[1].y);
 	app->shtex->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &app->shtex->title.x, &app->shtex->title.y);
 	app->shtex->alphabet.img = img_to_arr((char *)"./textures/small_font.xpm", app, &app->shtex->alphabet.x, &app->shtex->alphabet.y);
+	app->shtex->empty.img = img_to_arr((char *)"./textures/empty.xpm", app, &app->shtex->empty.x, &app->shtex->empty.y);
 	app->shtex->trophy_tex[0].img = img_to_arr((char *)"./textures/trophy0.xpm", app, &app->shtex->trophy_tex[0].x, &app->shtex->trophy_tex[0].y);
 	app->shtex->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &app->shtex->trophy_tex[1].x, &app->shtex->trophy_tex[1].y);
 	load_energy_textures(app);
@@ -751,6 +772,7 @@ void	load_shtex(t_info *app)
 	load_missile_textures(app);
 	load_super_door_tex(app);
 	load_missile_door_tex(app);
+	load_boss_door_tex(app);
 	load_health_pu_tex(app);
 	load_ammo_tex(app);
 	load_phantoon_tex(app);
@@ -802,6 +824,7 @@ void	free_shtex(t_info *app)
 
 	free_tex_arr(&app->shtex->title);
 	free_tex_arr(&app->shtex->alphabet);
+	free_tex_arr(&app->shtex->empty);
 	free_tex_arr(&app->shtex->trophy_tex[0]);
 	free_tex_arr(&app->shtex->trophy_tex[1]);
 	free_tex_arr(&app->shtex->super_ammo[0]);
@@ -841,6 +864,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&app->shtex->door_missile_tex[i++]);
+	i = 0;
+	while (i < 7)
+		free_tex_arr(&app->shtex->door_boss_tex[i++]);
 	i = 0;
 	while (i < 4)
 		free_tex_arr(&app->shtex->health_pu[i++]);

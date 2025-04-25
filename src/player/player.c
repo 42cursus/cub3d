@@ -124,35 +124,46 @@ t_player	*init_player(t_data *map)
 // 	}
 // }
 
-void	move_entity(t_vect *pos, char **map, t_vect dir)
+int	check_tile_open(char tile, t_data *map)
+{
+	if (tile == 'O' || tile == '0')
+		return (1);
+	else if (tile == 'B' && map->boss_active == 0)
+		return (1);
+	return (0);
+}
+
+void	move_entity(t_vect *pos, t_data *data, t_vect dir)
 {
 	t_vect	new_pos;
 	t_cvect	tile;
+	char	**map;
 	char	both_tile;
 
+	map = data->map;
 	new_pos.x = pos->x + (dir.x * 0.1 / FR_SCALE);
 	new_pos.y = pos->y + (dir.y * 0.1 / FR_SCALE);
 	tile = (t_cvect){map[(int)pos->y][(int)new_pos.x], map[(int)new_pos.y][(int)pos->x]};
 	both_tile = map[(int)new_pos.y][(int)new_pos.x];
-	if (both_tile == '0' || both_tile == 'O')
+	if (check_tile_open(both_tile, data))
 	{
-		if (tile.x == '0' || tile.x == 'O')
+		if (check_tile_open(tile.x, data))
 			pos->x = new_pos.x;
-		if (tile.y == '0' || tile.y == 'O')
+		if (check_tile_open(tile.y, data))
 			pos->y = new_pos.y;
 	}
 	else
 	{
-		if ((tile.x == '0' || tile.x == 'O') && (tile.y == '0' || tile.y == 'O'))
+		if (check_tile_open(tile.x, data) && check_tile_open(tile.y, data))
 		{
 			if (get_max_direction(dir) == 'x')
 				pos->x = new_pos.x;
 			else
 				pos->y = new_pos.y;
 		}
-		else if (tile.x == '0' || tile.x == 'O')
+		else if (check_tile_open(tile.x, data))
 			pos->x = new_pos.x;
-		else if (tile.y == '0' || tile.y == 'O')
+		else if (check_tile_open(tile.y, data))
 			pos->y = new_pos.y;
 	}
 }
@@ -237,7 +248,7 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
 	ft_lstadd_back(&app->map->objects, ft_lstnew(projectile));
 }
 
-void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
+t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 {
 	t_object	*enemy;
 	t_data		*map;
@@ -256,6 +267,7 @@ void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
 	ft_lstadd_back(&map->objects, ft_lstnew(enemy));
+	return (enemy);
 }
 
 void	spawn_item(t_info *app, t_vect pos, int subtype)
@@ -272,6 +284,21 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->anim.active = 1;
 	item->anim.framestart = app->framecount;
 	ft_lstadd_back(&map->objects, ft_lstnew(item));
+}
+
+void	spawn_trigger(t_info *app, t_vect pos, int subtype)
+{
+	t_object	*trigger;
+	t_data		*map;
+
+	map = app->map;
+	trigger = ft_calloc(1, sizeof(*trigger));
+	trigger->pos = pos;
+	// item->texture = tex;
+	trigger->type = O_TRIGGER;
+	trigger->subtype = subtype;
+	trigger->texture = &app->shtex->empty;
+	ft_lstadd_back(&map->objects, ft_lstnew(trigger));
 }
 
 void	developer_console(t_info *app, t_player *player)
@@ -367,6 +394,34 @@ void	add_ammo(t_player *player, int type)
 	player->ammo[type] = new_ammo;
 }
 
+void	toggle_boss_doors(t_info *app)
+{
+	t_anim	**anims;
+	char	**map;
+	int		i;
+	int		j;
+
+	anims = app->map->anims;
+	map = app->map->map;
+	i = -1;
+	while (++i < app->map->height)
+	{
+		j = -1;
+		while (++j < app->map->width)
+		{
+			if (map[i][j] == 'B')
+			{
+				anims[i][j].active = 1;
+				anims[i][j].framestart = app->framecount;
+				// if (app->map->boss_active == 0)
+				// 	app->map->boss_active = 1;
+				// else
+				// 	app->map->boss_active = 0;
+			}
+		}
+	}
+}
+
 void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;
@@ -375,5 +430,11 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		enemy->dead = 1;
 		enemy->anim2.framestart = app->framecount;
 		enemy->anim2.active = 1;
+		if (enemy->subtype == E_PHANTOON)
+		{
+			app->map->boss_active = 0;
+			toggle_boss_doors(app);
+		}
 	}
 }
+

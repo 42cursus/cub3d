@@ -136,6 +136,7 @@ typedef struct s_shtex
 	t_texarr	door_tex[7];
 	t_texarr	door_super_tex[7];
 	t_texarr	door_missile_tex[7];
+	t_texarr	door_boss_tex[7];
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	proj_tex[10];
@@ -152,6 +153,7 @@ typedef struct s_shtex
 	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
+	t_texarr	empty;
 	void		*playertile;
 }	t_shtex;
 
@@ -172,6 +174,8 @@ typedef	struct s_data
 	char		starting_dir;
 	int			height;
 	int			width;
+	bool		boss_active;
+	t_object	*boss_obj;
 }	t_data;
 
 typedef struct s_player
@@ -216,6 +220,7 @@ typedef	enum e_type
 	O_ENTITY = 1,
 	O_ITEM = 2,
 	O_EPROJ = 3,
+	O_TRIGGER = 4,
 }	t_etype;
 
 typedef enum e_subtype
@@ -228,7 +233,8 @@ typedef enum e_subtype
 	I_AMMO_M,
 	I_AMMO_S,
 	I_HEALTH,
-	I_TROPHY
+	I_TROPHY,
+	T_BOSS,
 }	t_subtype;
 
 enum
@@ -302,19 +308,21 @@ void	free_split(char **split);
 void	load_shtex(t_info *app);
 
 t_player	*init_player(t_data *map);
-void		move_entity(t_vect *pos, char **map, t_vect dir);
+void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir);
-void	spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
+t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
+void	spawn_trigger(t_info *app, t_vect pos, int subtype);
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
 void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 void	add_ammo(t_player *player, int type);
+void	toggle_boss_doors(t_info *app);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
