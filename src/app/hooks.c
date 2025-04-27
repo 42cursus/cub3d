@@ -18,9 +18,12 @@
 
 void replace_frame(t_info *app)
 {
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor(app, app->map, app->player);
 	cast_all_rays_alt(app, app->map, app->player);
+	// fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+	draw_sky(app);
+	// usleep(100000);
+	fill_floor(app, app->map, app->player);
+	// usleep(100000);
 	draw_rays(app, app->canvas);
 }
 
