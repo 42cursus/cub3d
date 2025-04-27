@@ -100,7 +100,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
 	t_anim		*anim;
-	int			frames;
+	size_t		frames;
 	t_vect		new_pos;
 	t_object	*closest;
 
@@ -178,7 +178,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
-	int			frames;
+	size_t		frames;
 	t_vect		new_pos;
 
 	if (obj->anim.active == 1)

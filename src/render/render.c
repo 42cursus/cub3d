@@ -35,9 +35,8 @@ void	my_put_pixel(t_img *img, int x, int y, int colour)
 inline __attribute__((always_inline))
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
-	if (colour == MLX_TRANSPARENT)
-		return ;
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+	if (colour != MLX_TRANSPARENT)
+		(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
@@ -80,7 +79,10 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 	{
 		new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
 		if (!new)
-			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
+		{
+			ft_printf("Error opening file: \"%s\"\n", tex_file);
+			exit((cleanup(app), EXIT_FAILURE));
+		}
 		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
 		{
 			// int new_x = new->width * (WIN_HEIGHT / new->height);

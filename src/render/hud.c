@@ -419,5 +419,7 @@ void	draw_mmap(t_info *app)
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
-	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	mlx_put_image_to_window(app->mlx, app->root,
+							app->shtex->playertile,
+							WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }
