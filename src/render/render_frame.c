@@ -315,6 +315,10 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	}
 	else
 		obj->dir = scale_vect(norm_diff, 0.09 / FR_SCALE);
+	// (void)frames;
+	// (void)norm_diff;
+	// (void)app;
+	// (void)obj;
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
@@ -579,7 +583,7 @@ void draw_sky(t_info *const app)
 	int				j;
 	const double	angle = app->player->angle;
 	t_img	*const	sky = app->skybox;
-	t_img	*const	bg = app->bg;
+	t_img	*const	bg = app->canvas;
 	int 			offset;
 
 	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) / 2;
@@ -629,7 +633,6 @@ int	render_play(void *param)
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
-	draw_sky(app);
 	replace_frame(app);
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);
