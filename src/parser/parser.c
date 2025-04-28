@@ -767,6 +767,8 @@ void	load_shtex(t_info *app)
 	app->shtex->empty.img = img_to_arr((char *)"./textures/empty.xpm", app, &app->shtex->empty.x, &app->shtex->empty.y);
 	app->shtex->trophy_tex[0].img = img_to_arr((char *)"./textures/trophy0.xpm", app, &app->shtex->trophy_tex[0].x, &app->shtex->trophy_tex[0].y);
 	app->shtex->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &app->shtex->trophy_tex[1].x, &app->shtex->trophy_tex[1].y);
+	app->shtex->boss_bar[0].img = img_to_arr((char *)"./textures/boss_bar_left.xpm", app, &app->shtex->boss_bar[0].x, &app->shtex->boss_bar[0].y);
+	app->shtex->boss_bar[1].img = img_to_arr((char *)"./textures/boss_bar_right.xpm", app, &app->shtex->boss_bar[1].x, &app->shtex->boss_bar[1].y);
 	load_energy_textures(app);
 	load_super_textures(app);
 	load_missile_textures(app);
