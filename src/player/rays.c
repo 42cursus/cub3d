@@ -62,12 +62,29 @@ int	get_quadrant(double angle)
 	return (-1);
 }
 
+t_ray	*get_pooled_ray(bool reset)
+{
+	static t_ray	pool[RAY_POOL_SIZE];
+	static int		stackp = 0;
+
+	if (reset)
+	{
+		stackp = 0;
+		return (NULL);
+	}
+	if (stackp == RAY_POOL_SIZE)
+		return (NULL);
+	stackp++;
+	return (&pool[stackp - 1]);
+}
+
 void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 {
 	t_ray	*in_front;
 	t_ray	*new;
 
-	new = ft_calloc(1, sizeof(*new));
+	// new = ft_calloc(1, sizeof(*new));
+	new = get_pooled_ray(0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
 	new->texture = texture;
@@ -78,6 +95,8 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 
 void	free_ray_children(t_ray *ray)
 {
+	return ;
+	(void)ray;
 	if (ray->in_front != NULL)
 		free_ray_children(ray->in_front);
 	free(ray->in_front);
@@ -202,38 +221,38 @@ void	free_ray_children(t_ray *ray)
 // 	return (out);
 // }
 
-void	handle_in_fronts(t_ray *ray1, t_ray *ray2, t_player *player)
-{
-	double	r1_infront_dist;
-	double	r2_infront_dist;
-
-	r1_infront_dist = 99999999999;
-	r2_infront_dist = 99999999999;
-	if (ray1->in_front != NULL)
-		r1_infront_dist = (pow(ray1->in_front->intcpt.x - player->pos.x, 2) + pow(ray1->in_front->intcpt.y - player->pos.y, 2));
-	if (ray2->in_front != NULL)
-		r2_infront_dist = (pow(ray2->in_front->intcpt.x - player->pos.x, 2) + pow(ray2->in_front->intcpt.y - player->pos.y, 2));
-	if (r1_infront_dist < r2_infront_dist)
-	{
-		free(ray2->in_front);
-		ray2->in_front = ray1->in_front;
-		if (r1_infront_dist > ray2->distance)
-		{
-			free(ray2->in_front);
-			ray2->in_front = NULL;
-		}
-	}
-	else
-	{
-		free(ray1->in_front);
-		ray1->in_front = ray2->in_front;
-		if (r2_infront_dist > ray1->distance)
-		{
-			free(ray1->in_front);
-			ray1->in_front = NULL;
-		}
-	}
-}
+// void	handle_in_fronts(t_ray *ray1, t_ray *ray2, t_player *player)
+// {
+// 	double	r1_infront_dist;
+// 	double	r2_infront_dist;
+//
+// 	r1_infront_dist = 99999999999;
+// 	r2_infront_dist = 99999999999;
+// 	if (ray1->in_front != NULL)
+// 		r1_infront_dist = (pow(ray1->in_front->intcpt.x - player->pos.x, 2) + pow(ray1->in_front->intcpt.y - player->pos.y, 2));
+// 	if (ray2->in_front != NULL)
+// 		r2_infront_dist = (pow(ray2->in_front->intcpt.x - player->pos.x, 2) + pow(ray2->in_front->intcpt.y - player->pos.y, 2));
+// 	if (r1_infront_dist < r2_infront_dist)
+// 	{
+// 		free(ray2->in_front);
+// 		ray2->in_front = ray1->in_front;
+// 		if (r1_infront_dist > ray2->distance)
+// 		{
+// 			free(ray2->in_front);
+// 			ray2->in_front = NULL;
+// 		}
+// 	}
+// 	else
+// 	{
+// 		free(ray1->in_front);
+// 		ray1->in_front = ray2->in_front;
+// 		if (r2_infront_dist > ray1->distance)
+// 		{
+// 			free(ray1->in_front);
+// 			ray1->in_front = NULL;
+// 		}
+// 	}
+// }
 
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
 {
@@ -245,6 +264,7 @@ void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 	int		i;
 	t_vect	dir = player->dir;
 
+	get_pooled_ray(1);
 	player->angle = atan2(dir.y, dir.x);
 	i = -1;
 	while (++i < WIN_WIDTH)

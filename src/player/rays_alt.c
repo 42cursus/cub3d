@@ -68,6 +68,7 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 	t_texarr	*textures[2];
 	double	gradient;
 	double	c;
+
 	gradient = get_gradient_angle(player->angle + angle);
 	c = get_y_intercept(player->pos, gradient);
 	ray.in_front = NULL;
@@ -193,7 +194,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	dist = vector_distance(object->pos, intcpt);
 	if (dist > 0.5)
 		return (NULL);
-	out = ft_calloc(1, sizeof(*out));
+	// out = ft_calloc(1, sizeof(*out));
+	out = get_pooled_ray(0);
 	out->intcpt = intcpt;
 	out->face = NONE;
 	out->texture = object->texture;
@@ -201,7 +203,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (out->distance < 0.00001)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
-		return (free(out), NULL);
+		// return (free(out), NULL);
+		return (NULL);
 	out->pos = vector_distance(intcpt, object->p2) * out->texture->x;
 	if (out->pos >= out->texture->x)
 		out->pos = out->texture->x - 1;

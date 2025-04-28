@@ -216,8 +216,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	if (ray->in_front != NULL)
 	{
 		draw_slice(x, ray->in_front, app, canvas);
-		if (x != WIN_WIDTH / 2)
-			free(ray->in_front);
+		// if (x != WIN_WIDTH / 2)
+		// 	free(ray->in_front);
 	}
 }
 
