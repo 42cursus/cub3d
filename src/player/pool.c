@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 19:36:01 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/28 20:06:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 20:18:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ void	clear_poolnodes(t_poolnode *head)
 		free(current);
 		current = temp;
 	}
+	head->next = NULL;
 }
 
 void	reset_pool(t_poolnode *head)
