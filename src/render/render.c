@@ -35,8 +35,9 @@ void	my_put_pixel(t_img *img, int x, int y, int colour)
 inline __attribute__((always_inline))
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
-	if (colour != MLX_TRANSPARENT)
-		(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+	if (colour == MLX_TRANSPARENT)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
@@ -85,9 +86,9 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 		}
 		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
 		{
-			// int new_x = new->width * (WIN_HEIGHT / new->height);
+			// int new_x = new->width * ((WIN_HEIGHT / 2) / new->height);
 			int new_x = WIN_WIDTH * 4;
-			new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
+			// new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
 			// new = scale_image(app, new, new_x, (new_x / new->width) * new->height);
 			new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
 		}
@@ -202,7 +203,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		if (anim->active == 1)
 			texture = get_open_door_tex(anim, app);
 	}
-	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
+	lineheight = (int)(WIN_WIDTH / (ray->distance * 2.0));
+	// lineheight = (int)(WIN_HEIGHT / (ray->distance));
 	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
 	if (top < 0)
 		y = 0 - top;

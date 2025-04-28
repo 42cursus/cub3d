@@ -11,19 +11,22 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <math.h>
 #include <unistd.h>
 
 void	calculate_offsets(t_player *player)
 {
-	int		i;
-	double	offset;
-	double	angle;
+	int			i;
+	const int	halfwidth = WIN_WIDTH / 2;
+	double		offset;
+	double		angle;
 
-	offset = 1.0 / (WIN_WIDTH / 2.0);
+	offset = 1.0 / halfwidth;
 	i = 0;
-	while (i < WIN_WIDTH / 2)
+	while (i < halfwidth)
 	{
 		angle = atan(1.0 - (i * offset));
+		// angle = M_PI_4 * (halfwidth - i) * offset;
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 		i++;

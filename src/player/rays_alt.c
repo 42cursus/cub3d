@@ -40,6 +40,7 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c
 		ray->pos = (int)(fmod(ray->intcpt.y, 1) * ray->texture->x);
 	}
 	ray->distance = get_cam_distance(player->pos, player->angle + M_PI_2, ray->intcpt);
+	// ray->distance = vector_distance(player->pos, ray->intcpt);
 	if (ray->distance < 0.00001)
 		ray->distance = 0.00001;
 }
