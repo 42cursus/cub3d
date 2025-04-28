@@ -213,6 +213,7 @@ typedef struct s_player
 	t_ray	rays[WIN_WIDTH];
 	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
+	double	floor_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 }	t_player;
 
@@ -372,6 +373,7 @@ double	vector_magnitude(t_vect vect);
 t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
+double	get_hyp_len(double len1, double len2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 

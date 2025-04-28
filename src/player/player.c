@@ -17,19 +17,27 @@
 void	calculate_offsets(t_info *app, t_player *player)
 {
 	int				i;
-	const int		halfwidth = WIN_WIDTH / 2;
 	double		offset;
 	double		angle;
+	double		distance;
+	double		scalar;
 
-	offset = app->fov_opp_len / halfwidth;
+	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
 	i = 0;
-	while (i < halfwidth)
+	while (i < WIN_WIDTH / 2)
 	{
 		angle = atan(app->fov_opp_len - (i * offset));
 		// angle = M_PI_4 * (halfwidth - i) * offset;
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 		i++;
+	}
+	scalar = get_hyp_len(app->fov_opp_len, 1);
+	i = 0;
+	while (i < WIN_HEIGHT / 2)
+	{
+		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
+		player->floor_offsets[i++] = distance * scalar;
 	}
 }
 
