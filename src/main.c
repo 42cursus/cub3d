@@ -20,7 +20,7 @@ int	main(int argc, char **argv)
 	}};
 
 	set_fov(app, 90);
-	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
+	printf("framerate: %d frametime: %d fr_scale: %f\n", FRAMERATE, FRAMETIME, FR_SCALE);
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);

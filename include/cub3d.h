@@ -27,7 +27,7 @@
 #ifndef FRAMERATE
 # define FRAMERATE 100
 #endif
-#define FR_SCALE (FRAMERATE / 50)
+#define FR_SCALE (FRAMERATE / 50.0)
 #define FRAMETIME (1000000 / FRAMERATE)
 
 # define MLX_LIME 0x0000ff55

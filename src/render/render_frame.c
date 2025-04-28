@@ -216,12 +216,12 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 
 	if (enemy->subtype == E_ZOOMER)
 	{
-		frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
-		enemy->texture = &app->shtex->crawler_tex[frame_mod / (5 * FR_SCALE)];
+		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * FR_SCALE);
+		enemy->texture = &app->shtex->crawler_tex[(int)(frame_mod / (5 * FR_SCALE))];
 	}
 	else if (enemy->subtype == E_PHANTOON)
 	{
-		frame_mod = ((app->framecount - enemy->anim.framestart) % (80 * FR_SCALE)) / 8;
+		frame_mod = ((app->framecount - enemy->anim.framestart) % (int)(80 * FR_SCALE)) / 8;
 		if (frame_mod == 0)
 			enemy->texture = &app->shtex->phantoon[0];
 		else if (frame_mod == 1)
@@ -290,11 +290,11 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (app->map->boss_active == 0)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
-	frames = (app->framecount % (100 * FR_SCALE));
+	frames = (app->framecount % (int)(100 * FR_SCALE));
 	if (obj->health > 350)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
-		if (frames % (10 * FR_SCALE) == 0)
+		if (frames % (int)(10 * FR_SCALE) == 0)
 			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / FR_SCALE));
 	}
 	else if (obj->health > 100)
@@ -306,7 +306,7 @@ void	phantoon_ai(t_info *app, t_object *obj)
 		else if (frames > 60 * FR_SCALE)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
-			if (frames % (3 * FR_SCALE) == 0)
+			if (frames % (int)(3 * FR_SCALE) == 0)
 			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / FR_SCALE));
 		}
 	}
