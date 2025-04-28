@@ -19,6 +19,8 @@ int	main(int argc, char **argv)
 		.width = WIN_WIDTH, .height = WIN_HEIGHT
 	}};
 
+	set_fov(app, 90);
+	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);
 	cleanup(app);

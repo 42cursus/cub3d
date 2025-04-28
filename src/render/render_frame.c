@@ -137,35 +137,32 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		select_missile_tex(obj, app->player, app);
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
-	if (*tile == '1')
-		start_obj_death(obj, app);
-	else if (*tile == 'D')
+	if (!check_tile_open(*tile, app->map))
 	{
 		anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
-		*tile = 'O';
-		anim->active = 1;
-		anim->framestart = app->framecount;
-		start_obj_death(obj, app);
-	}
-	else if (*tile == 'L')
-	{
-		if (obj->subtype == SUPER)
+		if (*tile == 'D')
 		{
-			anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
 			*tile = 'O';
 			anim->active = 1;
 			anim->framestart = app->framecount;
 		}
-		start_obj_death(obj, app);
-	}
-	else if (*tile == 'M')
-	{
-		if (obj->subtype != BEAM)
+		else if (*tile == 'L')
 		{
-			anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
-			*tile = 'O';
-			anim->active = 1;
-			anim->framestart = app->framecount;
+			if (obj->subtype == SUPER)
+			{
+				*tile = 'O';
+				anim->active = 1;
+				anim->framestart = app->framecount;
+			}
+		}
+		else if (*tile == 'M')
+		{
+			if (obj->subtype != BEAM)
+			{
+				*tile = 'O';
+				anim->active = 1;
+				anim->framestart = app->framecount;
+			}
 		}
 		start_obj_death(obj, app);
 	}
@@ -586,7 +583,7 @@ void draw_sky(t_info *const app)
 	t_img	*const	bg = app->canvas;
 	int 			offset;
 
-	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) / 2;
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
 	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
@@ -641,7 +638,7 @@ int	render_play(void *param)
 	app->last_frame = time;
 	app->framecount++;
 	on_expose(app);
-	draw_mmap(app);
+	draw_hud(app);
 	return (0);
 }
 
@@ -672,10 +669,11 @@ int render_pmenu(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
-	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
-	place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
-	place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
+	draw_menu_items(app);
+	// place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
+	// place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
+	// place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
+	// place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);

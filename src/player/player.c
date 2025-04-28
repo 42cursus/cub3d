@@ -14,18 +14,18 @@
 #include <math.h>
 #include <unistd.h>
 
-void	calculate_offsets(t_player *player)
+void	calculate_offsets(t_info *app, t_player *player)
 {
-	int			i;
-	const int	halfwidth = WIN_WIDTH / 2;
+	int				i;
+	const int		halfwidth = WIN_WIDTH / 2;
 	double		offset;
 	double		angle;
 
-	offset = 1.0 / halfwidth;
+	offset = app->fov_opp_len / halfwidth;
 	i = 0;
 	while (i < halfwidth)
 	{
-		angle = atan(1.0 - (i * offset));
+		angle = atan(app->fov_opp_len - (i * offset));
 		// angle = M_PI_4 * (halfwidth - i) * offset;
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
@@ -33,10 +33,23 @@ void	calculate_offsets(t_player *player)
 	}
 }
 
-t_player	*init_player(t_data *map)
+void	set_fov(t_info *app, int fov)
+{
+	if (fov < 45)
+		fov = 45;
+	if (fov > 140)
+		fov = 140;
+	app->fov_deg = fov;
+	app->fov_rad_half = ((double)fov / 360.0) * M_PI;
+	app->fov_opp_len = tan(app->fov_rad_half);
+}
+
+t_player	*init_player(t_info *app)
 {
 	t_player	*player;
+	t_data		*map;
 
+	map = app->map;
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = map->starting_pos;
 	player->health = 99;
@@ -65,7 +78,7 @@ t_player	*init_player(t_data *map)
 		player->dir.y = 0;
 	}
 	// rotate_vect_inplace(&player->direction, 0.01);
-	calculate_offsets(player);
+	calculate_offsets(app, player);
 	return (player);
 }
 
@@ -440,4 +453,3 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		}
 	}
 }
-

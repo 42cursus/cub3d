@@ -833,6 +833,8 @@ void	free_shtex(t_info *app)
 	free_tex_arr(&app->shtex->super_ammo[1]);
 	free_tex_arr(&app->shtex->missile_ammo[0]);
 	free_tex_arr(&app->shtex->missile_ammo[1]);
+	free_tex_arr(&app->shtex->boss_bar[0]);
+	free_tex_arr(&app->shtex->boss_bar[1]);
 	i = 0;
 	while (i < 7)
 		free_tex_arr(&app->shtex->door_tex[i++]);

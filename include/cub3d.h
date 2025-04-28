@@ -22,6 +22,8 @@
 # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 
+#define RAY_POOL_SIZE 20000
+
 #ifndef FRAMERATE
 # define FRAMERATE 100
 #endif
@@ -120,6 +122,8 @@ typedef enum e_menustate
 {
 	MAIN,
 	LVL_SELECT,
+	PAUSE,
+	OPTIONS,
 	WIN,
 	LOSE,
 }	t_emenus;
@@ -127,6 +131,7 @@ typedef enum e_menustate
 typedef struct s_menustate
 {
 	t_emenus	state;
+	t_emenus	prev;
 	int			selected;
 	int			no_items;
 }	t_menustate;
@@ -153,6 +158,7 @@ typedef struct s_shtex
 	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
+	t_texarr	boss_bar[2];
 	t_texarr	empty;
 	void		*playertile;
 }	t_shtex;
@@ -290,6 +296,9 @@ typedef struct s_info
 	t_ret_code	rc;
 	t_menustate	menu_state;
 	int 		current_level;
+	int			fov_deg;
+	double		fov_rad_half;
+	double		fov_opp_len;
 }	t_info;
 
 int		check_endianness(void);
@@ -307,7 +316,7 @@ int		parse_cub(t_info *app, char *filename);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
 
-t_player	*init_player(t_data *map);
+t_player	*init_player(t_info *app);
 void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
@@ -323,6 +332,7 @@ void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
+int		check_tile_open(char tile, t_data *map);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
@@ -340,6 +350,7 @@ void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
+t_ray	*get_pooled_ray(bool reset);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
@@ -354,7 +365,7 @@ void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_img *canvas);
-void	draw_mmap(t_info *app);
+void	draw_hud(t_info *app);
 void	free_shtex(t_info *app);
 t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
@@ -388,7 +399,10 @@ void	fill_floor(t_info *app, t_data *map, t_player *player);
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);
 void	change_menu_selection(t_info *app, int dir);
+void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
+void	set_fov(t_info *app, int fov);
+void	calculate_offsets(t_info *app, t_player *player);
 
 #endif //CUB3D_H

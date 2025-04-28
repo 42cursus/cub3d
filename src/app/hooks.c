@@ -151,6 +151,10 @@ int key_press_mmenu(KeySym key, void *param)
 		change_menu_selection(app, -1);
 	else if (key == XK_Down)
 		change_menu_selection(app, 1);
+	else if (key == XK_Left)
+		menu_change_option(app, -1);
+	else if (key == XK_Right)
+		menu_change_option(app, 1);
 	else if (key == XK_space)
 		menu_select_current(app);
 	return (0);

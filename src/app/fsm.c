@@ -203,7 +203,7 @@ void do_initial_to_mmenu(void *param)
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_initial_to_end(void *param)
@@ -225,7 +225,7 @@ void do_mmenu_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 //	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
@@ -308,12 +308,16 @@ void do_play_to_pmenu(void *param)
 	replace_frame(app);
 	fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
+	// mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = PAUSE;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 4;
 }
 
 void do_play_to_win(void *param)
@@ -398,7 +402,7 @@ void do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_pmenu_to_end(void *param)
@@ -427,7 +431,7 @@ void do_lose_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_lose_to_end(void *param)
@@ -470,7 +474,7 @@ void do_win_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
@@ -495,7 +499,7 @@ void do_lose_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");

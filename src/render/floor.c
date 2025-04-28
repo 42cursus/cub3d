@@ -43,6 +43,11 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	}
 }
 
+double	get_hyp_len(double len1, double len2)
+{
+	return (sqrt(len1 * len1 + len2 * len2));
+}
+
 void	fill_floor(t_info *app, t_data *map, t_player *player)
 {
 	t_vect	l_dir;
@@ -50,17 +55,19 @@ void	fill_floor(t_info *app, t_data *map, t_player *player)
 	t_vect	l_pos;
 	t_vect	r_pos;
 	double	distance;
+	double	scalar;
 	int		row;
 
 	row = 0;
-	l_dir = rotate_vect(player->dir, M_PI_4);
-	r_dir = rotate_vect(player->dir, -M_PI_4);
+	l_dir = rotate_vect(player->dir, app->fov_rad_half);
+	r_dir = rotate_vect(player->dir, -app->fov_rad_half);
+	scalar = get_hyp_len(app->fov_opp_len, 1);
 	while (++row < WIN_HEIGHT / 2)
 	{
-		distance = WIN_WIDTH / (4.0 * row);
+		distance = WIN_WIDTH / (4.0 * row * app->fov_opp_len);
 		// distance = WIN_HEIGHT / (2.0 * row);
-		l_pos = add_vect(player->pos, scale_vect(l_dir, distance * M_SQRT2));
-		r_pos = add_vect(player->pos, scale_vect(r_dir, distance * M_SQRT2));
+		l_pos = add_vect(player->pos, scale_vect(l_dir, distance * scalar));
+		r_pos = add_vect(player->pos, scale_vect(r_dir, distance * scalar));
 		// printf("row: %d l_pos: (%f, %f) r_pos: (%f, %f)\n", row, l_pos.x, l_pos.y, r_pos.x, r_pos.y);
 		draw_floor_row(app, l_pos, r_pos, row + (WIN_HEIGHT / 2));
 	}

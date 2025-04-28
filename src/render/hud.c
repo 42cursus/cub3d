@@ -408,13 +408,40 @@ void	place_fps(t_info *app)
 	}
 }
 
-void	draw_mmap(t_info *app)
+void	place_boss_health(t_info *app)
+{
+	int	start_x;
+	int	start_y;
+	int	end_x;
+	int	i;
+	int	j;
+
+	start_y = WIN_HEIGHT * 0.95;
+	start_x = WIN_WIDTH / 4;
+	end_x = start_x + ((WIN_WIDTH / 2) * (app->map->boss_obj->health / 500.0));
+
+	u_int (*const pixels_bg)[app->canvas->height][app->canvas->width] = (void *)app->canvas->data;
+	i = start_y - 1;
+	while (++i < start_y + 14)
+	{
+		j = start_x - 1;
+		while (++j <= end_x)
+			(*pixels_bg)[i][j] = 0xff0000;
+	}
+	place_texarr(app, &app->shtex->boss_bar[0], start_x - 16, start_y - 1);
+	place_texarr(app, &app->shtex->boss_bar[1], start_x + (WIN_WIDTH / 2), start_y - 1);
+	place_str((char *)"Phantoon", app, (t_ivect){start_x, start_y - 24}, 2);
+}
+
+void	draw_hud(t_info *app)
 {
 	place_mmap(app);
 	place_weapon(app);
 	place_energy(app, app->player);
 	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)
+	if (app->map->boss_active)
+		place_boss_health(app);
 	place_fps(app);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
