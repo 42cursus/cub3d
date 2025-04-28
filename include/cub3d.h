@@ -383,7 +383,8 @@ t_ray	*get_pooled_ray_alt(int flag);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
-void replace_image(t_info *app, t_img **img, char *tex_file);
+void	replace_image(t_info *app, t_img **img, char *tex_file);
+int		dim_colour(int col, double fact);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_img *img, int x, int y, int colour);
