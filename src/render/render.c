@@ -71,9 +71,9 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 
 int	dim_colour(int col, double fact)
 {
-	char	r;
-	char	g;
-	char	b;
+	unsigned char	r;
+	unsigned char	g;
+	unsigned char	b;
 
 	if (fact < 1 || col == MLX_TRANSPARENT)
 		return (col);
@@ -224,6 +224,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	while (y < lineheight && y + top < WIN_HEIGHT)
 	{
 		h_index = ((double)y / lineheight) * texture->y;
+		// my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
 		my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 		y++;
 	}
