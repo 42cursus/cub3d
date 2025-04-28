@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 18:50:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 20:06:15 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 
-#define RAY_POOL_SIZE 20000
+#define RAY_POOL_SIZE 10000
 
 #ifndef FRAMERATE
 # define FRAMERATE 100
@@ -184,6 +184,13 @@ typedef	struct s_data
 	t_object	*boss_obj;
 }	t_data;
 
+typedef struct s_poolnode
+{
+	t_ray				pool[RAY_POOL_SIZE];
+	size_t				stackp;
+	struct s_poolnode	*next;
+}	t_poolnode;
+
 typedef struct s_pool
 {
 	char	*pool;
@@ -204,7 +211,7 @@ typedef struct s_player
 	int		vert_offset;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
-	t_pool	raypool;
+	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
 	t_anim	hud;
 }	t_player;
@@ -347,7 +354,7 @@ double	get_y_intercept(t_vect pos, double gradient);
 t_vect	get_vertical_int(double x, double gradient, double c);
 t_vect	get_horizontal_int(double y, double gradient, double c);
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
-void	add_in_front(t_pool *pool, t_ray *ray, int face, t_texarr *texture);
+void	add_in_front(t_ray *ray, int face, t_texarr *texture);
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
@@ -370,7 +377,7 @@ void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
 t_ray	*get_pooled_ray(bool reset);
-t_ray	*get_pooled_ray_alt(t_pool *pool, bool reset);
+t_ray	*get_pooled_ray_alt(int flag);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
@@ -424,5 +431,10 @@ void	menu_change_option(t_info *app, int dir);
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	calculate_offsets(t_info *app, t_player *player);
+
+t_poolnode	*add_poolnode(t_poolnode *head);
+void	clear_poolnodes(t_poolnode *head);
+void	reset_pool(t_poolnode *head);
+int		count_poolnodes(t_poolnode *head);
 
 #endif //CUB3D_H

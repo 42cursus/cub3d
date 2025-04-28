@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/25 13:42:28 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:56:22 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	cleanup_map(t_info *app)
 	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	free(app->player->raypool.pool);
+	get_pooled_ray_alt(2);
 	free(app->player);
 }
 
@@ -61,7 +61,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 
-	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 

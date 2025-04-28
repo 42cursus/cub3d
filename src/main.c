@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 16:38:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/09 00:29:05 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:47:32 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ int	main(int argc, char **argv)
 	}};
 
 	set_fov(app, 90);
+	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);

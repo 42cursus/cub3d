@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/09 00:39:22 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:57:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,15 +113,15 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 		else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] >= 'B')
 		{
 			if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'O')
-				add_in_front(&player->raypool, &ray, ray.face + 8, &app->shtex->door_tex[1]);
+				add_in_front(&ray, ray.face + 8, &app->shtex->door_tex[1]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'L')
-				add_in_front(&player->raypool, &ray, ray.face + 4, &app->shtex->door_super_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_super_tex[0]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'M')
-				add_in_front(&player->raypool, &ray, ray.face + 4, &app->shtex->door_missile_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_missile_tex[0]);
 			else if (map->map[(int)ray.intcpt.y][(int)ray.intcpt.x] == 'B')
-				add_in_front(&player->raypool, &ray, ray.face + 4 + (4 * !map->boss_active), &app->shtex->door_boss_tex[!map->boss_active]);
+				add_in_front(&ray, ray.face + 4 + (4 * !map->boss_active), &app->shtex->door_boss_tex[!map->boss_active]);
 			else
-				add_in_front(&player->raypool, &ray, ray.face + 4, &app->shtex->door_tex[0]);
+				add_in_front(&ray, ray.face + 4, &app->shtex->door_tex[0]);
 			ray.in_front->maptile.x = (int)ray.intcpt.x;
 			ray.in_front->maptile.y = (int)ray.intcpt.y;
 			ray.in_front->intcpt.x += normX;
@@ -183,7 +183,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (dist > 0.5)
 		return (NULL);
 	// out = ft_calloc(1, sizeof(*out));
-	out = get_pooled_ray_alt(&player->raypool, 0);
+	out = get_pooled_ray_alt(0);
+	// out = get_pooled_ray_alt(&player->raypool, 0);
 	out->in_front = NULL;
 	out->intcpt = intcpt;
 	out->face = NONE;

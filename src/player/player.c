@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/25 13:52:20 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:45:42 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,6 @@ t_player	*init_player(t_info *app)
 	player->equipped = BEAM;
 	player->ammo[BEAM] = -1;
 	player->max_ammo[BEAM] = -1;
-	player->raypool.size = 20000;
-	player->raypool.pool = ft_calloc(player->raypool.size, sizeof(t_ray));
 	if (map->starting_dir == 'N')
 	{
 		player->dir.x = 0;

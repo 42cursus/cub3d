@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/04 20:34:48 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 20:07:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,32 +62,41 @@ t_ray	*get_pooled_ray(bool reset)
 	return (&pool[stackp++]);
 }
 
-t_ray	*get_pooled_ray_alt(t_pool *pool, bool reset)
+t_ray	*get_pooled_ray_alt(int flag)
 {
-	if (reset)
+	static t_poolnode	head = {
+		.stackp = 0,
+		.next = NULL,
+	};
+	t_poolnode			*current;
+
+	if (flag == 1)
 	{
-		pool->stackp = 0;
+		reset_pool(&head);
 		return (NULL);
 	}
-	// printf("stackp: %d\n", stackp);
-	if (pool->stackp == pool->size)
+	if (flag == 2)
 	{
-		char	*temp = malloc(pool->size * sizeof(t_ray) * 2);
-		ft_memmove(temp, pool->pool, pool->size * sizeof(t_ray));
-		free(pool->pool);
-		pool->pool = temp;
-		pool->size *= 2;
+		printf("poolnodes: %d\n", count_poolnodes(&head));
+		clear_poolnodes(&head);
+		return (NULL);
 	}
-	return (&((t_ray *)pool->pool)[(pool->stackp)++]);
+	current = &head;
+	while (current != NULL && current->stackp == RAY_POOL_SIZE)
+		current = current->next;
+	if (current == NULL)
+		current = add_poolnode(&head);
+	return (&current->pool[current->stackp++]);
 }
 
-void	add_in_front(t_pool *pool, t_ray *ray, int face, t_texarr *texture)
+void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 {
 	t_ray	*in_front;
 	t_ray	*new;
 
 	// new = ft_calloc(1, sizeof(*new));
-	new = get_pooled_ray_alt(pool, 0);
+	new = get_pooled_ray_alt(0);
+	// new = get_pooled_ray_alt(pool, 0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
 	new->texture = texture;
