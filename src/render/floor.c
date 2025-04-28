@@ -57,7 +57,8 @@ void	fill_floor(t_info *app, t_data *map, t_player *player)
 	r_dir = rotate_vect(player->dir, -M_PI_4);
 	while (++row < WIN_HEIGHT / 2)
 	{
-		distance = WIN_HEIGHT / (3.2 * row);
+		distance = WIN_WIDTH / (4.0 * row);
+		// distance = WIN_HEIGHT / (2.0 * row);
 		l_pos = add_vect(player->pos, scale_vect(l_dir, distance * M_SQRT2));
 		r_pos = add_vect(player->pos, scale_vect(r_dir, distance * M_SQRT2));
 		// printf("row: %d l_pos: (%f, %f) r_pos: (%f, %f)\n", row, l_pos.x, l_pos.y, r_pos.x, r_pos.y);
