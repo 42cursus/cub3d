@@ -57,6 +57,8 @@ t_player	*init_player(t_info *app)
 	player->equipped = BEAM;
 	player->ammo[BEAM] = -1;
 	player->max_ammo[BEAM] = -1;
+	player->raypool.size = 20000;
+	player->raypool.pool = ft_calloc(player->raypool.size, sizeof(t_ray));
 	if (map->starting_dir == 'N')
 	{
 		player->dir.x = 0;

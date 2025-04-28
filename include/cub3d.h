@@ -184,6 +184,13 @@ typedef	struct s_data
 	t_object	*boss_obj;
 }	t_data;
 
+typedef struct s_pool
+{
+	char	*pool;
+	size_t	stackp;
+	size_t	size;
+}	t_pool;
+
 typedef struct s_player
 {
 	t_vect	pos;
@@ -197,6 +204,7 @@ typedef struct s_player
 	int		vert_offset;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
+	t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
 	t_anim	hud;
 }	t_player;
@@ -334,6 +342,17 @@ void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
 int		check_tile_open(char tile, t_data *map);
 
+double	get_gradient_angle(double angle);
+double	get_y_intercept(t_vect pos, double gradient);
+t_vect	get_vertical_int(double x, double gradient, double c);
+t_vect	get_horizontal_int(double y, double gradient, double c);
+double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
+void	add_in_front(t_pool *pool, t_ray *ray, int face, t_texarr *texture);
+t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
+t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
+void	order_obj_ray(t_ray *obj, t_ray *ray);
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
+
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
@@ -351,6 +370,7 @@ void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
 t_ray	*get_pooled_ray(bool reset);
+t_ray	*get_pooled_ray_alt(t_pool *pool, bool reset);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
