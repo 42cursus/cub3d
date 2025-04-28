@@ -450,7 +450,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 {
 	if (obj->subtype == T_BOSS)
 	{
-		if (vector_distance(obj->pos, app->player->pos) < 0.6)
+		if (vector_distance(obj->pos, app->player->pos) < 1.5)
 		{
 			toggle_boss_doors(app);
 			app->map->boss_active = 1;
