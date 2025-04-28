@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/28 20:07:26 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 20:16:48 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ t_ray	*get_pooled_ray_alt(int flag)
 		.next = NULL,
 	};
 	t_poolnode			*current;
+	// size_t				nodecount = 0;
 
 	if (flag == 1)
 	{
@@ -83,9 +84,13 @@ t_ray	*get_pooled_ray_alt(int flag)
 	}
 	current = &head;
 	while (current != NULL && current->stackp == RAY_POOL_SIZE)
+	{
 		current = current->next;
+		// nodecount++;
+	}
 	if (current == NULL)
 		current = add_poolnode(&head);
+	// printf("stackp: %ld\n", (nodecount * RAY_POOL_SIZE) + current->stackp);
 	return (&current->pool[current->stackp++]);
 }
 
@@ -124,7 +129,7 @@ void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 	int		i;
 	t_vect	dir = player->dir;
 
-	get_pooled_ray(1);
+	get_pooled_ray_alt(1);
 	player->angle = atan2(dir.y, dir.x);
 	i = -1;
 	while (++i < WIN_WIDTH)
