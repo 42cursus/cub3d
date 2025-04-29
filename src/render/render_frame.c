@@ -106,7 +106,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->anim.active == 1)
 	{
-		frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
+		frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
 		if (frames > 19)
 		{
 			*current = delete_object(&app->map->objects, *current);
@@ -180,7 +180,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->anim.active == 1)
 	{
-		frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
+		frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
 		if (frames > 15)
 		{
 			*current = delete_object(&app->map->objects, *current);
@@ -216,12 +216,12 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 
 	if (enemy->subtype == E_ZOOMER)
 	{
-		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * FR_SCALE);
-		enemy->texture = &app->shtex->crawler_tex[(int)(frame_mod / (5 * FR_SCALE))];
+		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * app->fr_scale);
+		enemy->texture = &app->shtex->crawler_tex[(int)(frame_mod / (5 * app->fr_scale))];
 	}
 	else if (enemy->subtype == E_PHANTOON)
 	{
-		frame_mod = ((app->framecount - enemy->anim.framestart) % (int)(80 * FR_SCALE)) / 8;
+		frame_mod = ((app->framecount - enemy->anim.framestart) % (int)(80 * app->fr_scale)) / 8;
 		if (frame_mod == 0)
 			enemy->texture = &app->shtex->phantoon[0];
 		else if (frame_mod == 1)
@@ -290,28 +290,28 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (app->map->boss_active == 0)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
-	frames = (app->framecount % (int)(100 * FR_SCALE));
+	frames = (app->framecount % (int)(100 * app->fr_scale));
 	if (obj->health > 350)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
-		if (frames % (int)(10 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / FR_SCALE));
+		if (frames % (int)(10 * app->fr_scale) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / app->fr_scale));
 	}
 	else if (obj->health > 100)
 	{
 		if (frames == 0)
-			// obj->dir = rotate_vect((t_vect){0.08 / FR_SCALE, 0.0}, rand_range(-M_PI, M_PI));
-			// obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / FR_SCALE), rand_range(-M_PI_2, M_PI_2));
-			obj->dir = rotate_vect(scale_vect(norm_diff, 0.09 / FR_SCALE), rand_range(-0.1, 0.1));
-		else if (frames > 60 * FR_SCALE)
+			// obj->dir = rotate_vect((t_vect){0.08 / app->fr_scale, 0.0}, rand_range(-M_PI, M_PI));
+			// obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / app->fr_scale), rand_range(-M_PI_2, M_PI_2));
+			obj->dir = rotate_vect(scale_vect(norm_diff, 0.09 / app->fr_scale), rand_range(-0.1, 0.1));
+		else if (frames > 60 * app->fr_scale)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
-			if (frames % (int)(3 * FR_SCALE) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / FR_SCALE));
+			if (frames % (int)(3 * app->fr_scale) == 0)
+			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / app->fr_scale));
 		}
 	}
 	else
-		obj->dir = scale_vect(norm_diff, 0.09 / FR_SCALE);
+		obj->dir = scale_vect(norm_diff, 0.09 / app->fr_scale);
 	// (void)frames;
 	// (void)norm_diff;
 	// (void)app;
@@ -328,7 +328,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->dead == 1)
 	{
-		frames = (app->framecount - obj->anim2.framestart) / FR_SCALE;
+		frames = (app->framecount - obj->anim2.framestart) / app->fr_scale;
 		if (frames > 17)
 		{
 			if (obj->subtype == E_ZOOMER)
@@ -359,7 +359,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		subtract_health(app, app->player, 35);
-		move_entity(&app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
+		move_entity(app, &app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
 		// app->player->pos = add_vect(app->player->pos,
 		// 					  scale_vect(normalise_vect(subtract_vect(app->player->pos, obj->pos)), 0.7));
 	}
@@ -372,7 +372,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	int			frames;
 	t_texarr	*texp;
 
-	frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
+	frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
 	texp = app->shtex->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = app->shtex->super_tex;
@@ -533,7 +533,7 @@ int	render_win(void *param)
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
@@ -554,7 +554,7 @@ int	render_lose(void *param)
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
@@ -571,13 +571,13 @@ int	render_load(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
 	app->framecount++;
-	if (app->framecount == FRAMERATE / 2)
+	if (app->framecount == app->framerate / 2)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
@@ -678,25 +678,25 @@ int	render_play(void *param)
 	 // if (app->mouse[1])
 	 // 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_entity(&app->player->pos, app->map, app->player->dir);
+		move_entity(app, &app->player->pos, app->map, app->player->dir);
 	if (app->keys[idx_XK_s])
-		move_entity(&app->player->pos, app->map,
+		move_entity(app, &app->player->pos, app->map,
 					rotate_vect(app->player->dir, M_PI));
 	if (app->keys[idx_XK_a])
-		move_entity(&app->player->pos, app->map,
+		move_entity(app, &app->player->pos, app->map,
 					rotate_vect(app->player->dir, M_PI_2));
 	if (app->keys[idx_XK_d])
-		move_entity(&app->player->pos, app->map,
+		move_entity(app, &app->player->pos, app->map,
 					rotate_vect(app->player->dir, -M_PI_2));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
-		rotate_player(app->player, 1, 12);
+		rotate_player(app, app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
-		rotate_player(app->player, 0, 12);
+		rotate_player(app, app->player, 0, 12);
 
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
@@ -717,7 +717,7 @@ int	render_mmenu(void *param)
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
 
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
@@ -740,7 +740,7 @@ int render_pmenu(void *param)
 	// place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
 	// place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
 
-	while (get_time_us() - app->last_frame < FRAMETIME)
+	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;

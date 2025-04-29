@@ -308,7 +308,7 @@ void	place_weapon(t_info *app)
 
 	if (app->player->hud.active == 1)
 	{
-		if (app->framecount - app->player->hud.framestart < 6 * FR_SCALE)
+		if (app->framecount - app->player->hud.framestart < 6 * app->fr_scale)
 			tex = &app->shtex->cannon_tex[1];
 		else
 		{

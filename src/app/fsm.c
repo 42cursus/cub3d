@@ -64,6 +64,9 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
+	set_fov(app, 90);
+	set_framerate(app, FRAMERATE);
+	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
 	while (++i < argc)

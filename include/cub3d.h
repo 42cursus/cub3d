@@ -27,8 +27,8 @@
 #ifndef FRAMERATE
 # define FRAMERATE 100
 #endif
-#define FR_SCALE (FRAMERATE / 50.0)
-#define FRAMETIME (1000000 / FRAMERATE)
+// #define FR_SCALE (FRAMERATE / 50.0)
+// #define FRAMETIME (1000000 / FRAMERATE)
 
 # define MLX_LIME 0x0000ff55
 # define MLX_LIGHT_RED 0x00ff5555
@@ -322,6 +322,9 @@ typedef struct s_info
 	int			fov_deg;
 	double		fov_rad_half;
 	double		fov_opp_len;
+	size_t		framerate;
+	size_t		fr_delay;
+	double		fr_scale;
 }	t_info;
 
 int		check_endianness(void);
@@ -341,8 +344,8 @@ void	load_shtex(t_info *app);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
-void		move_entity(t_vect *pos, t_data *map, t_vect dir);
-void		rotate_player(t_player *player, int direction, double sensitivity);
+void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 
@@ -449,6 +452,7 @@ void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
+void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
 
 
