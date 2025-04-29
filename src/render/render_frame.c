@@ -372,7 +372,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	int			frames;
 	t_texarr	*texp;
 
-	frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
+	frames = (app->framecount - obj->anim.framestart) / (int)FR_SCALE;
 	texp = app->shtex->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = app->shtex->super_tex;
@@ -462,6 +462,16 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 	return (0);
 }
 
+void	handle_tele(t_info *app, t_object *tele)
+{
+	if (vector_distance(app->player->pos, tele->pos) < 0.2)
+	{
+		app->current_level = tele->subtype;
+		app->rc = extra;
+		app->mlx->end_loop = 1;
+	}
+}
+
 void	update_objects(t_info *app, t_player *player, t_data *map)
 {
 	t_list		*current;
@@ -482,7 +492,7 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
 		if (obj->type == O_TELE)
-			;
+			handle_tele(app, obj);
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;

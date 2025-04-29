@@ -1,0 +1,18 @@
+NO textures/metroid1.xpm
+SO textures/metroid1.xpm
+WE textures/metroid2.xpm
+EA textures/metroid2.xpm
+
+F 0x4d,0x2b,0x0b
+C 0x64,0x9d,0xfa
+
+LVL_A start.cub
+LVL_B lvla.cub
+
+1111111
+102s301
+1000001
+1000001
+1000001
+100N001
+1111111

@@ -53,9 +53,6 @@ void	cleanup_map(t_info *app)
 	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	free(app->map->sublvls[0]);
-	free(app->map->sublvls[1]);
-	free(app->map->sublvls[2]);
 	get_pooled_ray_alt(2);
 	free(app->player);
 }
@@ -67,10 +64,15 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
-	app->map_ids = ft_calloc(argc - 1, sizeof(char *));
+	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
 	while (++i < argc)
-		app->map_ids[i - 1] = argv[i];
+	{
+		if (argv[i][ft_strlen(argv[i]) - 1] == '/')
+			app->map_ids[i - 1] = ft_strjoin(argv[i], "start.cub");
+		else
+			app->map_ids[i - 1] = ft_strdup(argv[i]);
+	}
 	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map\n"), fail);

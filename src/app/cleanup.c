@@ -14,8 +14,11 @@
 
 int	cleanup(t_info *app)
 {
+	int	i;
+
 	free_shtex(app);
-	free(app->map_ids);
+	i = 0;
+	free_split(app->map_ids);
 	mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_image(app->mlx, app->bg);
 	mlx_destroy_image(app->mlx, app->stillshot);

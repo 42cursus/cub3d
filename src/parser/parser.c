@@ -419,7 +419,13 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 
 int	parse_levels(t_data *data, char *str, int identifier)
 {
-	data->sublvls[identifier - LVL_A] = ft_strdup(str);
+	char	buf[100];
+	int		len;
+
+	len = ft_strrchr(data->sublvls[0], '/') - data->sublvls[0];
+	ft_strlcpy(buf, data->sublvls[0], len + 2);
+	ft_strlcat(buf, str, 100);
+	data->sublvls[identifier + 1 - LVL_A] = ft_strdup(buf);
 	return (0);
 }
 
@@ -444,7 +450,7 @@ int	parse_line(t_data *data, char *line, t_info *app)
 	else if (identifier < 7)
 		retval = parse_texture(data, split[1], identifier, app);
 	else
-		;
+		parse_levels(data, split[1], identifier);
 	return (free_split(split), retval);
 }
 
@@ -693,7 +699,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				else if (map[i][j] >= '2' && map[i][j] <= '4')
 				{
 					if (data->sublvls[map[i][j] - '2'] != NULL)
-						spawn_teleporter(app, (t_vect){j + 0.5, i + 0.5}, map[i][j] - '2');
+						spawn_teleporter(app, (t_vect){j + 0.5, i + 0.5}, map[i][j] - '1');
 				}
 				map[i][j] = '0';
 			}
@@ -711,6 +717,7 @@ int	parse_cub(t_info *app, char *filename)
 
 	fd = open(filename, O_RDONLY);
 	data = app->map;
+	data->sublvls[0] = ft_strdup(filename);
 	load_map_textures(app, tiles);
 	file = read_cub(fd);
 	if (!collect_map(file, data))
@@ -834,6 +841,10 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
 	free_tex_arr(&data->floor_tex);
+	free(data->sublvls[0]);
+	free(data->sublvls[1]);
+	free(data->sublvls[2]);
+	free(data->sublvls[3]);
 	free_split(data->map);
 	free_split((char **)data->anims);
 	ft_lstclear(&data->objects, free);
