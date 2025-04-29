@@ -577,7 +577,7 @@ int	render_load(void *param)
 void draw_sky(t_info *const app)
 {
 	int				i;
-	int				j;
+	// int				j;
 	const double	angle = app->player->angle;
 	t_img	*const	sky = app->skybox;
 	t_img	*const	bg = app->canvas;
@@ -585,21 +585,45 @@ void draw_sky(t_info *const app)
 
 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
-	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
-	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+	int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
+	int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
 
-	int source_x;
+	int start_x;
+	int end_x;
 
-	i = -1;
-	while(++i < sky->height)
+	start_x = (0 - offset + sky->width) % sky->width;
+	// end_x = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
+	end_x = start_x + WIN_WIDTH;
+	if (end_x < sky->width)
 	{
-		j = -1;
-		while (++j < WIN_WIDTH)
+		i = -1;
+		while(++i < sky->height)
 		{
-			source_x = (j - offset + sky->width) % sky->width;
-			(*pixels_bg)[i][j] = (*pixels_sky)[i][source_x];
+			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH);
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH * sizeof(unsigned int));
 		}
 	}
+	else
+	{
+		i = -1;
+		while(++i < sky->height)
+		{
+			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH - start_x);
+			// fast_memcpy_test(&(*pixels_bg)[i][WIN_WIDTH - start_x], &(*pixels_sky)[i][0], end_x % sky->width);
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], (WIN_WIDTH - start_x - 1) * sizeof(unsigned int));
+			ft_memcpy(&(*pixels_bg)[i][WIN_WIDTH - start_x - 1], &(*pixels_sky)[i][0], (end_x % sky->width - 1) * sizeof(unsigned int));
+		}
+	}
+	// i = -1;
+	// while(++i < sky->height)
+	// {
+	// 	j = -1;
+	// 	while (++j < WIN_WIDTH)
+	// 	{
+	// 		start_x = (j - offset + sky->width) % sky->width;
+	// 		(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
+	// 	}
+	// }
 }
 
 int	render_play(void *param)
