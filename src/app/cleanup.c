@@ -19,6 +19,7 @@ int	cleanup(t_info *app)
 	free_shtex(app);
 	i = 0;
 	free_split(app->map_ids);
+	get_pooled_ray_alt(2);
 	mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_image(app->mlx, app->bg);
 	mlx_destroy_image(app->mlx, app->stillshot);

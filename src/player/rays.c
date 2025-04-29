@@ -73,6 +73,7 @@ t_ray	*get_pooled_ray_alt(int flag)
 
 	if (flag == 1)
 	{
+		// printf("poolnodes: %d\n", count_poolnodes(&head));
 		reset_pool(&head, &current);
 		return (NULL);
 	}

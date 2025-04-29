@@ -53,7 +53,7 @@ void	cleanup_map(t_info *app)
 	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	get_pooled_ray_alt(2);
+	get_pooled_ray_alt(1);
 	// free(app->player);
 }
 
