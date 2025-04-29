@@ -62,7 +62,7 @@ void	menu_select_current(t_info *app)
 			app->mlx->end_loop = 1;
 		}
 	}
-	if (menu_state->state == PAUSE)
+	else if (menu_state->state == PAUSE)
 	{
 		if (menu_state->selected == 0)
 		{
@@ -109,7 +109,7 @@ void	menu_select_current(t_info *app)
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
-	if (menu_state->state == WIN || menu_state->state == LOSE)
+	else if (menu_state->state == WIN || menu_state->state == LOSE)
 	{
 		if (menu_state->selected == 0)
 			app->rc = ok;
