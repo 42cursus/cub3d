@@ -224,8 +224,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	while (y < lineheight && y + top < WIN_HEIGHT)
 	{
 		h_index = ((double)y / lineheight) * texture->y;
-		// my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
-		my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
+		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
+		// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 		y++;
 	}
 	if (ray->in_front != NULL)
