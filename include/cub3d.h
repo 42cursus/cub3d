@@ -318,6 +318,7 @@ typedef struct s_info
 	t_ret_code	rc;
 	t_menustate	menu_state;
 	int 		current_level;
+	int 		current_sublevel;
 	int			fov_deg;
 	double		fov_rad_half;
 	double		fov_opp_len;

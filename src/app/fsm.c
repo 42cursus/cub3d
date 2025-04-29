@@ -472,7 +472,7 @@ void	do_play_to_load(void *param)
 	t_info *const	app = param;
 	char			*next_lvl;
 
-	next_lvl = ft_strdup(app->map->sublvls[app->current_level]);
+	next_lvl = ft_strdup(app->map->sublvls[app->current_sublevel]);
 	cleanup_map(app);
 	app->map = init_map();
 	if (parse_cub(app, next_lvl))

@@ -466,7 +466,7 @@ void	handle_tele(t_info *app, t_object *tele)
 {
 	if (vector_distance(app->player->pos, tele->pos) < 0.2)
 	{
-		app->current_level = tele->subtype;
+		app->current_sublevel = tele->subtype;
 		app->rc = extra;
 		app->mlx->end_loop = 1;
 	}
