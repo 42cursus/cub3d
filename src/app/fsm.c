@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/25 13:42:28 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:56:22 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,10 @@ void	cleanup_map(t_info *app)
 	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	free(app->map->sublvls[0]);
+	free(app->map->sublvls[1]);
+	free(app->map->sublvls[2]);
+	get_pooled_ray_alt(2);
 	free(app->player);
 }
 
@@ -60,7 +64,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 
-	printf("framerate: %d frametime: %d fr_scale: %d\n", FRAMERATE, FRAMETIME, FR_SCALE);
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
@@ -203,7 +206,7 @@ void do_initial_to_mmenu(void *param)
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_initial_to_end(void *param)
@@ -225,7 +228,7 @@ void do_mmenu_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 //	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
@@ -308,12 +311,16 @@ void do_play_to_pmenu(void *param)
 	replace_frame(app);
 	fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
+	// mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = PAUSE;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 4;
 }
 
 void do_play_to_win(void *param)
@@ -398,7 +405,7 @@ void do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_pmenu_to_end(void *param)
@@ -427,7 +434,7 @@ void do_lose_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void do_lose_to_end(void *param)
@@ -458,6 +465,35 @@ void do_win_to_mmenu(void *param)
 	app->menu_state.no_items = 3;
 }
 
+void	do_play_to_load(void *param)
+{
+	t_info *const	app = param;
+	char			*next_lvl;
+
+	next_lvl = ft_strdup(app->map->sublvls[app->current_level]);
+	cleanup_map(app);
+	app->map = init_map();
+	if (parse_cub(app, next_lvl))
+	{
+		free_map(app->map);
+		free(next_lvl);
+		app->rc = fail;
+		return ;
+	}
+	free(next_lvl);
+	app->player = init_player(app);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->root, KeyPress, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->framecount = 0;
+}
+
 void do_win_to_load(void *param)
 {
 	t_info *const app = param;
@@ -470,7 +506,7 @@ void do_win_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
@@ -495,7 +531,7 @@ void do_lose_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app->map);
+	app->player = init_player(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");

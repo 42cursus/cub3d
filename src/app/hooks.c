@@ -22,11 +22,9 @@ void replace_frame(t_info *app)
 	fill_floor(app, app->map, app->player);
 	cast_all_rays_alt(app, app->map, app->player);
 	// fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	draw_sky(app);
-	// draw_sky_alt(app);
-	// usleep(100000);
+	// draw_sky(app);
+	draw_sky_alt(app);
 	fill_floor(app, app->map, app->player);
-	// usleep(100000);
 	draw_rays(app, app->canvas);
 }
 
@@ -153,6 +151,10 @@ int key_press_mmenu(KeySym key, void *param)
 		change_menu_selection(app, -1);
 	else if (key == XK_Down)
 		change_menu_selection(app, 1);
+	else if (key == XK_Left)
+		menu_change_option(app, -1);
+	else if (key == XK_Right)
+		menu_change_option(app, 1);
 	else if (key == XK_space)
 		menu_select_current(app);
 	return (0);

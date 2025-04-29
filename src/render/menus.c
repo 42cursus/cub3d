@@ -12,6 +12,25 @@
 
 #include "cub3d.h"
 
+void	menu_change_option(t_info *app, int dir)
+{
+	t_menustate	*menu_state;
+
+	menu_state = &app->menu_state;
+	if (menu_state->state == OPTIONS)
+	{
+		if (menu_state->selected == 0)
+		{
+			set_fov(app, app->fov_deg + (5 * dir));
+			replace_image(app, &app->skybox, (char *) "./textures/skybox.xpm");
+			calculate_offsets(app, app->player);
+			free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+			replace_frame(app);
+			fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+		}
+	}
+}
+
 void	menu_select_current(t_info *app)
 {
 	t_menustate	*menu_state;
@@ -32,8 +51,49 @@ void	menu_select_current(t_info *app)
 		}
 		if (menu_state->selected == 2)
 		{
+			menu_state->prev = menu_state->state;
+			menu_state->state = OPTIONS;
+			menu_state->selected = 0;
+			menu_state->no_items = 2;
+		}
+		if (menu_state->selected == 3)
+		{
 			app->rc = fail;
 			app->mlx->end_loop = 1;
+		}
+	}
+	if (menu_state->state == PAUSE)
+	{
+		if (menu_state->selected == 0)
+		{
+			app->rc = ok;
+			app->mlx->end_loop = 1;
+		}
+		if (menu_state->selected == 1)
+		{
+			app->rc = repeat;
+			app->mlx->end_loop = 1;
+		}
+		if (menu_state->selected == 2)
+		{
+			menu_state->prev = menu_state->state;
+			menu_state->state = OPTIONS;
+			menu_state->selected = 0;
+			menu_state->no_items = 2;
+		}
+		if (menu_state->selected == 3)
+		{
+			app->rc = fail;
+			app->mlx->end_loop = 1;
+		}
+	}
+	else if (menu_state->state == OPTIONS)
+	{
+		if (menu_state->selected == 1)
+		{
+			menu_state->state = menu_state->prev;
+			menu_state->selected = 2;
+			menu_state->no_items = 4;
 		}
 	}
 	else if (menu_state->state == LVL_SELECT)
@@ -73,12 +133,7 @@ void	draw_menu_items(t_info *app)
 	menu_state = &app->menu_state;
 	if (menu_state->state == MAIN)
 	{
-		// place_str_centred((char *)	"START", app, (t_ivect){WIN_WIDTH / 2, 360}, 4);
-		// place_str_centred((char *)	"LEVEL SELECT", app, (t_ivect){WIN_WIDTH / 2, 424}, 4);
-		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 488}, 4);
-		// pos.x = WIN_WIDTH / 2 - 250;
-		// pos.y = 334 + (menu_state->selected * 64);
-		place_menu((const char *[]){"START", "LEVEL SELECT", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
+		place_menu((const char *[]){"START", "LEVEL SELECT", "options", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 	}
 	else if (menu_state->state == LVL_SELECT)
 	{
@@ -96,22 +151,21 @@ void	draw_menu_items(t_info *app)
 	if (menu_state->state == WIN)
 	{
 		place_str_centred((char *)	"You win", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		// place_str_centred((char *)	"NEXT LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
-		// place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
-		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
-		// pos.x = WIN_WIDTH / 2 - 220;
-		// pos.y = 392 + (menu_state->selected * 48);
 		place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == LOSE)
 	{
 		place_str_centred((char *)	"You died", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		// place_str_centred((char *)	"RETRY LEVEL", app, (t_ivect){WIN_WIDTH / 2, 424}, 3);
-		// place_str_centred((char *)	"MAIN MENU", app, (t_ivect){WIN_WIDTH / 2, 472}, 3);
-		// place_str_centred((char *)	"EXIT", app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
-		// pos.x = WIN_WIDTH / 2 - 220;
-		// pos.y = 392 + (menu_state->selected * 48);
 		place_menu((const char *[]){"retry level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+	}
+	if (menu_state->state == PAUSE)
+	{
+		place_menu((const char *[]){"resume", "MAIN MENU", "options", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+	}
+	if (menu_state->state == OPTIONS)
+	{
+		ft_snprintf(buf, 20, "fov %d", app->fov_deg);
+		place_menu((const char *[]){buf, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 

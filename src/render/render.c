@@ -69,6 +69,20 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	return (scaled);
 }
 
+int	dim_colour(int col, double fact)
+{
+	unsigned char	r;
+	unsigned char	g;
+	unsigned char	b;
+
+	if (fact < 1 || col == MLX_TRANSPARENT)
+		return (col);
+	r = ((col >> 16) & 0xff) / fact;
+	g = ((col >> 8) & 0xff) / fact;
+	b = (col & 0xff) / fact;
+	return ((r << 16) + (g << 8) + b);
+}
+
 void replace_image(t_info *app, t_img **img, char *tex_file)
 {
 	t_img *new;
@@ -87,7 +101,7 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
 		{
 			// int new_x = new->width * ((WIN_HEIGHT / 2) / new->height);
-			int new_x = WIN_WIDTH * 4;
+			int new_x = WIN_WIDTH * 360.0 / app->fov_deg;
 			// new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
 			// new = scale_image(app, new, new_x, (new_x / new->width) * new->height);
 			new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
@@ -203,7 +217,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		if (anim->active == 1)
 			texture = get_open_door_tex(anim, app);
 	}
-	lineheight = (int)(WIN_WIDTH / (ray->distance * 2.0));
+	lineheight = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	// lineheight = (int)(WIN_HEIGHT / (ray->distance));
 	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
 	if (top < 0)
@@ -214,13 +228,14 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	{
 		h_index = ((double)y / lineheight) * texture->y;
 		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
+		// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 		y++;
 	}
 	if (ray->in_front != NULL)
 	{
 		draw_slice(x, ray->in_front, app, canvas);
-		if (x != WIN_WIDTH / 2)
-			free(ray->in_front);
+		// if (x != WIN_WIDTH / 2)
+		// 	free(ray->in_front);
 	}
 }
 

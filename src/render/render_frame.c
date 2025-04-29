@@ -137,35 +137,32 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		select_missile_tex(obj, app->player, app);
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
-	if (*tile == '1')
-		start_obj_death(obj, app);
-	else if (*tile == 'D')
+	if (!check_tile_open(*tile, app->map))
 	{
 		anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
-		*tile = 'O';
-		anim->active = 1;
-		anim->framestart = app->framecount;
-		start_obj_death(obj, app);
-	}
-	else if (*tile == 'L')
-	{
-		if (obj->subtype == SUPER)
+		if (*tile == 'D')
 		{
-			anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
 			*tile = 'O';
 			anim->active = 1;
 			anim->framestart = app->framecount;
 		}
-		start_obj_death(obj, app);
-	}
-	else if (*tile == 'M')
-	{
-		if (obj->subtype != BEAM)
+		else if (*tile == 'L')
 		{
-			anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
-			*tile = 'O';
-			anim->active = 1;
-			anim->framestart = app->framecount;
+			if (obj->subtype == SUPER)
+			{
+				*tile = 'O';
+				anim->active = 1;
+				anim->framestart = app->framecount;
+			}
+		}
+		else if (*tile == 'M')
+		{
+			if (obj->subtype != BEAM)
+			{
+				*tile = 'O';
+				anim->active = 1;
+				anim->framestart = app->framecount;
+			}
 		}
 		start_obj_death(obj, app);
 	}
@@ -219,12 +216,12 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 
 	if (enemy->subtype == E_ZOOMER)
 	{
-		frame_mod = (app->framecount - enemy->anim.framestart) % (30 * FR_SCALE);
-		enemy->texture = &app->shtex->crawler_tex[frame_mod / (5 * FR_SCALE)];
+		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * FR_SCALE);
+		enemy->texture = &app->shtex->crawler_tex[(int)(frame_mod / (5 * FR_SCALE))];
 	}
 	else if (enemy->subtype == E_PHANTOON)
 	{
-		frame_mod = ((app->framecount - enemy->anim.framestart) % (80 * FR_SCALE)) / 8;
+		frame_mod = ((app->framecount - enemy->anim.framestart) % (int)(80 * FR_SCALE)) / 8;
 		if (frame_mod == 0)
 			enemy->texture = &app->shtex->phantoon[0];
 		else if (frame_mod == 1)
@@ -293,11 +290,11 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (app->map->boss_active == 0)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
-	frames = (app->framecount % (100 * FR_SCALE));
+	frames = (app->framecount % (int)(100 * FR_SCALE));
 	if (obj->health > 350)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
-		if (frames % (10 * FR_SCALE) == 0)
+		if (frames % (int)(10 * FR_SCALE) == 0)
 			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / FR_SCALE));
 	}
 	else if (obj->health > 100)
@@ -309,7 +306,7 @@ void	phantoon_ai(t_info *app, t_object *obj)
 		else if (frames > 60 * FR_SCALE)
 		{
 			obj->dir = (t_vect){0.0, 0.0};
-			if (frames % (3 * FR_SCALE) == 0)
+			if (frames % (int)(3 * FR_SCALE) == 0)
 			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / FR_SCALE));
 		}
 	}
@@ -453,7 +450,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 {
 	if (obj->subtype == T_BOSS)
 	{
-		if (vector_distance(obj->pos, app->player->pos) < 0.6)
+		if (vector_distance(obj->pos, app->player->pos) < 1.5)
 		{
 			toggle_boss_doors(app);
 			app->map->boss_active = 1;
@@ -484,6 +481,8 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 			continue ;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
+		if (obj->type == O_TELE)
+			;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
@@ -577,6 +576,59 @@ int	render_load(void *param)
 	return (0);
 }
 
+void draw_sky_alt(t_info *const app)
+{
+	int				i;
+	// int				j;
+	const double	angle = app->player->angle;
+	t_img	*const	sky = app->skybox;
+	t_img	*const	bg = app->canvas;
+	int 			offset;
+
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
+
+	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
+	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+
+	int start_x;
+	int end_x;
+
+	start_x = (0 - offset + sky->width) % sky->width;
+	end_x = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
+	// end_x = start_x + WIN_WIDTH - 1;
+	if (end_x > start_x)
+	{
+		i = -1;
+		while(++i < sky->height)
+		{
+			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH);
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH * sizeof(u_int));
+		}
+	}
+	else
+	{
+		i = -1;
+		while(++i < sky->height)
+		{
+			int	copy1_width = sky->width - start_x;
+			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width);
+			// fast_memcpy_test(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1));
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width * sizeof(u_int));
+			ft_memcpy(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1) * sizeof(u_int));
+		}
+	}
+	// i = -1;
+	// while(++i < sky->height)
+	// {
+	// 	j = -1;
+	// 	while (++j < WIN_WIDTH)
+	// 	{
+	// 		start_x = (j - offset + sky->width) % sky->width;
+	// 		(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
+	// 	}
+	// }
+}
+
 void draw_sky(t_info *const app)
 {
 	int				i;
@@ -586,12 +638,12 @@ void draw_sky(t_info *const app)
 	t_img	*const	bg = app->canvas;
 	int 			offset;
 
-	offset = (int)((angle - M_PI_2) * (sky->width / M_PI)) / 2;
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
 	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
 
-	int source_x;
+	int start_x;
 
 	i = -1;
 	while(++i < sky->height)
@@ -599,8 +651,8 @@ void draw_sky(t_info *const app)
 		j = -1;
 		while (++j < WIN_WIDTH)
 		{
-			source_x = (j - offset + sky->width) % sky->width;
-			(*pixels_bg)[i][j] = (*pixels_sky)[i][source_x];
+			start_x = (j - offset + sky->width) % sky->width;
+			(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
 		}
 	}
 }
@@ -641,7 +693,7 @@ int	render_play(void *param)
 	app->last_frame = time;
 	app->framecount++;
 	on_expose(app);
-	draw_mmap(app);
+	draw_hud(app);
 	return (0);
 }
 
@@ -672,10 +724,11 @@ int render_pmenu(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
-	place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
-	place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
-	place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
-	place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
+	draw_menu_items(app);
+	// place_str_centred((char *)	"PAUSE", app, (t_ivect){WIN_WIDTH / 2, 400}, 4);
+	// place_str_centred((char *)	"PRESS [ESC] TO CONTINUE", app, (t_ivect){WIN_WIDTH / 2, 450}, 2);
+	// place_str_centred((char *)	"!\"#$%&'()*+,-./0123456789:;<=>?@", app, (t_ivect){WIN_WIDTH / 2, 500}, 3);
+	// place_str_centred((char *)	"abcdefghijklmnopqrstvwxyz[\\]^_`{|}~", app, (t_ivect){WIN_WIDTH / 2, 532}, 3);
 
 	while (get_time_us() - app->last_frame < FRAMETIME)
 		usleep(100);

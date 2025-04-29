@@ -6,23 +6,11 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 14:58:41 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/09 00:39:22 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:57:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
-
-int		get_quadrant(double angle);
-double	get_gradient_angle(double angle);
-double	get_y_intercept(t_vect pos, double gradient);
-t_vect	get_vertical_int(double x, double gradient, double c);
-t_vect	get_horizontal_int(double y, double gradient, double c);
-double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
-void	add_in_front(t_ray *ray, int face, t_texarr *texture);
-t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
-t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
-void	order_obj_ray(t_ray *obj, t_ray *ray);
-void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
 
 void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c)
 {
@@ -68,6 +56,7 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 	t_texarr	*textures[2];
 	double	gradient;
 	double	c;
+
 	gradient = get_gradient_angle(player->angle + angle);
 	c = get_y_intercept(player->pos, gradient);
 	ray.in_front = NULL;
@@ -193,7 +182,10 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	dist = vector_distance(object->pos, intcpt);
 	if (dist > 0.5)
 		return (NULL);
-	out = ft_calloc(1, sizeof(*out));
+	// out = ft_calloc(1, sizeof(*out));
+	out = get_pooled_ray_alt(0);
+	// out = get_pooled_ray_alt(&player->raypool, 0);
+	out->in_front = NULL;
 	out->intcpt = intcpt;
 	out->face = NONE;
 	out->texture = object->texture;
@@ -201,7 +193,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (out->distance < 0.00001)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
-		return (free(out), NULL);
+		// return (free(out), NULL);
+		return (NULL);
 	out->pos = vector_distance(intcpt, object->p2) * out->texture->x;
 	if (out->pos >= out->texture->x)
 		out->pos = out->texture->x - 1;
@@ -213,12 +206,14 @@ void	order_obj_ray(t_ray *obj, t_ray *ray)
 {
 	t_ray	*current;
 	t_ray	*temp;
+	// int		raycount = 0;
 
 	if (obj == NULL)
 		return ;
 	current = ray;
 	while (current->in_front != NULL)
 	{
+		// printf("raycount: %d\n", raycount++);
 		if (current->in_front->distance < obj->distance)
 		{
 			temp = current->in_front;

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 18:50:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/04/28 20:06:15 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,10 +22,12 @@
 # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 
+#define RAY_POOL_SIZE 10000
+
 #ifndef FRAMERATE
 # define FRAMERATE 100
 #endif
-#define FR_SCALE (FRAMERATE / 50)
+#define FR_SCALE (FRAMERATE / 50.0)
 #define FRAMETIME (1000000 / FRAMERATE)
 
 # define MLX_LIME 0x0000ff55
@@ -120,6 +122,8 @@ typedef enum e_menustate
 {
 	MAIN,
 	LVL_SELECT,
+	PAUSE,
+	OPTIONS,
 	WIN,
 	LOSE,
 }	t_emenus;
@@ -127,6 +131,7 @@ typedef enum e_menustate
 typedef struct s_menustate
 {
 	t_emenus	state;
+	t_emenus	prev;
 	int			selected;
 	int			no_items;
 }	t_menustate;
@@ -153,6 +158,8 @@ typedef struct s_shtex
 	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
+	t_texarr	tele;
+	t_texarr	boss_bar[2];
 	t_texarr	empty;
 	void		*playertile;
 }	t_shtex;
@@ -176,7 +183,22 @@ typedef	struct s_data
 	int			width;
 	bool		boss_active;
 	t_object	*boss_obj;
+	char		*sublvls[4];
 }	t_data;
+
+typedef struct s_poolnode
+{
+	t_ray				pool[RAY_POOL_SIZE];
+	size_t				stackp;
+	struct s_poolnode	*next;
+}	t_poolnode;
+
+typedef struct s_pool
+{
+	char	*pool;
+	size_t	stackp;
+	size_t	size;
+}	t_pool;
 
 typedef struct s_player
 {
@@ -191,7 +213,9 @@ typedef struct s_player
 	int		vert_offset;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
+	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
+	double	floor_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 }	t_player;
 
@@ -212,6 +236,9 @@ enum
 	DOOR_S_OPEN = 12,
 	DOOR_E_OPEN = 13,
 	DOOR_W_OPEN = 14,
+	LVL_A = 15,
+	LVL_B = 16,
+	LVL_C = 17,
 };
 
 typedef	enum e_type
@@ -221,6 +248,7 @@ typedef	enum e_type
 	O_ITEM = 2,
 	O_EPROJ = 3,
 	O_TRIGGER = 4,
+	O_TELE = 5,
 }	t_etype;
 
 typedef enum e_subtype
@@ -290,6 +318,9 @@ typedef struct s_info
 	t_ret_code	rc;
 	t_menustate	menu_state;
 	int 		current_level;
+	int			fov_deg;
+	double		fov_rad_half;
+	double		fov_opp_len;
 }	t_info;
 
 int		check_endianness(void);
@@ -307,22 +338,37 @@ int		parse_cub(t_info *app, char *filename);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
 
-t_player	*init_player(t_data *map);
+t_player	*init_player(t_info *app);
 void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
+
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir);
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
+void	spawn_teleporter(t_info *app, t_vect pos, int level);
+
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
 void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
+int		check_tile_open(char tile, t_data *map);
+
+double	get_gradient_angle(double angle);
+double	get_y_intercept(t_vect pos, double gradient);
+t_vect	get_vertical_int(double x, double gradient, double c);
+t_vect	get_horizontal_int(double y, double gradient, double c);
+double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
+void	add_in_front(t_ray *ray, int face, t_texarr *texture);
+t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
+t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
+void	order_obj_ray(t_ray *obj, t_ray *ray);
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
@@ -336,14 +382,18 @@ double	vector_magnitude(t_vect vect);
 t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
+double	get_hyp_len(double len1, double len2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
+t_ray	*get_pooled_ray(bool reset);
+t_ray	*get_pooled_ray_alt(int flag);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
-void replace_image(t_info *app, t_img **img, char *tex_file);
+void	replace_image(t_info *app, t_img **img, char *tex_file);
+int		dim_colour(int col, double fact);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_img *img, int x, int y, int colour);
@@ -354,7 +404,7 @@ void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_img *canvas);
-void	draw_mmap(t_info *app);
+void	draw_hud(t_info *app);
 void	free_shtex(t_info *app);
 t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
@@ -383,12 +433,21 @@ int	render_lose(void *param);
 int	render_win(void *param);
 
 void	draw_sky(t_info *app);
+void 	draw_sky_alt(t_info *const app);
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);
 void	change_menu_selection(t_info *app, int dir);
+void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
+void	set_fov(t_info *app, int fov);
+void	calculate_offsets(t_info *app, t_player *player);
+
+t_poolnode	*add_poolnode(t_poolnode *head);
+void	clear_poolnodes(t_poolnode *head);
+void	reset_pool(t_poolnode *head);
+int		count_poolnodes(t_poolnode *head);
 
 #endif //CUB3D_H

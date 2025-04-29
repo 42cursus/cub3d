@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 19:31:02 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/25 13:52:20 by abelov           ###   ########.fr       */
+/*   Updated: 2025/04/28 19:45:42 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,29 +14,50 @@
 #include <math.h>
 #include <unistd.h>
 
-void	calculate_offsets(t_player *player)
+void	calculate_offsets(t_info *app, t_player *player)
 {
-	int			i;
-	const int	halfwidth = WIN_WIDTH / 2;
+	int				i;
 	double		offset;
 	double		angle;
+	double		distance;
+	double		scalar;
 
-	offset = 1.0 / halfwidth;
+	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
 	i = 0;
-	while (i < halfwidth)
+	while (i < WIN_WIDTH / 2)
 	{
-		angle = atan(1.0 - (i * offset));
+		angle = atan(app->fov_opp_len - (i * offset));
 		// angle = M_PI_4 * (halfwidth - i) * offset;
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 		i++;
 	}
+	scalar = get_hyp_len(app->fov_opp_len, 1);
+	i = 0;
+	while (i < WIN_HEIGHT / 2)
+	{
+		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
+		player->floor_offsets[i++] = distance * scalar;
+	}
 }
 
-t_player	*init_player(t_data *map)
+void	set_fov(t_info *app, int fov)
+{
+	if (fov < 45)
+		fov = 45;
+	if (fov > 140)
+		fov = 140;
+	app->fov_deg = fov;
+	app->fov_rad_half = ((double)fov / 360.0) * M_PI;
+	app->fov_opp_len = tan(app->fov_rad_half);
+}
+
+t_player	*init_player(t_info *app)
 {
 	t_player	*player;
+	t_data		*map;
 
+	map = app->map;
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = map->starting_pos;
 	player->health = 99;
@@ -65,7 +86,7 @@ t_player	*init_player(t_data *map)
 		player->dir.y = 0;
 	}
 	// rotate_vect_inplace(&player->direction, 0.01);
-	calculate_offsets(player);
+	calculate_offsets(app, player);
 	return (player);
 }
 
@@ -304,6 +325,20 @@ void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 	ft_lstadd_back(&map->objects, ft_lstnew(trigger));
 }
 
+void	spawn_teleporter(t_info *app, t_vect pos, int level)
+{
+	t_object	*tele;
+	t_data		*map;
+
+	map = app->map;
+	tele = ft_calloc(1, sizeof(*tele));
+	tele->pos = pos;
+	tele->type = O_TELE;
+	tele->subtype = level;
+	tele->texture = &app->shtex->tele;
+	ft_lstadd_back(&map->objects, ft_lstnew(tele));
+}
+
 void	developer_console(t_info *app, t_player *player)
 {
 	char	*line;
@@ -440,4 +475,3 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		}
 	}
 }
-
