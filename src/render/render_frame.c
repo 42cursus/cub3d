@@ -481,6 +481,8 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 			continue ;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
+		if (obj->type == O_TELE)
+			;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;

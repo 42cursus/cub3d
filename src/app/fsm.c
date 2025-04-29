@@ -53,6 +53,9 @@ void	cleanup_map(t_info *app)
 	mlx_destroy_image(app->mlx, app->map->minimap);
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	free(app->map->sublvls[0]);
+	free(app->map->sublvls[1]);
+	free(app->map->sublvls[2]);
 	get_pooled_ray_alt(2);
 	free(app->player);
 }
@@ -460,6 +463,35 @@ void do_win_to_mmenu(void *param)
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 3;
+}
+
+void	do_play_to_load(void *param)
+{
+	t_info *const	app = param;
+	char			*next_lvl;
+
+	next_lvl = ft_strdup(app->map->sublvls[app->current_level]);
+	cleanup_map(app);
+	app->map = init_map();
+	if (parse_cub(app, next_lvl))
+	{
+		free_map(app->map);
+		free(next_lvl);
+		app->rc = fail;
+		return ;
+	}
+	free(next_lvl);
+	app->player = init_player(app);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->root, KeyPress, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->framecount = 0;
 }
 
 void do_win_to_load(void *param)

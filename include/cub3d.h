@@ -158,6 +158,7 @@ typedef struct s_shtex
 	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
+	t_texarr	tele;
 	t_texarr	boss_bar[2];
 	t_texarr	empty;
 	void		*playertile;
@@ -182,6 +183,7 @@ typedef	struct s_data
 	int			width;
 	bool		boss_active;
 	t_object	*boss_obj;
+	char		*sublvls[4];
 }	t_data;
 
 typedef struct s_poolnode
@@ -234,6 +236,9 @@ enum
 	DOOR_S_OPEN = 12,
 	DOOR_E_OPEN = 13,
 	DOOR_W_OPEN = 14,
+	LVL_A = 15,
+	LVL_B = 16,
+	LVL_C = 17,
 };
 
 typedef	enum e_type
@@ -243,6 +248,7 @@ typedef	enum e_type
 	O_ITEM = 2,
 	O_EPROJ = 3,
 	O_TRIGGER = 4,
+	O_TELE = 5,
 }	t_etype;
 
 typedef enum e_subtype
@@ -337,11 +343,14 @@ void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		rotate_player(t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
+
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir);
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
+void	spawn_teleporter(t_info *app, t_vect pos, int level);
+
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
 void	add_health(t_player *player, int health);

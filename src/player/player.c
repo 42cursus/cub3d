@@ -325,6 +325,20 @@ void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 	ft_lstadd_back(&map->objects, ft_lstnew(trigger));
 }
 
+void	spawn_teleporter(t_info *app, t_vect pos, int level)
+{
+	t_object	*tele;
+	t_data		*map;
+
+	map = app->map;
+	tele = ft_calloc(1, sizeof(*tele));
+	tele->pos = pos;
+	tele->type = O_TELE;
+	tele->subtype = level;
+	tele->texture = &app->shtex->tele;
+	ft_lstadd_back(&map->objects, ft_lstnew(tele));
+}
+
 void	developer_console(t_info *app, t_player *player)
 {
 	char	*line;

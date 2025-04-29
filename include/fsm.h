@@ -30,7 +30,8 @@ typedef enum e_ret_codes
 {
 	ok,
 	fail,
-	repeat
+	repeat,
+	extra,
 }	t_ret_code;
 
 typedef struct s_transition
@@ -54,6 +55,7 @@ static t_transition state_transitions[] = {
 	{STATE_PLAY,    ok,     STATE_WIN},
 	{STATE_PLAY,    fail,   STATE_LOSE},
 	{STATE_PLAY,    repeat, STATE_PMENU},
+	{STATE_PLAY,    extra,  STATE_LOAD},
 	{STATE_PMENU,   ok,     STATE_PLAY},
 	{STATE_PMENU,   repeat, STATE_MMENU},
 	{STATE_PMENU,   fail,   STATE_END},
@@ -75,6 +77,7 @@ void do_play_to_pmenu(void *param);
 void do_play_to_win(void *param);
 void do_play_to_lose(void *param);
 void do_play_to_end(void *param);
+void do_play_to_load(void *param);
 void do_pmenu_to_play(void *param);
 void do_pmenu_to_end(void *param);
 void do_pmenu_to_mmenu(void *param);
@@ -89,7 +92,7 @@ static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_INITIAL] = {[STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
 	[STATE_MMENU] = {[STATE_LOAD] = do_mmenu_to_load, [STATE_END] = do_mmenu_to_end},
 	[STATE_LOAD] = {[STATE_PLAY] = do_load_to_play, [STATE_END] =  do_load_to_end},
-	[STATE_PLAY] = { [STATE_PMENU] = do_play_to_pmenu, [STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win, [STATE_END] = do_play_to_end},
+	[STATE_PLAY] = { [STATE_PMENU] = do_play_to_pmenu, [STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win, [STATE_END] = do_play_to_end, [STATE_LOAD] = do_play_to_load},
 	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu, [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
 	[STATE_LOSE] = {[STATE_MMENU] = do_lose_to_mmenu, [STATE_END] = do_lose_to_end, [STATE_LOAD] = do_lose_to_load},
 	[STATE_WIN] = {[STATE_LOAD] = do_win_to_load, [STATE_MMENU] = do_win_to_mmenu, [STATE_END] = do_win_to_end},

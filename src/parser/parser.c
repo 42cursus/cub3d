@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLMemstZPBb", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZPBb234", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZPBb", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZPBb234", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZPBb", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZPBb234", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -271,7 +271,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZPBb", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZPBb234", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -334,6 +334,12 @@ int	valid_identifier(char *str)
 		return (FLOOR);
 	if (ft_strncmp(str, "C", 2) == 0)
 		return (CEILING);
+	if (ft_strncmp(str, "LVL_A", 6) == 0)
+		return (LVL_A);
+	if (ft_strncmp(str, "LVL_B", 6) == 0)
+		return (LVL_B);
+	if (ft_strncmp(str, "LVL_C", 6) == 0)
+		return (LVL_C);
 	return (NONE);
 }
 
@@ -411,6 +417,12 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 	return (0);
 }
 
+int	parse_levels(t_data *data, char *str, int identifier)
+{
+	data->sublvls[identifier - LVL_A] = ft_strdup(str);
+	return (0);
+}
+
 int	parse_line(t_data *data, char *line, t_info *app)
 {
 	char	**split;
@@ -429,8 +441,10 @@ int	parse_line(t_data *data, char *line, t_info *app)
 			free_split(split), 1);
 	else if (identifier < 3)
 		retval = parse_colour(data, split[1], identifier);
-	else
+	else if (identifier < 7)
 		retval = parse_texture(data, split[1], identifier, app);
+	else
+		;
 	return (free_split(split), retval);
 }
 
@@ -660,7 +674,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		j = -1;
 		while (++j < data->width)
 		{
-			if (ft_strchr("mestZPb", map[i][j]))
+			if (ft_strchr("mestZPb234", map[i][j]))
 			{
 				if (map[i][j] == 'm')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
@@ -676,6 +690,11 @@ void	spawn_map_objects(t_info *app, t_data *data)
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
 				else if (map[i][j] == 'P')
 					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
+				else if (map[i][j] >= '2' && map[i][j] <= '4')
+				{
+					if (data->sublvls[map[i][j] - '2'] != NULL)
+						spawn_teleporter(app, (t_vect){j + 0.5, i + 0.5}, map[i][j] - '2');
+				}
 				map[i][j] = '0';
 			}
 		}
@@ -769,6 +788,7 @@ void	load_shtex(t_info *app)
 	app->shtex->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &app->shtex->trophy_tex[1].x, &app->shtex->trophy_tex[1].y);
 	app->shtex->boss_bar[0].img = img_to_arr((char *)"./textures/boss_bar_left.xpm", app, &app->shtex->boss_bar[0].x, &app->shtex->boss_bar[0].y);
 	app->shtex->boss_bar[1].img = img_to_arr((char *)"./textures/boss_bar_right.xpm", app, &app->shtex->boss_bar[1].x, &app->shtex->boss_bar[1].y);
+	app->shtex->tele.img = img_to_arr((char *)"./textures/teleporter.xpm", app, &app->shtex->tele.x, &app->shtex->tele.y);
 	load_energy_textures(app);
 	load_super_textures(app);
 	load_missile_textures(app);
@@ -826,6 +846,7 @@ void	free_shtex(t_info *app)
 
 	free_tex_arr(&app->shtex->title);
 	free_tex_arr(&app->shtex->alphabet);
+	free_tex_arr(&app->shtex->tele);
 	free_tex_arr(&app->shtex->empty);
 	free_tex_arr(&app->shtex->trophy_tex[0]);
 	free_tex_arr(&app->shtex->trophy_tex[1]);
