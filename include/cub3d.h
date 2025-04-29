@@ -22,7 +22,7 @@
 # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 
-#define RAY_POOL_SIZE 10000
+#define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
 # define FRAMERATE 100
@@ -391,6 +391,10 @@ void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
 t_ray	*get_pooled_ray(bool reset);
 t_ray	*get_pooled_ray_alt(int flag);
+t_poolnode	*add_poolnode(t_poolnode *head);
+void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
+void	reset_pool(t_poolnode *head, t_poolnode **current);
+int		count_poolnodes(t_poolnode *head);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
@@ -447,9 +451,5 @@ t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	calculate_offsets(t_info *app, t_player *player);
 
-t_poolnode	*add_poolnode(t_poolnode *head);
-void	clear_poolnodes(t_poolnode *head);
-void	reset_pool(t_poolnode *head);
-int		count_poolnodes(t_poolnode *head);
 
 #endif //CUB3D_H

@@ -68,26 +68,23 @@ t_ray	*get_pooled_ray_alt(int flag)
 		.stackp = 0,
 		.next = NULL,
 	};
-	t_poolnode			*current;
+	static t_poolnode	*current = &head;
 	// size_t				nodecount = 0;
 
 	if (flag == 1)
 	{
-		reset_pool(&head);
+		reset_pool(&head, &current);
 		return (NULL);
 	}
 	if (flag == 2)
 	{
 		printf("poolnodes: %d\n", count_poolnodes(&head));
-		clear_poolnodes(&head);
+		clear_poolnodes(&head, &current);
 		return (NULL);
 	}
-	current = &head;
-	while (current != NULL && current->stackp == RAY_POOL_SIZE)
-	{
-		current = current->next;
-		// nodecount++;
-	}
+	if (current->stackp != RAY_POOL_SIZE)
+		return (&current->pool[current->stackp++]);
+	current = current->next;
 	if (current == NULL)
 		current = add_poolnode(&head);
 	// printf("stackp: %ld\n", (nodecount * RAY_POOL_SIZE) + current->stackp);
