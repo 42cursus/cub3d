@@ -395,7 +395,7 @@ void	free_ray_children(t_ray *ray);
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 int		dim_colour(int col, double fact);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
-void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
+//void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);

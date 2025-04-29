@@ -12,6 +12,14 @@
 
 #include "cub3d.h"
 
+static inline __attribute__((always_inline))
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
+{
+	if (colour == MLX_TRANSPARENT)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+}
+
 int	get_tex_index(double pos, int dim)
 {
 	int	whole;

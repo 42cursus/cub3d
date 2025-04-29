@@ -32,7 +32,7 @@ void	my_put_pixel(t_img *img, int x, int y, int colour)
  * @param y
  * @param colour
  */
-inline __attribute__((always_inline))
+static inline __attribute__((always_inline))
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
 	if (colour == MLX_TRANSPARENT)
