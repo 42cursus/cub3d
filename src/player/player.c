@@ -90,6 +90,34 @@ t_player	*init_player(t_info *app)
 	return (player);
 }
 
+void	refresh_player(t_info *app, t_player *player)
+{
+	t_data		*map;
+
+	map = app->map;
+	player->pos = map->starting_pos;
+	if (map->starting_dir == 'N')
+	{
+		player->dir.x = 0;
+		player->dir.y = 1;
+	}
+	else if (map->starting_dir == 'S')
+	{
+		player->dir.x = 0;
+		player->dir.y = -1;
+	}
+	else if (map->starting_dir == 'E')
+	{
+		player->dir.x = 1;
+		player->dir.y = 0;
+	}
+	else if (map->starting_dir == 'W')
+	{
+		player->dir.x = -1;
+		player->dir.y = 0;
+	}
+}
+
 // void	print_ascii_mmap(t_data *data, t_player *player)
 // {
 // 	ssize_t	i;

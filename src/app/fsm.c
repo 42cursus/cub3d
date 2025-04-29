@@ -54,7 +54,7 @@ void	cleanup_map(t_info *app)
 	free_map(app->map);
 	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	get_pooled_ray_alt(2);
-	free(app->player);
+	// free(app->player);
 }
 
 t_ret_code do_state_initial(void *param, int argc, char **argv)
@@ -372,6 +372,7 @@ void do_play_to_end(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 }
 
 void do_pmenu_to_play(void *param)
@@ -394,6 +395,7 @@ void do_pmenu_to_mmenu(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -416,6 +418,7 @@ void do_pmenu_to_end(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 }
 
 void do_lose_to_mmenu(void *param)
@@ -423,6 +426,7 @@ void do_lose_to_mmenu(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -444,6 +448,7 @@ void do_lose_to_end(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 }
 
 void do_win_to_mmenu(void *param)
@@ -451,6 +456,7 @@ void do_win_to_mmenu(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -483,7 +489,8 @@ void	do_play_to_load(void *param)
 		return ;
 	}
 	free(next_lvl);
-	app->player = init_player(app);
+	// app->player = init_player(app);
+	refresh_player(app, app->player);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
@@ -508,7 +515,8 @@ void do_win_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
-	app->player = init_player(app);
+	// app->player = init_player(app);
+	refresh_player(app, app->player);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
@@ -526,6 +534,7 @@ void do_lose_to_load(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 	app->map = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
@@ -551,4 +560,5 @@ void do_win_to_end(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	free(app->player);
 }
