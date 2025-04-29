@@ -1,7 +1,7 @@
-NO textures/metroid1.xpm
-SO textures/metroid1.xpm
-WE textures/metroid2.xpm
-EA textures/metroid2.xpm
+NO textures/floor2.xpm
+SO textures/floor2.xpm
+WE textures/floor2.xpm
+EA textures/floor2.xpm
 
 F 0x4d,0x2b,0x0b
 C 0x64,0x9d,0xfa
