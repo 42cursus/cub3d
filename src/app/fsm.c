@@ -223,6 +223,7 @@ void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
 
+	app->framecount = 0;
 	app->map = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
@@ -234,7 +235,6 @@ void do_mmenu_to_load(void *param)
 //	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
-	app->framecount = 0;
 	return ;
 	(void)app;
 
@@ -480,6 +480,7 @@ void	do_play_to_load(void *param)
 
 	next_lvl = ft_strdup(app->map->sublvls[app->current_sublevel]);
 	cleanup_map(app);
+	app->framecount = 0;
 	app->map = init_map();
 	if (parse_cub(app, next_lvl))
 	{
@@ -500,7 +501,6 @@ void	do_play_to_load(void *param)
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
-	app->framecount = 0;
 }
 
 void do_win_to_load(void *param)
@@ -508,6 +508,7 @@ void do_win_to_load(void *param)
 	t_info *const app = param;
 
 	cleanup_map(app);
+	app->framecount = 0;
 	app->map = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
@@ -526,7 +527,6 @@ void do_win_to_load(void *param)
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
-	app->framecount = 0;
 }
 
 void do_lose_to_load(void *param)
@@ -536,6 +536,7 @@ void do_lose_to_load(void *param)
 	cleanup_map(app);
 	free(app->player);
 	app->map = init_map();
+	app->framecount = 0;
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
 		free_map(app->map);
@@ -552,7 +553,6 @@ void do_lose_to_load(void *param)
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
-	app->framecount = 0;
 }
 
 void do_win_to_end(void *param)

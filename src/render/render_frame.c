@@ -372,7 +372,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	int			frames;
 	t_texarr	*texp;
 
-	frames = (app->framecount - obj->anim.framestart) / (int)FR_SCALE;
+	frames = (app->framecount - obj->anim.framestart) / FR_SCALE;
 	texp = app->shtex->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = app->shtex->super_tex;
