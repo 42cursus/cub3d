@@ -424,6 +424,7 @@ int	render_lose(void *param);
 int	render_win(void *param);
 
 void	draw_sky(t_info *app);
+void 	draw_sky_alt(t_info *const app);
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 void	menu_select_current(t_info *app);

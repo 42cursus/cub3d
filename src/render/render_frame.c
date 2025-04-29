@@ -574,7 +574,7 @@ int	render_load(void *param)
 	return (0);
 }
 
-void draw_sky(t_info *const app)
+void draw_sky_alt(t_info *const app)
 {
 	int				i;
 	// int				j;
@@ -585,22 +585,22 @@ void draw_sky(t_info *const app)
 
 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
-	int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
-	int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
+	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
 
 	int start_x;
 	int end_x;
 
 	start_x = (0 - offset + sky->width) % sky->width;
-	// end_x = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
-	end_x = start_x + WIN_WIDTH;
-	if (end_x < sky->width)
+	end_x = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
+	// end_x = start_x + WIN_WIDTH - 1;
+	if (end_x > start_x)
 	{
 		i = -1;
 		while(++i < sky->height)
 		{
 			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH);
-			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH * sizeof(unsigned int));
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH * sizeof(u_int));
 		}
 	}
 	else
@@ -608,10 +608,11 @@ void draw_sky(t_info *const app)
 		i = -1;
 		while(++i < sky->height)
 		{
-			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], WIN_WIDTH - start_x);
-			// fast_memcpy_test(&(*pixels_bg)[i][WIN_WIDTH - start_x], &(*pixels_sky)[i][0], end_x % sky->width);
-			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], (WIN_WIDTH - start_x - 1) * sizeof(unsigned int));
-			ft_memcpy(&(*pixels_bg)[i][WIN_WIDTH - start_x - 1], &(*pixels_sky)[i][0], (end_x % sky->width - 1) * sizeof(unsigned int));
+			int	copy1_width = sky->width - start_x;
+			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width);
+			// fast_memcpy_test(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1));
+			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width * sizeof(u_int));
+			ft_memcpy(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1) * sizeof(u_int));
 		}
 	}
 	// i = -1;
@@ -624,6 +625,34 @@ void draw_sky(t_info *const app)
 	// 		(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
 	// 	}
 	// }
+}
+
+void draw_sky(t_info *const app)
+{
+	int				i;
+	int				j;
+	const double	angle = app->player->angle;
+	t_img	*const	sky = app->skybox;
+	t_img	*const	bg = app->canvas;
+	int 			offset;
+
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
+
+	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
+	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+
+	int start_x;
+
+	i = -1;
+	while(++i < sky->height)
+	{
+		j = -1;
+		while (++j < WIN_WIDTH)
+		{
+			start_x = (j - offset + sky->width) % sky->width;
+			(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
+		}
+	}
 }
 
 int	render_play(void *param)
