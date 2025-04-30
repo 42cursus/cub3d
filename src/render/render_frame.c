@@ -63,11 +63,11 @@ t_object	*check_obj_proximity(t_vect pos, t_data *map)
 	t_list		*current;
 	t_object	*cur_obj;
 
-	current = map->objects;
+	current = map->enemies;
 	while (current != NULL)
 	{
 		cur_obj = (t_object *)current->data;
-		if (cur_obj->type == O_ENTITY && cur_obj->dead != 1)
+		if (cur_obj->dead != 1)
 		{
 			if (vector_distance(pos, cur_obj->pos) < 0.3)
 				return (cur_obj);
@@ -109,7 +109,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
 		if (frames > 19)
 		{
-			*current = delete_object(&app->map->objects, *current);
+			*current = delete_object(&app->map->projectiles, *current);
 			return (1);
 		}
 		else if (obj->subtype == BEAM)
@@ -183,7 +183,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
 		if (frames > 15)
 		{
-			*current = delete_object(&app->map->objects, *current);
+			*current = delete_object(&app->map->projectiles, *current);
 			return (1);
 		}
 		else
@@ -335,7 +335,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 				spawn_drops(app, obj, 1);
 			else if (obj->subtype == E_PHANTOON)
 				spawn_drops(app, obj, 15);
-			*current = delete_object(&app->map->objects, *current);
+			*current = delete_object(&app->map->enemies, *current);
 			return (1);
 		}
 		else
@@ -440,7 +440,7 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 			app->rc = ok;
 			app->mlx->end_loop = 1;
 		}
-		*current = delete_object(&map->objects, *current);
+		*current = delete_object(&map->items, *current);
 		return (1);
 	}
 	return (0);
@@ -455,7 +455,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 			toggle_boss_doors(app);
 			app->map->boss_active = 1;
 			app->map->boss_obj->dir = (t_vect){0.0, 0.03};
-			*current = delete_object(&app->map->objects, *current);
+			*current = delete_object(&app->map->triggers, *current);
 			return (1);
 		}
 	}
@@ -477,18 +477,42 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	t_list		*current;
 	t_object	*obj;
 
-	current = map->objects;
+	current = map->projectiles;
 	while (current != NULL)
 	{
 		obj = (t_object *)current->data;
 		if (obj->type == O_PROJ && handle_obj_projectile(app, obj, &current))
 			continue ;
+		else if (obj->type == O_EPROJ && handle_enemy_projectile(app, obj, &current))
+			continue ;
+		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		obj->p2 = add_vect(obj->pos, obj->norm);
+		current = current->next;
+	}
+	current = map->enemies;
+	while (current != NULL)
+	{
+		obj = (t_object *)current->data;
 		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
+		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		obj->p2 = add_vect(obj->pos, obj->norm);
+		current = current->next;
+	}
+	current = map->items;
+	while (current != NULL)
+	{
+		obj = (t_object *)current->data;
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
 			continue ;
-		if (obj->type == O_EPROJ && handle_enemy_projectile(app, obj, &current))
-			continue ;
+		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		obj->p2 = add_vect(obj->pos, obj->norm);
+		current = current->next;
+	}
+	current = map->triggers;
+	while (current != NULL)
+	{
+		obj = (t_object *)current->data;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
 		if (obj->type == O_TELE)

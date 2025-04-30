@@ -164,8 +164,11 @@ typedef struct s_shtex
 	void		*playertile;
 }	t_shtex;
 
+typedef struct s_info t_info;
+
 typedef	struct s_data
 {
+	t_info		*app;
 	t_texarr	n_tex;
 	t_texarr	s_tex;
 	t_texarr	e_tex;
@@ -176,13 +179,16 @@ typedef	struct s_data
 	int			c_col;
 	char		**map;
 	t_anim		**anims;
-	t_list		*objects;
+	t_list		*enemies;
+	t_list		*items;
+	t_list		*triggers;
+	t_list		*projectiles;
+	t_object	*boss_obj;
+	bool		boss_active;
 	t_vect		starting_pos;
 	char		starting_dir;
 	int			height;
 	int			width;
-	bool		boss_active;
-	t_object	*boss_obj;
 	char		*sublvls[4];
 }	t_data;
 
@@ -325,6 +331,7 @@ typedef struct s_info
 	size_t		framerate;
 	size_t		fr_delay;
 	double		fr_scale;
+	t_list		*lvlcache;
 }	t_info;
 
 int		check_endianness(void);
@@ -339,6 +346,7 @@ int		mouse_move_play(int x, int y, void *param);
 t_data	*init_map(void);
 void	free_map(t_data *map);
 int		parse_cub(t_info *app, char *filename);
+t_data	*get_cached_lvl(t_info *app, char *name);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
 

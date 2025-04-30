@@ -296,7 +296,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
-	ft_lstadd_back(&map->objects, ft_lstnew(projectile));
+	ft_lstadd_back(&map->projectiles, ft_lstnew(projectile));
 }
 
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
@@ -309,7 +309,7 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
 	projectile->pos = enemy->pos;
 	projectile->dir = dir;
 	projectile->texture = &app->shtex->proj_tex[0];
-	ft_lstadd_back(&app->map->objects, ft_lstnew(projectile));
+	ft_lstadd_back(&app->map->projectiles, ft_lstnew(projectile));
 }
 
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
@@ -330,7 +330,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 		enemy->health = 500;
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
-	ft_lstadd_back(&map->objects, ft_lstnew(enemy));
+	ft_lstadd_back(&map->enemies, ft_lstnew(enemy));
 	return (enemy);
 }
 
@@ -347,7 +347,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->subtype = subtype;
 	item->anim.active = 1;
 	item->anim.framestart = app->framecount;
-	ft_lstadd_back(&map->objects, ft_lstnew(item));
+	ft_lstadd_back(&map->items, ft_lstnew(item));
 }
 
 void	spawn_trigger(t_info *app, t_vect pos, int subtype)
@@ -362,7 +362,7 @@ void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 	trigger->type = O_TRIGGER;
 	trigger->subtype = subtype;
 	trigger->texture = &app->shtex->empty;
-	ft_lstadd_back(&map->objects, ft_lstnew(trigger));
+	ft_lstadd_back(&map->triggers, ft_lstnew(trigger));
 }
 
 void	spawn_teleporter(t_info *app, t_vect pos, int level)
@@ -376,7 +376,7 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 	tele->type = O_TELE;
 	tele->subtype = level;
 	tele->texture = &app->shtex->tele;
-	ft_lstadd_back(&map->objects, ft_lstnew(tele));
+	ft_lstadd_back(&map->triggers, ft_lstnew(tele));
 }
 
 void	developer_console(t_info *app, t_player *player)

@@ -717,6 +717,7 @@ int	parse_cub(t_info *app, char *filename)
 
 	fd = open(filename, O_RDONLY);
 	data = app->map;
+	data->app = app;
 	data->sublvls[0] = ft_strdup(filename);
 	load_map_textures(app, tiles);
 	file = read_cub(fd);
@@ -737,13 +738,14 @@ int	parse_cub(t_info *app, char *filename)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
-	data->floor_tex.img = img_to_arr((char *)"./textures/floor5.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
+	data->floor_tex.img = img_to_arr((char *)"./textures/outside_floor.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	spawn_map_objects(app, data);
 	data->minimap = build_mmap(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);
 	init_anims(app, data);
 	free_map_textures(app, tiles);
 	close(fd);
+	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	return (0);
 }
 
@@ -847,7 +849,10 @@ void	free_map(t_data *data)
 	free(data->sublvls[3]);
 	free_split(data->map);
 	free_split((char **)data->anims);
-	ft_lstclear(&data->objects, free);
+	ft_lstclear(&data->enemies, free);
+	ft_lstclear(&data->items, free);
+	ft_lstclear(&data->triggers, free);
+	ft_lstclear(&data->projectiles, free);
 	free(data);
 }
 
@@ -914,4 +919,18 @@ void	free_shtex(t_info *app)
 		free_tex_arr(&app->shtex->phantoon_proj[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
+}
+
+t_data *get_cached_lvl(t_info *app, char *name)
+{
+	t_list	*current;
+
+	current = app->lvlcache;
+	while (current != NULL)
+	{
+		if (ft_strcmp(((t_data *)current->data)->sublvls[0], name) == 0)
+			return (current->data);
+		current = current->next;
+	}
+	return (NULL);
 }

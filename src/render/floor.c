@@ -48,13 +48,13 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
-		// if (!point_oob(curr, app->map))
-		// {
+		if (!point_oob(curr, app->map))
+		{
 			idx.y = get_tex_index(curr.y, tex->y);
 			idx.x = get_tex_index(curr.x, tex->x);
 			my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
-			// my_put_pixel_32(app->canvas, i, row, dim_colour(tex->img[idx.y][idx.x], app->player->floor_offsets[row - (WIN_HEIGHT / 2) - 1] / 4));
-		// }
+			my_put_pixel_32(app->canvas, i, row, dim_colour(tex->img[idx.y][idx.x], app->player->floor_offsets[row - (WIN_HEIGHT / 2) - 1] / 4));
+		}
 		curr.x += step.x;
 		curr.y += step.y;
 	}

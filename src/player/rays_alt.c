@@ -142,7 +142,25 @@ void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
 {
 	t_list	*current;
 
-	current = map->objects;
+	current = map->items;
+	while (current != NULL)
+	{
+		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
+		current = current->next;
+	}
+	current = map->enemies;
+	while (current != NULL)
+	{
+		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
+		current = current->next;
+	}
+	current = map->projectiles;
+	while (current != NULL)
+	{
+		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
+		current = current->next;
+	}
+	current = map->triggers;
 	while (current != NULL)
 	{
 		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
