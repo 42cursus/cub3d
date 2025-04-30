@@ -1,7 +1,7 @@
-NO textures/floor2.xpm
-SO textures/floor2.xpm
-WE textures/floor2.xpm
-EA textures/floor2.xpm
+NO textures/grass_stone.xpm
+SO textures/grass_stone.xpm
+WE textures/stone_wall.xpm
+EA textures/stone_wall.xpm
 
 F 0x4d,0x2b,0x0b
 C 0x64,0x9d,0xfa

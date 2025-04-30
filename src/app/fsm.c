@@ -473,7 +473,7 @@ void do_win_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 3;
+	app->menu_state.no_items = 4;
 }
 
 void	do_play_to_load(void *param)
