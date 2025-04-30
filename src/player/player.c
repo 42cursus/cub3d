@@ -45,11 +45,23 @@ void	set_fov(t_info *app, int fov)
 {
 	if (fov < 45)
 		fov = 45;
-	if (fov > 140)
+	else if (fov > 140)
 		fov = 140;
 	app->fov_deg = fov;
 	app->fov_rad_half = ((double)fov / 360.0) * M_PI;
 	app->fov_opp_len = tan(app->fov_rad_half);
+}
+
+void	set_framerate(t_info *app, size_t framerate)
+{
+	if (framerate < 30)
+		framerate = 30;
+	else if (framerate > 200)
+		framerate = 200;
+	app->framerate = framerate;
+	app->fr_delay = 1000000 / framerate;
+	app->fr_scale = framerate / 50.0;
+	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 }
 
 t_player	*init_player(t_info *app)
@@ -88,6 +100,34 @@ t_player	*init_player(t_info *app)
 	// rotate_vect_inplace(&player->direction, 0.01);
 	calculate_offsets(app, player);
 	return (player);
+}
+
+void	refresh_player(t_info *app, t_player *player)
+{
+	t_data		*map;
+
+	map = app->map;
+	player->pos = map->starting_pos;
+	if (map->starting_dir == 'N')
+	{
+		player->dir.x = 0;
+		player->dir.y = 1;
+	}
+	else if (map->starting_dir == 'S')
+	{
+		player->dir.x = 0;
+		player->dir.y = -1;
+	}
+	else if (map->starting_dir == 'E')
+	{
+		player->dir.x = 1;
+		player->dir.y = 0;
+	}
+	else if (map->starting_dir == 'W')
+	{
+		player->dir.x = -1;
+		player->dir.y = 0;
+	}
 }
 
 // void	print_ascii_mmap(t_data *data, t_player *player)
@@ -157,7 +197,7 @@ int	check_tile_open(char tile, t_data *map)
 	return (0);
 }
 
-void	move_entity(t_vect *pos, t_data *data, t_vect dir)
+void	move_entity(t_info *app, t_vect *pos, t_data *data, t_vect dir)
 {
 	t_vect	new_pos;
 	t_cvect	tile;
@@ -165,8 +205,8 @@ void	move_entity(t_vect *pos, t_data *data, t_vect dir)
 	char	both_tile;
 
 	map = data->map;
-	new_pos.x = pos->x + (dir.x * 0.1 / FR_SCALE);
-	new_pos.y = pos->y + (dir.y * 0.1 / FR_SCALE);
+	new_pos.x = pos->x + (dir.x * 0.1 / app->fr_scale);
+	new_pos.y = pos->y + (dir.y * 0.1 / app->fr_scale);
 	tile = (t_cvect){map[(int)pos->y][(int)new_pos.x], map[(int)new_pos.y][(int)pos->x]};
 	both_tile = map[(int)new_pos.y][(int)new_pos.x];
 	if (check_tile_open(both_tile, data))
@@ -192,12 +232,12 @@ void	move_entity(t_vect *pos, t_data *data, t_vect dir)
 	}
 }
 
-void	rotate_player(t_player *player, int direction, double sensitivity)
+void	rotate_player(t_info *app, t_player *player, int direction, double sensitivity)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->dir, M_PI_4 / (sensitivity * FR_SCALE));
+		rotate_vect_inplace(&player->dir, M_PI_4 / (sensitivity * app->fr_scale));
 	else
-		rotate_vect_inplace(&player->dir, -M_PI_4 / (sensitivity * FR_SCALE));
+		rotate_vect_inplace(&player->dir, -M_PI_4 / (sensitivity * app->fr_scale));
 }
 
 void	handle_close_door(t_info *app, t_ray *crosshair)
@@ -246,13 +286,13 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
 	projectile->texture = &app->shtex->proj_tex[0];
 	if (subtype == BEAM)
-		projectile->dir = scale_vect(player->dir, 0.5 / FR_SCALE);
+		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
 	else
 	{
 		player->ammo[subtype] -= 1;
 		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
-		projectile->dir = scale_vect(player->dir, 0.2 / FR_SCALE);
+		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
@@ -280,7 +320,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	map = app->map;
 	enemy = ft_calloc(1, sizeof(*enemy));
 	enemy->pos = pos;
-	enemy->dir = scale_vect(dir, 1.0 / FR_SCALE);
+	enemy->dir = scale_vect(dir, 1.0 / app->fr_scale);
 	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
 	enemy->subtype = subtype;

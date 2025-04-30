@@ -27,7 +27,7 @@ t_poolnode	*add_poolnode(t_poolnode *head)
 	return (new);
 }
 
-void	clear_poolnodes(t_poolnode *head)
+void	clear_poolnodes(t_poolnode *head, t_poolnode **currp)
 {
 	t_poolnode	*current;
 	t_poolnode	*temp;
@@ -40,9 +40,10 @@ void	clear_poolnodes(t_poolnode *head)
 		current = temp;
 	}
 	head->next = NULL;
+	*currp = head;
 }
 
-void	reset_pool(t_poolnode *head)
+void	reset_pool(t_poolnode *head, t_poolnode **currp)
 {
 	t_poolnode	*current;
 
@@ -52,6 +53,7 @@ void	reset_pool(t_poolnode *head)
 		current->stackp = 0;
 		current = current->next;
 	}
+	*currp = head;
 }
 
 int	count_poolnodes(t_poolnode *head)

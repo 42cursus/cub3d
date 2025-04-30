@@ -22,13 +22,13 @@
 # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 
-#define RAY_POOL_SIZE 10000
+#define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
 # define FRAMERATE 100
 #endif
-#define FR_SCALE (FRAMERATE / 50.0)
-#define FRAMETIME (1000000 / FRAMERATE)
+// #define FR_SCALE (FRAMERATE / 50.0)
+// #define FRAMETIME (1000000 / FRAMERATE)
 
 # define MLX_LIME 0x0000ff55
 # define MLX_LIGHT_RED 0x00ff5555
@@ -318,9 +318,13 @@ typedef struct s_info
 	t_ret_code	rc;
 	t_menustate	menu_state;
 	int 		current_level;
+	int 		current_sublevel;
 	int			fov_deg;
 	double		fov_rad_half;
 	double		fov_opp_len;
+	size_t		framerate;
+	size_t		fr_delay;
+	double		fr_scale;
 }	t_info;
 
 int		check_endianness(void);
@@ -339,8 +343,9 @@ void	free_split(char **split);
 void	load_shtex(t_info *app);
 
 t_player	*init_player(t_info *app);
-void		move_entity(t_vect *pos, t_data *map, t_vect dir);
-void		rotate_player(t_player *player, int direction, double sensitivity);
+void		refresh_player(t_info *app, t_player *player);
+void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 
@@ -389,6 +394,10 @@ void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
 t_ray	*get_pooled_ray(bool reset);
 t_ray	*get_pooled_ray_alt(int flag);
+t_poolnode	*add_poolnode(t_poolnode *head);
+void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
+void	reset_pool(t_poolnode *head, t_poolnode **current);
+int		count_poolnodes(t_poolnode *head);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
@@ -443,11 +452,8 @@ void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
+void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
 
-t_poolnode	*add_poolnode(t_poolnode *head);
-void	clear_poolnodes(t_poolnode *head);
-void	reset_pool(t_poolnode *head);
-int		count_poolnodes(t_poolnode *head);
 
 #endif //CUB3D_H
