@@ -20,6 +20,7 @@ void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
+static inline __attribute__((always_inline))
 int	get_tex_index(double pos, int dim)
 {
 	int	whole;
@@ -28,6 +29,7 @@ int	get_tex_index(double pos, int dim)
 	return ((whole % dim + dim) % dim);
 }
 
+static inline __attribute__((always_inline))
 int	point_oob(t_vect pos, t_data *map)
 {
 	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
