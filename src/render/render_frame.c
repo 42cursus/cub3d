@@ -602,7 +602,7 @@ int	render_load(void *param)
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
 	app->framecount++;
-	if (app->framecount == app->framerate / 2)
+	if (app->framecount == app->framerate / 4)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
