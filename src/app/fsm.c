@@ -362,6 +362,7 @@ void	do_play_to_load(void *param)
 	free(next_lvl);
 	// app->player = init_player(app);
 	refresh_player(app, app->player);
+	refresh_map(app, app->map);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");

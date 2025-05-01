@@ -334,7 +334,10 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			if (obj->subtype == E_ZOOMER)
 				spawn_drops(app, obj, 1);
 			else if (obj->subtype == E_PHANTOON)
+			{
 				spawn_drops(app, obj, 15);
+				app->map->boss_obj = NULL;
+			}
 			*current = delete_object(&app->map->enemies, *current);
 			return (1);
 		}

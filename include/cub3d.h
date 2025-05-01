@@ -360,6 +360,7 @@ void	load_shtex(t_info *app);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
+void		refresh_map(t_info *app, t_data *map);
 void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);

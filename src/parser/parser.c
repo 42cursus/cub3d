@@ -748,10 +748,29 @@ void	spawn_map_objects(t_info *app, t_data *data)
 	}
 }
 
-// void	respawn_enemies(t_info *app, t_data *map)
-// {
-//
-// }
+void	respawn_enemies(t_info *app, t_data *map)
+{
+	t_list		*cur_node;
+	t_enemypos	*cur_pos;
+
+	ft_lstclear(&map->enemies, free);
+	cur_node = map->enemy_pos;
+	while (cur_node != NULL)
+	{
+		cur_pos = (t_enemypos *)cur_node->data;
+		if (cur_pos->type == E_ZOOMER)
+			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
+		if (cur_pos->type == E_PHANTOON && map->boss_obj != NULL)
+			map->boss_obj = spawn_enemy(app, cur_pos->pos, (t_vect){0, 0}, E_PHANTOON);
+		cur_node = cur_node->next;
+	}
+}
+
+void	refresh_map(t_info *app, t_data *map)
+{
+	respawn_enemies(app, map);
+	ft_lstclear(&map->projectiles, free);
+}
 
 int	parse_cub(t_info *app, char *filename)
 {
@@ -899,6 +918,7 @@ void	free_map(t_data *data)
 	ft_lstclear(&data->items, free);
 	ft_lstclear(&data->triggers, free);
 	ft_lstclear(&data->projectiles, free);
+	ft_lstclear(&data->enemy_pos, free);
 	free(data);
 }
 
