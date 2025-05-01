@@ -285,7 +285,7 @@ void do_load_to_play(void *param)
 	// 		spawn_item(app, thing->pos, thing->subtype);
 	// }
 	replace_image(app, &app->bg, NULL);
-	fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
+	// fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
@@ -347,6 +347,7 @@ void	do_play_to_load(void *param)
 	app->map->starting_pos = add_vect(app->player->pos, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
 	// app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
 	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);
+	refresh_map(app, app->map);
 	app->map = get_cached_lvl(app, next_lvl);
 	if (app->map == NULL)
 	{
@@ -362,7 +363,6 @@ void	do_play_to_load(void *param)
 	free(next_lvl);
 	// app->player = init_player(app);
 	refresh_player(app, app->player);
-	refresh_map(app, app->map);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
@@ -429,7 +429,7 @@ void do_pmenu_to_play(void *param)
 	t_info *const app = param;
 
 	replace_image(app, &app->bg, NULL);
-	fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
+	// fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);

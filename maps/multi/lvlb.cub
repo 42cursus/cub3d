@@ -3,7 +3,7 @@ SO textures/floor3.xpm
 WE textures/floor3.xpm
 EA textures/floor3.xpm
 
-F 0x4d,0x2b,0x0b
+F textures/floor2.xpm
 C 0x64,0x9d,0xfa
 
 LVL_A start.cub

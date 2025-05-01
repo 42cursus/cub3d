@@ -433,6 +433,10 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 		tex_addr = &data->e_tex;
 	else if (identifier == WEST)
 		tex_addr = &data->w_tex;
+	else if (identifier == FLOOR)
+		tex_addr = &data->floor_tex;
+	// else if (identifier == CEILING)
+	// 	tex_addr = &data->w_tex;
 	else
 		return (1);
 	if (tex_addr->img != NULL)
@@ -469,7 +473,7 @@ int	parse_line(t_data *data, char *line, t_info *app)
 	if (!identifier)
 		return (printf("Error: invalid line identifier\n"),
 			free_split(split), 1);
-	else if (identifier < 3)
+	else if (identifier == CEILING)
 		retval = parse_colour(data, split[1], identifier);
 	else if (identifier < 7)
 		retval = parse_texture(data, split[1], identifier, app);
@@ -488,8 +492,10 @@ int	all_fields_parsed(t_data *data)
 		return (0);
 	if (data->w_tex.img == NULL)
 		return (0);
-	if (data->f_col == -1)
+	if (data->floor_tex.img == NULL)
 		return (0);
+	// if (data->f_col == -1)
+	// 	return (0);
 	if (data->c_col == -1)
 		return (0);
 	return (1);
@@ -766,10 +772,69 @@ void	respawn_enemies(t_info *app, t_data *map)
 	}
 }
 
+void	remove_drops(t_data *map)
+{
+	t_list	*current;
+	t_list	*temp;
+
+	current = map->items;
+	if (current == NULL)
+		return ;
+	while (((t_object *)current->content)->subtype >= I_AMMO_M && ((t_object *)current->content)->subtype <= I_HEALTH)
+	{
+		map->items = current->next;
+		ft_lstdelone(current, free);
+		current = map->items;
+		if (current == NULL)
+			return ;
+	}
+	while (current->next != NULL)
+	{
+		if (((t_object *)current->next->content)->subtype >= I_AMMO_M && ((t_object *)current->next->content)->subtype <= I_HEALTH)
+		{
+			temp = current->next->next;
+			ft_lstdelone(current->next, free);
+			current->next = temp;
+			continue ;
+		}
+		current = current->next;
+	}
+}
+
+void	reset_anims(t_info *app, t_data *map)
+{
+	int	i;
+
+	i = -1;
+	while (++i < map->height)
+		ft_bzero(map->anims[i], map->width * sizeof(t_anim));
+	init_anims(app, map);
+}
+
+void	reset_doors(t_data *map)
+{
+	int	i;
+	int	j;
+
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'O')
+				map->map[i][j] = 'D';
+		}
+	}
+}
+
 void	refresh_map(t_info *app, t_data *map)
 {
 	respawn_enemies(app, map);
 	ft_lstclear(&map->projectiles, free);
+	remove_drops(map);
+	reset_doors(map);
+	reset_anims(app, map);
 }
 
 int	parse_cub(t_info *app, char *filename)
@@ -803,7 +868,7 @@ int	parse_cub(t_info *app, char *filename)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
-	data->floor_tex.img = img_to_arr((char *)"./textures/outside_floor.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
+	// data->floor_tex.img = img_to_arr((char *)"./textures/outside_floor.xpm", app, &data->floor_tex.x, &data->floor_tex.y);
 	spawn_map_objects(app, data);
 	data->minimap = build_mmap(app, tiles);
 	data->anims = create_anim_arr(data->width, data->height);

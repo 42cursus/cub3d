@@ -219,7 +219,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	}
 	lineheight = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	// lineheight = (int)(WIN_HEIGHT / (ray->distance));
-	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
+	top = WIN_HEIGHT / 2 - lineheight / 2;
 	if (top < 0)
 		y = 0 - top;
 	else

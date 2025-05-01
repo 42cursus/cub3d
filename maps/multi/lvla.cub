@@ -3,7 +3,7 @@ SO textures/grass_stone.xpm
 WE textures/stone_wall.xpm
 EA textures/stone_wall.xpm
 
-F 0x4d,0x2b,0x0b
+F textures/outside_floor.xpm
 C 0x64,0x9d,0xfa
 
 LVL_A lvlb.cub

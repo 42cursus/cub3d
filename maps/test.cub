@@ -3,7 +3,7 @@ SO textures/metroid1.xpm
 WE textures/metroid2.xpm
 EA textures/metroid2.xpm
 
-F 0x4d,0x2b,0x0b
+F textures/floor5.xpm
 C 0x64,0x9d,0xfa
 
 LVL_A test4.cub
