@@ -1,7 +1,7 @@
-NO textures/floor3.xpm
-SO textures/floor3.xpm
-WE textures/floor3.xpm
-EA textures/floor3.xpm
+NO textures/norfair_wall1.xpm
+SO textures/norfair_wall1.xpm
+WE textures/norfair_wall1.xpm
+EA textures/norfair_wall1.xpm
 
 F textures/floor2.xpm
 C 0x64,0x9d,0xfa
