@@ -464,7 +464,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 
 void	handle_tele(t_info *app, t_object *tele)
 {
-	if (vector_distance(app->player->pos, tele->pos) < 0.2)
+	if (vector_distance(app->player->pos, tele->pos) < 0.4)
 	{
 		app->current_sublevel = tele->subtype;
 		app->rc = extra;
