@@ -77,26 +77,7 @@ t_player	*init_player(t_info *app)
 	player->equipped = BEAM;
 	player->ammo[BEAM] = -1;
 	player->max_ammo[BEAM] = -1;
-	if (map->starting_dir == 'N')
-	{
-		player->dir.x = 0;
-		player->dir.y = 1;
-	}
-	else if (map->starting_dir == 'S')
-	{
-		player->dir.x = 0;
-		player->dir.y = -1;
-	}
-	else if (map->starting_dir == 'E')
-	{
-		player->dir.x = 1;
-		player->dir.y = 0;
-	}
-	else if (map->starting_dir == 'W')
-	{
-		player->dir.x = -1;
-		player->dir.y = 0;
-	}
+	player->dir = map->starting_dir;
 	// rotate_vect_inplace(&player->direction, 0.01);
 	calculate_offsets(app, player);
 	return (player);
@@ -108,26 +89,7 @@ void	refresh_player(t_info *app, t_player *player)
 
 	map = app->map;
 	player->pos = map->starting_pos;
-	if (map->starting_dir == 'N')
-	{
-		player->dir.x = 0;
-		player->dir.y = 1;
-	}
-	else if (map->starting_dir == 'S')
-	{
-		player->dir.x = 0;
-		player->dir.y = -1;
-	}
-	else if (map->starting_dir == 'E')
-	{
-		player->dir.x = 1;
-		player->dir.y = 0;
-	}
-	else if (map->starting_dir == 'W')
-	{
-		player->dir.x = -1;
-		player->dir.y = 0;
-	}
+	player->dir = map->starting_dir;
 }
 
 // void	print_ascii_mmap(t_data *data, t_player *player)

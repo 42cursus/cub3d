@@ -79,6 +79,12 @@ typedef struct s_cvect
 	char	y;
 }	t_cvect;
 
+typedef struct s_enemypos
+{
+	int		type;
+	t_vect	pos;
+}	t_enemypos;
+
 typedef struct s_object
 {
 	int			type;
@@ -183,10 +189,11 @@ typedef	struct s_data
 	t_list		*items;
 	t_list		*triggers;
 	t_list		*projectiles;
+	t_list		*enemy_pos;
 	t_object	*boss_obj;
 	bool		boss_active;
 	t_vect		starting_pos;
-	char		starting_dir;
+	t_vect		starting_dir;
 	int			height;
 	int			width;
 	char		*sublvls[4];
@@ -223,6 +230,7 @@ typedef struct s_player
 	double	angle_offsets[WIN_WIDTH];
 	double	floor_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
+	t_vect	tele_pos;
 }	t_player;
 
 enum

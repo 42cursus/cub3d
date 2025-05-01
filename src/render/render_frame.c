@@ -469,6 +469,7 @@ void	handle_tele(t_info *app, t_object *tele)
 		app->current_sublevel = tele->subtype;
 		app->rc = extra;
 		app->mlx->end_loop = 1;
+		app->player->tele_pos = tele->pos;
 	}
 }
 

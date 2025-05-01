@@ -238,6 +238,30 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 	return (1);
 }
 
+void	set_starting_dir(t_data *map, char dir)
+{
+	if (dir == 'N')
+	{
+		map->starting_dir.x = 0;
+		map->starting_dir.y = 1;
+	}
+	else if (dir == 'S')
+	{
+		map->starting_dir.x = 0;
+		map->starting_dir.y = -1;
+	}
+	else if (dir == 'E')
+	{
+		map->starting_dir.x = 1;
+		map->starting_dir.y = 0;
+	}
+	else if (dir == 'W')
+	{
+		map->starting_dir.x = -1;
+		map->starting_dir.y = 0;
+	}
+}
+
 int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 {
 	char	tile;
@@ -249,7 +273,7 @@ int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
 		data->starting_pos.x = (double)j + 0.5;
 		data->starting_pos.y = (double)i + 0.5;
-		data->starting_dir = (data->map)[i][j];
+		set_starting_dir(data, (data->map)[i][j]);
 		(data->map)[i][j] = '0';
 		*start_found = 1;
 	}
@@ -667,6 +691,17 @@ void	init_anims(t_info *app, t_data *map)
 	}
 }
 
+t_enemypos	*construct_enemypos(double x, double y, int type)
+{
+	t_enemypos	*new;
+
+	new = ft_calloc(1, sizeof(*new));
+	new->pos.x = x;
+	new->pos.y = y;
+	new->type = type;
+	return (new);
+}
+
 void	spawn_map_objects(t_info *app, t_data *data)
 {
 	char	**map;
@@ -693,9 +728,15 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				else if (map[i][j] == 'e')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_ETANK);
 				else if (map[i][j] == 'Z')
+				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
+					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ZOOMER)));
+				}
 				else if (map[i][j] == 'P')
+				{
 					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
+					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_PHANTOON)));
+				}
 				else if (map[i][j] >= '2' && map[i][j] <= '4')
 				{
 					if (data->sublvls[map[i][j] - '2'] != NULL)
@@ -706,6 +747,11 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		}
 	}
 }
+
+// void	respawn_enemies(t_info *app, t_data *map)
+// {
+//
+// }
 
 int	parse_cub(t_info *app, char *filename)
 {
