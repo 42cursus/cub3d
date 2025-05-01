@@ -344,9 +344,9 @@ void	do_play_to_load(void *param)
 	// if (get_cached_lvl(app, app->map->sublvls[0]) == NULL)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	app->framecount = 0;
-	app->map->starting_pos = add_vect(app->player->pos, subtract_vect(app->player->pos, app->player->tele_pos));
-	app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
-	app->map->starting_dir = app->player->dir;
+	app->map->starting_pos = scale_vect(add_vect(app->player->pos, subtract_vect(app->player->pos, app->player->tele_pos)), 3);
+	// app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
+	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);
 	app->map = get_cached_lvl(app, next_lvl);
 	if (app->map == NULL)
 	{
