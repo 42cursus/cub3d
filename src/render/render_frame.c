@@ -212,12 +212,17 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 
 void	handle_enemy_anim(t_info *app, t_object *enemy)
 {
-	int		frame_mod;
+	int			frame_mod;
+	t_texarr	*tex;
 
-	if (enemy->subtype == E_ZOOMER)
+	if (enemy->subtype != E_PHANTOON)
 	{
+		if (enemy->subtype == E_ZOOMER)
+			tex = app->shtex->crawler_tex;
+		else
+			tex = app->shtex->atomic_tex;
 		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * app->fr_scale);
-		enemy->texture = &app->shtex->crawler_tex[(int)(frame_mod / (5 * app->fr_scale))];
+		enemy->texture = &tex[(int)(frame_mod / (5 * app->fr_scale))];
 	}
 	else if (enemy->subtype == E_PHANTOON)
 	{
@@ -331,9 +336,9 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		frames = (app->framecount - obj->anim2.framestart) / app->fr_scale;
 		if (frames > 17)
 		{
-			if (obj->subtype == E_ZOOMER)
+			if (obj->subtype != E_PHANTOON)
 				spawn_drops(app, obj, 1);
-			else if (obj->subtype == E_PHANTOON)
+			else
 			{
 				spawn_drops(app, obj, 15);
 				app->map->boss_obj = NULL;

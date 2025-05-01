@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLMemstZPBb234", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZAPBb234", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZPBb234", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZAPBb234", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZPBb234", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZAPBb234", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZPBb234", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -295,7 +295,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZPBb234", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZAPBb234", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -628,6 +628,20 @@ void	load_health_pu_tex(t_info *app)
 	}
 }
 
+void	load_atomic_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 6)
+	{
+		ft_snprintf(buf, 50, "./textures/atomic%c.xpm", i + '0');
+		app->shtex->atomic_tex[i].img = img_to_arr(buf, app, &app->shtex->atomic_tex[i].x, &app->shtex->atomic_tex[i].y);
+		i++;
+	}
+}
+
 void	load_phantoon_tex(t_info *app)
 {
 	int		i;
@@ -721,7 +735,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		j = -1;
 		while (++j < data->width)
 		{
-			if (ft_strchr("mestZPb234", map[i][j]))
+			if (ft_strchr("mestZAPb234", map[i][j]))
 			{
 				if (map[i][j] == 'm')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
@@ -737,6 +751,11 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
 					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ZOOMER)));
+				}
+				else if (map[i][j] == 'A')
+				{
+					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ATOMIC);
+					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ATOMIC)));
 				}
 				else if (map[i][j] == 'P')
 				{
@@ -764,9 +783,9 @@ void	respawn_enemies(t_info *app, t_data *map)
 	while (cur_node != NULL)
 	{
 		cur_pos = (t_enemypos *)cur_node->data;
-		if (cur_pos->type == E_ZOOMER)
-			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ZOOMER);
-		if (cur_pos->type == E_PHANTOON && map->boss_obj != NULL)
+		if (cur_pos->type != E_PHANTOON)
+			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), cur_pos->type);
+		else if (map->boss_obj != NULL)
 			map->boss_obj = spawn_enemy(app, cur_pos->pos, (t_vect){0, 0}, E_PHANTOON);
 		cur_node = cur_node->next;
 	}
@@ -937,6 +956,7 @@ void	load_shtex(t_info *app)
 	load_health_pu_tex(app);
 	load_ammo_tex(app);
 	load_phantoon_tex(app);
+	load_atomic_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
@@ -1012,6 +1032,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&app->shtex->crawler_tex[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&app->shtex->atomic_tex[i++]);
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&app->shtex->explode_tex[i++]);

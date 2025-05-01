@@ -288,6 +288,8 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->subtype = subtype;
 	if (subtype == E_ZOOMER)
 		enemy->health = 20;
+	if (subtype == E_ATOMIC)
+		enemy->health = 30;
 	else if (subtype == E_PHANTOON)
 		enemy->health = 500;
 	enemy->anim.active = 1;
