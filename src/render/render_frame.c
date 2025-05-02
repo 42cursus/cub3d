@@ -215,7 +215,7 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 	int			frame_mod;
 	t_texarr	*tex;
 
-	if (enemy->subtype != E_PHANTOON)
+	if (enemy->subtype == E_ZOOMER || enemy->subtype == E_ATOMIC)
 	{
 		if (enemy->subtype == E_ZOOMER)
 			tex = app->shtex->crawler_tex;
@@ -247,6 +247,12 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 			enemy->texture = &app->shtex->phantoon[3];
 		else
 			enemy->texture = &app->shtex->phantoon[0];
+	}
+	else if (enemy->subtype == E_REO)
+	{
+		tex = &app->shtex->reo_tex[2 * enemy->attacking];
+		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(8 * app->fr_scale);
+		enemy->texture = &tex[frame_mod < 4];
 	}
 }
 
@@ -604,8 +610,8 @@ int	render_load(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	while (get_time_us() - app->last_frame < app->fr_delay)
-		usleep(100);
+	// while (get_time_us() - app->last_frame < app->fr_delay)
+	// 	usleep(100);
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;

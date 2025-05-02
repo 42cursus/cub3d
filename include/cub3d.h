@@ -19,8 +19,8 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
-//# define WIN_HEIGHT 960
-# define WIN_HEIGHT 720
+# define WIN_HEIGHT 960
+// # define WIN_HEIGHT 720
 # define WIN_WIDTH 1280
 
 #define RAY_POOL_SIZE 5000
@@ -91,6 +91,7 @@ typedef struct s_object
 	int			type;
 	int			subtype;
 	int			dead;
+	int			attacking;
 	int			health;
 	t_vect		pos;
 	t_vect		norm;
@@ -152,6 +153,7 @@ typedef struct s_shtex
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	atomic_tex[6];
+	t_texarr	reo_tex[4];
 	t_texarr	proj_tex[10];
 	t_texarr	explode_tex[6];
 	t_texarr	energy_tex[3];
@@ -271,6 +273,7 @@ typedef enum e_subtype
 {
 	E_ZOOMER,
 	E_ATOMIC,
+	E_REO,
 	E_PHANTOON,
 	I_ETANK,
 	I_SUPER,
