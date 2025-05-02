@@ -625,7 +625,7 @@ void draw_sky_alt(t_info *const app)
 	// int				j;
 	const double	angle = app->player->angle;
 	t_img	*const	sky = app->skybox;
-	t_img	*const	bg = app->canvas;
+	t_img	*const	bg = app->bg;
 	int 			offset;
 
 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
@@ -654,8 +654,6 @@ void draw_sky_alt(t_info *const app)
 		while(++i < sky->height)
 		{
 			int	copy1_width = sky->width - start_x;
-			// fast_memcpy_test(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width);
-			// fast_memcpy_test(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1));
 			ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][start_x], copy1_width * sizeof(u_int));
 			ft_memcpy(&(*pixels_bg)[i][copy1_width], &(*pixels_sky)[i][0], (end_x + 1) * sizeof(u_int));
 		}

@@ -120,6 +120,7 @@ t_ret_code do_state_play(void *param)
 
 
 	mlx_mouse_hide(app->mlx, app->root);
+	draw_sky_alt(app);
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->root);
 
