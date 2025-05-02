@@ -109,7 +109,7 @@ t_ret_code do_state_load(void *param)
 	t_info *const app = param;
 
 	mlx_loop(app->mlx);
-	replace_image(app, &app->skybox, (char *) "./textures/skybox.xpm");
+	replace_sky(app, (char *) "./textures/skybox.xpm");
 
 	return (ok);
 	(void)app;
@@ -141,6 +141,8 @@ t_ret_code do_state_win(void *param)
 {
 	t_info *const app = param;
 
+	replace_sky(app, (char *)"./textures/skybox1.xpm");
+	draw_sky_alt(app);
 	mlx_loop(app->mlx);
 	return (app->rc);
 }
@@ -149,6 +151,8 @@ t_ret_code do_state_lose(void *param)
 {
 	t_info *const app = param;
 
+	replace_sky(app, (char *)"./textures/skybox1.xpm");
+	draw_sky_alt(app);
 	mlx_loop(app->mlx);
 	return (app->rc);
 }
