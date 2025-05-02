@@ -329,6 +329,26 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	// (void)obj;
 }
 
+void	reo_ai(t_info *app, t_object *enemy)
+{
+	int		frames;
+	t_vect	norm_diff;
+
+	if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
+		enemy->attacking = 1;
+	frames = (app->framecount % (int)(100 * app->fr_scale));
+	if (enemy->attacking == 0)
+	{
+		if (frames % 25 == 0)
+			rotate_vect_inplace(&enemy->dir, rand_range(-M_PI, M_PI));
+	}
+	else
+	{
+		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
+		enemy->dir = scale_vect(norm_diff, 0.1 / app->fr_scale);
+	}
+}
+
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
@@ -359,6 +379,8 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 	new_pos = add_vect(obj->pos, obj->dir);
 	if (obj->subtype == E_PHANTOON)
 		phantoon_ai(app, obj);
+	else if (obj->subtype == E_REO)
+		reo_ai(app, obj);
 	map = app->map;
 	handle_enemy_anim(app, obj);
 	tile = &map->map[(int)new_pos.y][(int)new_pos.x];
