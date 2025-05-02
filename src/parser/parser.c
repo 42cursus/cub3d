@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLMemstZAPBb234", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZARPBb234", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAPBb234", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZARPBb234", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAPBb234", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZARPBb234", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAPBb234", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -295,7 +295,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZAPBb234", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZARPBb234", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -642,6 +642,26 @@ void	load_atomic_tex(t_info *app)
 	}
 }
 
+void	load_reo_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 2)
+	{
+		ft_snprintf(buf, 50, "./textures/reo_%c.xpm", i + '0');
+		app->shtex->reo_tex[i].img = img_to_arr(buf, app, &app->shtex->reo_tex[i].x, &app->shtex->reo_tex[i].y);
+		i++;
+	}
+	while (i < 4)
+	{
+		ft_snprintf(buf, 50, "./textures/reo_attack_%c.xpm", i - 2 + '0');
+		app->shtex->reo_tex[i].img = img_to_arr(buf, app, &app->shtex->reo_tex[i].x, &app->shtex->reo_tex[i].y);
+		i++;
+	}
+}
+
 void	load_phantoon_tex(t_info *app)
 {
 	int		i;
@@ -735,7 +755,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		j = -1;
 		while (++j < data->width)
 		{
-			if (ft_strchr("mestZAPb234", map[i][j]))
+			if (ft_strchr("mestZARPb234", map[i][j]))
 			{
 				if (map[i][j] == 'm')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
@@ -756,6 +776,11 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_ATOMIC);
 					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ATOMIC)));
+				}
+				else if (map[i][j] == 'R')
+				{
+					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), E_REO);
+					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_REO)));
 				}
 				else if (map[i][j] == 'P')
 				{
@@ -957,6 +982,7 @@ void	load_shtex(t_info *app)
 	load_ammo_tex(app);
 	load_phantoon_tex(app);
 	load_atomic_tex(app);
+	load_reo_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
@@ -1029,6 +1055,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 2)
 		free_tex_arr(&app->shtex->cannon_tex[i++]);
+	i = 0;
+	while (i < 4)
+		free_tex_arr(&app->shtex->reo_tex[i++]);
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&app->shtex->crawler_tex[i++]);
