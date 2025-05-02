@@ -22,11 +22,13 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-pg \
-					-D FRAMERATE=50 \
+					-ffast-math \
+					-mprefer-vector-width=512 \
 					-fsanitize=address
 					-fsanitize=undefined \
 					-fsanitize=float-divide-by-zero \
 					-fsanitize=float-cast-overflow \
+					-D FRAMERATE=50
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
