@@ -83,6 +83,21 @@ int	dim_colour(int col, double fact)
 	return ((r << 16) + (g << 8) + b);
 }
 
+void replace_sky(t_info *app, char *tex_file)
+{
+	t_img	**img = &app->skybox;
+	t_img	*new;
+	t_img	tmp;
+
+	if (*img != NULL)
+		mlx_destroy_image(app->mlx, *img);
+	new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+	int new_x = WIN_WIDTH * 360.0 / app->fov_deg;
+	new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
+	new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
+	*img = new;
+}
+
 void replace_image(t_info *app, t_img **img, char *tex_file)
 {
 	t_img *new;
@@ -98,14 +113,7 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 			ft_printf("Error opening file: \"%s\"\n", tex_file);
 			exit((cleanup(app), EXIT_FAILURE));
 		}
-		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
-		{
-			int new_x = WIN_WIDTH * 360.0 / app->fov_deg;
-			new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
-			new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
-		}
-		else
-			new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
+		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
 		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
