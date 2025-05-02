@@ -109,6 +109,7 @@ t_ret_code do_state_load(void *param)
 	t_info *const app = param;
 
 	mlx_loop(app->mlx);
+	replace_image(app, &app->skybox, (char *) "./textures/skybox.xpm");
 
 	return (ok);
 	(void)app;

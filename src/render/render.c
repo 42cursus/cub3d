@@ -100,10 +100,8 @@ void replace_image(t_info *app, t_img **img, char *tex_file)
 		}
 		if (!ft_strcmp(tex_file, "./textures/skybox.xpm"))
 		{
-			// int new_x = new->width * ((WIN_HEIGHT / 2) / new->height);
 			int new_x = WIN_WIDTH * 360.0 / app->fov_deg;
-			// new = scale_image(app, new, new_x + 1, WIN_HEIGHT);
-			// new = scale_image(app, new, new_x, (new_x / new->width) * new->height);
+			new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
 			new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
 		}
 		else

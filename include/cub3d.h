@@ -19,7 +19,8 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
-# define WIN_HEIGHT 960
+//# define WIN_HEIGHT 960
+# define WIN_HEIGHT 720
 # define WIN_WIDTH 1280
 
 #define RAY_POOL_SIZE 5000

@@ -623,11 +623,12 @@ void draw_sky_alt(t_info *const app)
 {
 	int				i;
 	// int				j;
-	const double	angle = app->player->angle;
+	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
 	t_img	*const	sky = app->skybox;
 	t_img	*const	bg = app->bg;
 	int 			offset;
 
+	app->player->angle = angle;
 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
