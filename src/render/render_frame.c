@@ -545,6 +545,16 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 	t_list		*current;
 	t_object	*obj;
 
+	current = map->enemies;
+	while (current != NULL)
+	{
+		obj = (t_object *)current->data;
+		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
+			continue ;
+		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		obj->p2 = add_vect(obj->pos, obj->norm);
+		current = current->next;
+	}
 	current = map->projectiles;
 	while (current != NULL)
 	{
@@ -552,16 +562,6 @@ void	update_objects(t_info *app, t_player *player, t_data *map)
 		if (obj->type == O_PROJ && handle_obj_projectile(app, obj, &current))
 			continue ;
 		else if (obj->type == O_EPROJ && handle_enemy_projectile(app, obj, &current))
-			continue ;
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
-		current = current->next;
-	}
-	current = map->enemies;
-	while (current != NULL)
-	{
-		obj = (t_object *)current->data;
-		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
