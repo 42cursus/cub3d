@@ -259,7 +259,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
 			my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
-			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], 2));
+			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 			y++;
 		}
 	}

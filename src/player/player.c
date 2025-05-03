@@ -498,6 +498,7 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;
 	enemy->attacking = 1;
+	enemy->last_damaged = app->last_frame;
 	if (enemy->health <= 0)
 	{
 		enemy->dead = 1;
@@ -509,6 +510,4 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 			toggle_boss_doors(app);
 		}
 	}
-	else
-		enemy->last_damaged = app->last_frame;
 }
