@@ -47,7 +47,6 @@ typedef struct s_texarr
 typedef struct s_animation
 {
 	int			active;
-	size_t		framestart;
 	size_t		timestart;
 	t_texarr	*tex_arr;
 }	t_anim;

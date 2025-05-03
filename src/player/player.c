@@ -220,16 +220,15 @@ void	rotate_player(t_info *app, t_player *player, int direction, double sensitiv
 	draw_sky_alt(app);
 }
 
-void	handle_close_door(t_info *app, t_ray *crosshair)
-{
-	t_anim	*anim;
-	
-	app->map->map[crosshair->maptile.y][crosshair->maptile.x] = 'D';
-	anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
-	anim->active = 1;
-	anim->framestart = app->framecount;
-	anim->timestart = app->last_frame;
-}
+// void	handle_close_door(t_info *app, t_ray *crosshair)
+// {
+// 	t_anim	*anim;
+//
+// 	app->map->map[crosshair->maptile.y][crosshair->maptile.x] = 'D';
+// 	anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+// 	anim->active = 1;
+// 	anim->timestart = app->last_frame;
+// }
 
 void	handle_open_door(t_info *app, t_ray *crosshair)
 {
@@ -237,8 +236,6 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 	t_anim	*anim;
 	char	*doortile;
 
-	// app->player->hud.active = 1;
-	// app->player->hud.framestart = app->framecount;
 	if (crosshair->distance < 1.0)
 	{
 		doortile = &app->map->map[crosshair->maptile.y][crosshair->maptile.x];
@@ -250,7 +247,6 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 		else
 			return ;
 		anim->active = 1;
-		anim->framestart = app->framecount;
 		anim->timestart = app->last_frame;
 	}
 	if (crosshair->in_front != NULL)
@@ -262,7 +258,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	t_object	*projectile;
 
 	player->hud.active = 1;
-	player->hud.framestart = app->framecount;
+	player->hud.timestart = app->last_frame;
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
@@ -314,7 +310,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	if (subtype == E_ATOMIC)
 	{
 		enemy->health = 50;
-		enemy->speed = 0.03;
+		enemy->speed = 0.04;
 	}
 	if (subtype == E_REO)
 	{
@@ -327,7 +323,6 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 		enemy->speed = 0.04;
 	}
 	enemy->anim.active = 1;
-	enemy->anim.framestart = app->framecount;
 	enemy->anim.timestart = app->last_frame;
 	ft_lstadd_back(&map->enemies, ft_lstnew(enemy));
 	return (enemy);
@@ -345,7 +340,6 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->type = O_ITEM;
 	item->subtype = subtype;
 	item->anim.active = 1;
-	item->anim.framestart = app->framecount;
 	item->anim.timestart = app->last_frame;
 	ft_lstadd_back(&map->items, ft_lstnew(item));
 }
@@ -490,7 +484,7 @@ void	toggle_boss_doors(t_info *app)
 			if (map[i][j] == 'B')
 			{
 				anims[i][j].active = 1;
-				anims[i][j].framestart = app->framecount;
+				anims[i][j].timestart = app->last_frame;
 				// if (app->map->boss_active == 0)
 				// 	app->map->boss_active = 1;
 				// else
@@ -507,7 +501,6 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 	if (enemy->health <= 0)
 	{
 		enemy->dead = 1;
-		enemy->anim2.framestart = app->framecount;
 		enemy->anim2.timestart = app->last_frame;
 		enemy->anim2.active = 1;
 		if (enemy->subtype == E_PHANTOON)

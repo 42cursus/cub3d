@@ -168,7 +168,7 @@ t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texarr	*tex;
 
-	frames = (app->framecount - anim->framestart) / app->fr_scale;
+	frames = (app->last_frame - anim->timestart) / 20000;
 	if (frames > 19)
 	{
 		anim->active = 0;
@@ -186,7 +186,7 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	t_texarr	*door_tex;
 	t_texarr	*tex;
 
-	frames = (app->framecount - anim->framestart) / app->fr_scale;
+	frames = (app->last_frame - anim->timestart) / 20000;
 	door_tex = app->shtex->door_tex;
 	if (anim->tex_arr == app->shtex->door_boss_tex)
 		door_tex = anim->tex_arr;
