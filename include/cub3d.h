@@ -19,9 +19,11 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
-# define WIN_HEIGHT 960
 // # define WIN_HEIGHT 720
+# define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
+// # define WIN_HEIGHT 900
+// # define WIN_WIDTH 1600
 
 #define RAY_POOL_SIZE 5000
 
@@ -480,6 +482,5 @@ t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
-
 
 #endif //CUB3D_H

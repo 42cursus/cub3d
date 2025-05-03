@@ -19,8 +19,10 @@ int	cleanup(t_info *app)
 	get_pooled_ray_alt(2);
 	mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_image(app->mlx, app->bg);
-	mlx_destroy_image(app->mlx, app->stillshot);
-	mlx_destroy_image(app->mlx, app->skybox);
+	if (app->stillshot != NULL)
+		mlx_destroy_image(app->mlx, app->stillshot);
+	if (app->skybox != NULL)
+		mlx_destroy_image(app->mlx, app->skybox);
 	mlx_destroy_window(app->mlx, app->root);
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);
