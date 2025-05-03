@@ -809,9 +809,9 @@ void	respawn_enemies(t_info *app, t_data *map)
 	{
 		cur_pos = (t_enemypos *)cur_node->data;
 		if (cur_pos->type != E_PHANTOON)
-			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 0.03}, rand_range(-M_PI, M_PI)), cur_pos->type);
+			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 1.0}, rand_range(-M_PI, M_PI)), cur_pos->type);
 		else if (map->boss_obj != NULL)
-			map->boss_obj = spawn_enemy(app, cur_pos->pos, (t_vect){0, 0}, E_PHANTOON);
+			map->boss_obj = spawn_enemy(app, cur_pos->pos, (t_vect){0, 1}, E_PHANTOON);
 		cur_node = cur_node->next;
 	}
 }
