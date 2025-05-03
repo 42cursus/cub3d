@@ -83,6 +83,19 @@ int	dim_colour(int col, double fact)
 	return ((r << 16) + (g << 8) + b);
 }
 
+int	tint_red(int col)
+{
+	// unsigned int	r;
+
+	if (col == MLX_TRANSPARENT)
+		return (col);
+	// r = ((col >> 16) & 0xff) * 2;
+	// if (r > 0xff)
+	// 	r = 0xff;
+	// return ((col & 0xffff) + ((unsigned char)r << 16));
+	return ((col & 0xffff) + 0xff0000);
+}
+
 void replace_sky(t_info *app, char *tex_file)
 {
 	t_img	**img = &app->skybox;
@@ -230,12 +243,25 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		y = 0 - top;
 	else
 		y = 0;
-	while (y < lineheight && y + top < WIN_HEIGHT)
+	if (ray->damaged == 1)
 	{
-		h_index = ((double)y / lineheight) * texture->y;
-		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
-		// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
-		y++;
+		while (y < lineheight && y + top < WIN_HEIGHT)
+		{
+			h_index = ((double)y / lineheight) * texture->y;
+			// my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
+			my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[h_index][pos]));
+			y++;
+		}
+	}
+	else
+	{
+		while (y < lineheight && y + top < WIN_HEIGHT)
+		{
+			h_index = ((double)y / lineheight) * texture->y;
+			my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
+			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], 2));
+			y++;
+		}
 	}
 	if (ray->in_front != NULL)
 	{

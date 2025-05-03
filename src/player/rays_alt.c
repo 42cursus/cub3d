@@ -206,6 +206,7 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	out->in_front = NULL;
 	out->intcpt = intcpt;
 	out->face = NONE;
+	out->damaged = 0;
 	out->texture = object->texture;
 	out->distance = get_cam_distance(player->pos, player->angle + M_PI_2, out->intcpt);
 	if (out->distance < 0.00001)
@@ -219,6 +220,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	// printf("pos: %f\n", out->pos);
 	if (object->type == O_ENTITY && object->attacking == 0 && vector_distance(player->pos, object->pos) < 3)
 		object->attacking = 1;
+	if (get_time_us() - object->last_damaged < 100000)
+		out->damaged = 1;
 	return (out);
 }
 

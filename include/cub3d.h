@@ -95,6 +95,7 @@ typedef struct s_object
 	int			dead;
 	int			attacking;
 	int			health;
+	size_t		last_damaged;
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
@@ -110,6 +111,7 @@ typedef struct s_ray
 	t_vect			intcpt;
 	t_ivect			maptile;
 	int				face;
+	int				damaged;
 	t_texarr		*texture;
 	double			pos;
 	double			distance;

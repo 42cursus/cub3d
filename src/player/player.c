@@ -509,4 +509,6 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 			toggle_boss_doors(app);
 		}
 	}
+	else
+		enemy->last_damaged = app->last_frame;
 }

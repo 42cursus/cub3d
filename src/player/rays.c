@@ -103,6 +103,7 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 	new->intcpt = ray->intcpt;
 	new->face = face;
 	new->texture = texture;
+	new->damaged = 0;
 	in_front = ray->in_front;
 	ray->in_front = new;
 	new->in_front = in_front;
