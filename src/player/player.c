@@ -167,8 +167,8 @@ void	move_entity(t_info *app, t_vect *pos, t_data *data, t_vect dir)
 	char	both_tile;
 
 	map = data->map;
-	new_pos.x = pos->x + (dir.x * 0.1 / app->fr_scale);
-	new_pos.y = pos->y + (dir.y * 0.1 / app->fr_scale);
+	new_pos.x = pos->x + dir.x;
+	new_pos.y = pos->y + dir.y;
 	tile = (t_cvect){map[(int)pos->y][(int)new_pos.x], map[(int)new_pos.y][(int)pos->x]};
 	both_tile = map[(int)new_pos.y][(int)new_pos.x];
 	if (check_tile_open(both_tile, data))
@@ -192,6 +192,22 @@ void	move_entity(t_info *app, t_vect *pos, t_data *data, t_vect dir)
 		else if (check_tile_open(tile.y, data))
 			pos->y = new_pos.y;
 	}
+	(void)app;
+}
+
+void	move_obj_bounce(t_info *app, t_object *obj, t_data *data)
+{
+	t_vect	new_pos;
+	char	**map;
+	char	tile;
+
+	new_pos = add_vect(obj->pos, scale_vect(obj->dir, obj->speed / app->fr_scale));
+	map = data->map;
+	tile = map[(int)new_pos.y][(int)new_pos.x];
+	if (!check_tile_open(tile, app->map))
+		rotate_vect_inplace(&obj->dir, rand_range(-M_PI, M_PI));
+	else
+		obj->pos = new_pos;
 }
 
 void	rotate_player(t_info *app, t_player *player, int direction, double sensitivity)
@@ -212,6 +228,7 @@ void	handle_close_door(t_info *app, t_ray *crosshair)
 	anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
 	anim->active = 1;
 	anim->framestart = app->framecount;
+	anim->timestart = app->last_frame;
 }
 
 void	handle_open_door(t_info *app, t_ray *crosshair)
@@ -234,6 +251,7 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 			return ;
 		anim->active = 1;
 		anim->framestart = app->framecount;
+		anim->timestart = app->last_frame;
 	}
 	if (crosshair->in_front != NULL)
 		handle_open_door(app, crosshair->in_front);
@@ -284,20 +302,33 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	map = app->map;
 	enemy = ft_calloc(1, sizeof(*enemy));
 	enemy->pos = pos;
-	enemy->dir = scale_vect(dir, 1.0 / app->fr_scale);
+	enemy->dir = dir;
 	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
 	enemy->subtype = subtype;
 	if (subtype == E_ZOOMER)
+	{
 		enemy->health = 20;
+		enemy->speed = 0.03;
+	}
 	if (subtype == E_ATOMIC)
+	{
 		enemy->health = 50;
+		enemy->speed = 0.03;
+	}
 	if (subtype == E_REO)
+	{
 		enemy->health = 30;
+		enemy->speed = 0.03;
+	}
 	else if (subtype == E_PHANTOON)
+	{
 		enemy->health = 500;
+		enemy->speed = 0.04;
+	}
 	enemy->anim.active = 1;
 	enemy->anim.framestart = app->framecount;
+	enemy->anim.timestart = app->last_frame;
 	ft_lstadd_back(&map->enemies, ft_lstnew(enemy));
 	return (enemy);
 }
@@ -315,6 +346,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->subtype = subtype;
 	item->anim.active = 1;
 	item->anim.framestart = app->framecount;
+	item->anim.timestart = app->last_frame;
 	ft_lstadd_back(&map->items, ft_lstnew(item));
 }
 
@@ -476,6 +508,7 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 	{
 		enemy->dead = 1;
 		enemy->anim2.framestart = app->framecount;
+		enemy->anim2.timestart = app->last_frame;
 		enemy->anim2.active = 1;
 		if (enemy->subtype == E_PHANTOON)
 		{

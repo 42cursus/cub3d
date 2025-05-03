@@ -122,6 +122,7 @@ t_ret_code do_state_play(void *param)
 
 	mlx_mouse_hide(app->mlx, app->root);
 	draw_sky_alt(app);
+	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->root);
 

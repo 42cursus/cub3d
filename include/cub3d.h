@@ -26,7 +26,7 @@
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 200
 #endif
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
@@ -48,6 +48,7 @@ typedef struct s_animation
 {
 	int			active;
 	size_t		framestart;
+	size_t		timestart;
 	t_texarr	*tex_arr;
 }	t_anim;
 
@@ -96,6 +97,7 @@ typedef struct s_object
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
+	double		speed;
 	t_vect		p2;
 	t_texarr	*texture;
 	t_anim		anim;
@@ -368,6 +370,7 @@ t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_data *map);
 void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);

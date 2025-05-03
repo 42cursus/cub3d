@@ -56,6 +56,7 @@ void	start_obj_death(t_object *obj, t_info *app)
 {
 	obj->anim.active = 1;
 	obj->anim.framestart = app->framecount;
+	obj->anim.timestart = app->last_frame;
 }
 
 t_object	*check_obj_proximity(t_vect pos, t_data *map)
@@ -180,7 +181,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 
 	if (obj->anim.active == 1)
 	{
-		frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
+		frames = (app->last_frame - obj->anim.timestart) / 20000;
 		if (frames > 15)
 		{
 			*current = delete_object(&app->map->projectiles, *current);
@@ -192,7 +193,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 	}
 	else
 	{
-		frames = app->framecount % 12;
+		frames = app->last_frame % (12 * 20000) / 20000;
 		obj->texture = &app->shtex->phantoon_proj[(frames / 4)];
 	}
 	// obj->texture = &app->shtex->proj_tex[0];
@@ -221,12 +222,12 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 			tex = app->shtex->crawler_tex;
 		else
 			tex = app->shtex->atomic_tex;
-		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(30 * app->fr_scale);
-		enemy->texture = &tex[(int)(frame_mod / (5 * app->fr_scale))];
+		frame_mod = (app->last_frame - enemy->anim.timestart) % (30 * 20000);
+		enemy->texture = &tex[(frame_mod / (5 * 20000))];
 	}
 	else if (enemy->subtype == E_PHANTOON)
 	{
-		frame_mod = ((app->framecount - enemy->anim.framestart) % (int)(80 * app->fr_scale)) / 8;
+		frame_mod = ((app->last_frame - enemy->anim.timestart) % (80 * 20000)) / (8 * 20000);
 		if (frame_mod == 0)
 			enemy->texture = &app->shtex->phantoon[0];
 		else if (frame_mod == 1)
@@ -251,8 +252,8 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 	else if (enemy->subtype == E_REO)
 	{
 		tex = &app->shtex->reo_tex[2 * enemy->attacking];
-		frame_mod = (app->framecount - enemy->anim.framestart) % (int)(8 * app->fr_scale);
-		enemy->texture = &tex[frame_mod < 4];
+		frame_mod = (app->last_frame - enemy->anim.timestart) % (8 * 20000);
+		enemy->texture = &tex[frame_mod < (4 * 20000)];
 	}
 }
 
@@ -301,28 +302,35 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (app->map->boss_active == 0)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
-	frames = (app->framecount % (int)(100 * app->fr_scale));
+	frames = ((app->last_frame / 20000) % 100);
 	if (obj->health > 350)
 	{
 		rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
-		if (frames % (int)(10 * app->fr_scale) == 0)
+		if (frames % 10 == 0)
 			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.2, 0.2)), 0.1 / app->fr_scale));
+		move_obj_bounce(app, obj, app->map);
 	}
 	else if (obj->health > 100)
 	{
 		if (frames == 0)
-			// obj->dir = rotate_vect((t_vect){0.08 / app->fr_scale, 0.0}, rand_range(-M_PI, M_PI));
-			// obj->dir = rotate_vect(scale_vect(norm_diff, 0.08 / app->fr_scale), rand_range(-M_PI_2, M_PI_2));
-			obj->dir = rotate_vect(scale_vect(norm_diff, 0.09 / app->fr_scale), rand_range(-0.1, 0.1));
-		else if (frames > 60 * app->fr_scale)
 		{
-			obj->dir = (t_vect){0.0, 0.0};
-			if (frames % (int)(3 * app->fr_scale) == 0)
-			spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / app->fr_scale));
+			obj->dir = rotate_vect(norm_diff, rand_range(-0.1, 0.1));
+			obj->speed = 0.09;
+			move_obj_bounce(app, obj, app->map);
+		}
+		else if (frames > 60)
+		{
+			obj->speed = 0;
+			if (frames % 3 == 0)
+				spawn_enemy_projectile(app, obj, scale_vect(rotate_vect(norm_diff, rand_range(-0.3, 0.3)), 0.1 / app->fr_scale));
 		}
 	}
 	else
-		obj->dir = scale_vect(norm_diff, 0.09 / app->fr_scale);
+	{
+		obj->dir = norm_diff;
+		obj->speed = 0.09;
+		move_entity(app, &obj->pos, app->map, scale_vect(obj->dir, obj->speed / app->fr_scale));
+	}
 	// (void)frames;
 	// (void)norm_diff;
 	// (void)app;
@@ -336,16 +344,19 @@ void	reo_ai(t_info *app, t_object *enemy)
 
 	// if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
 	// 	enemy->attacking = 1;
-	frames = (app->framecount % (int)(100 * app->fr_scale));
+	frames = ((app->last_frame / 20000) % 100);
 	if (enemy->attacking == 0)
 	{
 		if (frames % 25 == 0)
 			rotate_vect_inplace(&enemy->dir, rand_range(-M_PI, M_PI));
+		move_obj_bounce(app, enemy, app->map);
 	}
 	else
 	{
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
-		enemy->dir = scale_vect(norm_diff, 0.1 / app->fr_scale);
+		enemy->dir = norm_diff;
+		enemy->speed = 0.1;
+		move_entity(app, &enemy->pos, app->map, scale_vect(enemy->dir, enemy->speed / app->fr_scale));
 	}
 }
 
@@ -360,21 +371,27 @@ void	atomic_ai(t_info *app, t_object *enemy)
 	if (enemy->attacking == 1)
 	{
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
-		enemy->dir = scale_vect(norm_diff, 0.07 / app->fr_scale);
+		enemy->dir = norm_diff;
+		enemy->speed = 0.08;
+		move_entity(app, &enemy->pos, app->map, scale_vect(enemy->dir, enemy->speed / app->fr_scale));
 	}
+	else
+		move_obj_bounce(app, enemy, app->map);
+}
+
+void	zoomer_ai(t_info *app, t_object *enemy)
+{
+	move_obj_bounce(app, enemy, app->map);
 }
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
-	char		*tile;
 	// t_anim		*anim;
-	t_data		*map;;
-	t_vect		new_pos;
 	int			frames;
 
 	if (obj->dead == 1)
 	{
-		frames = (app->framecount - obj->anim2.framestart) / app->fr_scale;
+		frames = (app->last_frame - obj->anim2.timestart) / 20000;
 		if (frames > 17)
 		{
 			if (obj->subtype != E_PHANTOON)
@@ -391,24 +408,15 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			obj->texture = &app->shtex->explode_tex[frames / 4];
 		return (0);
 	}
-	new_pos = add_vect(obj->pos, obj->dir);
-	if (obj->subtype == E_PHANTOON)
-		phantoon_ai(app, obj);
+	if (obj->subtype == E_ZOOMER)
+		zoomer_ai(app, obj);
 	else if (obj->subtype == E_REO)
 		reo_ai(app, obj);
+	else if (obj->subtype == E_PHANTOON)
+		phantoon_ai(app, obj);
 	else if (obj->subtype == E_ATOMIC)
 		atomic_ai(app, obj);
-	map = app->map;
 	handle_enemy_anim(app, obj);
-	tile = &map->map[(int)new_pos.y][(int)new_pos.x];
-	if (ft_strchr("DML1", *tile))
-	{
-		// obj->dir.x *= -1;
-		// obj->dir.y *= -1;
-		rotate_vect_inplace(&obj->dir, rand_range(-M_PI, M_PI));
-	}
-	else
-		obj->pos = new_pos;
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		if (obj->subtype != E_ATOMIC)
@@ -418,9 +426,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			subtract_health(app, app->player, 80);
 			damage_enemy(app, obj, 100);
 		}
-		move_entity(app, &app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
-		// app->player->pos = add_vect(app->player->pos,
-		// 					  scale_vect(normalise_vect(subtract_vect(app->player->pos, obj->pos)), 0.7));
+		move_entity(app, &app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
 	}
 	return (0);
 	(void)current;
@@ -431,7 +437,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	int			frames;
 	t_texarr	*texp;
 
-	frames = (app->framecount - obj->anim.framestart) / app->fr_scale;
+	frames = (app->last_frame - obj->anim.timestart) / 20000;
 	texp = app->shtex->etank_tex;
 	if (obj->subtype == I_SUPER)
 		texp = app->shtex->super_tex;
@@ -446,7 +452,7 @@ void	select_item_texture(t_info *app, t_object *obj)
 	else if (obj->subtype == I_HEALTH)
 	{
 		texp = app->shtex->health_pu;
-		obj->texture = &texp[(frames % 20) / 5];
+		obj->texture = &texp[(frames % (20)) / 5];
 		return ;
 	}
 	if (frames % 10 < 5)
@@ -513,7 +519,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 		{
 			toggle_boss_doors(app);
 			app->map->boss_active = 1;
-			app->map->boss_obj->dir = (t_vect){0.0, 0.03};
+			app->map->boss_obj->dir = (t_vect){0.0, 1.0};
 			*current = delete_object(&app->map->triggers, *current);
 			return (1);
 		}
@@ -761,16 +767,16 @@ int	render_play(void *param)
 	 // if (app->mouse[1])
 	 // 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_entity(app, &app->player->pos, app->map, app->player->dir);
+		move_entity(app, &app->player->pos, app->map, scale_vect(app->player->dir, 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_s])
 		move_entity(app, &app->player->pos, app->map,
-					rotate_vect(app->player->dir, M_PI));
+					scale_vect(rotate_vect(app->player->dir, M_PI), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_a])
 		move_entity(app, &app->player->pos, app->map,
-					rotate_vect(app->player->dir, M_PI_2));
+					scale_vect(rotate_vect(app->player->dir, M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_d])
 		move_entity(app, &app->player->pos, app->map,
-					rotate_vect(app->player->dir, -M_PI_2));
+					scale_vect(rotate_vect(app->player->dir, -M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
@@ -784,6 +790,7 @@ int	render_play(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
+	app->fr_scale = 20000.0/app->frametime;
 	app->framecount++;
 	on_expose(app);
 	draw_hud(app);
