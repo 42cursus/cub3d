@@ -471,6 +471,7 @@ void	toggle_boss_doors(t_info *app)
 void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;
+	enemy->attacking = 1;
 	if (enemy->health <= 0)
 	{
 		enemy->dead = 1;

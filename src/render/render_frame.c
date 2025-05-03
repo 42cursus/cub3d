@@ -334,8 +334,8 @@ void	reo_ai(t_info *app, t_object *enemy)
 	int		frames;
 	t_vect	norm_diff;
 
-	if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
-		enemy->attacking = 1;
+	// if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
+	// 	enemy->attacking = 1;
 	frames = (app->framecount % (int)(100 * app->fr_scale));
 	if (enemy->attacking == 0)
 	{

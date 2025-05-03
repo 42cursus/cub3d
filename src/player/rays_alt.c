@@ -217,6 +217,8 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (out->pos >= out->texture->x)
 		out->pos = out->texture->x - 1;
 	// printf("pos: %f\n", out->pos);
+	if (object->type == O_ENTITY && object->attacking == 0 && vector_distance(player->pos, object->pos) < 3)
+		object->attacking = 1;
 	return (out);
 }
 
