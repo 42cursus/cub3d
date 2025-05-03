@@ -26,7 +26,7 @@
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
-# define FRAMERATE 200
+# define FRAMERATE 120
 #endif
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
