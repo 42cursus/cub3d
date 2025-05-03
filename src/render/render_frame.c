@@ -349,6 +349,21 @@ void	reo_ai(t_info *app, t_object *enemy)
 	}
 }
 
+void	atomic_ai(t_info *app, t_object *enemy)
+{
+	// int		frames;
+	t_vect	norm_diff;
+
+	// if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
+	// 	enemy->attacking = 1;
+	// frames = (app->framecount % (int)(100 * app->fr_scale));
+	if (enemy->attacking == 1)
+	{
+		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
+		enemy->dir = scale_vect(norm_diff, 0.07 / app->fr_scale);
+	}
+}
+
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
@@ -381,6 +396,8 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		phantoon_ai(app, obj);
 	else if (obj->subtype == E_REO)
 		reo_ai(app, obj);
+	else if (obj->subtype == E_ATOMIC)
+		atomic_ai(app, obj);
 	map = app->map;
 	handle_enemy_anim(app, obj);
 	tile = &map->map[(int)new_pos.y][(int)new_pos.x];
@@ -394,7 +411,13 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		obj->pos = new_pos;
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
-		subtract_health(app, app->player, 35);
+		if (obj->subtype != E_ATOMIC)
+			subtract_health(app, app->player, 35);
+		else
+		{
+			subtract_health(app, app->player, 80);
+			damage_enemy(app, obj, 100);
+		}
 		move_entity(app, &app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 10));
 		// app->player->pos = add_vect(app->player->pos,
 		// 					  scale_vect(normalise_vect(subtract_vect(app->player->pos, obj->pos)), 0.7));

@@ -24,7 +24,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-pg \
 					-ffast-math \
 					-mprefer-vector-width=512 \
-					-fsanitize=address
+					-fsanitize=address \
 					-fsanitize=undefined \
 					-fsanitize=float-divide-by-zero \
 					-fsanitize=float-cast-overflow \
