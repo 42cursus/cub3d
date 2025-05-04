@@ -19,14 +19,16 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
-# define WIN_HEIGHT 960
-// # define WIN_HEIGHT 720
+ # define WIN_HEIGHT 720
+// # define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
+// # define WIN_HEIGHT 900
+// # define WIN_WIDTH 1600
 
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
-# define FRAMERATE 100
+# define FRAMERATE 120
 #endif
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
@@ -47,7 +49,7 @@ typedef struct s_texarr
 typedef struct s_animation
 {
 	int			active;
-	size_t		framestart;
+	size_t		timestart;
 	t_texarr	*tex_arr;
 }	t_anim;
 
@@ -93,9 +95,11 @@ typedef struct s_object
 	int			dead;
 	int			attacking;
 	int			health;
+	size_t		last_damaged;
 	t_vect		pos;
 	t_vect		norm;
 	t_vect		dir;
+	double		speed;
 	t_vect		p2;
 	t_texarr	*texture;
 	t_anim		anim;
@@ -107,6 +111,7 @@ typedef struct s_ray
 	t_vect			intcpt;
 	t_ivect			maptile;
 	int				face;
+	int				damaged;
 	t_texarr		*texture;
 	double			pos;
 	double			distance;
@@ -153,6 +158,7 @@ typedef struct s_shtex
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	atomic_tex[6];
+	t_texarr	holtz_tex[6];
 	t_texarr	reo_tex[4];
 	t_texarr	proj_tex[10];
 	t_texarr	explode_tex[6];
@@ -274,6 +280,7 @@ typedef enum e_subtype
 	E_ZOOMER,
 	E_ATOMIC,
 	E_REO,
+	E_HOLTZ,
 	E_PHANTOON,
 	I_ETANK,
 	I_SUPER,
@@ -283,6 +290,8 @@ typedef enum e_subtype
 	I_HEALTH,
 	I_TROPHY,
 	T_BOSS,
+	P_PHANTOON,
+	P_HOLTZ,
 }	t_subtype;
 
 enum
@@ -368,6 +377,7 @@ t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_data *map);
 void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
@@ -478,6 +488,5 @@ t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
-
 
 #endif //CUB3D_H

@@ -58,7 +58,7 @@ void	destroy_map(t_data *map)
 void	cleanup_maps(t_info *app)
 {
 	ft_lstclear(&app->lvlcache, (void (*)(void *))destroy_map);
-	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	get_pooled_ray_alt(1);
 	// free(app->player);
 }
@@ -122,6 +122,7 @@ t_ret_code do_state_play(void *param)
 
 	mlx_mouse_hide(app->mlx, app->root);
 	draw_sky_alt(app);
+	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->root);
 
@@ -324,7 +325,7 @@ void do_play_to_pmenu(void *param)
 	app->mlx->end_loop = 0;
 
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
-	free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	replace_frame(app);
 	fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
