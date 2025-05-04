@@ -106,7 +106,7 @@ void	menu_select_current(t_info *app)
 		{
 			menu_state->selected = 0;
 			menu_state->state = MAIN;
-			menu_state->no_items = 3;
+			menu_state->no_items = 4;
 			return ;
 		}
 		app->current_level = menu_state->selected;
