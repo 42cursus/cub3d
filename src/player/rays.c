@@ -130,5 +130,8 @@ void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 	get_pooled_ray_alt(1);
 	i = -1;
 	while (++i < WIN_WIDTH)
+	{
 		player->rays[i] = ray_dda(app, map, player, player->angle_offsets[i]);
+		calc_object_collisions(map, player, &player->rays[i]);
+	}
 }

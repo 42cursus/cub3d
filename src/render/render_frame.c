@@ -336,6 +336,35 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	// (void)obj;
 }
 
+int	check_line_of_sight(t_info *app, t_object *obj, t_player *player)
+{
+	const t_vect	diff = subtract_vect(obj->pos, player->pos);
+	const double	angle = atan2(diff.y, diff.x) - player->angle;
+	t_ray			ray;
+	t_ray			*child;
+	double			dist_wall;
+	double			dist_obj;
+
+	ray = ray_dda(app, app->map, player, angle);
+	dist_wall = vector_distance(player->pos, ray.intcpt);
+	dist_obj = vector_distance(player->pos, obj->pos);
+	if (dist_obj > dist_wall)
+		// return (printf("\e[31mNOT VISIBLE: \e[33mDISTANCE wall: %f obj: %f\e[m\n", dist_wall, dist_obj), 0);
+		return (0);
+	child = ray.in_front;
+	while (child != NULL)
+	{
+		if (child->face < 11)
+			// return (printf("\e[31mNOT VISIBLE: \e[33mCHILDREN face: %d\e[m\n", child->face), 0);
+			return (0);
+		child = child->in_front;
+	}
+	// if (child != NULL)
+	// 	return (printf("\e[31mNOT VISIBLE: \e[33mCHILDREN\e[m\n"), 0);
+	// return (printf("\e[32mVISIBLE\e[m\n"), 1);
+	return (1);
+}
+
 void	reo_ai(t_info *app, t_object *enemy)
 {
 	int		frames;
@@ -343,9 +372,15 @@ void	reo_ai(t_info *app, t_object *enemy)
 
 	// if (enemy->attacking == 0 && vector_distance(enemy->pos, app->player->pos) < 3)
 	// 	enemy->attacking = 1;
+	// if (check_line_of_sight(app, enemy, app->player) && vector_distance(enemy->pos, app->player->pos) < 10)
+	if (!check_line_of_sight(app, enemy, app->player))
+		enemy->attacking = 0;
+	else if (vector_distance(enemy->pos, app->player->pos) < 4)
+		enemy->attacking = 1;
 	frames = ((app->last_frame / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)
 	{
+		enemy->speed = 0.04;
 		if (frames % 25 == 0)
 			rotate_vect_inplace(&enemy->dir, rand_range(-M_PI, M_PI));
 		move_obj_bounce(app, enemy, app->map);
