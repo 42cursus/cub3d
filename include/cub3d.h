@@ -158,6 +158,7 @@ typedef struct s_shtex
 	t_texarr	cannon_tex[2];
 	t_texarr	crawler_tex[6];
 	t_texarr	atomic_tex[6];
+	t_texarr	holtz_tex[6];
 	t_texarr	reo_tex[4];
 	t_texarr	proj_tex[10];
 	t_texarr	explode_tex[6];
@@ -279,6 +280,7 @@ typedef enum e_subtype
 	E_ZOOMER,
 	E_ATOMIC,
 	E_REO,
+	E_HOLTZ,
 	E_PHANTOON,
 	I_ETANK,
 	I_SUPER,
@@ -288,6 +290,8 @@ typedef enum e_subtype
 	I_HEALTH,
 	I_TROPHY,
 	T_BOSS,
+	P_PHANTOON,
+	P_HOLTZ,
 }	t_subtype;
 
 enum

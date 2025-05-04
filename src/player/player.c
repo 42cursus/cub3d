@@ -317,6 +317,11 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 		enemy->health = 30;
 		enemy->speed = 0.04;
 	}
+	if (subtype == E_HOLTZ)
+	{
+		enemy->health = 80;
+		enemy->speed = 0.04;
+	}
 	else if (subtype == E_PHANTOON)
 	{
 		enemy->health = 500;

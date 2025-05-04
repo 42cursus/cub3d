@@ -117,7 +117,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01NSEWDLMemstZARPBb234", line[i++]))
+		if (!ft_strchr(" \t01NSEWDLMemstZARPBHb234", line[i++]))
 			return (0);
 	}
 	return (1);
@@ -219,21 +219,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZARPBb234", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZAHRPBb234", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZARPBb234", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZAHRPBb234", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZARPBb234", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -295,7 +295,7 @@ int	validate_map_tiles(t_data *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZARPBb234", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZAHRPBb234", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
@@ -642,6 +642,22 @@ void	load_atomic_tex(t_info *app)
 	}
 }
 
+void	load_holtz_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 4)
+	{
+		ft_snprintf(buf, 50, "./textures/holtz%c.xpm", i + '0');
+		app->shtex->holtz_tex[i].img = img_to_arr(buf, app, &app->shtex->holtz_tex[i].x, &app->shtex->holtz_tex[i].y);
+		i++;
+	}
+	app->shtex->holtz_tex[4].img = img_to_arr((char *)"./textures/holtz2.xpm", app, &app->shtex->holtz_tex[4].x, &app->shtex->holtz_tex[4].y);
+	app->shtex->holtz_tex[5].img = img_to_arr((char *)"./textures/holtz1.xpm", app, &app->shtex->holtz_tex[5].x, &app->shtex->holtz_tex[5].y);
+}
+
 void	load_reo_tex(t_info *app)
 {
 	int		i;
@@ -755,7 +771,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 		j = -1;
 		while (++j < data->width)
 		{
-			if (ft_strchr("mestZARPb234", map[i][j]))
+			if (ft_strchr("mestZAHRPb234", map[i][j]))
 			{
 				if (map[i][j] == 'm')
 					spawn_item(app, (t_vect){j + 0.5, i + 0.5}, I_MISSILE);
@@ -786,6 +802,11 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				{
 					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
 					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_PHANTOON)));
+				}
+				else if (map[i][j] == 'H')
+				{
+					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 1}, E_HOLTZ);
+					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_HOLTZ)));
 				}
 				else if (map[i][j] >= '2' && map[i][j] <= '4')
 				{
@@ -982,6 +1003,7 @@ void	load_shtex(t_info *app)
 	load_ammo_tex(app);
 	load_phantoon_tex(app);
 	load_atomic_tex(app);
+	load_holtz_tex(app);
 	load_reo_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
@@ -1100,6 +1122,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&app->shtex->phantoon_proj[i++]);
+	i = 0;
+	while (i < 6)
+		free_tex_arr(&app->shtex->holtz_tex[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }

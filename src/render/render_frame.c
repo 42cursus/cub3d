@@ -215,12 +215,14 @@ void	handle_enemy_anim(t_info *app, t_object *enemy)
 	int			frame_mod;
 	t_texarr	*tex;
 
-	if (enemy->subtype == E_ZOOMER || enemy->subtype == E_ATOMIC)
+	if (enemy->subtype == E_ZOOMER || enemy->subtype == E_ATOMIC || enemy->subtype == E_HOLTZ)
 	{
 		if (enemy->subtype == E_ZOOMER)
 			tex = app->shtex->crawler_tex;
-		else
+		else if (enemy->subtype == E_ATOMIC)
 			tex = app->shtex->atomic_tex;
+		else //if (enemy->subtype == E_HOLTZ)
+			tex = app->shtex->holtz_tex;
 		frame_mod = (app->last_frame - enemy->anim.timestart) % (30 * 20000);
 		enemy->texture = &tex[(frame_mod / (5 * 20000))];
 	}
@@ -277,14 +279,13 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 		return ;
 	while (no-- > 0)
 	{
-		pos.x = rand_range(-0.5, 0.5);
-		pos.y = rand_range(-0.5, 0.5);
-		pos = (add_vect(pos, obj->pos));
+		pos = obj->pos;
+		move_entity(app, &pos, app->map, (t_vect){rand_range(-0.5, 0.5), rand_range(-0.5, 0.5)});
 		seed = rand_range(0.0, 1.0);
 		// printf("%f\n", seed);
 		if (seed < 0.2 && app->player->ammo[SUPER] != app->player->max_ammo[SUPER])
 			spawn_item(app, pos, I_AMMO_S);
-		else if (seed < 0.6 && app->player->ammo[MISSILE] != app->player->max_ammo[MISSILE])
+		else if (seed > 0.2 && seed < 0.5 && app->player->ammo[MISSILE] != app->player->max_ammo[MISSILE])
 			spawn_item(app, pos, I_AMMO_M);
 		else if (app->player->health != app->player->max_health)
 			spawn_item(app, pos, I_HEALTH);
@@ -416,6 +417,22 @@ void	atomic_ai(t_info *app, t_object *enemy)
 	}
 }
 
+void	holtz_ai(t_info *app, t_object *enemy, t_player *player)
+{
+	int		frames;
+	t_vect	norm_diff;
+
+	frames = ((app->last_frame / 20000) % 100);
+	norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
+	if (!check_line_of_sight(app, enemy, player))
+		enemy->attacking = 0;
+	else if (vector_distance(enemy->pos, player->pos) < 5)
+		enemy->attacking = 1;
+	if (frames % 20 == 0 && enemy->attacking == 1)
+		spawn_enemy_projectile(app, enemy, scale_vect(norm_diff, 0.2 / app->fr_scale));
+	move_obj_bounce(app, enemy, app->map);
+}
+
 void	zoomer_ai(t_info *app, t_object *enemy)
 {
 	move_obj_bounce(app, enemy, app->map);
@@ -431,18 +448,20 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		frames = (app->last_frame - obj->anim2.timestart) / 20000;
 		if (frames > 17)
 		{
-			if (obj->subtype != E_PHANTOON)
-				spawn_drops(app, obj, 1);
-			else
+			if (obj->subtype == E_PHANTOON)
 			{
 				spawn_drops(app, obj, 15);
 				app->map->boss_obj = NULL;
 			}
+			else if (obj->subtype == E_HOLTZ)
+				spawn_drops(app, obj, 3);
+			else //if (obj->subtype == E_HOLTZ)
+				spawn_drops(app, obj, 1);
 			*current = delete_object(&app->map->enemies, *current);
 			return (1);
 		}
 		else
-			obj->texture = &app->shtex->explode_tex[frames / 4];
+			obj->texture = &app->shtex->explode_tex[frames / 3];
 		return (0);
 	}
 	if (obj->subtype == E_ZOOMER)
@@ -453,6 +472,8 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		phantoon_ai(app, obj);
 	else if (obj->subtype == E_ATOMIC)
 		atomic_ai(app, obj);
+	else if (obj->subtype == E_HOLTZ)
+		holtz_ai(app, obj, app->player);
 	handle_enemy_anim(app, obj);
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
