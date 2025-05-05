@@ -24,6 +24,8 @@
 # define WIN_WIDTH 1280
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1600
+// # define WIN_HEIGHT 1008
+// # define WIN_WIDTH 1792
 
 #define RAY_POOL_SIZE 5000
 
