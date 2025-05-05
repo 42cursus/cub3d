@@ -714,7 +714,7 @@ void	load_explode_tex(t_info *app)
 	i = 0;
 	while (i < 5)
 	{
-		ft_snprintf(buf, 50, "./textures/explode_miss%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./textures/explode_miss_big%c.xpm", i + '0');
 		app->shtex->explode_tex[i + 12].img = img_to_arr(buf, app, &app->shtex->explode_tex[i + 12].x, &app->shtex->explode_tex[i + 12].y);
 		i++;
 	}

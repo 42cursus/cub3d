@@ -263,7 +263,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
 	projectile->texture = &app->shtex->proj_tex[0];
-	projectile->anim2.duration = 400000;
+	projectile->anim2.duration = 350000;
 	if (subtype == BEAM)
 	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
@@ -276,6 +276,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
+		// projectile->anim2.duration = 350000;
 		projectile->anim2.tex_arr = &app->shtex->proj_tex[5];
 		projectile->anim2.frames = 5;
 		if (subtype == MISSILE)
