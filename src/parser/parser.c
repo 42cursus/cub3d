@@ -642,6 +642,20 @@ void	load_atomic_tex(t_info *app)
 	}
 }
 
+void	load_proj_green_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 4)
+	{
+		ft_snprintf(buf, 50, "./textures/proj_green%c.xpm", i + '0');
+		app->shtex->proj_green_tex[i].img = img_to_arr(buf, app, &app->shtex->proj_green_tex[i].x, &app->shtex->proj_green_tex[i].y);
+		i++;
+	}
+}
+
 void	load_holtz_tex(t_info *app)
 {
 	int		i;
@@ -678,18 +692,53 @@ void	load_reo_tex(t_info *app)
 	}
 }
 
+void	load_explode_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 6)
+	{
+		ft_snprintf(buf, 50, "./textures/explode%c.xpm", i + '0');
+		app->shtex->explode_tex[i].img = img_to_arr(buf, app, &app->shtex->explode_tex[i].x, &app->shtex->explode_tex[i].y);
+		i++;
+	}
+	i = 0;
+	while (i < 6)
+	{
+		ft_snprintf(buf, 50, "./textures/explode_mid%c.xpm", i + '0');
+		app->shtex->explode_tex[i + 6].img = img_to_arr(buf, app, &app->shtex->explode_tex[i + 6].x, &app->shtex->explode_tex[i + 6].y);
+		i++;
+	}
+	i = 0;
+	while (i < 5)
+	{
+		ft_snprintf(buf, 50, "./textures/explode_miss_big%c.xpm", i + '0');
+		app->shtex->explode_tex[i + 12].img = img_to_arr(buf, app, &app->shtex->explode_tex[i + 12].x, &app->shtex->explode_tex[i + 12].y);
+		i++;
+	}
+}
+
 void	load_phantoon_tex(t_info *app)
 {
 	int		i;
 	char	buf[50];
 
 	i = 0;
-	while (i < 5)
+	while (i < 3)
 	{
 		ft_snprintf(buf, 50, "./textures/phantoon%c.xpm", i + '0');
 		app->shtex->phantoon[i].img = img_to_arr(buf, app, &app->shtex->phantoon[i].x, &app->shtex->phantoon[i].y);
 		i++;
 	}
+	app->shtex->phantoon[3].img = img_to_arr((char *)"./textures/phantoon1.xpm", app, &app->shtex->phantoon[3].x, &app->shtex->phantoon[3].y);
+	app->shtex->phantoon[4].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[4].x, &app->shtex->phantoon[4].y);
+	app->shtex->phantoon[5].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[5].x, &app->shtex->phantoon[5].y);
+	app->shtex->phantoon[6].img = img_to_arr((char *)"./textures/phantoon3.xpm", app, &app->shtex->phantoon[6].x, &app->shtex->phantoon[6].y);
+	app->shtex->phantoon[7].img = img_to_arr((char *)"./textures/phantoon4.xpm", app, &app->shtex->phantoon[7].x, &app->shtex->phantoon[7].y);
+	app->shtex->phantoon[8].img = img_to_arr((char *)"./textures/phantoon3.xpm", app, &app->shtex->phantoon[8].x, &app->shtex->phantoon[8].y);
+	app->shtex->phantoon[9].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[9].x, &app->shtex->phantoon[9].y);
 	i = 0;
 	while (i < 6)
 	{
@@ -977,12 +1026,6 @@ void	load_shtex(t_info *app)
 	app->shtex->proj_tex[7].img = img_to_arr((char *)"./textures/proj_super2.xpm", app, &app->shtex->proj_tex[7].x, &app->shtex->proj_tex[7].y);
 	app->shtex->proj_tex[8].img = img_to_arr((char *)"./textures/proj_super3.xpm", app, &app->shtex->proj_tex[8].x, &app->shtex->proj_tex[8].y);
 	app->shtex->proj_tex[9].img = img_to_arr((char *)"./textures/proj_super4.xpm", app, &app->shtex->proj_tex[9].x, &app->shtex->proj_tex[9].y);
-	app->shtex->explode_tex[0].img = img_to_arr((char *)"./textures/explode0.xpm", app, &app->shtex->explode_tex[0].x, &app->shtex->explode_tex[0].y);
-	app->shtex->explode_tex[1].img = img_to_arr((char *)"./textures/explode1.xpm", app, &app->shtex->explode_tex[1].x, &app->shtex->explode_tex[1].y);
-	app->shtex->explode_tex[2].img = img_to_arr((char *)"./textures/explode2.xpm", app, &app->shtex->explode_tex[2].x, &app->shtex->explode_tex[2].y);
-	app->shtex->explode_tex[3].img = img_to_arr((char *)"./textures/explode3.xpm", app, &app->shtex->explode_tex[3].x, &app->shtex->explode_tex[3].y);
-	app->shtex->explode_tex[4].img = img_to_arr((char *)"./textures/explode4.xpm", app, &app->shtex->explode_tex[4].x, &app->shtex->explode_tex[4].y);
-	app->shtex->explode_tex[5].img = img_to_arr((char *)"./textures/explode5.xpm", app, &app->shtex->explode_tex[5].x, &app->shtex->explode_tex[5].y);
 	app->shtex->etank_tex[0].img = img_to_arr((char *)"./textures/etank0.xpm", app, &app->shtex->etank_tex[0].x, &app->shtex->etank_tex[0].y);
 	app->shtex->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &app->shtex->etank_tex[1].x, &app->shtex->etank_tex[1].y);
 	app->shtex->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &app->shtex->title.x, &app->shtex->title.y);
@@ -1001,10 +1044,12 @@ void	load_shtex(t_info *app)
 	load_boss_door_tex(app);
 	load_health_pu_tex(app);
 	load_ammo_tex(app);
+	load_explode_tex(app);
 	load_phantoon_tex(app);
 	load_atomic_tex(app);
 	load_holtz_tex(app);
 	load_reo_tex(app);
+	load_proj_green_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
@@ -1087,7 +1132,7 @@ void	free_shtex(t_info *app)
 	while (i < 6)
 		free_tex_arr(&app->shtex->atomic_tex[i++]);
 	i = 0;
-	while (i < 6)
+	while (i < 17)
 		free_tex_arr(&app->shtex->explode_tex[i++]);
 	i = 0;
 	while (i < 10)
@@ -1117,7 +1162,7 @@ void	free_shtex(t_info *app)
 	while (i < 4)
 		free_tex_arr(&app->shtex->health_pu[i++]);
 	i = 0;
-	while (i < 5)
+	while (i < 10)
 		free_tex_arr(&app->shtex->phantoon[i++]);
 	i = 0;
 	while (i < 6)
@@ -1125,6 +1170,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 6)
 		free_tex_arr(&app->shtex->holtz_tex[i++]);
+	i = 0;
+	while (i < 4)
+		free_tex_arr(&app->shtex->proj_green_tex[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }

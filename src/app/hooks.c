@@ -128,8 +128,12 @@ int key_press_mmenu(KeySym key, void *param)
 	t_info *const app = param;
 	if (key == XK_5 || key == XK_Escape)
 	{
-		app->mlx->end_loop = 1;
-		app->rc = fail;
+		// app->mlx->end_loop = 1;
+		// app->rc = fail;
+		app->menu_state.selected = app->menu_state.no_items - 1;
+		if (app->menu_state.state == PAUSE)
+			app->menu_state.selected = 0;
+		menu_select_current(app);
 	}
 	// else if (key == XK_1)
 	// {

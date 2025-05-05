@@ -263,21 +263,31 @@ void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype)
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
 	projectile->texture = &app->shtex->proj_tex[0];
+	projectile->anim2.duration = 350000;
 	if (subtype == BEAM)
+	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
+		projectile->anim2.tex_arr = &app->shtex->proj_tex[1];
+		projectile->anim2.frames = 4;
+	}
 	else
 	{
 		player->ammo[subtype] -= 1;
 		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
+		// projectile->anim2.duration = 350000;
+		projectile->anim2.tex_arr = &app->shtex->proj_tex[5];
+		projectile->anim2.frames = 5;
+		if (subtype == MISSILE)
+			projectile->anim2.tex_arr = &app->shtex->explode_tex[12];
 	}
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
 	ft_lstadd_back(&map->projectiles, ft_lstnew(projectile));
 }
 
-void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
+void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype)
 {
 	t_object	*projectile;
 
@@ -286,7 +296,23 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir)
 	projectile->type = O_EPROJ;
 	projectile->pos = enemy->pos;
 	projectile->dir = dir;
-	projectile->texture = &app->shtex->proj_tex[0];
+	projectile->subtype = subtype;
+	projectile->anim2.frames = 4;
+	projectile->anim2.duration = 320000;
+	if (subtype == P_PHANTOON)
+	{
+		projectile->anim.tex_arr = &app->shtex->phantoon_proj[0];
+		projectile->anim.frames = 3;
+		projectile->anim.loop = 1;
+		projectile->anim.duration = 240000;
+		projectile->anim2.tex_arr = &app->shtex->phantoon_proj[2];
+	}
+	else if (subtype == P_HOLTZ)
+	{
+		projectile->anim.tex_arr = app->shtex->proj_green_tex;
+		projectile->anim.frames = 1;
+		projectile->anim2.tex_arr = app->shtex->proj_green_tex;
+	}
 	ft_lstadd_back(&app->map->projectiles, ft_lstnew(projectile));
 }
 
@@ -302,33 +328,53 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	// enemy->texture = tex;
 	enemy->type = O_ENTITY;
 	enemy->subtype = subtype;
+	enemy->anim2.frames = 6;
+	enemy->anim2.duration = 420000;
+	enemy->anim2.tex_arr = &app->shtex->explode_tex[6];
 	if (subtype == E_ZOOMER)
 	{
 		enemy->health = 20;
 		enemy->speed = 0.03;
+		enemy->anim2.tex_arr -= 6;
+		enemy->anim.tex_arr = app->shtex->crawler_tex;
+		enemy->anim.duration = 600000;
+		enemy->anim.frames = 6;
 	}
 	if (subtype == E_ATOMIC)
 	{
 		enemy->health = 50;
 		enemy->speed = 0.04;
+		enemy->anim.tex_arr = app->shtex->atomic_tex;
+		enemy->anim.duration = 600000;
+		enemy->anim.frames = 6;
 	}
 	if (subtype == E_REO)
 	{
 		enemy->health = 30;
 		enemy->speed = 0.04;
+		enemy->anim.tex_arr = app->shtex->reo_tex;
+		enemy->anim.duration = 160000;
+		enemy->anim.frames = 2;
 	}
 	if (subtype == E_HOLTZ)
 	{
 		enemy->health = 80;
 		enemy->speed = 0.04;
+		enemy->anim.tex_arr = app->shtex->holtz_tex;
+		enemy->anim.duration = 600000;
+		enemy->anim.frames = 6;
 	}
 	else if (subtype == E_PHANTOON)
 	{
 		enemy->health = 500;
 		enemy->speed = 0.04;
+		enemy->anim.tex_arr = app->shtex->phantoon;
+		enemy->anim.duration = 1600000;
+		enemy->anim.frames = 10;
 	}
 	enemy->anim.active = 1;
 	enemy->anim.timestart = app->last_frame;
+	enemy->anim.loop = 1;
 	ft_lstadd_back(&map->enemies, ft_lstnew(enemy));
 	return (enemy);
 }
@@ -345,7 +391,28 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->type = O_ITEM;
 	item->subtype = subtype;
 	item->anim.active = 1;
+	item->anim.loop = 1;
+	item->anim.frames = 2;
+	item->anim.duration = 200000;
 	item->anim.timestart = app->last_frame;
+	if (subtype == I_SUPER)
+		item->anim.tex_arr = app->shtex->super_tex;
+	if (subtype == I_ETANK)
+		item->anim.tex_arr = app->shtex->etank_tex;
+	if (subtype == I_MISSILE)
+		item->anim.tex_arr = app->shtex->missile_tex;
+	if (subtype == I_TROPHY)
+		item->anim.tex_arr = app->shtex->trophy_tex;
+	if (subtype == I_AMMO_M)
+		item->anim.tex_arr = app->shtex->missile_ammo;
+	if (subtype == I_AMMO_S)
+		item->anim.tex_arr = app->shtex->super_ammo;
+	if (subtype == I_HEALTH)
+	{
+		item->anim.tex_arr = app->shtex->health_pu;
+		item->anim.frames = 4;
+		item->anim.duration = 400000;
+	}
 	ft_lstadd_back(&map->items, ft_lstnew(item));
 }
 

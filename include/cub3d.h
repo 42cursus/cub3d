@@ -24,6 +24,8 @@
 # define WIN_WIDTH 1280
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1600
+// # define WIN_HEIGHT 1008
+// # define WIN_WIDTH 1792
 
 #define RAY_POOL_SIZE 5000
 
@@ -49,8 +51,11 @@ typedef struct s_texarr
 typedef struct s_animation
 {
 	int			active;
+	int			loop;
 	size_t		timestart;
 	t_texarr	*tex_arr;
+	size_t		duration;
+	int			frames;
 }	t_anim;
 
 //typedef struct s_imgdata
@@ -161,7 +166,8 @@ typedef struct s_shtex
 	t_texarr	holtz_tex[6];
 	t_texarr	reo_tex[4];
 	t_texarr	proj_tex[10];
-	t_texarr	explode_tex[6];
+	t_texarr	proj_green_tex[4];
+	t_texarr	explode_tex[17];
 	t_texarr	energy_tex[3];
 	t_texarr	etank_tex[2];
 	t_texarr	missile_tex[12];
@@ -170,7 +176,7 @@ typedef struct s_shtex
 	t_texarr	missile_ammo[2];
 	t_texarr	super_ammo[2];
 	t_texarr	trophy_tex[2];
-	t_texarr	phantoon[5];
+	t_texarr	phantoon[10];
 	t_texarr	phantoon_proj[6];
 	t_texarr	title;
 	t_texarr	alphabet;
@@ -383,7 +389,7 @@ void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
-void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir);
+void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype);
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);

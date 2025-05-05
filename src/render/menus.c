@@ -23,10 +23,13 @@ void	menu_change_option(t_info *app, int dir)
 		{
 			set_fov(app, app->fov_deg + (5 * dir));
 			replace_sky(app, (char *) "./textures/skybox.xpm");
-			calculate_offsets(app, app->player);
-			// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-			replace_frame(app);
-			fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+			if (menu_state->prev != MAIN)
+			{
+				calculate_offsets(app, app->player);
+				draw_sky_alt(app);
+				replace_frame(app);
+				fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+			}
 		}
 		if (menu_state->selected == 1)
 		{
@@ -106,7 +109,7 @@ void	menu_select_current(t_info *app)
 		{
 			menu_state->selected = 0;
 			menu_state->state = MAIN;
-			menu_state->no_items = 3;
+			menu_state->no_items = 4;
 			return ;
 		}
 		app->current_level = menu_state->selected;

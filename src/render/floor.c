@@ -35,8 +35,6 @@ int	point_oob(t_vect pos, t_data *map)
 	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
 }
 
-
-
 void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
 	int				i;
