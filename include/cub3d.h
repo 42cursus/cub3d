@@ -186,33 +186,32 @@ typedef struct s_shtex
 	void		*playertile;
 }	t_shtex;
 
-typedef struct s_info t_info;
-
 typedef	struct s_data
 {
-	t_info		*app;
-	t_texarr	n_tex;
-	t_texarr	s_tex;
-	t_texarr	e_tex;
-	t_texarr	w_tex;
-	t_texarr	floor_tex;
-	t_img		*minimap;
-	int			f_col;
-	int			c_col;
-	char		**map;
-	t_anim		**anims;
-	t_list		*enemies;
-	t_list		*items;
-	t_list		*triggers;
-	t_list		*projectiles;
-	t_list		*enemy_pos;
-	t_object	*boss_obj;
-	bool		boss_active;
-	t_vect		starting_pos;
-	t_vect		starting_dir;
-	int			height;
-	int			width;
-	char		*sublvls[4];
+	struct s_info	*app;
+	t_texarr		n_tex;
+	t_texarr		s_tex;
+	t_texarr		e_tex;
+	t_texarr		w_tex;
+	t_texarr		floor_tex;
+	t_texarr		ceil_tex;
+	t_img			*minimap;
+	int				f_col;
+	int				c_col;
+	char			**map;
+	t_anim			**anims;
+	t_list			*enemies;
+	t_list			*items;
+	t_list			*triggers;
+	t_list			*projectiles;
+	t_list			*enemy_pos;
+	t_object			*boss_obj;
+	bool			boss_active;
+	t_vect			starting_pos;
+	t_vect			starting_dir;
+	int				height;
+	int				width;
+	char			*sublvls[4];
 }	t_data;
 
 typedef struct s_poolnode
@@ -245,6 +244,7 @@ typedef struct s_player
 	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
 	double	floor_offsets[WIN_HEIGHT / 2];
+	double	ceil_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
 }	t_player;
@@ -483,6 +483,7 @@ int	render_win(void *param);
 
 void	draw_sky(t_info *app);
 void 	draw_sky_alt(t_info *const app);
+void	fill_ceiling(t_info *app, t_data *map, t_player *player);
 void	fill_floor(t_info *app, t_data *map, t_player *player);
 
 void	menu_select_current(t_info *app);

@@ -10,10 +10,11 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = render.c \
-		  hud.c \
-		  floor.c \
-		  menus.c \
-		  render_frame.c \
+FILES   = ceiling.c \
+			render.c \
+			hud.c \
+			floor.c \
+			menus.c \
+			render_frame.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

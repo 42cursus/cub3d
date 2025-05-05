@@ -34,10 +34,12 @@ void	calculate_offsets(t_info *app, t_player *player)
 	}
 	scalar = get_hyp_len(app->fov_opp_len, 1);
 	i = 0;
+	int j = WIN_HEIGHT / 2;
 	while (i < WIN_HEIGHT / 2)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
 		player->floor_offsets[i++] = distance * scalar;
+		player->ceil_offsets[--j] = distance * scalar;
 	}
 }
 

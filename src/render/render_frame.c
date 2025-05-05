@@ -13,6 +13,7 @@
 #include "cub3d.h"
 #include <sys/time.h>
 #include <sysexits.h>
+#include <signal.h>
 
 size_t	get_time_ms(void)
 {

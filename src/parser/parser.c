@@ -435,8 +435,8 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 		tex_addr = &data->w_tex;
 	else if (identifier == FLOOR)
 		tex_addr = &data->floor_tex;
-	// else if (identifier == CEILING)
-	// 	tex_addr = &data->w_tex;
+	else if (identifier == CEILING)
+	 	tex_addr = &data->ceil_tex;
 	else
 		return (1);
 	if (tex_addr->img != NULL)
@@ -473,9 +473,9 @@ int	parse_line(t_data *data, char *line, t_info *app)
 	if (!identifier)
 		return (printf("Error: invalid line identifier\n"),
 			free_split(split), 1);
-	else if (identifier == CEILING)
-		retval = parse_colour(data, split[1], identifier);
-	else if (identifier < 7)
+//	else if (identifier == CEILING)
+//		retval = parse_colour(data, split[1], identifier);
+	else if (identifier <= WEST)
 		retval = parse_texture(data, split[1], identifier, app);
 	else
 		parse_levels(data, split[1], identifier);
@@ -494,10 +494,12 @@ int	all_fields_parsed(t_data *data)
 		return (0);
 	if (data->floor_tex.img == NULL)
 		return (0);
-	// if (data->f_col == -1)
-	// 	return (0);
-	if (data->c_col == -1)
+	if (data->ceil_tex.img == NULL)
 		return (0);
+//	 if (data->f_col == -1)
+//	 	return (0);
+//	if (data->c_col == -1)
+//		return (0);
 	return (1);
 }
 
@@ -1086,6 +1088,7 @@ void	free_map(t_data *data)
 	free_tex_arr(&data->e_tex);
 	free_tex_arr(&data->w_tex);
 	free_tex_arr(&data->floor_tex);
+	free_tex_arr(&data->ceil_tex);
 	free(data->sublvls[0]);
 	free(data->sublvls[1]);
 	free(data->sublvls[2]);

@@ -12,6 +12,7 @@
 
 #include "cub3d.h"
 #include <math.h>
+#include <signal.h>
 #include "fsm.h"
 
 t_state run_state(t_info *app, int argc, char **argv)
