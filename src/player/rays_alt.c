@@ -160,12 +160,12 @@ void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
 		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
 		current = current->next;
 	}
-	// current = map->triggers;
-	// while (current != NULL)
-	// {
-	// 	order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
-	// 	current = current->next;
-	// }
+	current = map->triggers;
+	while (current != NULL)
+	{
+		order_obj_ray(check_obj_collision((t_object *)current->data, ray, player), ray);
+		current = current->next;
+	}
 }
 
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
