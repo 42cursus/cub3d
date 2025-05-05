@@ -393,15 +393,10 @@ void	zoomer_ai(t_info *app, t_object *enemy)
 
 int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 {
-	// t_anim		*anim;
-	// int			frames;
-
 	if (obj->dead == 1)
 	{
 		obj->texture = handle_animation(app, obj->anim2);
 		if (obj->texture == NULL)
-		// frames = (app->last_frame - obj->anim2.timestart) / 20000;
-		// if (frames > 17)
 		{
 			if (obj->subtype == E_PHANTOON)
 			{
@@ -415,8 +410,6 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			*current = delete_object(&app->map->enemies, *current);
 			return (1);
 		}
-		// else
-		// 	obj->texture = &app->shtex->explode_tex[frames / 3];
 		return (0);
 	}
 	if (obj->subtype == E_ZOOMER)
@@ -429,7 +422,6 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 		atomic_ai(app, obj);
 	else if (obj->subtype == E_HOLTZ)
 		holtz_ai(app, obj, app->player);
-	// handle_enemy_anim(app, obj);
 	obj->texture = handle_animation(app, obj->anim);
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
