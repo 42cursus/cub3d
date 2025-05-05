@@ -46,22 +46,6 @@ t_vect	get_vertical_int(double x, double gradient, double c)
 	return (out);
 }
 
-t_ray	*get_pooled_ray(bool reset)
-{
-	static t_ray	pool[RAY_POOL_SIZE];
-	static int		stackp = 0;
-
-	if (reset)
-	{
-		stackp = 0;
-		return (NULL);
-	}
-	// printf("stackp: %d\n", stackp);
-	if (stackp == RAY_POOL_SIZE)
-		return (NULL);
-	return (&pool[stackp++]);
-}
-
 t_ray	*get_pooled_ray_alt(int flag)
 {
 	static t_poolnode	head = {
@@ -97,9 +81,7 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 	t_ray	*in_front;
 	t_ray	*new;
 
-	// new = ft_calloc(1, sizeof(*new));
 	new = get_pooled_ray_alt(0);
-	// new = get_pooled_ray_alt(pool, 0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
 	new->texture = texture;
@@ -107,15 +89,6 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 	in_front = ray->in_front;
 	ray->in_front = new;
 	new->in_front = in_front;
-}
-
-void	free_ray_children(t_ray *ray)
-{
-	return ;
-	(void)ray;
-	if (ray->in_front != NULL)
-		free_ray_children(ray->in_front);
-	free(ray->in_front);
 }
 
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)

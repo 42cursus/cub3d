@@ -109,12 +109,9 @@ void	select_missile_tex(t_object *obj, t_player *player, t_info *app)
 		tex = app->shtex->super_tex + 4;
 	else
 		tex = app->shtex->missile_tex + 4;
-	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
-	// angle = vector_angle(obj->dir, subtract_vect(obj->pos, player->pos));
 	angle = vector_angle(obj->dir, add_vect(player->dir,
 										 normalise_vect(subtract_vect(obj->pos, player->pos))));
 	index = (int)((angle + M_PI_4 / 2) / M_PI_4 + 8) % 8;
-	// printf("angle: %f index: %d\n", angle, index);
 	obj->texture = &tex[index];
 }
 
@@ -122,7 +119,6 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
 	t_anim		*anim;
-	// size_t		frames;
 	t_vect		new_pos;
 	t_object	*closest;
 
@@ -447,7 +443,6 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 
 	map = app->map;
 	player = app->player;
-	// select_item_texture(app, obj);
 	obj->texture = handle_animation(app, obj->anim);
 	if (vector_distance(player->pos, obj->pos) < 0.5)
 	{

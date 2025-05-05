@@ -134,7 +134,6 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 	ray.intcpt.x += normX;
 	ray.intcpt.y += normY;
 	calculate_ray_stuff(&ray, player, gradient, c);
-	// calc_object_collisions(map, player, &ray);
 	return (ray);
 }
 
@@ -200,9 +199,7 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	dist = vector_distance(object->pos, intcpt);
 	if (dist > 0.5)
 		return (NULL);
-	// out = ft_calloc(1, sizeof(*out));
 	out = get_pooled_ray_alt(0);
-	// out = get_pooled_ray_alt(&player->raypool, 0);
 	out->in_front = NULL;
 	out->intcpt = intcpt;
 	out->face = NONE;
@@ -212,14 +209,10 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	if (out->distance < 0.00001)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
-		// return (free(out), NULL);
 		return (NULL);
 	out->pos = vector_distance(intcpt, object->p2) * out->texture->x;
 	if (out->pos >= out->texture->x)
 		out->pos = out->texture->x - 1;
-	// printf("pos: %f\n", out->pos);
-	// if (object->type == O_ENTITY && object->attacking == 0 && vector_distance(player->pos, object->pos) < 3)
-	// 	object->attacking = 1;
 	if (get_time_us() - object->last_damaged < 100000)
 		out->damaged = 1;
 	return (out);
@@ -229,14 +222,12 @@ void	order_obj_ray(t_ray *obj, t_ray *ray)
 {
 	t_ray	*current;
 	t_ray	*temp;
-	// int		raycount = 0;
 
 	if (obj == NULL)
 		return ;
 	current = ray;
 	while (current->in_front != NULL)
 	{
-		// printf("raycount: %d\n", raycount++);
 		if (current->in_front->distance < obj->distance)
 		{
 			temp = current->in_front;
