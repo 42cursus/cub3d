@@ -250,7 +250,7 @@ typedef struct s_player
 	double	ceil_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
-	int		dmg_dir;
+	t_vect		dmg_dir;
 	size_t	dmg_time;
 }	t_player;
 

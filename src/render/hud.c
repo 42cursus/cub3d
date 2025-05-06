@@ -429,11 +429,13 @@ void	place_scope(t_info *app)
 void	place_dmg(t_info *app, t_player *player)
 {
 	t_texarr	*tex;
+	double		angle;
 	int			dir;
 	t_vect		offset;
 	t_ivect		coords;
 
-	dir = player->dmg_dir;
+	angle = vector_angle(player->dir, player->dmg_dir);
+	dir = (int)((angle + M_PI_4 / 2) / M_PI_4 + 8) % 8;
 	tex = &app->shtex->dmg_tex[dir];
 	// if (dir % 4 == 0)
 	// 	x = WIN_WIDTH - tex->x / 2;
@@ -492,7 +494,7 @@ void	draw_hud(t_info *app)
 	if (app->map->boss_active)
 		place_boss_health(app);
 	place_fps(app);
-	if (app->last_frame - app->player->dmg_time < 500000)
+	if (app->last_frame - app->player->dmg_time < 400000)
 		place_dmg(app, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
