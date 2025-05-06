@@ -148,11 +148,11 @@ void	draw_menu_items(t_info *app)
 		i = -1;
 		while (++i < app->no_maps)
 		{
-			ft_snprintf(buf, 20, "Level %d", i + 1);
-			place_str_centred(buf, app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
+			// ft_snprintf(buf, 20, "Level %d", i + 1);
+			place_str_centred(app->map_ids[i], app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
 		}
 		place_str_centred((char *)"back", app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
-		pos.x = WIN_WIDTH / 2 - 160;
+		pos.x = WIN_WIDTH / 2 - 320;
 		pos.y = 330 + (menu_state->selected * 48);
 		place_texarr(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
 	}
