@@ -500,6 +500,16 @@ void	next_weapon(t_player *player)
 	player->equipped = next;
 }
 
+void	prev_weapon(t_player *player)
+{
+	int	prev;
+
+	prev = (player->equipped + 2) % 3;
+	while (player->ammo[prev] == 0)
+		prev = (prev + 2) % 3;
+	player->equipped = prev;
+}
+
 void	subtract_health(t_info *app, t_player *player, int damage)
 {
 	int	new_health;

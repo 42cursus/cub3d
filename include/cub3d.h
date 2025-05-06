@@ -178,7 +178,9 @@ typedef struct s_shtex
 	t_texarr	trophy_tex[2];
 	t_texarr	phantoon[10];
 	t_texarr	phantoon_proj[6];
+	t_texarr	dmg_tex[8];
 	t_texarr	title;
+	t_texarr	scope;
 	t_texarr	alphabet;
 	t_texarr	tele;
 	t_texarr	boss_bar[2];
@@ -248,6 +250,8 @@ typedef struct s_player
 	double	ceil_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
+	int		dmg_dir;
+	size_t	dmg_time;
 }	t_player;
 
 enum
@@ -356,6 +360,8 @@ typedef struct s_info
 	int 		current_level;
 	int 		current_sublevel;
 	int			fov_deg;
+	int			ads;
+	int			old_fov;
 	double		fov_rad_half;
 	double		fov_opp_len;
 	size_t		framerate;
@@ -388,6 +394,7 @@ void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
+void	prev_weapon(t_player *player);
 
 void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype);

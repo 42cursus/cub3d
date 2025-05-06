@@ -418,6 +418,37 @@ void	place_fps(t_info *app)
 	}
 }
 
+void	place_scope(t_info *app)
+{
+	t_texarr *scope;
+
+	scope = &app->shtex->scope;
+	place_texarr(app, scope, WIN_WIDTH / 2 - scope->x / 2, WIN_HEIGHT / 2 - scope->y / 2);
+}
+
+void	place_dmg(t_info *app, t_player *player)
+{
+	t_texarr	*tex;
+	int			dir;
+	t_vect		offset;
+	t_ivect		coords;
+
+	dir = player->dmg_dir;
+	tex = &app->shtex->dmg_tex[dir];
+	// if (dir % 4 == 0)
+	// 	x = WIN_WIDTH - tex->x / 2;
+	// else if (dir )
+	offset = scale_vect((t_vect){0, -1}, WIN_HEIGHT / 4.0);
+	offset = rotate_vect(offset, (-dir) * M_PI_4);
+	coords = (t_ivect){offset.x, offset.y};
+	coords.x -= (tex->x / 2);
+	coords.y -= (tex->y / 2);
+	coords.x += WIN_WIDTH / 2;
+	coords.y += WIN_HEIGHT / 2;
+	// printf("dmg_dir: %d offset: (%d, %d)\n", player->dmg_dir, coords.x, coords.y);
+	place_texarr(app, tex, coords.x, coords.y);
+}
+
 void	place_boss_health(t_info *app)
 {
 	int	start_x;
@@ -446,17 +477,24 @@ void	place_boss_health(t_info *app)
 void	draw_hud(t_info *app)
 {
 	place_mmap(app);
-	place_weapon(app);
+	if (!app->ads)
+	{
+		place_weapon(app);
+		mlx_put_image_to_window(app->mlx, app->root,
+								app->shtex->playertile,
+								WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	}
+	else
+		place_scope(app);
 	place_energy(app, app->player);
 	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)
 	if (app->map->boss_active)
 		place_boss_health(app);
 	place_fps(app);
+	if (app->last_frame - app->player->dmg_time < 500000)
+		place_dmg(app, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
-	mlx_put_image_to_window(app->mlx, app->root,
-							app->shtex->playertile,
-							WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

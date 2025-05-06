@@ -116,6 +116,18 @@ void	select_missile_tex(t_object *obj, t_player *player, t_info *app)
 	obj->texture = &tex[index];
 }
 
+void	calc_dmg_direction(t_info *app, t_object *obj, t_player *player)
+{
+	t_vect	dmg_dir;
+	double	angle;
+
+	dmg_dir = (subtract_vect(obj->pos, player->pos));
+	angle = vector_angle(player->dir, dmg_dir);
+	player->dmg_dir = (int)((angle + M_PI_4 / 2) / M_PI_4 + 8) % 8;
+	player->dmg_time = app->last_frame;
+	// printf("dmg_dir: %d\n", player->dmg_dir);
+}
+
 int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 {
 	char		*tile;
@@ -204,6 +216,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 	if (vector_distance(obj->pos, app->player->pos) < 0.2)
 	{
 		subtract_health(app, app->player, 20);
+		calc_dmg_direction(app, obj, app->player);
 		start_obj_death(obj, app);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
@@ -432,6 +445,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			damage_enemy(app, obj, 100);
 		}
 		move_entity(app, &app->player->pos, app->map, scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
+		calc_dmg_direction(app, obj, app->player);
 	}
 	return (0);
 	(void)current;

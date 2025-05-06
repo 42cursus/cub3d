@@ -89,7 +89,27 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 	app->mouse[button] = true;
 	if (button == 1)
 		spawn_projectile(app, app->player, app->map, app->player->equipped);
-
+	else if (button == 3)
+	{
+		if (!app->ads)
+		{
+			app->ads = 1;
+			app->old_fov = app->fov_deg;
+			set_fov(app, 45);
+		}
+		else
+		{
+			app->ads = 0;
+			set_fov(app, app->old_fov);
+		}
+		calculate_offsets(app, app->player);
+		replace_sky(app, (char *) "./textures/skybox.xpm");
+		draw_sky_alt(app);
+	}
+	else if (button == 5)
+		next_weapon(app->player);
+	else if (button == 4)
+		prev_weapon(app->player);
 	return (0);
 	((void) x, (void) y);
 }

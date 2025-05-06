@@ -647,6 +647,20 @@ void	load_atomic_tex(t_info *app)
 	}
 }
 
+void	load_dmg_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+
+	i = 0;
+	while (i < 8)
+	{
+		ft_snprintf(buf, 50, "./textures/dmg%c.xpm", i + '0');
+		app->shtex->dmg_tex[i].img = img_to_arr(buf, app, &app->shtex->dmg_tex[i].x, &app->shtex->dmg_tex[i].y);
+		i++;
+	}
+}
+
 void	load_proj_green_tex(t_info *app)
 {
 	int		i;
@@ -1041,6 +1055,7 @@ void	load_shtex(t_info *app)
 	app->shtex->boss_bar[0].img = img_to_arr((char *)"./textures/boss_bar_left.xpm", app, &app->shtex->boss_bar[0].x, &app->shtex->boss_bar[0].y);
 	app->shtex->boss_bar[1].img = img_to_arr((char *)"./textures/boss_bar_right.xpm", app, &app->shtex->boss_bar[1].x, &app->shtex->boss_bar[1].y);
 	app->shtex->tele.img = img_to_arr((char *)"./textures/teleporter.xpm", app, &app->shtex->tele.x, &app->shtex->tele.y);
+	app->shtex->scope.img = img_to_arr((char *)"./textures/scope.xpm", app, &app->shtex->scope.x, &app->shtex->scope.y);
 	load_energy_textures(app);
 	load_super_textures(app);
 	load_missile_textures(app);
@@ -1055,6 +1070,7 @@ void	load_shtex(t_info *app)
 	load_holtz_tex(app);
 	load_reo_tex(app);
 	load_proj_green_tex(app);
+	load_dmg_tex(app);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
@@ -1113,6 +1129,7 @@ void	free_shtex(t_info *app)
 	free_tex_arr(&app->shtex->title);
 	free_tex_arr(&app->shtex->alphabet);
 	free_tex_arr(&app->shtex->tele);
+	free_tex_arr(&app->shtex->scope);
 	free_tex_arr(&app->shtex->empty);
 	free_tex_arr(&app->shtex->trophy_tex[0]);
 	free_tex_arr(&app->shtex->trophy_tex[1]);
@@ -1179,6 +1196,9 @@ void	free_shtex(t_info *app)
 	i = 0;
 	while (i < 4)
 		free_tex_arr(&app->shtex->proj_green_tex[i++]);
+	i = 0;
+	while (i < 8)
+		free_tex_arr(&app->shtex->dmg_tex[i++]);
 	mlx_destroy_image(app->mlx, app->shtex->playertile);
 	free(app->shtex);
 }
