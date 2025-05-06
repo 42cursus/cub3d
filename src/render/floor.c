@@ -72,7 +72,7 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	curr.x = l_pos.x;
 	curr.y = l_pos.y;
 
-	u_int (*const source)[tex->height][tex->width] = (void *)tex->data;
+	u_int *src = (u_int *)tex->data;
 	u_int (*const dst) = (u_int *)app->canvas->data + row * app->canvas->width;
 	i = -1;
 	while (++i < WIN_WIDTH)
@@ -81,7 +81,7 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 		{
 			idx.x = get_tex_index(curr.x, tex->width);
 			idx.y = get_tex_index(curr.y, tex->height);
-			dst[i] = (*source)[idx.y][idx.x];
+			dst[i] = src[idx.y * tex->width + idx.x];
 		}
 		curr.x += step.x;
 		curr.y += step.y;
