@@ -100,6 +100,8 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 				place_tile_on_image(img, tiles[index], j * 8, i * 8);
 			}
 			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
+					 app->map->map[app->map->height - i - 1][j] == 'M' ||
+					 app->map->map[app->map->height - i - 1][j] == 'B' ||
 					 app->map->map[app->map->height - i - 1][j] == 'L')
 				place_tile_on_image(img, tiles[15], j * 8, i * 8);
 
