@@ -218,8 +218,9 @@ void	rotate_player(t_info *app, t_player *player, int direction, double sensitiv
 		rotate_vect_inplace(&player->dir, M_PI_4 / (sensitivity * app->fr_scale));
 	else
 		rotate_vect_inplace(&player->dir, -M_PI_4 / (sensitivity * app->fr_scale));
-	// app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
-	draw_sky_alt(app);
+	app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
+	if (app->map->outside)
+		draw_sky_alt(app);
 }
 
 // void	handle_close_door(t_info *app, t_ray *crosshair)

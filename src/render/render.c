@@ -143,7 +143,8 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 
 	texture = mlx_xpm_file_to_image(app->mlx, (char *) filename, &tmp.width, &tmp.height);
 	if (!texture)
-		exit(((void) printf(" !! KO !!\n"), cleanup(app)));
+		return (NULL);
+		// exit(((void) printf(" !! KO !!\n"), cleanup(app)));
 	u_int (*const pixels)[texture->height][texture->width] = (void *)texture->data;
 	*x = texture->width;
 	*y = texture->height;

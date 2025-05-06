@@ -495,7 +495,10 @@ int	all_fields_parsed(t_data *data)
 	if (data->floor_tex.img == NULL)
 		return (0);
 	if (data->ceil_tex.img == NULL)
-		return (0);
+	{
+		data->outside = 1;
+		return (1);
+	}
 //	 if (data->f_col == -1)
 //	 	return (0);
 //	if (data->c_col == -1)

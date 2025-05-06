@@ -19,8 +19,8 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
- # define WIN_HEIGHT 720
-// # define WIN_HEIGHT 960
+ // # define WIN_HEIGHT 720
+# define WIN_HEIGHT 960
 # define WIN_WIDTH 1280
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1600
@@ -195,6 +195,7 @@ typedef	struct s_data
 	t_texarr		w_tex;
 	t_texarr		floor_tex;
 	t_texarr		ceil_tex;
+	int				outside;
 	t_img			*minimap;
 	int				f_col;
 	int				c_col;
