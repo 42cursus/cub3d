@@ -188,6 +188,13 @@ typedef struct s_shtex
 	void		*playertile;
 }	t_shtex;
 
+typedef enum e_textures
+{
+	T_FLOOR,
+	T_CEILING,
+	NUM_TEXTURES
+}	t_enum_tex;
+
 typedef	struct s_data
 {
 	struct s_info	*app;
@@ -208,13 +215,14 @@ typedef	struct s_data
 	t_list			*triggers;
 	t_list			*projectiles;
 	t_list			*enemy_pos;
-	t_object			*boss_obj;
+	t_object		*boss_obj;
 	bool			boss_active;
 	t_vect			starting_pos;
 	t_vect			starting_dir;
 	int				height;
 	int				width;
 	char			*sublvls[4];
+	t_img			*texs[NUM_TEXTURES];
 }	t_data;
 
 typedef struct s_poolnode

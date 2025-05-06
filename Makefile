@@ -22,7 +22,7 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
-					-mprefer-vector-width=512 \
+					-mprefer-vector-width=256 \
 					-pg \
 					-fsanitize=address \
 					-fsanitize=undefined \

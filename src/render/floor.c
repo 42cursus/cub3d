@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-static inline __attribute__((always_inline))
+static inline __attribute__((always_inline, unused))
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 {
 	// if (colour == MLX_TRANSPARENT)
@@ -20,6 +20,17 @@ void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
+/**
+ * This function maps a continuous coordinate (like pos = 0.5)
+ * to an integer pixel index in a texture of size dim.
+ *
+ * The modulo trick ensures the result is always between 0 and dim - 1,
+ * even if whole is negative
+ *
+ * @param pos
+ * @param dim
+ * @return
+ */
 static inline __attribute__((always_inline))
 int	get_tex_index(double pos, int dim)
 {
@@ -29,10 +40,23 @@ int	get_tex_index(double pos, int dim)
 	return ((whole % dim + dim) % dim);
 }
 
-static inline __attribute__((always_inline))
+/**
+ * Checks if the position pos is outside the boundaries of the map
+ * oob stands for "out of bounds"
+ * @param pos
+ * @param map
+ * @return
+ */
+static inline __attribute__((always_inline, unused))
 int	point_oob(t_vect pos, t_data *map)
 {
 	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+}
+
+static inline __attribute__((always_inline, unused))
+int	clamp(int val, int min, int max)
+{
+	return val < min ? min : (val > max ? max : val);
 }
 
 void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
@@ -41,21 +65,23 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	t_vect			step;
 	t_vect			curr;
 	t_ivect			idx;
-	const t_texarr	*tex = &app->map->floor_tex;
+	const t_img		*tex = app->map->texs[T_FLOOR];
 
 	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
 	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
 	curr.x = l_pos.x;
 	curr.y = l_pos.y;
+
+	u_int (*const source)[tex->height][tex->width] = (void *)tex->data;
+	u_int (*const dst) = (u_int *)app->canvas->data + row * app->canvas->width;
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
-		if (!point_oob(curr, app->map))
+		if (!point_oob(curr, app->map)) // costs branch prediction and stalls
 		{
-			idx.y = get_tex_index(curr.y, tex->y);
-			idx.x = get_tex_index(curr.x, tex->x);
-			my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
-			// my_put_pixel_32(app->canvas, i, row, dim_colour(tex->img[idx.y][idx.x], app->player->floor_offsets[row - (WIN_HEIGHT / 2) - 1] / 4));
+			idx.x = get_tex_index(curr.x, tex->width);
+			idx.y = get_tex_index(curr.y, tex->height);
+			dst[i] = (*source)[idx.y][idx.x];
 		}
 		curr.x += step.x;
 		curr.y += step.y;

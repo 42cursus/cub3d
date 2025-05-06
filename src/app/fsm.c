@@ -53,6 +53,10 @@ int	exit_win(t_info *const	app)
 void	destroy_map(t_data *map)
 {
 	mlx_destroy_image(map->app->mlx, map->minimap);
+	if (map->texs[T_CEILING])
+		mlx_destroy_image(map->app->mlx, map->texs[T_CEILING]);
+	if (map->texs[T_FLOOR])
+		mlx_destroy_image(map->app->mlx, map->texs[T_FLOOR]);
 	free_map(map);
 }
 

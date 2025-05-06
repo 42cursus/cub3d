@@ -424,6 +424,7 @@ int	parse_colour(t_data *map, char *str, int identifier)
 int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 {
 	t_texarr	*tex_addr;
+	t_img		tmp;
 
 	if (identifier == NORTH)
 		tex_addr = &data->n_tex;
@@ -434,9 +435,16 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 	else if (identifier == WEST)
 		tex_addr = &data->w_tex;
 	else if (identifier == FLOOR)
+	{
 		tex_addr = &data->floor_tex;
+		data->texs[T_FLOOR] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+
+	}
 	else if (identifier == CEILING)
-	 	tex_addr = &data->ceil_tex;
+	{
+		tex_addr = &data->ceil_tex;
+		data->texs[T_CEILING] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+	}
 	else
 		return (1);
 	if (tex_addr->img != NULL)
