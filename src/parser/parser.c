@@ -172,6 +172,7 @@ void	normalise_map(t_data *data)
 	size_t	longest;
 	size_t	i;
 	char	*normalised;
+	char	*last1;
 
 	remove_trailing_lines(data);
 	longest = find_longest_line(data->map);
@@ -180,7 +181,9 @@ void	normalise_map(t_data *data)
 	{
 		normalised = ft_calloc(longest + 1, 1);
 		ft_memset(normalised, ' ', longest);
-		ft_memmove(normalised, (data->map)[i], ft_strlen((data->map)[i]));
+		last1 = ft_strrchr((data->map)[i], '1');
+		if (last1 != NULL)
+			ft_memmove(normalised, (data->map)[i], last1 - (data->map)[i] + 1);
 		free((data->map)[i]);
 		(data->map[i] = normalised);
 		i++;
@@ -997,13 +1000,16 @@ int	parse_cub(t_info *app, char *filename)
 			printf("Error: map not provided\n"), 1);
 	if (!map_is_valid(data))
 		return (ft_list_destroy(&file, free), 1);
-	ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
+	// print_list(file);
+	// ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
+	// print_list(file);
 	current = file;
 	while (current != NULL)
 	{
-		if (parse_line(data, current->data, app))
-			return (ft_printf("%s\n", current->data),
-				ft_list_destroy(&file, free), 1);
+		if (str_cmp_whitespace(current->data, NULL))
+			if (parse_line(data, current->data, app))
+				return (ft_printf("%s\n", current->data),
+					ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}
 	ft_list_destroy(&file, free);
