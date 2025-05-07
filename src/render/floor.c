@@ -55,25 +55,27 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, u_int (*const dst))
 	t_ivect			idx;
 	const t_img		*tex = app->map->texs[T_FLOOR];
 
-	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
-	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
+	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH * 2;
+	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH * 2;
 	curr.x = l_pos.x;
 	curr.y = l_pos.y;
 
 	u_int *src = (u_int *)tex->data;
-	i = -1;
-	while (++i < WIN_WIDTH)
+	i = 0;
+	while (i < WIN_WIDTH - 1)
 	{
 		if (!point_oob(curr, app->map))
 		{
 			idx.x = get_tex_index(curr.x, tex->width);
 			idx.y = get_tex_index(curr.y, tex->height);
 			dst[i] = src[idx.y * tex->width + idx.x];
+			dst[i + 1] = src[idx.y * tex->width + idx.x];
 		}
 		else
 			dst[i] = MLX_TRANSPARENT;
 		curr.x += step.x;
 		curr.y += step.y;
+		i += 2;
 	}
 }
 
