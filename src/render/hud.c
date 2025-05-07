@@ -494,7 +494,7 @@ void	draw_hud(t_info *app)
 	if (app->map->boss_active)
 		place_boss_health(app);
 	place_fps(app);
-	if (app->last_frame - app->player->dmg_time < 400000)
+	if (app->last_frame - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
