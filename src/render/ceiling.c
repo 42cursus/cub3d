@@ -23,10 +23,10 @@ void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 static inline __attribute__((always_inline))
 int	get_tex_index(double pos, int dim)
 {
-	int	whole;
-
-	whole = pos * dim;
-	return ((whole % dim + dim) % dim);
+	// int	whole;
+	//
+	// whole = pos * dim;
+	return ((int)(pos * dim) % dim);
 }
 
 static inline __attribute__((always_inline))

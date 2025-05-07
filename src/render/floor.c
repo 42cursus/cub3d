@@ -26,10 +26,11 @@
 static inline __attribute__((always_inline))
 int	get_tex_index(double pos, int dim)
 {
-	int	whole;
-
-	whole = pos * dim;
-	return ((whole % dim + dim) % dim);
+	// int	whole;
+	//
+	// whole = pos * dim;
+	// return ((whole % dim + dim) % dim);
+	return ((int)(pos * dim) % dim);
 }
 
 /**
