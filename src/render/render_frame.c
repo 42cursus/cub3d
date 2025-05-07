@@ -31,6 +31,12 @@ size_t	get_time_us(void)
 	return (current_time.tv_sec * 1000000 + current_time.tv_usec);
 }
 
+static inline __attribute__((always_inline, unused))
+int	point_oob(t_vect pos, t_data *map)
+{
+	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+}
+
 t_list	*delete_object(t_list **obj_list, t_list *obj_node)
 {
 	t_list	*current;
@@ -163,7 +169,7 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 		select_missile_tex(obj, app->player, app);
 	new_pos = add_vect(obj->pos, obj->dir);
 	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
-	if (!check_tile_open(*tile, app->map))
+	if (!point_oob(new_pos, app->map) && !check_tile_open(*tile, app->map))
 	{
 		anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
 		if (*tile == 'D')

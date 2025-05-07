@@ -166,6 +166,12 @@ int	check_tile_open(char tile, t_data *map)
 	return (0);
 }
 
+static inline __attribute__((always_inline, unused))
+int	point_oob(t_vect pos, t_data *map)
+{
+	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+}
+
 void	move_entity(t_info *app, t_vect *pos, t_data *data, t_vect dir)
 {
 	t_vect	new_pos;
@@ -176,6 +182,8 @@ void	move_entity(t_info *app, t_vect *pos, t_data *data, t_vect dir)
 	map = data->map;
 	new_pos.x = pos->x + dir.x;
 	new_pos.y = pos->y + dir.y;
+	if (point_oob(new_pos, data))
+		return ;
 	tile = (t_cvect){map[(int)pos->y][(int)new_pos.x], map[(int)new_pos.y][(int)pos->x]};
 	both_tile = map[(int)new_pos.y][(int)new_pos.x];
 	if (check_tile_open(both_tile, data))
@@ -211,7 +219,7 @@ void	move_obj_bounce(t_info *app, t_object *obj, t_data *data)
 	new_pos = add_vect(obj->pos, scale_vect(obj->dir, obj->speed / app->fr_scale));
 	map = data->map;
 	tile = map[(int)new_pos.y][(int)new_pos.x];
-	if (!check_tile_open(tile, app->map))
+	if (point_oob(new_pos, app->map) || !check_tile_open(tile, app->map))
 		rotate_vect_inplace(&obj->dir, rand_range(-M_PI, M_PI));
 	else
 		obj->pos = new_pos;
