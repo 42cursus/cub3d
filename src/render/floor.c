@@ -63,12 +63,14 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, u_int (*const dst))
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
-		if (!point_oob(curr, app->map)) // costs branch prediction and stalls
+		if (!point_oob(curr, app->map))
 		{
 			idx.x = get_tex_index(curr.x, tex->width);
 			idx.y = get_tex_index(curr.y, tex->height);
 			dst[i] = src[idx.y * tex->width + idx.x];
 		}
+		else
+			dst[i] = MLX_TRANSPARENT;
 		curr.x += step.x;
 		curr.y += step.y;
 	}
