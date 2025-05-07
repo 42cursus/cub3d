@@ -1,0 +1,51 @@
+NO textures/grass_stone.xpm
+SO textures/grass_stone.xpm
+WE textures/stone_wall.xpm
+EA textures/stone_wall.xpm
+
+F textures/outside_floor.xpm
+C 0x64,0x9d,0xfa
+
+LVL_A lvla.cub
+LVL_B lvlb.cub
+
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                    111                                           
+                 1111M1111                                        
+                11000000011                                       
+                10000000001                                       
+                100000000011                                      
+                1000000000L1                                      
+                100000000011                                      
+                10000000001                                       
+                11000000011                                       
+                 1111D1111                                        
+                   10001                                          
+                   10001                                          
+                   10001                                          
+                   11111                                          
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
+                                                                  
