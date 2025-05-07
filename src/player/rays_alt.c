@@ -12,6 +12,16 @@
 
 #include "cub3d.h"
 
+static inline __attribute__((always_inline))
+double vector_distance2(t_vect v1, t_vect v2)
+{
+	t_vect diff;
+
+	diff.x = v2.x - v1.x;
+	diff.y = v2.y - v1.y;
+	return (sqrt(diff.x * diff.x + diff.y * diff.y));
+}
+
 void	calculate_ray_stuff(t_ray *ray, t_player *player, double gradient, double c)
 {
 	int	face_mod;
@@ -194,9 +204,9 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	double	dist;
 
 	intcpt = get_line_intersect(object->pos, object->p2, ray->intcpt, player->pos);
-	if (vector_distance(intcpt, ray->intcpt) > vector_distance(player->pos, ray->intcpt))
+	if (vector_distance2(intcpt, ray->intcpt) > vector_distance2(player->pos, ray->intcpt))
 		return (NULL);
-	dist = vector_distance(object->pos, intcpt);
+	dist = vector_distance2(object->pos, intcpt);
 	if (dist > 0.5)
 		return (NULL);
 	out = get_pooled_ray_alt(0);
@@ -210,7 +220,7 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 		out->distance = 0.00001;
 	if (out->distance > ray->distance)
 		return (NULL);
-	out->pos = vector_distance(intcpt, object->p2) * out->texture->x;
+	out->pos = vector_distance2(intcpt, object->p2) * out->texture->x;
 	if (out->pos >= out->texture->x)
 		out->pos = out->texture->x - 1;
 	if (get_time_us() - object->last_damaged < 100000)
