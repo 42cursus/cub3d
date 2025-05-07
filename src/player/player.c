@@ -14,6 +14,11 @@
 #include <math.h>
 #include <unistd.h>
 
+double	get_hyp_len(double len1, double len2)
+{
+	return (sqrt(len1 * len1 + len2 * len2));
+}
+
 void	calculate_offsets(t_info *app, t_player *player)
 {
 	int				i;
