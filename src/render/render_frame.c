@@ -346,7 +346,7 @@ void	reo_ai(t_info *app, t_object *enemy)
 	// 	enemy->attacking = 0;
 	// else if (vector_distance(enemy->pos, app->player->pos) < 4)
 	// 	enemy->attacking = 1;
-	if (check_line_of_sight(app, enemy, app->player) && vector_distance(enemy->pos, app->player->pos) < 4)
+	if (check_line_of_sight(app, enemy, app->player) && vector_distance(enemy->pos, app->player->pos) < 6)
 		enemy->attacking = 1;
 	frames = ((app->last_frame / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)

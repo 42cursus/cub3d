@@ -246,24 +246,28 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		y = 0;
 	if (ray->damaged == 1)
 	{
-		while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
+		while (y < lineheight && y + top < WIN_HEIGHT)
+		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
 			my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[h_index][pos]));
-			my_put_pixel_32(canvas, x, top + y + 1, tint_red(texture->img[h_index][pos]));
+			// my_put_pixel_32(canvas, x, top + y + 1, tint_red(texture->img[h_index][pos]));
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(tint_red(texture->img[h_index][pos]), ray->distance / 4));
-			y += 2;
+			// y += 2;
+			y++;
 		}
 	}
 	else
 	{
-		while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
+		while (y < lineheight && y + top < WIN_HEIGHT)
+		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
 			my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
-			my_put_pixel_32(canvas, x, top + y + 1, texture->img[h_index][pos]);
+			// my_put_pixel_32(canvas, x, top + y + 1, texture->img[h_index][pos]);
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
-			y += 2;
+			// y += 2;
+			y++;
 		}
 	}
 	if (ray->in_front != NULL)
