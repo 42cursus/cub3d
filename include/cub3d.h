@@ -20,8 +20,10 @@
 # include "fsm.h"
 
  // # define WIN_HEIGHT 720
-# define WIN_HEIGHT 960
-# define WIN_WIDTH 1280
+//# define WIN_HEIGHT 960
+//# define WIN_WIDTH 1280
+# define WIN_HEIGHT 1080
+# define WIN_WIDTH 1920
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1600
 // # define WIN_HEIGHT 1008
@@ -376,6 +378,7 @@ typedef struct s_info
 	size_t		fr_delay;
 	double		fr_scale;
 	t_list		*lvlcache;
+	int			fullscreen;
 }	t_info;
 
 int		check_endianness(void);

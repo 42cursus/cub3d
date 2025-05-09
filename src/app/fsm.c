@@ -98,6 +98,21 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->framecount = 0;
 	// app->last_frame_us = get_time_us();
 	app->frametime = 5000;
+
+
+	t_img *canvas;
+	t_img *stillshot;
+
+	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
+
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	if (!canvas || !stillshot)
+		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
+
+	app->canvas = canvas;
+	app->stillshot = stillshot;
+
 	return (ok);
 }
 
