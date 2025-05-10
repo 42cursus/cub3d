@@ -12,7 +12,6 @@
 
 #include "cub3d.h"
 #include <math.h>
-#include <signal.h>
 #include "fsm.h"
 
 t_state run_state(t_info *app, int argc, char **argv)
@@ -75,7 +74,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
-	set_fov(app, 90);
+	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
@@ -272,6 +271,9 @@ void do_mmenu_to_load(void *param)
 //	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
 	return ;
 	(void)app;
 
@@ -281,37 +283,6 @@ void do_load_to_play(void *param)
 {
 	t_info *const app = param;
 
-	// struct s_thing
-	// {
-	// 	t_vect		pos;
-	// 	t_vect		dir;
-	// 	t_etype		type;
-	// 	t_subtype	subtype;
-	// } things[] = {
-	// 	{{28.0, 10.5}, {0.02, 0.02}, O_ENTITY, E_ZOOMER},
-	// 	{{24.0, 10.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-	// 	{{15.0, 10.5}, {0.02, 0.01}, O_ENTITY, E_ZOOMER},
-	// 	{{ 5.0,  5.5}, {0.02, 0.0}, O_ENTITY, E_ZOOMER},
-	// 	{{12.5,  1.5}, {0.0, 0.03}, O_ENTITY, E_ZOOMER},
-	// 	{{10.5,  5.5}, {0.0, -0.03}, O_ENTITY, E_ZOOMER},
-	// 	{{18.5,  4.5}, {0.03, 0.0}, O_ENTITY, E_ZOOMER},
-	// 	{{26.5,  11.5}, {0.0, 0.03}, O_ENTITY, E_PHANTOON},
-	// 	{.pos = {20.5, 2.5}, .type = O_ITEM, .subtype = I_ETANK},
-	// 	{.pos = {18.5, 2.5 }, .type = O_ITEM, .subtype = I_SUPER},
-	// 	{.pos = {23.5, 2.5 }, .type = O_ITEM, .subtype = I_MISSILE},
-	// 	{.pos = {10.5, 10.5}, .type = O_ITEM, .subtype = I_ETANK},
-	// 	{.pos = {6.5, 1.5}, .type = O_ITEM, .subtype = I_TROPHY},
-	// };
-	//
-	// int i = -1;
-	// while (++i < (int)(sizeof(things) / sizeof(things[0])))
-	// {
-	// 	struct s_thing *thing = &things[i];
-	// 	if (thing->type == O_ENTITY)
-	// 		spawn_enemy(app,  thing->pos, thing->dir, thing->subtype);
-	// 	else
-	// 		spawn_item(app, thing->pos, thing->subtype);
-	// }
 	replace_image(app, &app->bg, NULL);
 	// fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
@@ -321,6 +292,8 @@ void do_load_to_play(void *param)
 	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+	app->timer.cur_lvl_start = get_time_ms();
 }
 
 void do_load_to_end(void *param)
@@ -345,6 +318,7 @@ void do_play_to_pmenu(void *param)
 
 	app->mlx->end_loop = 0;
 
+	app->timer.stop_time = get_time_ms();
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	replace_frame(app);
@@ -367,6 +341,7 @@ void	do_play_to_load(void *param)
 	t_info *const	app = param;
 	char			*next_lvl;
 
+	app->timer.stop_time = get_time_ms();
 	next_lvl = ft_strdup(app->map->sublvls[app->current_sublevel]);
 	// cleanup_map(app);
 	// if (get_cached_lvl(app, app->map->sublvls[0]) == NULL)
@@ -408,6 +383,8 @@ void do_play_to_win(void *param)
 {
 	t_info *const app = param;
 
+	app->timer.stop_time = get_time_ms();
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, NULL);
@@ -467,6 +444,8 @@ void do_pmenu_to_play(void *param)
 	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
 	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+	app->timer.cur_lvl_start = get_time_ms();
 }
 
 void do_pmenu_to_mmenu(void *param)
@@ -576,6 +555,9 @@ void do_win_to_load(void *param)
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
 }
 
 void do_lose_to_load(void *param)
@@ -602,6 +584,9 @@ void do_lose_to_load(void *param)
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
 }
 
 void do_win_to_end(void *param)

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include "libft.h"
 
 static inline __attribute__((always_inline))
 void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
@@ -476,6 +477,27 @@ void	place_boss_health(t_info *app)
 	place_str((char *)"Phantoon", app, (t_ivect){start_x, start_y - 24}, 2);
 }
 
+void	format_time(char *buf, int len, size_t time)
+{
+	int	minutes;
+	int	seconds;
+	int	ms;
+
+	minutes = time / (60000);
+	time = time % 60000;
+	seconds = time / 1000;
+	ms = time % 1000;
+	snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
+}
+
+void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
+{
+	char	buf[50];
+
+	format_time(buf, 50, time);
+	place_str(buf, app, pos, scalar);
+}
+
 void	draw_hud(t_info *app)
 {
 	place_mmap(app);
@@ -494,6 +516,8 @@ void	draw_hud(t_info *app)
 	if (app->map->boss_active)
 		place_boss_health(app);
 	place_fps(app);
+	if (app->timer.active == 1)
+		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
 	if (app->last_frame - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,

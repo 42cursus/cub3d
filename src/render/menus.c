@@ -35,6 +35,11 @@ void	menu_change_option(t_info *app, int dir)
 		{
 			set_framerate(app, app->framerate + (5 * dir));
 		}
+		else if (menu_state->selected == 2)
+		{
+			if (menu_state->prev == MAIN)
+				app->timer.active = !app->timer.active;
+		}
 	}
 }
 
@@ -61,7 +66,7 @@ void	menu_select_current(t_info *app)
 			menu_state->prev = menu_state->state;
 			menu_state->state = OPTIONS;
 			menu_state->selected = 0;
-			menu_state->no_items = 3;
+			menu_state->no_items = 4;
 		}
 		if (menu_state->selected == 3)
 		{
@@ -86,7 +91,7 @@ void	menu_select_current(t_info *app)
 			menu_state->prev = menu_state->state;
 			menu_state->state = OPTIONS;
 			menu_state->selected = 0;
-			menu_state->no_items = 3;
+			menu_state->no_items = 4;
 		}
 		if (menu_state->selected == 3)
 		{
@@ -136,6 +141,7 @@ void	draw_menu_items(t_info *app)
 	int			i;
 	char		buf[40];
 	char		buf2[40];
+	char		buf3[40];
 	t_ivect		pos;
 
 	menu_state = &app->menu_state;
@@ -159,7 +165,14 @@ void	draw_menu_items(t_info *app)
 	if (menu_state->state == WIN)
 	{
 		place_str_centred((char *)	"You win", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		if (app->timer.active == 1)
+		{
+			place_str_centred((char *)	"Your time was:", app, (t_ivect){WIN_WIDTH / 2, 420}, 3);
+			place_timer(app, app->timer.total_ms, (t_ivect){WIN_WIDTH / 2 - (24  * 4), 460}, 3);
+			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 50}, 3, app);
+		}
+		else
+			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == LOSE)
 	{
@@ -172,9 +185,13 @@ void	draw_menu_items(t_info *app)
 	}
 	if (menu_state->state == OPTIONS)
 	{
-		ft_snprintf(buf, 40, "fov %d", app->fov_deg);
-		ft_snprintf(buf2, 40, "fps cap %d", app->framerate);
-		place_menu((const char *[]){buf, buf2, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		ft_snprintf(buf, 40, "fov  %d", app->fov_deg);
+		ft_snprintf(buf2, 40, "fps cap  %d", app->framerate);
+		if (app->timer.active == 1)
+			ft_snprintf(buf3, 40, "time trial  on", app->framerate);
+		else
+			ft_snprintf(buf3, 40, "time trial  off", app->framerate);
+		place_menu((const char *[]){buf, buf2, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 

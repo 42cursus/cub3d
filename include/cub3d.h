@@ -32,7 +32,7 @@
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
-# define FRAMERATE 240
+# define FRAMERATE 120
 #endif
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
@@ -241,6 +241,14 @@ typedef struct s_pool
 	size_t	size;
 }	t_pool;
 
+typedef struct s_timer
+{
+	size_t	total_ms;
+	size_t	cur_lvl_start;
+	size_t	stop_time;
+	int		active;
+}	t_timer;
+
 typedef struct s_player
 {
 	t_vect	pos;
@@ -380,6 +388,7 @@ typedef struct s_info
 	t_list		*lvlcache;
 	int			filter;
 	int			fullscreen;
+	t_timer		timer;
 }	t_info;
 
 int		check_endianness(void);
@@ -469,6 +478,7 @@ void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
+void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
