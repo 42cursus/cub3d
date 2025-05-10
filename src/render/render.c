@@ -214,14 +214,56 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 	return (tex);
 }
 
+int	interpolate_colour(int col1, int col2, double frac)
+{
+	int	r;
+	int	g;
+	int	b;
+
+	if (col1 == 0x42 && col2 == 0x42)
+		return (0x42);
+	else if (col2 == 0x42)
+		return (col1);
+	else if (col1 == 0x42)
+		return (col2);
+	r = ((col2 & 0xff0000) - (col1 & 0xff0000)) * frac + (col1 & 0xff0000);
+	g = ((col2 & 0x00ff00) - (col1 & 0x00ff00)) * frac + (col1 & 0x00ff00);
+	b = ((col2 & 0xff) - (col1 & 0xff)) * frac + (col1 & 0xff);
+	return ((r & 0xff0000) + (g & 0x00ff00) + b);
+}
+
+int	bilinear_filter(double x, double y, const t_texarr *tex)
+{
+	int		x_lower;
+	int		x_upper;
+	int		y_lower;
+	int		y_upper;
+	double	frac_x;
+	double	frac_y;
+
+	x_lower = (int)x;
+	y_lower = (int)y;
+	x_upper = x_lower + 1;
+	y_upper = y_lower + 1;
+	frac_x = fmod(x, 1);
+	frac_y = fmod(y, 1);
+	if (x_upper == tex->x)
+		x_upper = 0;
+	if (y_upper == tex->y)
+		return (interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
+	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
+	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
+	return (interpolate_colour(interp_x1, interp_x2, frac_y));
+}
+
 void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 {
-	int					pos;
+	double					pos;
 	const t_texarr		*texture =  ray->texture;
 	t_anim				*anim;
 	int					y;
 	int					top;
-	int					h_index;
+	double					h_index;
 	int					lineheight;
 
 	pos = ray->pos;
@@ -250,7 +292,10 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
-			my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[h_index][pos]));
+			if (app->filter)
+				my_put_pixel_32(canvas, x, top + y, tint_red(bilinear_filter(pos, h_index, texture)));
+			else
+				my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[(int)h_index][(int)pos]));
 			// my_put_pixel_32(canvas, x, top + y + 1, tint_red(texture->img[h_index][pos]));
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(tint_red(texture->img[h_index][pos]), ray->distance / 4));
 			// y += 2;
@@ -263,7 +308,10 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
-			my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
+			if (app->filter)
+				my_put_pixel_32(canvas, x, top + y, bilinear_filter(pos, h_index, texture));
+			else
+				my_put_pixel_32(canvas, x, top + y, texture->img[(int)h_index][(int)pos]);
 			// my_put_pixel_32(canvas, x, top + y + 1, texture->img[h_index][pos]);
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 			// y += 2;

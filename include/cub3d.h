@@ -376,6 +376,7 @@ typedef struct s_info
 	size_t		fr_delay;
 	double		fr_scale;
 	t_list		*lvlcache;
+	int			filter;
 }	t_info;
 
 int		check_endianness(void);
@@ -511,5 +512,7 @@ t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
+
+int	bilinear_filter(double x, double y, const t_texarr *tex);
 
 #endif //CUB3D_H

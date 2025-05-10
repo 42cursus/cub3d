@@ -298,6 +298,13 @@ int key_press_play(KeySym key, void *param)
 				app->player->vert_offset += 10;
 		else if (key == XK_Down)
 				app->player->vert_offset -= 10;
+		else if (key == XK_f)
+		{
+			if (app->filter)
+				app->filter = 0;
+			else
+				app->filter = 1;
+		}
 		int idx = get_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;
