@@ -76,7 +76,7 @@ void	fill_ceiling(t_info *app, t_data *map, t_player *player)
 
 	l_dir = rotate_vect(player->dir, app->fov_rad_half);
 	r_dir = rotate_vect(player->dir, -app->fov_rad_half);
-	row = 0;
+	row = -1;
 	// scalar = get_hyp_len(app->fov_opp_len, 1);
 	while (++row < WIN_HEIGHT / 2)
 	{

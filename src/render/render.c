@@ -292,11 +292,11 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
-			if (app->filter)
-				my_put_pixel_32(canvas, x, top + y, tint_red(bilinear_filter(pos, h_index, texture)));
-			else
-				my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[(int)h_index][(int)pos]));
-			// my_put_pixel_32(canvas, x, top + y + 1, tint_red(texture->img[h_index][pos]));
+			// if (app->filter)
+			// 	my_put_pixel_32(canvas, x, top + y, tint_red(bilinear_filter(pos, h_index, texture)));
+			// else
+			my_put_pixel_32(canvas, x, top + y, tint_red(texture->img[(int)h_index][(int)pos]));
+			// my_put_pixel_32(canvas, x, top + y + 1, tint_red(texture->img[(int)h_index][(int)pos]));
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(tint_red(texture->img[h_index][pos]), ray->distance / 4));
 			// y += 2;
 			y++;
@@ -308,11 +308,11 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 		// while (y < lineheight - 1 && y + top < WIN_HEIGHT - 1)
 		{
 			h_index = ((double)y / lineheight) * texture->y;
-			if (app->filter)
-				my_put_pixel_32(canvas, x, top + y, bilinear_filter(pos, h_index, texture));
-			else
-				my_put_pixel_32(canvas, x, top + y, texture->img[(int)h_index][(int)pos]);
-			// my_put_pixel_32(canvas, x, top + y + 1, texture->img[h_index][pos]);
+			// if (app->filter)
+			// 	my_put_pixel_32(canvas, x, top + y, bilinear_filter(pos, h_index, texture));
+			// else
+			my_put_pixel_32(canvas, x, top + y, texture->img[(int)h_index][(int)pos]);
+			// my_put_pixel_32(canvas, x, top + y + 1, texture->img[(int)h_index][(int)pos]);
 			// my_put_pixel_32(canvas, x, top + y, dim_colour(texture->img[h_index][pos], ray->distance / 4));
 			// y += 2;
 			y++;
