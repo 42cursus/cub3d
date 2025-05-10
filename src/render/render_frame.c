@@ -168,38 +168,43 @@ int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current)
 	else
 		select_missile_tex(obj, app->player, app);
 	new_pos = add_vect(obj->pos, obj->dir);
-	tile = &app->map->map[(int)new_pos.y][(int)new_pos.x];
-	if (!point_oob(new_pos, app->map) && !check_tile_open(*tile, app->map))
+	if (!point_oob(new_pos, app->map))
 	{
-		anim = &app->map->anims[(int)new_pos.y][(int)new_pos.x];
-		if (*tile == 'D')
+		tile = &app->map->map[(int) new_pos.y][(int) new_pos.x];
+		if (!check_tile_open(*tile, app->map))
 		{
-			*tile = 'O';
-			anim->active = 1;
-			anim->timestart = app->last_frame;
-		}
-		else if (*tile == 'L')
-		{
-			if (obj->subtype == SUPER)
+			anim = &app->map->anims[(int) new_pos.y][(int) new_pos.x];
+			if (*tile == 'D')
 			{
 				*tile = 'O';
 				anim->active = 1;
 				anim->timestart = app->last_frame;
 			}
-		}
-		else if (*tile == 'M')
-		{
-			if (obj->subtype != BEAM)
+			else if (*tile == 'L')
 			{
-				*tile = 'O';
-				anim->active = 1;
-				anim->timestart = app->last_frame;
+				if (obj->subtype == SUPER)
+				{
+					*tile = 'O';
+					anim->active = 1;
+					anim->timestart = app->last_frame;
+				}
 			}
+			else if (*tile == 'M')
+			{
+				if (obj->subtype != BEAM)
+				{
+					*tile = 'O';
+					anim->active = 1;
+					anim->timestart = app->last_frame;
+				}
+			}
+			start_obj_death(obj, app);
 		}
-		start_obj_death(obj, app);
+		else
+			obj->pos = new_pos;
 	}
 	else
-			obj->pos = new_pos;
+		obj->pos = new_pos;
 	return (0);
 }
 

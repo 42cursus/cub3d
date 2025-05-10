@@ -115,7 +115,6 @@ set(TARGET_NAME "${PROJECT_NAME}_exe")
 
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(RL REQUIRED IMPORTED_TARGET readline)
 find_package(X11 REQUIRED) # https://cmake.org/cmake/help/latest/module/FindX11.html
 find_library(MATH_LIB m)
 # Locate additional libraries that are not covered by FindX11

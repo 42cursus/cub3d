@@ -15,12 +15,51 @@
 #include <X11/Xutil.h>
 #include <sysexits.h>
 
+void allow_window_resize(Display *display, Window win)
+{
+	XSizeHints hints;
+	long supplied;
+
+	if (XGetWMNormalHints(display, win, &hints, &supplied))
+	{
+		hints.flags &= ~(PMinSize | PMaxSize);
+		XSetWMNormalHints(display, win, &hints);
+	}
+}
+
+static void set_fullscreen(t_info *const app)
+{
+	Display *dpy = app->mlx->display;
+	Window win = app->root->window;
+
+	Atom wm_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
+
+	XEvent xev = {0};
+	xev.type = ClientMessage;
+	xev.xclient.window = win;
+	xev.xclient.message_type = XInternAtom(dpy, "_NET_WM_STATE", False);
+	xev.xclient.format = 32;
+	xev.xclient.data.l[0] = 1;
+	if (!app->fullscreen)
+		xev.xclient.data.l[0] = 0;
+	// 1 = add fullscreen, 0 = remove fullscreen
+	xev.xclient.data.l[1] = wm_fullscreen;
+	xev.xclient.data.l[2] = wm_fullscreen;
+	xev.xclient.data.l[3] = 1;
+	xev.xclient.data.l[4] = 0;
+
+	XSendEvent(dpy, app->mlx->root, False,
+			   SubstructureNotifyMask | SubstructureRedirectMask,
+			   &xev);
+}
+
 void replace_frame(t_info *app)
 {
 	// fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	// fill_floor(app, app->map, app->player);
 	cast_all_rays_alt(app, app->map, app->player);
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
+					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->map, app->player);
 	if (app->map->outside != 1)
 		fill_ceiling(app, app->map, app->player);
@@ -34,21 +73,9 @@ void replace_frame(t_info *app)
  */
 int expose_win(void *param)
 {
-	t_img	*canvas;
-	t_img	*stillshot;
 	t_info *const app = param;
 
-	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
-
-	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
-	if (!canvas || !stillshot)
-		exit(((void)ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
-
-	app->canvas = canvas;
-	app->stillshot = stillshot;
-
-	mlx_clear_window(app->mlx,  app->root);
+	mlx_clear_window(app->mlx, app->root);
 	on_expose(app);
 	return (EXIT_SUCCESS);
 }
@@ -60,8 +87,10 @@ int mouse_move_play(int x, int y, void *param)
 
 	int dx = x - WIN_WIDTH / 2;
 
-	if (dx != 0) {
-		rotate_player(app, app->player, dx > 0 ? 1 : 0, fabs(600.0 / (dx * app->fr_scale)));
+	if (dx != 0)
+	{
+		rotate_player(app, app->player, dx > 0 ? 1 : 0,
+					  fabs(600.0 / (dx * app->fr_scale)));
 		// Reset pointer to center
 		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
@@ -69,7 +98,7 @@ int mouse_move_play(int x, int y, void *param)
 
 	return (0);
 	int dy = y - WIN_HEIGHT / 2;
-	(void)dy;
+	(void) dy;
 }
 
 int mouse_release_play(unsigned int button, int x, int y, void *param)
@@ -114,11 +143,11 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 	((void) x, (void) y);
 }
 
-int	get_index(KeySym key)
+int get_index(KeySym key)
 {
-	size_t	i;
-	int		ret;
-	const KeySym	arr[] = {
+	size_t i;
+	int ret;
+	const KeySym arr[] = {
 		XK_a,
 		XK_d,
 		XK_e,
@@ -137,8 +166,8 @@ int	get_index(KeySym key)
 	{
 		if (key == arr[i])
 		{
-			ret = (int)i;
-			break ;
+			ret = (int) i;
+			break;
 		}
 		i++;
 	}
@@ -148,7 +177,15 @@ int	get_index(KeySym key)
 int key_press_mmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
-	if (key == XK_5 || key == XK_Escape)
+
+	if (key == XK_F11)
+	{
+		app->fullscreen = !app->fullscreen;
+		allow_window_resize(app->mlx->display, app->root->window);
+		set_fullscreen(app);
+		mlx_int_anti_resize_win(app->mlx, app->root->window, WIN_WIDTH, WIN_HEIGHT);
+	}
+	else if (key == XK_5 || key == XK_Escape)
 	{
 		// app->mlx->end_loop = 1;
 		// app->rc = fail;
@@ -157,18 +194,18 @@ int key_press_mmenu(KeySym key, void *param)
 			app->menu_state.selected = 0;
 		menu_select_current(app);
 	}
-	// else if (key == XK_1)
-	// {
-	// 	ft_strlcpy(app->mapname, "./maps/test.cub", 50);
-	// 	app->rc = ok;
-	// 	app->mlx->end_loop = 1;
-	// }
-	// else if (key == XK_2)
-	// {
-	// 	ft_strlcpy(app->mapname, "./maps/test4.cub", 50);
-	// 	app->rc = ok;
-	// 	app->mlx->end_loop = 1;
-	// }
+		// else if (key == XK_1)
+		// {
+		// 	ft_strlcpy(app->mapname, "./maps/test.cub", 50);
+		// 	app->rc = ok;
+		// 	app->mlx->end_loop = 1;
+		// }
+		// else if (key == XK_2)
+		// {
+		// 	ft_strlcpy(app->mapname, "./maps/test4.cub", 50);
+		// 	app->rc = ok;
+		// 	app->mlx->end_loop = 1;
+		// }
 	else if (key == XK_Up)
 		change_menu_selection(app, -1);
 	else if (key == XK_Down)
@@ -201,7 +238,7 @@ int key_press_pmenu(KeySym key, void *param)
 		app->mlx->end_loop = 1;
 		app->rc = repeat;
 	}
-	else if (key == XK_space  || key == XK_Escape)
+	else if (key == XK_space || key == XK_Escape)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
@@ -213,8 +250,8 @@ int key_release_pmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
 	return (0);
-	(void)app;
-	(void)key;
+	(void) app;
+	(void) key;
 }
 
 
@@ -240,8 +277,8 @@ int key_release_lose(KeySym key, void *param)
 {
 	t_info *const app = param;
 	return (0);
-	(void)app;
-	(void)key;
+	(void) app;
+	(void) key;
 }
 
 int key_press_win(KeySym key, void *param)
@@ -266,8 +303,8 @@ int key_release_win(KeySym key, void *param)
 	t_info *const app = param;
 
 	return (0);
-	(void)app;
-	(void)key;
+	(void) app;
+	(void) key;
 }
 
 int key_press_play(KeySym key, void *param)
@@ -285,17 +322,17 @@ int key_press_play(KeySym key, void *param)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
 			spawn_projectile(app, app->player, app->map, app->player->equipped);
-		// DEBUGGING
+			// DEBUGGING
 		else if (key == XK_h)
-				subtract_health(app, app->player, 10);
+			subtract_health(app, app->player, 10);
 		else if (key == XK_j)
-				add_health(app->player, 10);
+			add_health(app->player, 10);
 		else if (key == XK_grave)
-				developer_console(app, app->player);
+			developer_console(app, app->player);
 		else if (key == XK_z)
-				next_weapon(app->player);
+			next_weapon(app->player);
 		else if (key == XK_Up)
-				app->player->vert_offset += 10;
+			app->player->vert_offset += 10;
 		else if (key == XK_Down)
 				app->player->vert_offset -= 10;
 		else if (key == XK_f)
