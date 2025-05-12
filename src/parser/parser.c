@@ -304,6 +304,15 @@ int	validate_map_tiles(t_data *data, char **map)
 					|| !check_start_pos(data, i, j, &start_found))
 				{
 					printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
+					printf("on line: %s\n", map[i]);
+					j = -1;
+					while (map[++j])
+					{
+						if (j >= i - 1 && j <= i + 1)
+							printf("\e[31m%s\e[m\n", map[j]);
+						else
+							printf("%s\n", map[j]);
+					}
 					return (0);
 				}
 			}
