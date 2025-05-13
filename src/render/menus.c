@@ -111,7 +111,7 @@ void	menu_select_current(t_info *app)
 			menu_state->state = menu_state->prev;
 			menu_state->selected = 2;
 			menu_state->no_items = 4;
-			if (menu_state == MAIN)
+			if (menu_state->state == MAIN)
 				menu_state->no_items = 5;
 		}
 	}
