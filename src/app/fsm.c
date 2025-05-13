@@ -309,7 +309,7 @@ void	do_mmenu_to_credits(void *param)
 	dummy = ft_calloc(1, sizeof(*dummy));
 	app->dummy = dummy;
 	dummy->dir = (t_vect){0.0, 1.0};
-	dummy->pos =  (t_vect){0.0, 0.0};
+	dummy->pos =  (t_vect){0.0, -0.6};
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
