@@ -174,15 +174,20 @@ int get_index(KeySym key)
 	return ret;
 }
 
+int key_press_credits(KeySym key, void *param)
+{
+	t_info *const app = param;
+
+	app->rc = ok;
+	app->mlx->end_loop = 1;
+	return (0);
+	(void)key;
+}
+
 int key_press_mmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	if (key == XK_c)
-	{
-		app->rc = repeat;
-		app->mlx->end_loop = 1;
-	}
 	if (key == XK_F11)
 	{
 		app->fullscreen = !app->fullscreen;

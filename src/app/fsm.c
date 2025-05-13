@@ -264,7 +264,7 @@ void do_initial_to_mmenu(void *param)
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 4;
+	app->menu_state.no_items = 5;
 }
 
 void do_initial_to_end(void *param)
@@ -310,11 +310,30 @@ void	do_mmenu_to_credits(void *param)
 	app->dummy = dummy;
 	dummy->dir = (t_vect){0.0, 1.0};
 	dummy->pos =  (t_vect){0.0, -0.6};
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+}
+
+void	do_credits_to_mmenu(void *param)
+{
+	t_info *const app = param;
+
+	free(app->dummy);
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
 	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 3;
+	app->menu_state.no_items = 5;
 }
 
 void do_load_to_play(void *param)
@@ -505,7 +524,7 @@ void do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 4;
+	app->menu_state.no_items = 5;
 }
 
 void do_pmenu_to_end(void *param)
@@ -536,7 +555,7 @@ void do_lose_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 4;
+	app->menu_state.no_items = 5;
 }
 
 void do_lose_to_end(void *param)
@@ -566,7 +585,7 @@ void do_win_to_mmenu(void *param)
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 4;
+	app->menu_state.no_items = 5;
 }
 
 void do_win_to_load(void *param)

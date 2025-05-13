@@ -884,7 +884,6 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 	row = 0;
 	l_dir = rotate_vect(dummy->dir, app->fov_rad_half);
 	r_dir = rotate_vect(dummy->dir, -app->fov_rad_half);
-	printf("l: (%f, %f) r: (%f, %f) pos: (%f, %f)\n", l_dir.x, l_dir.y, r_dir.x, r_dir.y, dummy->pos.x, dummy->pos.y);
 	while (++row < WIN_HEIGHT)
 	{
 		double depth = dummy->credits_offsets[row - 1];

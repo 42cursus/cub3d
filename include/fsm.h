@@ -52,6 +52,7 @@ static t_transition state_transitions[] = {
 	{STATE_MMENU,   ok,     STATE_LOAD},
 	{STATE_MMENU,   repeat, STATE_CREDITS},
 	{STATE_MMENU,   fail,   STATE_END},
+	{STATE_CREDITS,   ok,   STATE_MMENU},
 	{STATE_LOAD,    ok,     STATE_PLAY},
 	{STATE_LOAD,    fail,   STATE_MMENU},
 	{STATE_PLAY,    ok,     STATE_WIN},
@@ -72,7 +73,8 @@ static t_transition state_transitions[] = {
 void do_initial_to_mmenu(void *param);
 void do_initial_to_end(void *param);
 void do_mmenu_to_load(void *param);
-void	do_mmenu_to_credits(void *param);
+void do_mmenu_to_credits(void *param);
+void do_credits_to_mmenu(void *param);
 void do_mmenu_to_end(void *param);
 void do_load_to_play(void *param);
 void do_load_to_end(void *param);
@@ -99,6 +101,7 @@ static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu, [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
 	[STATE_LOSE] = {[STATE_MMENU] = do_lose_to_mmenu, [STATE_END] = do_lose_to_end, [STATE_LOAD] = do_lose_to_load},
 	[STATE_WIN] = {[STATE_LOAD] = do_win_to_load, [STATE_MMENU] = do_win_to_mmenu, [STATE_END] = do_win_to_end},
+	[STATE_CREDITS] = {[STATE_MMENU] = do_credits_to_mmenu},
 };
 
 t_ret_code do_state_initial(void *param, int argc, char **argv);

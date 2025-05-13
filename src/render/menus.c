@@ -70,6 +70,11 @@ void	menu_select_current(t_info *app)
 		}
 		if (menu_state->selected == 3)
 		{
+			app->rc = repeat;
+			app->mlx->end_loop = 1;
+		}
+		if (menu_state->selected == 4)
+		{
 			app->rc = fail;
 			app->mlx->end_loop = 1;
 		}
@@ -106,6 +111,8 @@ void	menu_select_current(t_info *app)
 			menu_state->state = menu_state->prev;
 			menu_state->selected = 2;
 			menu_state->no_items = 4;
+			if (menu_state == MAIN)
+				menu_state->no_items = 5;
 		}
 	}
 	else if (menu_state->state == LVL_SELECT)
@@ -114,7 +121,7 @@ void	menu_select_current(t_info *app)
 		{
 			menu_state->selected = 0;
 			menu_state->state = MAIN;
-			menu_state->no_items = 4;
+			menu_state->no_items = 5;
 			return ;
 		}
 		app->current_level = menu_state->selected;
@@ -147,7 +154,7 @@ void	draw_menu_items(t_info *app)
 	menu_state = &app->menu_state;
 	if (menu_state->state == MAIN)
 	{
-		place_menu((const char *[]){"START", "LEVEL SELECT", "options", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
+		place_menu((const char *[]){"START", "LEVEL SELECT", "options", "credits", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 	}
 	else if (menu_state->state == LVL_SELECT)
 	{
