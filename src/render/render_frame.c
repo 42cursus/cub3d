@@ -849,7 +849,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	int				i;
 	t_vect			step;
 	t_vect			curr;
-	t_ivect			idx;
+	t_vect			idx;
 	const t_texarr		*tex = &app->shtex->credits;
 
 	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
@@ -865,7 +865,8 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 			idx.x = ((0.5 + curr.x) / 1) * tex->x;
 			idx.y = (-curr.y) / 1 * tex->x;
 			if (idx.y < tex->y)
-				my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+				// my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+				my_put_pixel_32(app->canvas, i, row, bilinear_filter(idx.x, idx.y, tex));
 		}
 		curr.x += step.x;
 		curr.y += step.y;
