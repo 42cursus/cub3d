@@ -897,11 +897,17 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 int	render_credits(void *param)
 {
 	t_info *const app = param;
+	t_dummy		*dummy;
 	size_t				time;
 
+	dummy = app->dummy;
+	if (app->keys[idx_XK_Up])
+		dummy->pos.y += (dummy->speed * 5) / app->fr_scale;
+	if (app->keys[idx_XK_Down])
+		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
+	dummy->pos.y -= dummy->speed / app->fr_scale;
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
-	draw_credits(app, app->dummy);
-	app->dummy->pos.y -= 0.002;
+	draw_credits(app, dummy);
 	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();

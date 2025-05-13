@@ -279,6 +279,7 @@ typedef struct s_dummy
 	t_vect	dir;
 	double	credits_offsets[WIN_HEIGHT];
 	t_img	credits;
+	double	speed;
 }	t_dummy;
 
 enum
@@ -516,6 +517,7 @@ int key_press_win(KeySym key, void *param);
 int key_release_win(KeySym key, void *param);
 
 int key_press_credits(KeySym key, void *param);
+int key_release_credits(KeySym key, void *param);
 
 int	render_mmenu(void *param);
 int	render_pmenu(void *param);

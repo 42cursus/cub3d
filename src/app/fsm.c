@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <X11/X.h>
 #include <math.h>
 #include "fsm.h"
 
@@ -311,10 +312,11 @@ void	do_mmenu_to_credits(void *param)
 	app->dummy = dummy;
 	dummy->dir = (t_vect){0.0, 1.0};
 	dummy->pos =  (t_vect){0.0, -0.6};
+	dummy->speed = 0.003;
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
+	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
 	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
