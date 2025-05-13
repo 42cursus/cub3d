@@ -76,6 +76,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
+	set_sensitivity(app, 8);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;

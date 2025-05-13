@@ -35,7 +35,11 @@ void	menu_change_option(t_info *app, int dir)
 		{
 			set_framerate(app, app->framerate + (5 * dir));
 		}
-		else if (menu_state->selected == 2)
+		if (menu_state->selected == 2)
+		{
+			set_sensitivity(app, app->sensitivity + (1 * dir));
+		}
+		else if (menu_state->selected == 3)
 		{
 			if (menu_state->prev == MAIN)
 				app->timer.active = !app->timer.active;
@@ -66,7 +70,7 @@ void	menu_select_current(t_info *app)
 			menu_state->prev = menu_state->state;
 			menu_state->state = OPTIONS;
 			menu_state->selected = 0;
-			menu_state->no_items = 4;
+			menu_state->no_items = 5;
 		}
 		if (menu_state->selected == 3)
 		{
@@ -96,7 +100,7 @@ void	menu_select_current(t_info *app)
 			menu_state->prev = menu_state->state;
 			menu_state->state = OPTIONS;
 			menu_state->selected = 0;
-			menu_state->no_items = 4;
+			menu_state->no_items = 5;
 		}
 		if (menu_state->selected == 3)
 		{
@@ -149,6 +153,7 @@ void	draw_menu_items(t_info *app)
 	char		buf[40];
 	char		buf2[40];
 	char		buf3[40];
+	char		buf4[40];
 	t_ivect		pos;
 
 	menu_state = &app->menu_state;
@@ -194,11 +199,12 @@ void	draw_menu_items(t_info *app)
 	{
 		ft_snprintf(buf, 40, "fov  %d", app->fov_deg);
 		ft_snprintf(buf2, 40, "fps cap  %d", app->framerate);
+		ft_snprintf(buf4, 40, "sensitivity  %d", app->sensitivity);
 		if (app->timer.active == 1)
 			ft_snprintf(buf3, 40, "time trial  on", app->framerate);
 		else
 			ft_snprintf(buf3, 40, "time trial  off", app->framerate);
-		place_menu((const char *[]){buf, buf2, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		place_menu((const char *[]){buf, buf2, buf4, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 

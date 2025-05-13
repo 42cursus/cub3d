@@ -399,6 +399,7 @@ typedef struct s_info
 	int			fullscreen;
 	t_timer		timer;
 	t_dummy		*dummy;
+	int			sensitivity;
 }	t_info;
 
 int		check_endianness(void);
@@ -537,6 +538,7 @@ void	menu_change_option(t_info *app, int dir);
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	set_framerate(t_info *app, size_t framerate);
+void	set_sensitivity(t_info *app, int sensitivity);
 void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
