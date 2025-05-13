@@ -860,10 +860,10 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	i = 0;
 	while (i < WIN_WIDTH)
 	{
-		if (curr.x > -1 && curr.x < 1 && curr.y < 0)
+		if (curr.x > -0.5 && curr.x < 0.5 && curr.y < 0)
 		{
-			idx.x = ((1 + curr.x) / 2) * tex->x;
-			idx.y = (-curr.y) / 2 * tex->x;
+			idx.x = ((0.5 + curr.x) / 1) * tex->x;
+			idx.y = (-curr.y) / 1 * tex->x;
 			if (idx.y < tex->y)
 				my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
 		}

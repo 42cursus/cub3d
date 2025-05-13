@@ -185,7 +185,7 @@ t_ret_code do_state_credits(void *param)
 
 	app->old_fov = app->fov_deg;
 	old_fps = app->framerate;
-	set_fov(app, 100);
+	set_fov(app, 70);
 	set_framerate(app, 60);
 	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->root);
