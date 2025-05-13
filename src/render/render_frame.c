@@ -835,3 +835,76 @@ int render_pmenu(void *param)
 	on_expose(app);
 	return (0);
 }
+
+static inline __attribute__((always_inline))
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
+{
+	if (colour == MLX_TRANSPARENT)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+}
+
+void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
+{
+	int				i;
+	t_vect			step;
+	t_vect			curr;
+	t_ivect			idx;
+	const t_texarr		*tex = &app->shtex->tele;
+
+	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
+	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
+	curr.x = l_pos.x;
+	curr.y = l_pos.y;
+
+	i = 0;
+	while (i < WIN_WIDTH)
+	{
+		if (curr.x > -1 && curr.x < 1 && curr.y < 0)
+		{
+			idx.x = ((1 + curr.x) / 2) * tex->x;
+			idx.y = (-curr.y) / 2 * tex->x;
+			my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+		}
+		curr.x += step.x;
+		curr.y += step.y;
+		i++;
+	}
+}
+
+void	draw_credits(t_info *app, t_dummy *dummy)
+{
+	t_vect	l_dir;
+	t_vect	r_dir;
+	t_vect	l_pos;
+	t_vect	r_pos;
+	int		row;
+
+	row = 0;
+	l_dir = rotate_vect(dummy->dir, app->fov_rad_half);
+	r_dir = rotate_vect(dummy->dir, -app->fov_rad_half);
+	while (++row < WIN_HEIGHT - (WIN_HEIGHT / 10))
+	{
+		double depth = dummy->credits_offsets[row - 1];
+		l_pos = add_vect(dummy->pos, scale_vect(l_dir, depth));
+		r_pos = add_vect(dummy->pos, scale_vect(r_dir, depth));
+		draw_credits_row(app, l_pos, r_pos, row + (WIN_WIDTH / 10));
+	}
+}
+
+int	render_credits(void *param)
+{
+	t_info *const app = param;
+	size_t				time;
+
+	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
+	draw_credits(app, app->dummy);
+	add_vect(app->dummy->pos, (t_vect){0, -0.1});
+	while (get_time_us() - app->last_frame < app->fr_delay)
+		usleep(100);
+	time = get_time_us();
+	app->frametime = time - app->last_frame;
+	app->last_frame = time;
+	on_expose(app);
+	return (0);
+}

@@ -19,6 +19,7 @@ typedef enum e_game_state
 	STATE_MMENU,
 	STATE_LOAD,
 	STATE_PLAY,
+	STATE_CREDITS,
 	STATE_PMENU,
 	STATE_LOSE,
 	STATE_WIN,
@@ -49,6 +50,7 @@ static t_transition state_transitions[] = {
 	{STATE_INITIAL, ok,     STATE_MMENU},
 	{STATE_INITIAL, fail,   STATE_END},
 	{STATE_MMENU,   ok,     STATE_LOAD},
+	{STATE_MMENU,   repeat, STATE_CREDITS},
 	{STATE_MMENU,   fail,   STATE_END},
 	{STATE_LOAD,    ok,     STATE_PLAY},
 	{STATE_LOAD,    fail,   STATE_MMENU},
@@ -70,6 +72,7 @@ static t_transition state_transitions[] = {
 void do_initial_to_mmenu(void *param);
 void do_initial_to_end(void *param);
 void do_mmenu_to_load(void *param);
+void	do_mmenu_to_credits(void *param);
 void do_mmenu_to_end(void *param);
 void do_load_to_play(void *param);
 void do_load_to_end(void *param);
@@ -90,7 +93,7 @@ void do_lose_to_load(void *param);
 
 static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_INITIAL] = {[STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
-	[STATE_MMENU] = {[STATE_LOAD] = do_mmenu_to_load, [STATE_END] = do_mmenu_to_end},
+	[STATE_MMENU] = {[STATE_LOAD] = do_mmenu_to_load, [STATE_END] = do_mmenu_to_end, [STATE_CREDITS] = do_mmenu_to_credits},
 	[STATE_LOAD] = {[STATE_PLAY] = do_load_to_play, [STATE_END] =  do_load_to_end},
 	[STATE_PLAY] = { [STATE_PMENU] = do_play_to_pmenu, [STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win, [STATE_END] = do_play_to_end, [STATE_LOAD] = do_play_to_load},
 	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu, [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
@@ -105,10 +108,12 @@ t_ret_code do_state_play(void *param);
 t_ret_code do_state_pmenu(void *param);
 t_ret_code do_state_win(void *param);
 t_ret_code do_state_lose(void *param);
+t_ret_code do_state_credits(void *param);
 
 static state_func_t *const state_table[NUM_STATES] = {
 	[STATE_INITIAL] = (void *)do_state_initial,
 	[STATE_MMENU] = do_state_mmenu,
+	[STATE_CREDITS] = do_state_credits,
 	[STATE_LOAD] = do_state_load,
 	[STATE_PLAY] = do_state_play,
 	[STATE_PMENU] = do_state_pmenu,

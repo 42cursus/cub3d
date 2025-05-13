@@ -272,6 +272,13 @@ typedef struct s_player
 	size_t	dmg_time;
 }	t_player;
 
+typedef struct s_dummy
+{
+	t_vect	pos;
+	t_vect	dir;
+	double	credits_offsets[WIN_HEIGHT - (WIN_HEIGHT / 10)];
+}	t_dummy;
+
 enum
 {
 	NONE = 0,
@@ -389,6 +396,7 @@ typedef struct s_info
 	int			filter;
 	int			fullscreen;
 	t_timer		timer;
+	t_dummy		*dummy;
 }	t_info;
 
 int		check_endianness(void);
@@ -510,6 +518,7 @@ int	render_play(void *app);
 int	render_load(void *app);
 int	render_lose(void *param);
 int	render_win(void *param);
+int	render_credits(void *param);
 
 void	draw_sky(t_info *app);
 void 	draw_sky_alt(t_info *const app);
@@ -525,6 +534,7 @@ t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
 void	set_framerate(t_info *app, size_t framerate);
 void	calculate_offsets(t_info *app, t_player *player);
+void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
 int	bilinear_filter(double x, double y, const t_texarr *tex);
 

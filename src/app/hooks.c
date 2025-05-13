@@ -178,6 +178,11 @@ int key_press_mmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
 
+	if (key == XK_c)
+	{
+		app->rc = repeat;
+		app->mlx->end_loop = 1;
+	}
 	if (key == XK_F11)
 	{
 		app->fullscreen = !app->fullscreen;

@@ -178,6 +178,25 @@ t_ret_code do_state_lose(void *param)
 	return (app->rc);
 }
 
+t_ret_code do_state_credits(void *param)
+{
+	t_info *const	app = param;
+	int				old_fps;
+
+	app->old_fov = app->fov_deg;
+	old_fps = app->framerate;
+	set_fov(app, 100);
+	set_framerate(app, 60);
+	mlx_mouse_hide(app->mlx, app->root);
+	app->last_frame = get_time_us();
+	mlx_loop(app->mlx);
+	set_fov(app, app->old_fov);
+	set_framerate(app, old_fps);
+	mlx_mouse_show(app->mlx, app->root);
+
+	return (app->rc);
+}
+
 
 //	t_event_list		hooks[3][MLX_MAX_EVENT] = {
 //		[INITIAL] = {
@@ -276,7 +295,26 @@ void do_mmenu_to_load(void *param)
 	app->timer.stop_time = 0;
 	return ;
 	(void)app;
+}
 
+void	do_mmenu_to_credits(void *param)
+{
+	t_info *const app = param;
+	t_dummy			*dummy;
+
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	mlx_loop_hook(app->mlx, &render_credits, app);
+	app->mlx->end_loop = 0;
+	dummy = ft_calloc(1, sizeof(*dummy));
+	app->dummy = dummy;
+	dummy->dir = (t_vect){0, 1};
+	dummy->pos =  (t_vect){0, 0};
+	calculate_credits_offset(app, dummy);
+	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->root, ButtonPress, 0, NULL, app);
+	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->root, KeyRelease, 0, NULL, app);
+	mlx_hook(app->root, MotionNotify, 0, NULL, app);
 }
 
 void do_load_to_play(void *param)
