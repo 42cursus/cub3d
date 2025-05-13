@@ -56,7 +56,7 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy)
 
 	scalar = get_hyp_len(app->fov_opp_len, 1);
 	i = 0;
-	while (i < WIN_HEIGHT - (WIN_HEIGHT / 10))
+	while (i < WIN_HEIGHT)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
 		dummy->credits_offsets[i++] = distance * scalar;

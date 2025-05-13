@@ -187,6 +187,7 @@ t_ret_code do_state_credits(void *param)
 	old_fps = app->framerate;
 	set_fov(app, 100);
 	set_framerate(app, 60);
+	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->root);
 	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);
@@ -307,9 +308,8 @@ void	do_mmenu_to_credits(void *param)
 	app->mlx->end_loop = 0;
 	dummy = ft_calloc(1, sizeof(*dummy));
 	app->dummy = dummy;
-	dummy->dir = (t_vect){0, 1};
-	dummy->pos =  (t_vect){0, 0};
-	calculate_credits_offset(app, dummy);
+	dummy->dir = (t_vect){0.0, 1.0};
+	dummy->pos =  (t_vect){0.0, 0.0};
 	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	mlx_hook(app->root, ButtonPress, 0, NULL, app);
 	mlx_hook(app->root, ButtonRelease, 0, NULL, app);

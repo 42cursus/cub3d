@@ -185,6 +185,7 @@ typedef struct s_shtex
 	t_texarr	scope;
 	t_texarr	alphabet;
 	t_texarr	tele;
+	t_texarr	credits;
 	t_texarr	boss_bar[2];
 	t_texarr	empty;
 	void		*playertile;
@@ -276,7 +277,8 @@ typedef struct s_dummy
 {
 	t_vect	pos;
 	t_vect	dir;
-	double	credits_offsets[WIN_HEIGHT - (WIN_HEIGHT / 10)];
+	double	credits_offsets[WIN_HEIGHT];
+	t_img	credits;
 }	t_dummy;
 
 enum

@@ -1079,6 +1079,7 @@ void	load_shtex(t_info *app)
 	app->shtex->boss_bar[1].img = img_to_arr((char *)"./textures/boss_bar_right.xpm", app, &app->shtex->boss_bar[1].x, &app->shtex->boss_bar[1].y);
 	app->shtex->tele.img = img_to_arr((char *)"./textures/teleporter.xpm", app, &app->shtex->tele.x, &app->shtex->tele.y);
 	app->shtex->scope.img = img_to_arr((char *)"./textures/scope.xpm", app, &app->shtex->scope.x, &app->shtex->scope.y);
+	app->shtex->credits.img = img_to_arr((char *)"./textures/credits_lorem.xpm", app, &app->shtex->credits.x, &app->shtex->credits.y);
 	load_energy_textures(app);
 	load_super_textures(app);
 	load_missile_textures(app);
@@ -1151,6 +1152,7 @@ void	free_shtex(t_info *app)
 
 	free_tex_arr(&app->shtex->title);
 	free_tex_arr(&app->shtex->alphabet);
+	free_tex_arr(&app->shtex->credits);
 	free_tex_arr(&app->shtex->tele);
 	free_tex_arr(&app->shtex->scope);
 	free_tex_arr(&app->shtex->empty);

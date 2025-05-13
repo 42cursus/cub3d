@@ -850,7 +850,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	t_vect			step;
 	t_vect			curr;
 	t_ivect			idx;
-	const t_texarr		*tex = &app->shtex->tele;
+	const t_texarr		*tex = &app->shtex->credits;
 
 	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
 	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
@@ -864,7 +864,8 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 		{
 			idx.x = ((1 + curr.x) / 2) * tex->x;
 			idx.y = (-curr.y) / 2 * tex->x;
-			my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+			if (idx.y < tex->y)
+				my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
 		}
 		curr.x += step.x;
 		curr.y += step.y;
@@ -883,12 +884,13 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 	row = 0;
 	l_dir = rotate_vect(dummy->dir, app->fov_rad_half);
 	r_dir = rotate_vect(dummy->dir, -app->fov_rad_half);
-	while (++row < WIN_HEIGHT - (WIN_HEIGHT / 10))
+	printf("l: (%f, %f) r: (%f, %f) pos: (%f, %f)\n", l_dir.x, l_dir.y, r_dir.x, r_dir.y, dummy->pos.x, dummy->pos.y);
+	while (++row < WIN_HEIGHT)
 	{
 		double depth = dummy->credits_offsets[row - 1];
 		l_pos = add_vect(dummy->pos, scale_vect(l_dir, depth));
 		r_pos = add_vect(dummy->pos, scale_vect(r_dir, depth));
-		draw_credits_row(app, l_pos, r_pos, row + (WIN_WIDTH / 10));
+		draw_credits_row(app, l_pos, r_pos, row);
 	}
 }
 
@@ -899,7 +901,7 @@ int	render_credits(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 	draw_credits(app, app->dummy);
-	add_vect(app->dummy->pos, (t_vect){0, -0.1});
+	app->dummy->pos.y -= 0.002;
 	while (get_time_us() - app->last_frame < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
