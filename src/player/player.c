@@ -14,6 +14,12 @@
 #include <math.h>
 #include <unistd.h>
 
+/**
+ * getting hypotenuse length - Pythagoras' theorem
+ * @param len1
+ * @param len2
+ * @return
+ */
 double	get_hyp_len(double len1, double len2)
 {
 	return (sqrt(len1 * len1 + len2 * len2));

@@ -16,10 +16,10 @@
 #include <math.h>
 #include <sysexits.h>
 
-void allow_window_resize(Display *display, Window win)
+void mlx_allow_resize_win(Display *display, Window win)
 {
-	XSizeHints hints;
-	long supplied;
+	XSizeHints	hints;
+	long		supplied;
 
 	if (XGetWMNormalHints(display, win, &hints, &supplied))
 	{
@@ -208,7 +208,7 @@ int key_press_mmenu(KeySym key, void *param)
 	if (key == XK_F11)
 	{
 		app->fullscreen = !app->fullscreen;
-		allow_window_resize(app->mlx->display, app->root->window);
+		mlx_allow_resize_win(app->mlx->display, app->root->window);
 		set_fullscreen(app);
 		mlx_int_anti_resize_win(app->mlx, app->root->window, WIN_WIDTH, WIN_HEIGHT);
 	}

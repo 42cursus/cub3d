@@ -23,8 +23,8 @@
  * @param dim
  * @return
  */
-static inline __attribute__((always_inline))
-int	get_tex_index(double pos, int dim)
+static inline __attribute__((always_inline, unused))
+int	get_tex_index_float(double pos, int dim)
 {
 	// int	whole;
 	//
@@ -66,8 +66,8 @@ void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, u_int (*const dst))
 	{
 		if (!point_oob(curr, app->map))
 		{
-			idx.x = get_tex_index(curr.x, tex->width);
-			idx.y = get_tex_index(curr.y, tex->height);
+			idx.x = ((int)(curr.x * tex->width)) & (tex->width - 1);
+			idx.y = ((int)(curr.y * tex->height)) & (tex->height - 1);
 			dst[i] = src[idx.y * tex->width + idx.x];
 			dst[i + 1] = src[idx.y * tex->width + idx.x];
 		}
