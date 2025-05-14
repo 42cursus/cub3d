@@ -490,6 +490,7 @@ void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
+void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
@@ -545,5 +546,6 @@ void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
 int	bilinear_filter(double x, double y, const t_texarr *tex);
+// int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
 #endif //CUB3D_H

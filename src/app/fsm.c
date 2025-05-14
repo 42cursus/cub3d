@@ -77,7 +77,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
-	set_sensitivity(app, 8);
+	set_sensitivity(app, 7);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
@@ -188,7 +188,7 @@ t_ret_code do_state_credits(void *param)
 	app->old_fov = app->fov_deg;
 	old_fps = app->framerate;
 	set_fov(app, 70);
-	set_framerate(app, 60);
+	set_framerate(app, 30);
 	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->root);
 	app->last_frame = get_time_us();

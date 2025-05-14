@@ -844,35 +844,71 @@ void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
 	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
 
+static inline __attribute__((always_inline))
+int	interpolate_colour(int col1, int col2, double frac)
+{
+	int	r;
+	int	g;
+	int	b;
+
+	if (col1 == col2)
+		return (col1);
+	// if (col1 == 0x42 && col2 == 0x42)
+	// 	return (0x42);
+	// else if (col2 == 0x42)
+	// 	return (col1);
+	// else if (col1 == 0x42)
+	// 	return (col2);
+	r = ((col2 & 0xff0000) - (col1 & 0xff0000)) * frac + (col1 & 0xff0000);
+	g = ((col2 & 0x00ff00) - (col1 & 0x00ff00)) * frac + (col1 & 0x00ff00);
+	b = ((col2 & 0xff) - (col1 & 0xff)) * frac + (col1 & 0xff);
+	return ((r & 0xff0000) + (g & 0x00ff00) + b);
+}
+
+static inline __attribute__((always_inline))
+int	linear_filter_credits(double x, int y, const t_texarr *tex)
+{
+	const double	frac = fmod(x, 1);
+	// const int		y_int =  floor(y);
+	// const int		y_int =  (int)y;
+	int				x_lower;
+	int				x_upper;
+
+	// x_lower = (int) x;
+	x_lower = floor(x);
+	x_upper = x_lower + 1;
+	// if (x_lower + 1 == tex->x)
+	// 	x_upper = 0;
+	return (interpolate_colour(tex->img[y][x_lower], tex->img[y][x_upper], frac));
+}
+
 void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
 	int				i;
-	t_vect			step;
-	t_vect			curr;
+	double			step_x;
+	double			curr_x;
 	t_vect			idx;
 	// t_ivect			idx;
 	const t_texarr		*tex = &app->shtex->credits;
 
-	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
-	// step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
-	curr.x = l_pos.x;
-	curr.y = l_pos.y;
+	step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
+	curr_x = l_pos.x;
 
-	idx.y = (-curr.y) / 1 * tex->x;
-	if (curr.y > 0 || idx.y > tex->y)
+	idx.y = (-l_pos.y) * tex->x;
+	if (l_pos.y > 0 || idx.y > tex->y)
 		return ;
 	i = 0;
 	while (i < WIN_WIDTH)
 	{
-		if (curr.x > -0.5 && curr.x < 0.5)
+		if (curr_x > -0.5 && curr_x < 0.5)
 		{
-			idx.x = ((0.5 + curr.x) / 1) * tex->x;
-			// if (idx.y < tex->y)
-				// my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
-				my_put_pixel_32(app->canvas, i, row, bilinear_filter(idx.x, idx.y, tex));
+			idx.x = (0.5 + curr_x) * tex->x;
+			// my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+			// my_put_pixel_32(app->canvas, i, row, bilinear_filter(idx.x, idx.y, tex));
+			my_put_pixel_32(app->canvas, i, row, linear_filter_credits(idx.x, idx.y, tex));
 		}
-		curr.x += step.x;
-		// curr.y += step.y;
+		curr_x += step_x;
+		// idx.x += step_idx;
 		i++;
 	}
 }
@@ -899,9 +935,9 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 
 int	render_credits(void *param)
 {
-	t_info *const app = param;
-	t_dummy		*dummy;
-	size_t				time;
+	t_info *const	app = param;
+	t_dummy			*dummy;
+	size_t			time;
 
 	dummy = app->dummy;
 	if (app->keys[idx_XK_Up])
@@ -909,6 +945,11 @@ int	render_credits(void *param)
 	if (app->keys[idx_XK_Down])
 		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
 	dummy->pos.y -= dummy->speed / app->fr_scale;
+	if ((-dummy->pos.y) > ((double)app->shtex->credits.y / app->shtex->credits.x) + 2)
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 	draw_credits(app, dummy);
 	while (get_time_us() - app->last_frame < app->fr_delay)
@@ -916,6 +957,8 @@ int	render_credits(void *param)
 	time = get_time_us();
 	app->frametime = time - app->last_frame;
 	app->last_frame = time;
+	app->fr_scale = 20000.0 / app->frametime;
+	place_fps(app);
 	on_expose(app);
 	return (0);
 }

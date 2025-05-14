@@ -65,8 +65,8 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy)
 
 void	set_sensitivity(t_info *app, int sensitivity)
 {
-	if (sensitivity < 0)
-		sensitivity = 0;
+	if (sensitivity < 1)
+		sensitivity = 1;
 	if (sensitivity > 10)
 		sensitivity = 10;
 	app->sensitivity = sensitivity;
