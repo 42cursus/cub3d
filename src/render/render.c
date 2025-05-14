@@ -220,12 +220,12 @@ int	interpolate_colour(int col1, int col2, double frac)
 	int	g;
 	int	b;
 
-	if (col1 == 0x42 && col2 == 0x42)
-		return (0x42);
-	else if (col2 == 0x42)
-		return (col1);
-	else if (col1 == 0x42)
-		return (col2);
+	// if (col1 == 0x42 && col2 == 0x42)
+	// 	return (0x42);
+	// else if (col2 == 0x42)
+	// 	return (col1);
+	// else if (col1 == 0x42)
+	// 	return (col2);
 	r = ((col2 & 0xff0000) - (col1 & 0xff0000)) * frac + (col1 & 0xff0000);
 	g = ((col2 & 0x00ff00) - (col1 & 0x00ff00)) * frac + (col1 & 0x00ff00);
 	b = ((col2 & 0xff) - (col1 & 0xff)) * frac + (col1 & 0xff);
