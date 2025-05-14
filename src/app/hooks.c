@@ -13,6 +13,7 @@
 #include "cub3d.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+#include <math.h>
 #include <sysexits.h>
 
 void allow_window_resize(Display *display, Window win)
@@ -90,7 +91,7 @@ int mouse_move_play(int x, int y, void *param)
 	if (dx != 0)
 	{
 		rotate_player(app, app->player, dx > 0 ? 1 : 0,
-					  fabs((1400.0 - 100 * app->sensitivity) / (dx * app->fr_scale)));
+					  fabs((200.0 + 200 * pow(1.3, 10 - app->sensitivity)) / (dx * app->fr_scale)));
 		// Reset pointer to center
 		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
