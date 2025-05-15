@@ -14,6 +14,7 @@
 
 void	init_dda(t_dda *dda, t_info *app, t_ray *ray, double angle);
 
+static inline __attribute__((always_inline))
 void	calculate_ray_stuff(t_ray *ray, t_player *player,
 			double gradient, double c)
 {
@@ -36,6 +37,7 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player,
 		ray->distance = 0.00001;
 }
 
+static inline __attribute__((always_inline))
 void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 {
 	if (tile >= 'B')
@@ -59,6 +61,7 @@ void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 	}
 }
 
+static inline __attribute__((always_inline))
 void	progress_dda(t_dda *dda, t_ray *ray)
 {
 	if (dda->side_dist.x < dda->side_dist.y)
