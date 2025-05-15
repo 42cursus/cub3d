@@ -23,12 +23,16 @@ void mlx_allow_resize_win(Display *display, Window win)
 
 	if (XGetWMNormalHints(display, win, &hints, &supplied))
 	{
+		hints.min_width = 1;
+		hints.min_height = 1;
+		hints.max_width = DisplayWidth(display, DefaultScreen(display));
+		hints.max_height = DisplayHeight(display, DefaultScreen(display));
 		hints.flags &= ~(PMinSize | PMaxSize);
 		XSetWMNormalHints(display, win, &hints);
 	}
 }
 
-static void set_fullscreen(t_info *const app)
+void toggle_fullscreen(t_info *const app)
 {
 	Display *dpy = app->mlx->display;
 	Window win = app->root->window;
@@ -40,12 +44,9 @@ static void set_fullscreen(t_info *const app)
 	xev.xclient.window = win;
 	xev.xclient.message_type = XInternAtom(dpy, "_NET_WM_STATE", False);
 	xev.xclient.format = 32;
-	xev.xclient.data.l[0] = 1;
-	if (!app->fullscreen)
-		xev.xclient.data.l[0] = 0;
-	// 1 = add fullscreen, 0 = remove fullscreen
+	xev.xclient.data.l[0] = (long[]){0, 1}[app->fullscreen]; // 1 = add fullscreen, 0 = remove fullscreen
 	xev.xclient.data.l[1] = wm_fullscreen;
-	xev.xclient.data.l[2] = wm_fullscreen;
+	xev.xclient.data.l[2] = 0;
 	xev.xclient.data.l[3] = 1;
 	xev.xclient.data.l[4] = 0;
 
@@ -209,30 +210,18 @@ int key_press_mmenu(KeySym key, void *param)
 	{
 		app->fullscreen = !app->fullscreen;
 		mlx_allow_resize_win(app->mlx->display, app->root->window);
-		set_fullscreen(app);
-		mlx_int_anti_resize_win(app->mlx, app->root->window, WIN_WIDTH, WIN_HEIGHT);
+		toggle_fullscreen(app);
+		if (!app->fullscreen)
+			mlx_int_anti_resize_win(app->mlx, app->root->window,
+									WIN_WIDTH, WIN_HEIGHT);
 	}
 	else if (key == XK_5 || key == XK_Escape)
 	{
-		// app->mlx->end_loop = 1;
-		// app->rc = fail;
 		app->menu_state.selected = app->menu_state.no_items - 1;
 		if (app->menu_state.state == PAUSE)
 			app->menu_state.selected = 0;
 		menu_select_current(app);
 	}
-		// else if (key == XK_1)
-		// {
-		// 	ft_strlcpy(app->mapname, "./maps/test.cub", 50);
-		// 	app->rc = ok;
-		// 	app->mlx->end_loop = 1;
-		// }
-		// else if (key == XK_2)
-		// {
-		// 	ft_strlcpy(app->mapname, "./maps/test4.cub", 50);
-		// 	app->rc = ok;
-		// 	app->mlx->end_loop = 1;
-		// }
 	else if (key == XK_Up)
 		change_menu_selection(app, -1);
 	else if (key == XK_Down)
@@ -241,7 +230,7 @@ int key_press_mmenu(KeySym key, void *param)
 		menu_change_option(app, -1);
 	else if (key == XK_Right)
 		menu_change_option(app, 1);
-	else if (key == XK_space)
+	else if (key == XK_space | key == XK_Return)
 		menu_select_current(app);
 	return (0);
 }
@@ -345,7 +334,16 @@ int key_press_play(KeySym key, void *param)
 	}
 	else
 	{
-		if (key == XK_e)
+		if (key == XK_F11)
+		{
+			app->fullscreen = !app->fullscreen;
+			mlx_allow_resize_win(app->mlx->display, app->root->window);
+			toggle_fullscreen(app);
+			if (!app->fullscreen)
+				mlx_int_anti_resize_win(app->mlx, app->root->window,
+										WIN_WIDTH, WIN_HEIGHT);
+		}
+		else if (key == XK_e)
 			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
 			spawn_projectile(app, app->player, app->map, app->player->equipped);
