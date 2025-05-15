@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/28 20:06:15 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/15 14:52:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,19 @@ typedef struct s_ray
 	double			distance;
 	struct s_ray	*in_front;
 }	t_ray;
+
+typedef struct s_dda
+{
+	t_vect		dir;
+	t_vect		side_dist;
+	t_vect		delta_dist;
+	t_ivect		step;
+	t_ivect		norm;
+	int			faces[2];
+	t_texarr	*textures[2];
+	double		gradient;
+	double		c;
+}	t_dda;
 
 //
 //typedef enum e_textures
@@ -481,13 +494,13 @@ void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
-t_ray	*get_pooled_ray(bool reset);
-t_ray	*get_pooled_ray_alt(int flag);
+t_ray	*get_pooled_ray(int flag);
 t_poolnode	*add_poolnode(t_poolnode *head);
 void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
 void	reset_pool(t_poolnode *head, t_poolnode **current);
 int		count_poolnodes(t_poolnode *head);
 t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
+t_ray	ray_dda_refactor(t_info *app, t_data *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);

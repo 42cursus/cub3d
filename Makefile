@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/04/10 22:57:13 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/05/15 15:26:36 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -46,7 +46,7 @@ LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app player render
+SUB_DIRS		= parser utils app player render rays
 CUB_SRCS		:=
 
 ifndef VERBOSE

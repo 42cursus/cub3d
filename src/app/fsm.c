@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/28 19:56:22 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/15 13:43:16 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ void	cleanup_maps(t_info *app)
 {
 	ft_lstclear(&app->lvlcache, (void (*)(void *))destroy_map);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	get_pooled_ray_alt(1);
+	get_pooled_ray(1);
 	// free(app->player);
 }
 

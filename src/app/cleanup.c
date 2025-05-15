@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:42:14 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 13:18:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/15 13:43:52 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	cleanup(t_info *app)
 {
 	free_shtex(app);
 	free_split(app->map_ids);
-	get_pooled_ray_alt(2);
+	get_pooled_ray(2);
 	if (app->canvas != NULL)
 		mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_image(app->mlx, app->bg);
