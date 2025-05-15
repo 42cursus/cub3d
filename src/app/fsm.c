@@ -290,6 +290,7 @@ void do_mmenu_to_load(void *param)
 		return ;
 	}
 	app->player = init_player(app);
+	app->player->total_pickups += count_collectables(app->map);
 //	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
@@ -424,6 +425,7 @@ void	do_play_to_load(void *param)
 			app->rc = fail;
 			return ;
 		}
+		app->player->total_pickups += count_collectables(app->map);
 	}
 	free(next_lvl);
 	// app->player = init_player(app);
@@ -461,6 +463,7 @@ void do_play_to_win(void *param)
 	app->menu_state.state = WIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 3;
+	printf("collected: %d total: %d pcnt: %d%%\n",app->player->pickups_collected, app->player->total_pickups, (app->player->pickups_collected * 100) / app->player->total_pickups);
 }
 
 void do_play_to_lose(void *param)

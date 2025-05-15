@@ -642,3 +642,21 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		}
 	}
 }
+
+int	count_collectables(t_data *map)
+{
+	t_list		*current;
+	t_object	*cur_obj;
+	int			count;
+
+	current = map->items;
+	count = 0;
+	while (current != NULL)
+	{
+		cur_obj = current->content;
+		if (cur_obj->subtype >= I_ETANK && cur_obj->subtype <= I_MISSILE)
+			count++;
+		current = current->next;
+	}
+	return (count);
+}

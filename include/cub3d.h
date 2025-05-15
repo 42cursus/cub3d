@@ -276,8 +276,10 @@ typedef struct s_player
 	double	ceil_offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
-	t_vect		dmg_dir;
+	t_vect	dmg_dir;
 	size_t	dmg_time;
+	int		total_pickups;
+	int		pickups_collected;
 }	t_player;
 
 typedef struct s_dummy
@@ -554,5 +556,7 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
 int	bilinear_filter(double x, double y, const t_texarr *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
+
+int	count_collectables(t_data *map);
 
 #endif //CUB3D_H
