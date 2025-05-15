@@ -61,7 +61,7 @@ void replace_frame(t_info *app)
 	cast_all_rays_alt(app, app->map, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor(app, app->map, app->player);
+	fill_floor(app, app->player);
 	if (app->map->outside != 1)
 		fill_ceiling(app, app->map, app->player);
 	draw_rays(app, app->canvas);

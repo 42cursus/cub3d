@@ -40,8 +40,15 @@
 # define MLX_LIME 0x0000ff55
 # define MLX_LIGHT_RED 0x00ff5555
 # define MLX_RED 0x0bff0000
-# define MLX_GREEN 0x0b00FF00
+# define MLX_GREEN 0x0b00ff00
+# define MLX_BLUE 0x0b0000ff
 # define MLX_TRANSPARENT 0x000042
+
+enum e_dir
+{
+	LEFT = 0,
+	RIGHT
+};
 
 typedef struct s_texarr
 {
@@ -531,7 +538,7 @@ int	render_credits(void *param);
 void	draw_sky(t_info *app);
 void 	draw_sky_alt(t_info *const app);
 void	fill_ceiling(t_info *app, t_data *map, t_player *player);
-void	fill_floor(t_info *app, t_data *map, t_player *player);
+void	fill_floor(t_info *app, t_player *player);
 
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);

@@ -853,33 +853,26 @@ int	interpolate_colour(int col1, int col2, double frac)
 
 	if (col1 == col2)
 		return (col1);
-	// if (col1 == 0x42 && col2 == 0x42)
-	// 	return (0x42);
-	// else if (col2 == 0x42)
-	// 	return (col1);
-	// else if (col1 == 0x42)
-	// 	return (col2);
-	r = ((col2 & 0xff0000) - (col1 & 0xff0000)) * frac + (col1 & 0xff0000);
-	g = ((col2 & 0x00ff00) - (col1 & 0x00ff00)) * frac + (col1 & 0x00ff00);
-	b = ((col2 & 0xff) - (col1 & 0xff)) * frac + (col1 & 0xff);
-	return ((r & 0xff0000) + (g & 0x00ff00) + b);
+	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
+	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
+	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
+	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 }
 
 static inline __attribute__((always_inline))
-int	linear_filter_credits(double x, int y, const t_texarr *tex)
+int	linear_filter_credits(t_vect idx, const t_texarr *tex)
 {
-	const double	frac = fmod(x, 1);
+	const double	frac = fmod(idx.x, 1);
 	// const int		y_int =  floor(y);
 	// const int		y_int =  (int)y;
-	int				x_lower;
 	int				x_upper;
 
-	// x_lower = (int) x;
-	x_lower = floor(x);
-	x_upper = x_lower + 1;
+	x_upper = floor(idx.x) + 1;
 	// if (x_lower + 1 == tex->x)
 	// 	x_upper = 0;
-	return (interpolate_colour(tex->img[y][x_lower], tex->img[y][x_upper], frac));
+	int col1 = tex->img[(int) idx.y][(int)floor(idx.x)];
+	int col2 = tex->img[(int) idx.y][x_upper];
+	return (interpolate_colour(col1, col2, frac));
 }
 
 void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
@@ -905,7 +898,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 			idx.x = (0.5 + curr_x) * tex->x;
 			// my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
 			// my_put_pixel_32(app->canvas, i, row, bilinear_filter(idx.x, idx.y, tex));
-			my_put_pixel_32(app->canvas, i, row, linear_filter_credits(idx.x, idx.y, tex));
+			my_put_pixel_32(app->canvas, i, row, linear_filter_credits(idx, tex));
 		}
 		curr_x += step_x;
 		// idx.x += step_idx;
