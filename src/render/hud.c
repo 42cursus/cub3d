@@ -37,7 +37,7 @@ void	load_map_textures(t_info *app, t_img *tiles[])
 			  ((i & 4) >> 2) + '0',
 			  ((i & 2) >> 1) + '0',
 			  (i & 1) + '0');
-		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
+		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *)buf, &x, &y);
 	}
 }
 
@@ -210,28 +210,33 @@ void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
 
 void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 {
-	t_img	*canvas = app->canvas;
+	t_img *const	canvas = app->canvas;
+	t_img *const	alphabet = app->shtex->alphabet;
 	int		i;
 	int		j;
 	int		start_x;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	u_int32_t	mask;
+	const int char_width = 8;
 
-	if (!ft_isprint(c))
+	if (!ft_isprint(c) || scalar < 1)
 		return ;
-	if (scalar < 1)
-		return ;
-	// c = ft_tolower(c);
-	// if (ft_isalpha(c))
-	start_x = (c - ' ') * 8;
-	// else
-	// 	start_x = (c - '0') * 8 + 208;
+	start_x = (c - ' ') * char_width;
+
 	i = -1;
-	while (++i < 8 * scalar)
+	while (++i < char_width * scalar)
 	{
+		src_row = (u_int32_t *)alphabet->data + ((i / scalar) * alphabet->width) + start_x;
+		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
 		j = -1;
-		while (++j < 8 * scalar)
-			my_put_pixel_32(canvas, pos.x + j, pos.y + i,
-							app->shtex->alphabet.img[i / scalar][(j / scalar) +
-																 start_x]);
+		while (++j < char_width * scalar)
+		{
+			src_pixel = src_row[j / scalar];
+			mask = -(src_pixel != MLX_TRANSPARENT);
+			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+		}
 	}
 }
 

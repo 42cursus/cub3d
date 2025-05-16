@@ -1038,6 +1038,7 @@ int	parse_cub(t_info *app, char *filename)
 void	load_shtex(t_info *app)
 {
 	t_shtex	*shtex;
+	t_img	dummy;
 	int	x;
 	int	y;
 
@@ -1071,7 +1072,7 @@ void	load_shtex(t_info *app)
 	app->shtex->etank_tex[0].img = img_to_arr((char *)"./textures/etank0.xpm", app, &app->shtex->etank_tex[0].x, &app->shtex->etank_tex[0].y);
 	app->shtex->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &app->shtex->etank_tex[1].x, &app->shtex->etank_tex[1].y);
 	app->shtex->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &app->shtex->title.x, &app->shtex->title.y);
-	app->shtex->alphabet.img = img_to_arr((char *)"./textures/small_font.xpm", app, &app->shtex->alphabet.x, &app->shtex->alphabet.y);
+	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx, (char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
 	app->shtex->empty.img = img_to_arr((char *)"./textures/empty.xpm", app, &app->shtex->empty.x, &app->shtex->empty.y);
 	app->shtex->trophy_tex[0].img = img_to_arr((char *)"./textures/trophy0.xpm", app, &app->shtex->trophy_tex[0].x, &app->shtex->trophy_tex[0].y);
 	app->shtex->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &app->shtex->trophy_tex[1].x, &app->shtex->trophy_tex[1].y);
@@ -1151,7 +1152,7 @@ void	free_shtex(t_info *app)
 	int	i;
 
 	free_tex_arr(&app->shtex->title);
-	free_tex_arr(&app->shtex->alphabet);
+	mlx_destroy_image(app->mlx, app->shtex->alphabet);
 	free_tex_arr(&app->shtex->credits);
 	free_tex_arr(&app->shtex->tele);
 	free_tex_arr(&app->shtex->scope);

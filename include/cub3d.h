@@ -190,7 +190,7 @@ typedef struct s_shtex
 	t_texarr	dmg_tex[8];
 	t_texarr	title;
 	t_texarr	scope;
-	t_texarr	alphabet;
+	t_img		*alphabet;
 	t_texarr	tele;
 	t_texarr	credits;
 	t_texarr	boss_bar[2];
