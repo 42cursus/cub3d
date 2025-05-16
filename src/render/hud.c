@@ -316,23 +316,21 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	int	start_x;
 	int	width;
 
-	i = 0;
-	width = ft_strlen(str) * 8 * scalar;
+
+	width = (int)ft_strlen(str) * 8 * scalar;
 	start_x = pos.x - width / 2;
 	pos_x = start_x;
 	pos_y = pos.y;
+	i = 0;
 	while (str[i])
 	{
-		// if (ft_isalnum(str[i]))
 		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		if (str[i] == '\n')
+		if (str[i++] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = start_x;
-			i++;
 			continue ;
 		}
-		i++;
 		pos_x += 8 * scalar;
 	}
 }
@@ -418,6 +416,7 @@ void	place_energy(t_info *app, t_player *player)
 void	place_ammo(t_info *app, t_player *player)
 {
 	char		buf[4];
+	t_texarr	*tex;
 	
 	buf[3] = 0;
 	if (player->max_ammo[MISSILE] != 0)
@@ -437,10 +436,8 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[1] = player->ammo[SUPER] % 10 + '0';
 		buf[2] = 0;
 		place_str(buf, app, (t_ivect){224, 48}, 2);
-		if (player->equipped == SUPER)
-			place_texarr(app, &app->shtex->super_tex[3], 224, 16);
-		else
-			place_texarr(app, &app->shtex->super_tex[2], 224, 16);
+		tex = &app->shtex->super_tex[2 + (player->equipped == SUPER)];
+		place_texarr(app, tex, 224, 16);
 	}
 }
 
