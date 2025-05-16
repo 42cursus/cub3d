@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 16:57:26 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/16 17:17:22 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
 			// mask = -(src_pixel != MLX_TRANSPARENT);
 			if (src_pixel != MLX_TRANSPARENT)
 			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
-				dst_row[j] = interpolate_colour(dst_row[j], src_pixel, 0.5);
+				dst_row[j] = interpolate_colour(src_pixel, dst_row[j], 0.5);
 		}
 	}
 }
