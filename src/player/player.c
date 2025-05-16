@@ -433,7 +433,6 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	map = app->map;
 	item = ft_calloc(1, sizeof(*item));
 	item->pos = pos;
-	// item->texture = tex;
 	item->type = O_ITEM;
 	item->subtype = subtype;
 	item->anim.active = 1;
@@ -489,48 +488,6 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 	tele->subtype = level;
 	tele->texture = &app->shtex->tele;
 	ft_lstadd_back(&map->triggers, ft_lstnew(tele));
-}
-
-void	developer_console(t_info *app, t_player *player)
-{
-	char	*line;
-	char	**split;
-	t_vect	pos;
-	t_vect	dir;
-	int		val;
-
-	ft_printf("input command:\t");
-	line = get_next_line(STDIN_FILENO);
-	line[ft_strlen(line) - 1] = 0;
-	split = ft_split(line, ' ');
-	if (ft_strcmp(split[0], "spawn") == 0)
-	{
-		pos = add_vect(player->pos, player->dir);
-		if (ft_strcmp(split[1], "item") == 0)
-		{
-			if (ft_strcmp(split[2], "etank") == 0)
-				spawn_item(app, pos, I_ETANK);
-			if (ft_strcmp(split[2], "super") == 0)
-				spawn_item(app, pos, I_SUPER);
-			if (ft_strcmp(split[2], "health") == 0)
-				spawn_item(app, pos, I_HEALTH);
-			if (ft_strcmp(split[2], "missile") == 0)
-				spawn_item(app, pos, I_MISSILE);
-			if (ft_strcmp(split[2], "trophy") == 0)
-				spawn_item(app, pos, I_TROPHY);
-		}
-		if (ft_strcmp(split[1], "enemy") == 0)
-		{
-			val = ft_atoi(split[3]);
-			dir = scale_vect(vect(sin(val * M_PI_4 / 2), cos(val * M_PI_4 / 2)), 0.03);
-			if (split[4] != NULL)
-				dir = scale_vect(dir, ft_atoi(split[4]));
-			if (ft_strcmp(split[2], "zoomer") == 0)
-				spawn_enemy(app, pos, dir, E_ZOOMER);
-		}
-	}
-	free(line);
-	free_split(split);
 }
 
 void	next_weapon(t_player *player)
@@ -616,10 +573,6 @@ void	toggle_boss_doors(t_info *app)
 			{
 				anims[i][j].active = 1;
 				anims[i][j].timestart = app->last_frame;
-				// if (app->map->boss_active == 0)
-				// 	app->map->boss_active = 1;
-				// else
-				// 	app->map->boss_active = 0;
 			}
 		}
 	}
@@ -641,4 +594,22 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 			toggle_boss_doors(app);
 		}
 	}
+}
+
+int	count_collectables(t_data *map)
+{
+	t_list		*current;
+	t_object	*cur_obj;
+	int			count;
+
+	current = map->items;
+	count = 0;
+	while (current != NULL)
+	{
+		cur_obj = current->content;
+		if (cur_obj->subtype >= I_ETANK && cur_obj->subtype <= I_MISSILE)
+			count++;
+		current = current->next;
+	}
+	return (count);
 }

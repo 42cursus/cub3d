@@ -181,7 +181,9 @@ void	draw_menu_items(t_info *app)
 		{
 			place_str_centred((char *)	"Your time was:", app, (t_ivect){WIN_WIDTH / 2, 420}, 3);
 			place_timer(app, app->timer.total_ms, (t_ivect){WIN_WIDTH / 2 - (24  * 4), 460}, 3);
-			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 50}, 3, app);
+			ft_snprintf(buf, 40, "collected: %d%%", (app->player->pickups_collected * 100) / app->player->total_pickups);
+			place_str_centred(buf, app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 100}, 3, app);
 		}
 		else
 			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);

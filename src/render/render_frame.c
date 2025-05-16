@@ -477,16 +477,19 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 		{
 			player->max_health += 100;
 			player->health += 100;
+			player->pickups_collected++;
 		}
 		else if (obj->subtype == I_SUPER)
 		{
 			player->max_ammo[SUPER] += 5;
 			player->ammo[SUPER] += 5;
+			player->pickups_collected++;
 		}
 		else if (obj->subtype == I_MISSILE)
 		{
 			player->max_ammo[MISSILE] += 10;
 			player->ammo[MISSILE] += 10;
+			player->pickups_collected++;
 		}
 		else if (obj->subtype == I_HEALTH)
 			add_health(player, 20);

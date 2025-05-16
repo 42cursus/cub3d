@@ -6,64 +6,29 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/28 20:16:48 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/15 15:24:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
-#include "libft.h"
 
-double	get_gradient_dir(t_vect dir)
-{
-	return (dir.y / dir.x);
-}
+void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray);
 
-double	get_gradient_angle(double angle)
-{
-	return (tan(angle));
-}
-
-double	get_y_intercept(t_vect pos, double gradient)
-{
-	return (pos.y - (gradient * pos.x));
-}
-
-t_vect	get_horizontal_int(double y, double gradient, double c)
-{
-	t_vect	out;
-
-	out.y = y;
-	out.x = (y - c) / gradient;
-	return (out);
-}
-
-t_vect	get_vertical_int(double x, double gradient, double c)
-{
-	t_vect	out;
-
-	out.x = x;
-	out.y = (gradient * x) + c;
-	return (out);
-}
-
-t_ray	*get_pooled_ray_alt(int flag)
+t_ray	*get_pooled_ray(int flag)
 {
 	static t_poolnode	head = {
 		.stackp = 0,
 		.next = NULL,
 	};
 	static t_poolnode	*current = &head;
-	// size_t				nodecount = 0;
 
 	if (flag == 1)
 	{
-		// printf("poolnodes: %d\n", count_poolnodes(&head));
 		reset_pool(&head, &current);
 		return (NULL);
 	}
 	if (flag == 2)
 	{
-		printf("poolnodes: %d\n", count_poolnodes(&head));
 		clear_poolnodes(&head, &current);
 		return (NULL);
 	}
@@ -72,8 +37,21 @@ t_ray	*get_pooled_ray_alt(int flag)
 	current = current->next;
 	if (current == NULL)
 		current = add_poolnode(&head);
-	// printf("stackp: %ld\n", (nodecount * RAY_POOL_SIZE) + current->stackp);
 	return (&current->pool[current->stackp++]);
+}
+
+void	init_pooled_ray(t_ray *ray, t_object *obj,
+			t_player *player, t_vect intcpt)
+{
+	ray->in_front = NULL;
+	ray->intcpt = intcpt;
+	ray->face = NONE;
+	ray->damaged = 0;
+	ray->texture = obj->texture;
+	ray->distance = get_cam_distance(player->pos,
+			player->angle + M_PI_2, ray->intcpt);
+	if (ray->distance < 0.00001)
+		ray->distance = 0.00001;
 }
 
 void	add_in_front(t_ray *ray, int face, t_texarr *texture)
@@ -81,7 +59,7 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 	t_ray	*in_front;
 	t_ray	*new;
 
-	new = get_pooled_ray_alt(0);
+	new = get_pooled_ray(0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
 	new->texture = texture;
@@ -91,16 +69,19 @@ void	add_in_front(t_ray *ray, int face, t_texarr *texture)
 	new->in_front = in_front;
 }
 
-double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
 {
-	return (fabs((cos(angle) * (intcpt.y - pos.y)) - (sin(angle) * (intcpt.x - pos.x))));
+	check_collision_list(map->items, player, ray);
+	check_collision_list(map->enemies, player, ray);
+	check_collision_list(map->projectiles, player, ray);
+	check_collision_list(map->triggers, player, ray);
 }
 
 void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
 {
 	int		i;
 
-	get_pooled_ray_alt(1);
+	get_pooled_ray(1);
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{

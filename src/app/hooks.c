@@ -352,8 +352,6 @@ int key_press_play(KeySym key, void *param)
 			subtract_health(app, app->player, 10);
 		else if (key == XK_j)
 			add_health(app->player, 10);
-		else if (key == XK_grave)
-			developer_console(app, app->player);
 		else if (key == XK_z)
 			next_weapon(app->player);
 		else if (key == XK_Up)

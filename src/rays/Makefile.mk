@@ -10,6 +10,11 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = player.c \
+FILES   = rays.c \
+		  ray_dda.c \
+		  ray_utils.c \
+		  object_collision.c \
+		  dda_init.c \
+		  pool.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
