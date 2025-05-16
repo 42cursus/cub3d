@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/15 14:52:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/16 18:33:47 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -570,6 +570,27 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 int	bilinear_filter(double x, double y, const t_texarr *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
+void	start_obj_death(t_object *obj, t_info *app);
+t_list	*delete_object(t_list **obj_list, t_list *obj_node);
+t_object	*check_obj_proximity(t_vect pos, t_data *map);
+int	point_oob_global(t_vect pos, t_data *map);
+void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
+t_texarr	*handle_animation(t_info *app, t_anim anim);
 int	count_collectables(t_data *map);
+int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
+int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);
+void	spawn_drops(t_info *app, t_object *obj, int no);
+void	phantoon_ai(t_info *app, t_object *obj);
+void	reo_ai(t_info *app, t_object *enemy);
+void	atomic_ai(t_info *app, t_object *enemy);
+void	holtz_ai(t_info *app, t_object *enemy, t_player *player);
+void	zoomer_ai(t_info *app, t_object *enemy);
+int	handle_obj_entity(t_info *app, t_object *obj, t_list **current);
+int	handle_trigger(t_info *app, t_object *obj, t_list **current);
+void	handle_tele(t_info *app, t_object *tele);
+int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
+void	update_objects(t_info *app, t_player *player, t_data *map);
+
+int	check_line_of_sight(t_info *app, t_object *obj, t_player *player);
 
 #endif //CUB3D_H
