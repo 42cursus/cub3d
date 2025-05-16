@@ -62,20 +62,27 @@ int	get_tile_index(char **map, int i, int j)
 	return (index);
 }
 
-void	place_tile_on_image(t_img *image, t_img *tile, int x, int y)
+void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 {
-	int	i;
-	int	j;
-	int	colour;
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	u_int32_t	mask;
 
 	i = -1;
 	while (++i < tile->height)
 	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
 		j = -1;
 		while (++j < tile->width)
 		{
-			colour = *(unsigned int *)(tile->data + (i * tile->size_line + j * (tile->bpp / 8)));
-			my_put_pixel_32(image, x + j, y + i, colour);
+			
+			src_pixel = src_row[j];
+			mask = -(src_pixel != MLX_TRANSPARENT);
+			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
 }
@@ -98,13 +105,13 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 			if (app->map->map[app->map->height - i - 1][j] == '0')
 			{
 				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				place_tile_on_image(img, tiles[index], j * 8, i * 8);
+				place_tile_on_image32(img, tiles[index], j * 8, i * 8);
 			}
 			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
 					 app->map->map[app->map->height - i - 1][j] == 'M' ||
 					 app->map->map[app->map->height - i - 1][j] == 'B' ||
 					 app->map->map[app->map->height - i - 1][j] == 'L')
-				place_tile_on_image(img, tiles[15], j * 8, i * 8);
+				place_tile_on_image32(img, tiles[15], j * 8, i * 8);
 
 		}
 	}
@@ -113,23 +120,12 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 void	place_mmap(t_info *app)
 {
-	t_img	*mmap;
-	t_img	*canvas = app->canvas;
-	int	i;
-	int	j;
-	int	colour;
+	t_img *const	mmap = app->map->minimap;;
+	t_img *const	canvas = app->canvas;
+	const int		dx = WIN_WIDTH - mmap->width;
+	const int		dy = 0;
 
-	i = -1;
-	mmap = app->map->minimap;
-	while (++i < app->map->minimap->height)
-	{
-		j = -1;
-		while (++j < app->map->minimap->width)
-		{
-			colour = *(unsigned int *)(mmap->data + (i * mmap->size_line + j * (mmap->bpp / 8)));
-			my_put_pixel_32(canvas, j + (WIN_WIDTH - mmap->width), i, colour);
-		}
-	}
+	place_tile_on_image32(canvas, mmap, dx, dy);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
