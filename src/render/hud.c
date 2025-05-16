@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minimap.c                                          :+:      :+:    :+:   */
+/*   hud.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:19:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/16 16:57:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,49 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 	}
 }
 
+static inline __attribute__((always_inline))
+int	interpolate_colour(int col1, int col2, double frac)
+{
+	int	r;
+	int	g;
+	int	b;
+
+	if (col1 == col2)
+		return (col1);
+	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
+	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
+	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
+	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
+}
+
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
+{
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	// u_int32_t	mask;
+
+	i = -1;
+	while (++i < tile->height)
+	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
+		j = -1;
+		while (++j < tile->width)
+		{
+			
+			src_pixel = src_row[j];
+			// mask = -(src_pixel != MLX_TRANSPARENT);
+			if (src_pixel != MLX_TRANSPARENT)
+			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+				dst_row[j] = interpolate_colour(dst_row[j], src_pixel, 0.5);
+		}
+	}
+}
+
+
 t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
 	t_img	*img;
@@ -125,7 +168,7 @@ void	place_mmap(t_info *app)
 	const int		dx = WIN_WIDTH - mmap->width;
 	const int		dy = 0;
 
-	place_tile_on_image32(canvas, mmap, dx, dy);
+	place_tile_on_image32_alpha(canvas, mmap, dx, dy);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
