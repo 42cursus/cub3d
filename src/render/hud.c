@@ -425,10 +425,8 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[1] = (player->ammo[MISSILE] / 10) % 10 + '0';
 		buf[2] = player->ammo[MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
-		if (player->equipped == MISSILE)
-			place_texarr(app, &app->shtex->missile_tex[3], 160, 16);
-		else
-			place_texarr(app, &app->shtex->missile_tex[2], 160, 16);
+		tex = &app->shtex->missile_tex[2 + (player->equipped == MISSILE)];
+		place_texarr(app, tex, 160, 16);
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
