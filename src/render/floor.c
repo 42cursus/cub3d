@@ -66,15 +66,15 @@ void	draw_floor_row(t_info *app, t_vect pos[2], u_int (*const dst))
 	i = 0;
 	while (i < WIN_WIDTH - 1)
 	{
-		if (!point_oob(curr, app->map))
-		{
+		// if (!point_oob(curr, app->map))
+		// {
 			idx.x = ((int)(curr.x * width)) & (width - 1);
 			idx.y = ((int)(curr.y * height)) & (height - 1);
 			dst[i] = src[idx.y * width + idx.x];
 			dst[i + 1] = src[idx.y * width + idx.x];
-		}
-		else
-			dst[i] = MLX_TRANSPARENT;
+		// }
+		// else
+		// 	dst[i] = MLX_TRANSPARENT;
 		curr = (t_vect){.x = curr.x + step.x, curr.y + step.y};
 		i += 2;
 	}
