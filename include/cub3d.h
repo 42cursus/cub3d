@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/15 14:52:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/17 17:20:16 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -507,9 +507,9 @@ void	free_ray_children(t_ray *ray);
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 void replace_sky(t_info *app, char *tex_file);
 int		dim_colour(int col, double fact);
+int		tint_red(int col);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
-void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
@@ -571,6 +571,31 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 int	bilinear_filter(double x, double y, const t_texarr *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
+void	start_obj_death(t_object *obj, t_info *app);
+t_list	*delete_object(t_list **obj_list, t_list *obj_node);
+t_object	*check_obj_proximity(t_vect pos, t_data *map);
+int	point_oob_global(t_vect pos, t_data *map);
+void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
+t_texarr	*handle_animation(t_info *app, t_anim anim);
 int	count_collectables(t_data *map);
+int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
+int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);
+void	spawn_drops(t_info *app, t_object *obj, int no);
+void	phantoon_ai(t_info *app, t_object *obj);
+void	reo_ai(t_info *app, t_object *enemy);
+void	atomic_ai(t_info *app, t_object *enemy);
+void	holtz_ai(t_info *app, t_object *enemy, t_player *player);
+void	zoomer_ai(t_info *app, t_object *enemy);
+int	handle_obj_entity(t_info *app, t_object *obj, t_list **current);
+int	handle_trigger(t_info *app, t_object *obj, t_list **current);
+void	handle_tele(t_info *app, t_object *tele);
+int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
+void	update_objects(t_info *app, t_player *player, t_data *map);
+
+int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
+int		interpolate_colour(int col1, int col2, double frac);
+void	draw_credits(t_info *app, t_dummy *dummy);
+t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
+t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);
 
 #endif //CUB3D_H
