@@ -81,3 +81,32 @@ int	check_line_of_sight(t_info *app, t_object *obj, t_player *player)
 	}
 	return (1);
 }
+
+void	spawn_drops(t_info *app, t_object *obj, int no)
+{
+	double		seed;
+	t_vect		pos;
+	t_player	*player;
+
+	player = app->player;
+	if (player->ammo[SUPER] == player->max_ammo[SUPER]
+		&& player->ammo[MISSILE] == player->max_ammo[MISSILE]
+		&& player->health == player->max_health)
+		return ;
+	while (no-- > 0)
+	{
+		pos = obj->pos;
+		move_entity(app, &pos, app->map,
+			(t_vect){rand_range(-0.5, 0.5), rand_range(-0.5, 0.5)});
+		seed = rand_range(0.0, 1.0);
+		if (seed < 0.2 && player->ammo[SUPER] != player->max_ammo[SUPER])
+			spawn_item(app, pos, I_AMMO_S);
+		else if (seed > 0.2 && seed < 0.5
+			&& player->ammo[MISSILE] != player->max_ammo[MISSILE])
+			spawn_item(app, pos, I_AMMO_M);
+		else if (player->health != player->max_health)
+			spawn_item(app, pos, I_HEALTH);
+		else
+			no++;
+	}
+}

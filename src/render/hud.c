@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 17:17:22 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/17 16:07:59 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,20 +87,20 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 	}
 }
 
-static inline __attribute__((always_inline))
-int	interpolate_colour(int col1, int col2, double frac)
-{
-	int	r;
-	int	g;
-	int	b;
-
-	if (col1 == col2)
-		return (col1);
-	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
-	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
-	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
-}
+// static inline __attribute__((always_inline, unused))
+// int	interpolate_colour(int col1, int col2, double frac)
+// {
+// 	int	r;
+// 	int	g;
+// 	int	b;
+//
+// 	if (col1 == col2)
+// 		return (col1);
+// 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
+// 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
+// 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
+// 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
+// }
 
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
 {
@@ -122,8 +122,8 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
 			
 			src_pixel = src_row[j];
 			// mask = -(src_pixel != MLX_TRANSPARENT);
-			if (src_pixel != MLX_TRANSPARENT)
 			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			if (src_pixel != MLX_TRANSPARENT)
 				dst_row[j] = interpolate_colour(src_pixel, dst_row[j], 0.5);
 		}
 	}

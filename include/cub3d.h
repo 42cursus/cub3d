@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/16 18:33:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/17 17:20:16 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -506,9 +506,9 @@ void	free_ray_children(t_ray *ray);
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 void replace_sky(t_info *app, char *tex_file);
 int		dim_colour(int col, double fact);
+int		tint_red(int col);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
-void	my_put_pixel(t_img *img, int x, int y, int colour);
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
@@ -591,6 +591,10 @@ void	handle_tele(t_info *app, t_object *tele);
 int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_data *map);
 
-int	check_line_of_sight(t_info *app, t_object *obj, t_player *player);
+int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
+int		interpolate_colour(int col1, int col2, double frac);
+void	draw_credits(t_info *app, t_dummy *dummy);
+t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
+t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);
 
 #endif //CUB3D_H
