@@ -42,7 +42,8 @@
 # define MLX_RED 0x0bff0000
 # define MLX_GREEN 0x0b00ff00
 # define MLX_BLUE 0x0b0000ff
-# define MLX_TRANSPARENT 0x000042
+# define MLX_TRANSPARENT 0x00000042
+# define XPM_TRANSPARENT 0xff000000
 
 enum e_dir
 {

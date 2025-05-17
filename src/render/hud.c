@@ -294,16 +294,13 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		// if (ft_isalnum(str[i]))
 		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		if (str[i] == '\n')
+		if (str[i++] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = pos.x;
-			i++;
 			continue ;
 		}
-		i++;
 		pos_x += 8 * scalar;
 	}
 }
@@ -526,7 +523,7 @@ void	format_time(char *buf, int len, size_t time)
 	time = time % 60000;
 	seconds = time / 1000;
 	ms = time % 1000;
-	snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
+	ft_snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
 }
 
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
