@@ -1,0 +1,91 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   rays.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
+/*   Updated: 2025/05/15 15:24:13 by fsmyth           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "cub3d.h"
+
+void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray);
+
+t_ray	*get_pooled_ray(int flag)
+{
+	static t_poolnode	head = {
+		.stackp = 0,
+		.next = NULL,
+	};
+	static t_poolnode	*current = &head;
+
+	if (flag == 1)
+	{
+		reset_pool(&head, &current);
+		return (NULL);
+	}
+	if (flag == 2)
+	{
+		clear_poolnodes(&head, &current);
+		return (NULL);
+	}
+	if (current->stackp != RAY_POOL_SIZE)
+		return (&current->pool[current->stackp++]);
+	current = current->next;
+	if (current == NULL)
+		current = add_poolnode(&head);
+	return (&current->pool[current->stackp++]);
+}
+
+void	init_pooled_ray(t_ray *ray, t_object *obj,
+			t_player *player, t_vect intcpt)
+{
+	ray->in_front = NULL;
+	ray->intcpt = intcpt;
+	ray->face = NONE;
+	ray->damaged = 0;
+	ray->texture = obj->texture;
+	ray->distance = get_cam_distance(player->pos,
+			player->angle + M_PI_2, ray->intcpt);
+	if (ray->distance < 0.00001)
+		ray->distance = 0.00001;
+}
+
+void	add_in_front(t_ray *ray, int face, t_texarr *texture)
+{
+	t_ray	*in_front;
+	t_ray	*new;
+
+	new = get_pooled_ray(0);
+	new->intcpt = ray->intcpt;
+	new->face = face;
+	new->texture = texture;
+	new->damaged = 0;
+	in_front = ray->in_front;
+	ray->in_front = new;
+	new->in_front = in_front;
+}
+
+void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
+{
+	check_collision_list(map->items, player, ray);
+	check_collision_list(map->enemies, player, ray);
+	check_collision_list(map->projectiles, player, ray);
+	check_collision_list(map->triggers, player, ray);
+}
+
+void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
+{
+	int		i;
+
+	get_pooled_ray(1);
+	i = -1;
+	while (++i < WIN_WIDTH)
+	{
+		player->rays[i] = ray_dda(app, map, player, player->angle_offsets[i]);
+		calc_object_collisions(map, player, &player->rays[i]);
+	}
+}

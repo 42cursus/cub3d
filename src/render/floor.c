@@ -10,58 +10,100 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/cub3d.h"
+#include "cub3d.h"
 
-int	get_tex_index(double pos, int dim)
+/**
+ * This function maps a continuous coordinate (like pos = 0.5)
+ * to an integer pixel index in a texture of size dim.
+ *
+ * The modulo trick ensures the result is always between 0 and dim - 1,
+ * even if whole is negative
+ *
+ * @param pos
+ * @param dim
+ * @return
+ */
+static inline __attribute__((always_inline, unused))
+int	get_tex_index_float(double pos, int dim)
 {
-	int	whole;
-
-	whole = pos * dim;
-	return ((whole % dim + dim) % dim);
+	// int	whole;
+	//
+	// whole = pos * dim;
+	// return ((whole % dim + dim) % dim);
+	return ((int)(pos * dim) % dim);
 }
 
-void	draw_floor_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
+/**
+ * Checks if the position pos is outside the boundaries of the map
+ * oob stands for "out of bounds"
+ * @param pos
+ * @param map
+ * @return
+ */
+static inline __attribute__((always_inline, unused))
+int	point_oob(t_vect pos, t_data *map)
+{
+	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+}
+
+static inline __attribute__((always_inline))
+void	draw_floor_row(t_info *app, t_vect pos[2], u_int (*const dst))
 {
 	int				i;
 	t_vect			step;
 	t_vect			curr;
 	t_ivect			idx;
-	const t_texarr	*tex = &app->map->floor_tex;
+	const t_img		*tex = app->map->texs[T_FLOOR];
+	u_int			*src = (u_int *)tex->data;
 
-	step.x = (r_pos.x - l_pos.x) / WIN_WIDTH;
-	step.y = (r_pos.y - l_pos.y) / WIN_WIDTH;
-	curr.x = l_pos.x;
-	curr.y = l_pos.y;
-	i = -1;
-	while (++i < WIN_WIDTH)
+	int width = tex->width;
+	int height = tex->height;
+
+	curr = (t_vect)(pos[LEFT]);
+	step.x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH * 2;
+	step.y = (pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH * 2;
+
+	i = 0;
+	while (i < WIN_WIDTH - 1)
 	{
-		idx.y = get_tex_index(curr.y, tex->y);
-		idx.x = get_tex_index(curr.x, tex->x);
-		my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
-		curr.x += step.x;
-		curr.y += step.y;
+		// if (!point_oob(curr, app->map))
+		// {
+			idx.x = ((int)(curr.x * width)) & (width - 1);
+			idx.y = ((int)(curr.y * height)) & (height - 1);
+			dst[i] = src[idx.y * width + idx.x];
+			dst[i + 1] = src[idx.y * width + idx.x];
+		// }
+		// else
+		// 	dst[i] = MLX_TRANSPARENT;
+		curr = (t_vect){.x = curr.x + step.x, curr.y + step.y};
+		i += 2;
 	}
 }
 
-void	fill_floor(t_info *app, t_data *map, t_player *player)
+/**
+ * floor-drawing logic using nearest-neighbor sampling
+ *
+ * can be improved with bilinear interpolation
+ * @param app
+ * @param map
+ * @param player
+ */
+void	fill_floor(t_info *app, t_player *player)
 {
-	t_vect	l_dir;
-	t_vect	r_dir;
-	t_vect	l_pos;
-	t_vect	r_pos;
-	double	distance;
+	t_vect	dir[2];
+	t_vect	pos[2];
+	u_int	*dst;
 	int		row;
 
 	row = 0;
-	l_dir = rotate_vect(player->dir, M_PI_4);
-	r_dir = rotate_vect(player->dir, -M_PI_4);
+	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
 	while (++row < WIN_HEIGHT / 2)
 	{
-		distance = WIN_HEIGHT / (3.2 * row);
-		l_pos = add_vect(player->pos, scale_vect(l_dir, distance * M_SQRT2));
-		r_pos = add_vect(player->pos, scale_vect(r_dir, distance * M_SQRT2));
-		// printf("row: %d l_pos: (%f, %f) r_pos: (%f, %f)\n", row, l_pos.x, l_pos.y, r_pos.x, r_pos.y);
-		draw_floor_row(app, l_pos, r_pos, row + (WIN_HEIGHT / 2));
+		double depth = player->floor_offsets[row - 1];
+		pos[LEFT] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
+		pos[RIGHT] = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
+		dst = (u_int *)app->canvas->data + (row + (WIN_HEIGHT / 2)) * app->canvas->width;
+		draw_floor_row(app, pos, dst);
 	}
-	(void)map;
 }

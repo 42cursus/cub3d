@@ -1,16 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minimap.c                                          :+:      :+:    :+:   */
+/*   hud.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/28 14:44:38 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:19:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/17 16:07:59 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/cub3d.h"
+#include "cub3d.h"
+#include "libft.h"
+
+static inline __attribute__((always_inline))
+void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
+{
+	if (colour == MLX_TRANSPARENT)
+		return ;
+	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
+}
 
 void	load_map_textures(t_info *app, t_img *tiles[])
 {
@@ -28,7 +37,7 @@ void	load_map_textures(t_info *app, t_img *tiles[])
 			  ((i & 4) >> 2) + '0',
 			  ((i & 2) >> 1) + '0',
 			  (i & 1) + '0');
-		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *) buf, &x, &y);
+		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *)buf, &x, &y);
 	}
 }
 
@@ -53,23 +62,73 @@ int	get_tile_index(char **map, int i, int j)
 	return (index);
 }
 
-void	place_tile_on_image(t_img *image, t_img *tile, int x, int y)
+void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 {
-	int	i;
-	int	j;
-	int	colour;
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	u_int32_t	mask;
 
 	i = -1;
 	while (++i < tile->height)
 	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
 		j = -1;
 		while (++j < tile->width)
 		{
-			colour = *(unsigned int *)(tile->data + (i * tile->size_line + j * (tile->bpp / 8)));
-			my_put_pixel_32(image, x + j, y + i, colour);
+			
+			src_pixel = src_row[j];
+			mask = -(src_pixel != MLX_TRANSPARENT);
+			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
 }
+
+// static inline __attribute__((always_inline, unused))
+// int	interpolate_colour(int col1, int col2, double frac)
+// {
+// 	int	r;
+// 	int	g;
+// 	int	b;
+//
+// 	if (col1 == col2)
+// 		return (col1);
+// 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
+// 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
+// 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
+// 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
+// }
+
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
+{
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	// u_int32_t	mask;
+
+	i = -1;
+	while (++i < tile->height)
+	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
+		j = -1;
+		while (++j < tile->width)
+		{
+			
+			src_pixel = src_row[j];
+			// mask = -(src_pixel != MLX_TRANSPARENT);
+			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			if (src_pixel != MLX_TRANSPARENT)
+				dst_row[j] = interpolate_colour(src_pixel, dst_row[j], 0.5);
+		}
+	}
+}
+
 
 t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
@@ -89,11 +148,13 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 			if (app->map->map[app->map->height - i - 1][j] == '0')
 			{
 				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				place_tile_on_image(img, tiles[index], j * 8, i * 8);
+				place_tile_on_image32(img, tiles[index], j * 8, i * 8);
 			}
 			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
+					 app->map->map[app->map->height - i - 1][j] == 'M' ||
+					 app->map->map[app->map->height - i - 1][j] == 'B' ||
 					 app->map->map[app->map->height - i - 1][j] == 'L')
-				place_tile_on_image(img, tiles[15], j * 8, i * 8);
+				place_tile_on_image32(img, tiles[15], j * 8, i * 8);
 
 		}
 	}
@@ -102,23 +163,12 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 void	place_mmap(t_info *app)
 {
-	t_img	*mmap;
-	t_img	*canvas = app->canvas;
-	int	i;
-	int	j;
-	int	colour;
+	t_img *const	mmap = app->map->minimap;;
+	t_img *const	canvas = app->canvas;
+	const int		dx = WIN_WIDTH - mmap->width;
+	const int		dy = 0;
 
-	i = -1;
-	mmap = app->map->minimap;
-	while (++i < app->map->minimap->height)
-	{
-		j = -1;
-		while (++j < app->map->minimap->width)
-		{
-			colour = *(unsigned int *)(mmap->data + (i * mmap->size_line + j * (mmap->bpp / 8)));
-			my_put_pixel_32(canvas, j + (WIN_WIDTH - mmap->width), i, colour);
-		}
-	}
+	place_tile_on_image32_alpha(canvas, mmap, dx, dy);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
@@ -203,28 +253,33 @@ void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
 
 void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 {
-	t_img	*canvas = app->canvas;
+	t_img *const	canvas = app->canvas;
+	t_img *const	alphabet = app->shtex->alphabet;
 	int		i;
 	int		j;
 	int		start_x;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	u_int32_t	mask;
+	const int char_width = 8;
 
-	if (!ft_isprint(c))
+	if (!ft_isprint(c) || scalar < 1)
 		return ;
-	if (scalar < 1)
-		return ;
-	// c = ft_tolower(c);
-	// if (ft_isalpha(c))
-	start_x = (c - ' ') * 8;
-	// else
-	// 	start_x = (c - '0') * 8 + 208;
+	start_x = (c - ' ') * char_width;
+
 	i = -1;
-	while (++i < 8 * scalar)
+	while (++i < char_width * scalar)
 	{
+		src_row = (u_int32_t *)alphabet->data + ((i / scalar) * alphabet->width) + start_x;
+		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
 		j = -1;
-		while (++j < 8 * scalar)
-			my_put_pixel_32(canvas, pos.x + j, pos.y + i,
-							app->shtex->alphabet.img[i / scalar][(j / scalar) +
-																 start_x]);
+		while (++j < char_width * scalar)
+		{
+			src_pixel = src_row[j / scalar];
+			mask = -(src_pixel != MLX_TRANSPARENT);
+			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+		}
 	}
 }
 
@@ -239,16 +294,13 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	pos_y = pos.y;
 	while (str[i])
 	{
-		// if (ft_isalnum(str[i]))
 		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		if (str[i] == '\n')
+		if (str[i++] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = pos.x;
-			i++;
 			continue ;
 		}
-		i++;
 		pos_x += 8 * scalar;
 	}
 }
@@ -261,23 +313,21 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	int	start_x;
 	int	width;
 
-	i = 0;
-	width = ft_strlen(str) * 8 * scalar;
+
+	width = (int)ft_strlen(str) * 8 * scalar;
 	start_x = pos.x - width / 2;
 	pos_x = start_x;
 	pos_y = pos.y;
+	i = 0;
 	while (str[i])
 	{
-		// if (ft_isalnum(str[i]))
 		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
-		if (str[i] == '\n')
+		if (str[i++] == '\n')
 		{
 			pos_y += 8 * scalar;
 			pos_x = start_x;
-			i++;
 			continue ;
 		}
-		i++;
 		pos_x += 8 * scalar;
 	}
 }
@@ -308,7 +358,7 @@ void	place_weapon(t_info *app)
 
 	if (app->player->hud.active == 1)
 	{
-		if (app->framecount - app->player->hud.framestart < 6 * FR_SCALE)
+		if ((app->last_frame - app->player->hud.timestart) / 20000 < 6)
 			tex = &app->shtex->cannon_tex[1];
 		else
 		{
@@ -363,6 +413,7 @@ void	place_energy(t_info *app, t_player *player)
 void	place_ammo(t_info *app, t_player *player)
 {
 	char		buf[4];
+	t_texarr	*tex;
 	
 	buf[3] = 0;
 	if (player->max_ammo[MISSILE] != 0)
@@ -371,10 +422,8 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[1] = (player->ammo[MISSILE] / 10) % 10 + '0';
 		buf[2] = player->ammo[MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
-		if (player->equipped == MISSILE)
-			place_texarr(app, &app->shtex->missile_tex[3], 160, 16);
-		else
-			place_texarr(app, &app->shtex->missile_tex[2], 160, 16);
+		tex = &app->shtex->missile_tex[2 + (player->equipped == MISSILE)];
+		place_texarr(app, tex, 160, 16);
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
@@ -382,10 +431,8 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[1] = player->ammo[SUPER] % 10 + '0';
 		buf[2] = 0;
 		place_str(buf, app, (t_ivect){224, 48}, 2);
-		if (player->equipped == SUPER)
-			place_texarr(app, &app->shtex->super_tex[3], 224, 16);
-		else
-			place_texarr(app, &app->shtex->super_tex[2], 224, 16);
+		tex = &app->shtex->super_tex[2 + (player->equipped == SUPER)];
+		place_texarr(app, tex, 224, 16);
 	}
 }
 
@@ -408,16 +455,108 @@ void	place_fps(t_info *app)
 	}
 }
 
-void	draw_mmap(t_info *app)
+void	place_scope(t_info *app)
+{
+	t_texarr *scope;
+
+	scope = &app->shtex->scope;
+	place_texarr(app, scope, WIN_WIDTH / 2 - scope->x / 2, WIN_HEIGHT / 2 - scope->y / 2);
+}
+
+void	place_dmg(t_info *app, t_player *player)
+{
+	t_texarr	*tex;
+	double		angle;
+	int			dir;
+	t_vect		offset;
+	t_ivect		coords;
+
+	angle = vector_angle(player->dir, player->dmg_dir);
+	dir = (int)((angle + M_PI_4 / 2) / M_PI_4 + 8) % 8;
+	tex = &app->shtex->dmg_tex[dir];
+	// if (dir % 4 == 0)
+	// 	x = WIN_WIDTH - tex->x / 2;
+	// else if (dir )
+	offset = scale_vect((t_vect){0, -1}, WIN_HEIGHT / 4.0);
+	offset = rotate_vect(offset, (-dir) * M_PI_4);
+	coords = (t_ivect){offset.x, offset.y};
+	coords.x -= (tex->x / 2);
+	coords.y -= (tex->y / 2);
+	coords.x += WIN_WIDTH / 2;
+	coords.y += WIN_HEIGHT / 2;
+	// printf("dmg_dir: %d offset: (%d, %d)\n", player->dmg_dir, coords.x, coords.y);
+	place_texarr(app, tex, coords.x, coords.y);
+}
+
+void	place_boss_health(t_info *app)
+{
+	int	start_x;
+	int	start_y;
+	int	end_x;
+	int	i;
+	int	j;
+
+	start_y = WIN_HEIGHT * 0.95;
+	start_x = WIN_WIDTH / 4;
+	end_x = start_x + ((WIN_WIDTH / 2) * (app->map->boss_obj->health / 500.0));
+
+	u_int (*const pixels_bg)[app->canvas->height][app->canvas->width] = (void *)app->canvas->data;
+	i = start_y - 1;
+	while (++i < start_y + 14)
+	{
+		j = start_x - 1;
+		while (++j <= end_x)
+			(*pixels_bg)[i][j] = 0xff0000;
+	}
+	place_texarr(app, &app->shtex->boss_bar[0], start_x - 16, start_y - 1);
+	place_texarr(app, &app->shtex->boss_bar[1], start_x + (WIN_WIDTH / 2), start_y - 1);
+	place_str((char *)"Phantoon", app, (t_ivect){start_x, start_y - 24}, 2);
+}
+
+void	format_time(char *buf, int len, size_t time)
+{
+	int	minutes;
+	int	seconds;
+	int	ms;
+
+	minutes = time / (60000);
+	time = time % 60000;
+	seconds = time / 1000;
+	ms = time % 1000;
+	ft_snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
+}
+
+void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
+{
+	char	buf[50];
+
+	format_time(buf, 50, time);
+	place_str(buf, app, pos, scalar);
+}
+
+void	draw_hud(t_info *app)
 {
 	place_mmap(app);
-	place_weapon(app);
+	if (!app->ads)
+	{
+		place_weapon(app);
+		mlx_put_image_to_window(app->mlx, app->root,
+								app->shtex->playertile,
+								WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	}
+	else
+		place_scope(app);
 	place_energy(app, app->player);
 	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)
+	if (app->map->boss_active)
+		place_boss_health(app);
 	place_fps(app);
+	if (app->timer.active == 1)
+		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
+	if (app->last_frame - app->player->dmg_time < 500000)
+		place_dmg(app, app->player);
 	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
 						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
-	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 }

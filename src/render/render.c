@@ -6,25 +6,14 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/27 17:21:13 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:57:55 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/17 17:55:28 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/cub3d.h"
+#include "cub3d.h"
 #include <stdio.h>
+#include <sys/types.h>
 
-void	print_pixel_arr(int width, int height, unsigned int **arr);
-
-inline __attribute__((always_inline))
-void	my_put_pixel(t_img *img, int x, int y, int colour)
-{
-	char	*pixel;
-
-	if (colour == MLX_TRANSPARENT)
-		return ;
-	pixel = img->data + (y * img->size_line + x * (img->bpp / 8));
-	*(unsigned int *)pixel = colour;
-}
 /**
  * we assume that image bits_per_pixel is 32 bit
  * @param img
@@ -32,13 +21,6 @@ void	my_put_pixel(t_img *img, int x, int y, int colour)
  * @param y
  * @param colour
  */
-inline __attribute__((always_inline))
-void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
-{
-	if (colour == MLX_TRANSPARENT)
-		return ;
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
-}
 
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
@@ -69,23 +51,26 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	return (scaled);
 }
 
-void replace_bg(t_info *app, char *tex_file)
+void replace_image(t_info *app, t_img **img, char *tex_file)
 {
-	t_img *bg;
+	t_img *new;
 	t_img tmp;
 
-	if (app->bg != NULL)
-		mlx_destroy_image(app->mlx, app->bg);
+	if (*img != NULL)
+		mlx_destroy_image(app->mlx, *img);
 	if (tex_file)
 	{
-		bg = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
-		if (!bg)
-			exit(((void)ft_printf("Error opening file: \"%s\"\n", tex_file), cleanup(app), EXIT_FAILURE));
-		bg = scale_image(app, bg, WIN_WIDTH, WIN_HEIGHT);
+		new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+		if (!new)
+		{
+			ft_printf("Error opening file: \"%s\"\n", tex_file);
+			exit((cleanup(app), EXIT_FAILURE));
+		}
+		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
-		bg = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
-	app->bg = bg;
+		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	*img = new;
 }
 
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
@@ -98,7 +83,7 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 
 	texture = mlx_xpm_file_to_image(app->mlx, (char *) filename, &tmp.width, &tmp.height);
 	if (!texture)
-		exit(((void) printf(" !! KO !!\n"), cleanup(app)));
+		return (NULL);
 	u_int (*const pixels)[texture->height][texture->width] = (void *)texture->data;
 	*x = texture->width;
 	*y = texture->height;
@@ -117,105 +102,26 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 	return (arr);
 }
 
-void	print_pixel_arr(int width, int height, unsigned int **arr)
-{
-	int	i;
-	int	j;
-
-	i = -1;
-	while (++i < height)
-	{
-		j = -1;
-		while (++j < width)
-			printf("%x\t", arr[i][j]);
-	}
-}
-
-t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
-{
-	size_t		frames;
-	t_texarr	*tex;
-
-	frames = (app->framecount - anim->framestart) / FR_SCALE;
-	if (frames > 19)
-	{
-		anim->active = 0;
-		tex = &app->shtex->door_tex[1];
-		anim->tex_arr = app->shtex->door_tex;
-	}
-	else
-		tex = &anim->tex_arr[2 + (frames / 4)];
-	return (tex);
-}
-
-t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
-{
-	size_t		frames;
-	t_texarr	*tex;
-
-	frames = (app->framecount - anim->framestart) / FR_SCALE;
-	if (frames > 19)
-	{
-		anim->active = 0;
-		tex = &app->shtex->door_tex[0];
-	}
-	else
-		tex = &app->shtex->door_tex[2 + (4 - (frames / 4))];
-	return (tex);
-}
-
-void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
-{
-	int					pos;
-	const t_texarr		*texture =  ray->texture;
-	t_anim				*anim;
-	int					y;
-	int					top;
-	int					h_index;
-	int					lineheight;
-
-	pos = ray->pos;
-	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
-	{
-		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			texture = get_close_door_tex(anim, app);
-	}
-	else if (ray->face >= DOOR_N_OPEN)
-	{
-		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			texture = get_open_door_tex(anim, app);
-	}
-	lineheight = (int)(WIN_HEIGHT / (ray->distance * 1.6));
-	top = WIN_HEIGHT / 2 - lineheight / 2 + app->player->vert_offset;
-	if (top < 0)
-		y = 0 - top;
-	else
-		y = 0;
-	while (y < lineheight && y + top < WIN_HEIGHT)
-	{
-		h_index = ((double)y / lineheight) * texture->y;
-		my_put_pixel_32(canvas, x, top + y, texture->img[h_index][pos]);
-		y++;
-	}
-	if (ray->in_front != NULL)
-	{
-		draw_slice(x, ray->in_front, app, canvas);
-		if (x != WIN_WIDTH / 2)
-			free(ray->in_front);
-	}
-}
-
-void	draw_rays(t_info *app, t_img *canvas)
-{
-	t_player	*player;
-	t_ray		*rays;
-	int			i;
-
-	player = app->player;
-	rays = player->rays;
-	i = -1;
-	while (++i < WIN_WIDTH)
-		draw_slice(i, &rays[i], app, canvas);
-}
+// int	bilinear_filter(double x, double y, const t_texarr *tex)
+// {
+// 	int		x_lower;
+// 	int		x_upper;
+// 	int		y_lower;
+// 	int		y_upper;
+// 	double	frac_x;
+// 	double	frac_y;
+//
+// 	x_lower = (int)x;
+// 	y_lower = (int)y;
+// 	x_upper = x_lower + 1;
+// 	y_upper = y_lower + 1;
+// 	frac_x = fmod(x, 1);
+// 	frac_y = fmod(y, 1);
+// 	if (x_upper == tex->x)
+// 		x_upper = 0;
+// 	if (y_upper == tex->y)
+// 		return (interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
+// 	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
+// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
+// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
+// }

@@ -1,0 +1,21 @@
+42 cub3D
+for X11 window system
+
+created by students of 42 London 
+Fintan Smyth
+and
+Andrei Belov
+
+inspired by:
+Super Metroid (developed by Nintendo R&D1)
+
+in collaboration with:
+Charlie Root (author of minilibx)
+
+thanks to:
+
+Alonso Garrigues Munoz
+for help with fixed point math
+
+Margarita Gancheva
+for help with full screen mode

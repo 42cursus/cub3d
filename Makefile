@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/04/10 22:57:13 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/05/16 18:41:44 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,11 +21,14 @@ CC				:= clang
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-				   -pg \
-				    -D FRAMERATE=50
-				    -fsanitize=address -fsanitize=undefined \
-				     			-fsanitize=float-divide-by-zero \
-				     			-fsanitize=float-cast-overflow
+					-ffast-math \
+					-mprefer-vector-width=256 \
+					-pg \
+					# -fsanitize=address \
+					# -fsanitize=undefined \
+					# -fsanitize=float-divide-by-zero \
+					# -fsanitize=float-cast-overflow \
+					# -D FRAMERATE=60
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
@@ -37,13 +40,13 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-lmlx -lft -lX11 -lXext -lm \
- 					 -fsanitize=address -fsanitize=undefined \
- 					   			-fsanitize=float-divide-by-zero \
- 					   			-fsanitize=float-cast-overflow
+					# -fsanitize=address -fsanitize=undefined \
+					# 		-fsanitize=float-divide-by-zero \
+					# 		-fsanitize=float-cast-overflow
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app player render
+SUB_DIRS		= parser utils app player render rays entities animations
 CUB_SRCS		:=
 
 ifndef VERBOSE
