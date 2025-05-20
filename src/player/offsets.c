@@ -14,38 +14,36 @@
 
 void	calculate_offsets(t_info *app, t_player *player)
 {
-	int				i;
-	double		offset;
-	double		angle;
-	double		distance;
-	double		scalar;
+	t_ivect			iter;
+	const double	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
+	double			angle;
+	double			distance;
+	double			scalar;
 
-	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
-	i = 0;
-	while (i < WIN_WIDTH / 2)
+	iter.x = 0;
+	while (iter.x < WIN_WIDTH / 2)
 	{
-		angle = atan(app->fov_opp_len - (i * offset));
-		// angle = M_PI_4 * (halfwidth - i) * offset;
-		player->angle_offsets[i] = angle;
-		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
-		i++;
+		angle = atan(app->fov_opp_len - (iter.x * offset));
+		player->angle_offsets[iter.x] = angle;
+		player->angle_offsets[WIN_WIDTH - iter.x - 1] = -angle;
+		iter.x++;
 	}
 	scalar = get_hyp_len(app->fov_opp_len, 1);
-	i = 0;
-	int j = WIN_HEIGHT / 2;
-	while (i < WIN_HEIGHT / 2)
+	iter.x = 0;
+	iter.y = WIN_HEIGHT / 2;
+	while (iter.x < WIN_HEIGHT / 2)
 	{
-		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
-		player->floor_offsets[i++] = distance * scalar;
-		player->ceil_offsets[--j] = distance * scalar;
+		distance = WIN_WIDTH / (4.0 * (iter.x + 1) * app->fov_opp_len);
+		player->floor_offsets[iter.x++] = distance * scalar;
+		player->ceil_offsets[--iter.y] = distance * scalar;
 	}
 }
 
 void	calculate_credits_offset(t_info *app, t_dummy *dummy)
 {
-	int				i;
-	double		distance;
-	double		scalar;
+	int		i;
+	double	distance;
+	double	scalar;
 
 	scalar = get_hyp_len(app->fov_opp_len, 1);
 	i = 0;

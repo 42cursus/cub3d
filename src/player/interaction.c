@@ -12,12 +12,15 @@
 
 #include "cub3d.h"
 
-void	rotate_player(t_info *app, t_player *player, int direction, double sensitivity)
+void	rotate_player(t_info *app, t_player *player,
+			int direction, double sensitivity)
 {
 	if (direction == 0)
-		rotate_vect_inplace(&player->dir, M_PI_4 / (sensitivity * app->fr_scale));
+		rotate_vect_inplace(&player->dir,
+			M_PI_4 / (sensitivity * app->fr_scale));
 	else
-		rotate_vect_inplace(&player->dir, -M_PI_4 / (sensitivity * app->fr_scale));
+		rotate_vect_inplace(&player->dir,
+			-M_PI_4 / (sensitivity * app->fr_scale));
 	app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
 	if (app->map->outside)
 		draw_sky_alt(app);

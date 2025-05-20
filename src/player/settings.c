@@ -41,5 +41,4 @@ void	set_framerate(t_info *app, size_t framerate)
 	app->framerate = framerate;
 	app->fr_delay = 1000000 / framerate;
 	app->fr_scale = framerate / 50.0;
-	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
 }

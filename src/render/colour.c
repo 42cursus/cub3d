@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 15:56:42 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/17 16:05:53 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/20 19:39:18 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,3 +46,30 @@ int	interpolate_colour(int col1, int col2, double frac)
 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 }
+
+// int	bilinear_filter(double x, double y, const t_texarr *tex)
+// {
+// 	int		x_lower;
+// 	int		x_upper;
+// 	int		y_lower;
+// 	int		y_upper;
+// 	double	frac_x;
+// 	double	frac_y;
+//
+// 	x_lower = (int)x;
+// 	y_lower = (int)y;
+// 	x_upper = x_lower + 1;
+// 	y_upper = y_lower + 1;
+// 	frac_x = fmod(x, 1);
+// 	frac_y = fmod(y, 1);
+// 	if (x_upper == tex->x)
+// 		x_upper = 0;
+// 	if (y_upper == tex->y)
+// 		return (interpolate_colour(tex->img[y_lower][x_lower],
+// 		tex->img[y_lower][x_upper], frac_x));
+// 	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower],
+// 		tex->img[y_lower][x_upper], frac_x);
+// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower],
+// 		tex->img[y_upper][x_upper], frac_x);
+// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
+// }

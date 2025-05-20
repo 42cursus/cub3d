@@ -96,6 +96,13 @@ typedef struct s_cvect
 	char	y;
 }	t_cvect;
 
+typedef struct s_cvect3
+{
+	char	x;
+	char	y;
+	char	z;
+}	t_cvect3;
+
 typedef struct s_enemypos
 {
 	int		type;

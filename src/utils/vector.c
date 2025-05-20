@@ -120,6 +120,17 @@ double vector_angle(t_vect v1, t_vect v2)
 	return atan2(det, dot);
 }
 
+/**
+ * getting hypotenuse length - Pythagoras' theorem
+ * @param len1
+ * @param len2
+ * @return
+ */
+double	get_hyp_len(double len1, double len2)
+{
+	return (sqrt(len1 * len1 + len2 * len2));
+}
+
 #include <immintrin.h>
 #include <stdint.h>
 
@@ -184,4 +195,3 @@ void *fast_memcpy_test(int *dst, const int *src, size_t size)
 		ft_memcpy(dst, src, size);
 	return (dst);
 }
-

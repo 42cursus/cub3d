@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/04/08 23:02:36 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/20 18:58:53 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,8 +206,6 @@ int	collect_map(t_list	*file, t_data *data)
 	if (current->next == NULL)
 		return (ft_list_destroy(&(current->next), NULL), 0);
 	ft_list_reverse(&current->next);
-	// print_list(current->next);
-	// exit(0);
 	data->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
@@ -280,8 +278,6 @@ int	check_start_pos(t_data *data , size_t i, size_t j, int *start_found)
 		(data->map)[i][j] = '0';
 		*start_found = 1;
 	}
-	// else if (ft_strchr("mestZP", tile))
-	// 	(data->map)[i][j] = '0';
 	return (1);
 }
 
@@ -988,6 +984,24 @@ void	refresh_map(t_info *app, t_data *map)
 	remove_drops(map);
 	reset_doors(map);
 	reset_anims(app, map);
+}
+
+int	count_collectables(t_data *map)
+{
+	t_list		*current;
+	t_object	*cur_obj;
+	int			count;
+
+	current = map->items;
+	count = 0;
+	while (current != NULL)
+	{
+		cur_obj = current->content;
+		if (cur_obj->subtype >= I_ETANK && cur_obj->subtype <= I_MISSILE)
+			count++;
+		current = current->next;
+	}
+	return (count);
 }
 
 int	parse_cub(t_info *app, char *filename)
