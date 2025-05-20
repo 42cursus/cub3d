@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 16:30:01 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 16:36:12 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:25:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,5 +64,29 @@ void	handle_tele(t_info *app, t_object *tele)
 		app->rc = extra;
 		app->mlx->end_loop = 1;
 		app->player->tele_pos = tele->pos;
+	}
+}
+
+void	toggle_boss_doors(t_info *app)
+{
+	t_anim	**anims;
+	char	**map;
+	int		i;
+	int		j;
+
+	anims = app->map->anims;
+	map = app->map->map;
+	i = -1;
+	while (++i < app->map->height)
+	{
+		j = -1;
+		while (++j < app->map->width)
+		{
+			if (map[i][j] == 'B')
+			{
+				anims[i][j].active = 1;
+				anims[i][j].timestart = app->last_frame;
+			}
+		}
 	}
 }

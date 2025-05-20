@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 16:18:58 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 18:17:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:41:42 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			subtract_health(app, app->player, 80);
 			damage_enemy(app, obj, 100);
 		}
-		move_entity(app, &app->player->pos, app->map,
+		move_entity(&app->player->pos, app->map,
 			scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
 		app->player->dmg_dir = (subtract_vect(obj->pos, app->player->pos));
 	}

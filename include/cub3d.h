@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/17 17:20:16 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/20 18:17:04 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -444,7 +444,7 @@ void	load_shtex(t_info *app);
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_data *map);
-void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);

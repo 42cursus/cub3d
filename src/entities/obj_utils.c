@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   obj_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 18:23:30 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 18:28:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:41:29 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 	while (no-- > 0)
 	{
 		pos = obj->pos;
-		move_entity(app, &pos, app->map,
+		move_entity(&pos, app->map,
 			(t_vect){rand_range(-0.5, 0.5), rand_range(-0.5, 0.5)});
 		seed = rand_range(0.0, 1.0);
 		if (seed < 0.2 && player->ammo[SUPER] != player->max_ammo[SUPER])

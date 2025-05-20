@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/15 13:43:16 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:40:40 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -409,7 +409,7 @@ void	do_play_to_load(void *param)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	app->framecount = 0;
 	app->map->starting_pos = app->player->tele_pos;
-	move_entity(app, &app->map->starting_pos, app->map, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
+	move_entity(&app->map->starting_pos, app->map, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
 	// app->map->starting_pos = add_vect(app->player->pos, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
 	// app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
 	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);

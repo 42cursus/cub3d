@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/17 17:54:25 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:42:06 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ double	rand_range(double lower, double upper)
 	return (output);
 }
 
-void fill_with_colour(t_img *img, int f_col, int c_col)
+void	fill_with_colour(t_img *img, int f_col, int c_col)
 {
 	const int	mid = img->height / 2;
 	int			i;
@@ -54,7 +54,7 @@ void fill_with_colour(t_img *img, int f_col, int c_col)
 
 int	render_win(void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 	size_t			time;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
@@ -97,7 +97,7 @@ int	render_lose(void *param)
 int	render_load(void *param)
 {
 	size_t				time;
-	t_info *const app = param;
+	t_info *const		app = param;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
@@ -148,29 +148,28 @@ int	render_load(void *param)
 int	render_play(void *param)
 {
 	size_t				time;
-	t_info *const app = param;
+	t_info *const		app = param;
 
 	// if (app->keys[idx_XK_e])
 	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	 // if (app->mouse[1])
-	 // 	spawn_projectile(app, app->player, app->map);
+	// if (app->mouse[1])
+	// 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_entity(app, &app->player->pos, app->map, scale_vect(app->player->dir, 0.1 / app->fr_scale));
+		move_entity(&app->player->pos, app->map, scale_vect(app->player->dir, 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_s])
-		move_entity(app, &app->player->pos, app->map,
+		move_entity(&app->player->pos, app->map,
 					scale_vect(rotate_vect(app->player->dir, M_PI), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_a])
-		move_entity(app, &app->player->pos, app->map,
+		move_entity(&app->player->pos, app->map,
 					scale_vect(rotate_vect(app->player->dir, M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_d])
-		move_entity(app, &app->player->pos, app->map,
+		move_entity(&app->player->pos, app->map,
 					scale_vect(rotate_vect(app->player->dir, -M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 0, 12);
-
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
@@ -189,7 +188,7 @@ int	render_play(void *param)
 int	render_mmenu(void *param)
 {
 	size_t				time;
-	t_info *const app = param;
+	t_info *const		app = param;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 
@@ -206,10 +205,10 @@ int	render_mmenu(void *param)
 	return (0);
 }
 
-int render_pmenu(void *param)
+int	render_pmenu(void *param)
 {
 	size_t				time;
-	t_info *const app = param;
+	t_info *const		app = param;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
