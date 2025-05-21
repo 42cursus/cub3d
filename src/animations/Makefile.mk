@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/05/21 15:23:25 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/05/21 15:51:38 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,5 +19,6 @@ FILES   = animations.c \
 		  load_tex/load_hud_tex.c \
 		  load_tex/load_pickup_tex.c \
 		  load_tex/load_explode_tex.c \
+		  load_tex/free_shtex.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
