@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/20 18:17:04 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/21 13:03:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -583,6 +583,8 @@ t_object	*check_obj_proximity(t_vect pos, t_data *map);
 int	point_oob_global(t_vect pos, t_data *map);
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
 t_texarr	*handle_animation(t_info *app, t_anim anim);
+void	init_anims(t_info *app, t_data *map);
+void	reset_anims(t_info *app, t_data *map);
 int	count_collectables(t_data *map);
 int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
 int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);

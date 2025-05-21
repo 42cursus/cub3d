@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/20 18:58:53 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/21 13:01:21 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ int	str_cmp_whitespace(void *data, void *ref)
 	char	*line;
 	int		i;
 
-	(void)ref;
 	line = (char *)data;
 	i = 0;
 	while (line[i])
@@ -88,6 +87,7 @@ int	str_cmp_whitespace(void *data, void *ref)
 			return (1);
 	}
 	return (0);
+	(void)ref;
 }
 
 t_list	*read_cub(int cubfd)
@@ -534,303 +534,6 @@ t_anim	**create_anim_arr(int x, int y)
 	return (arr);
 }
 
-
-void	load_missile_textures(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 8)
-	{
-		ft_snprintf(buf, 50, "./textures/missile%c.xpm", i + '0');
-		app->shtex->missile_tex[i + 4].img = img_to_arr(buf, app, &app->shtex->missile_tex[i + 4].x, &app->shtex->missile_tex[i + 4].y);
-		i++;
-	}
-	app->shtex->missile_tex[0].img = img_to_arr((char *)"./textures/missile_pu0.xpm", app, &app->shtex->missile_tex[0].x, &app->shtex->missile_tex[0].y);
-	app->shtex->missile_tex[1].img = img_to_arr((char *)"./textures/missile_pu1.xpm", app, &app->shtex->missile_tex[1].x, &app->shtex->missile_tex[1].y);
-	app->shtex->missile_tex[2].img = img_to_arr((char *)"./textures/missile_off.xpm", app, &app->shtex->missile_tex[2].x, &app->shtex->missile_tex[2].y);
-	app->shtex->missile_tex[3].img = img_to_arr((char *)"./textures/missile_on.xpm", app, &app->shtex->missile_tex[3].x, &app->shtex->missile_tex[3].y);
-}
-void	load_super_textures(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 8)
-	{
-		ft_snprintf(buf, 50, "./textures/super%c.xpm", i + '0');
-		app->shtex->super_tex[i + 4].img = img_to_arr(buf, app, &app->shtex->super_tex[i + 4].x, &app->shtex->super_tex[i + 4].y);
-		i++;
-	}
-	app->shtex->super_tex[0].img = img_to_arr((char *)"./textures/super_missile_pu1.xpm", app, &app->shtex->super_tex[0].x, &app->shtex->super_tex[0].y);
-	app->shtex->super_tex[1].img = img_to_arr((char *)"./textures/super_missile_pu0.xpm", app, &app->shtex->super_tex[1].x, &app->shtex->super_tex[1].y);
-	app->shtex->super_tex[2].img = img_to_arr((char *)"./textures/super_missile_off.xpm", app, &app->shtex->super_tex[2].x, &app->shtex->super_tex[2].y);
-	app->shtex->super_tex[3].img = img_to_arr((char *)"./textures/super_missile_on.xpm", app, &app->shtex->super_tex[3].x, &app->shtex->super_tex[3].y);
-}
-
-void	load_energy_textures(t_info *app)
-{
-	// int		i;
-	// char	buf[50];
-	//
-	// i = 0;
-	// while (i < 10)
-	// {
-	// 	ft_snprintf(buf, 50, "./textures/energy_%c.xpm", i + '0');
-	// 	map->energy_tex[i].img = img_to_arr(buf, app, &map->energy_tex[i].x, &map->energy_tex[i].y);
-	// 	i++;
-	// }
-	app->shtex->energy_tex[0].img = img_to_arr((char *)"./textures/energy.xpm", app, &app->shtex->energy_tex[0].x, &app->shtex->energy_tex[0].y);
-	app->shtex->energy_tex[1].img = img_to_arr((char *)"./textures/energy_bu_full.xpm", app, &app->shtex->energy_tex[1].x, &app->shtex->energy_tex[1].y);
-	app->shtex->energy_tex[2].img = img_to_arr((char *)"./textures/energy_bu_empty.xpm", app, &app->shtex->energy_tex[2].x, &app->shtex->energy_tex[2].y);
-}
-
-void	load_super_door_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 5)
-	{
-		ft_snprintf(buf, 50, "./textures/metroid_door_super_anim%c.xpm", i + 1 + '0');
-		app->shtex->door_super_tex[i + 2].img = img_to_arr(buf, app, &app->shtex->door_super_tex[i + 2].x, &app->shtex->door_super_tex[i + 2].y);
-		i++;
-	}
-		app->shtex->door_super_tex[0].img = img_to_arr((char *)"./textures/metroid_door_super.xpm", app, &app->shtex->door_super_tex[0].x, &app->shtex->door_super_tex[0].y);
-		app->shtex->door_super_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_super_tex[1].x, &app->shtex->door_super_tex[1].y);
-}
-
-void	load_missile_door_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 5)
-	{
-		ft_snprintf(buf, 50, "./textures/metroid_door_missile_anim%c.xpm", i + 1 + '0');
-		app->shtex->door_missile_tex[i + 2].img = img_to_arr(buf, app, &app->shtex->door_missile_tex[i + 2].x, &app->shtex->door_missile_tex[i + 2].y);
-		i++;
-	}
-		app->shtex->door_missile_tex[0].img = img_to_arr((char *)"./textures/metroid_door_missile.xpm", app, &app->shtex->door_missile_tex[0].x, &app->shtex->door_missile_tex[0].y);
-		app->shtex->door_missile_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_missile_tex[1].x, &app->shtex->door_missile_tex[1].y);
-}
-
-void	load_boss_door_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 5)
-	{
-		ft_snprintf(buf, 50, "./textures/metroid_door_boss_anim%c.xpm", i + 1 + '0');
-		app->shtex->door_boss_tex[i + 2].img = img_to_arr(buf, app, &app->shtex->door_boss_tex[i + 2].x, &app->shtex->door_boss_tex[i + 2].y);
-		i++;
-	}
-		app->shtex->door_boss_tex[0].img = img_to_arr((char *)"./textures/metroid_door_boss.xpm", app, &app->shtex->door_boss_tex[0].x, &app->shtex->door_boss_tex[0].y);
-		app->shtex->door_boss_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_boss_tex[1].x, &app->shtex->door_boss_tex[1].y);
-}
-
-void	load_health_pu_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 4)
-	{
-		ft_snprintf(buf, 50, "./textures/health_pu%c.xpm", i + '0');
-		app->shtex->health_pu[i].img = img_to_arr(buf, app, &app->shtex->health_pu[i].x, &app->shtex->health_pu[i].y);
-		i++;
-	}
-}
-
-void	load_atomic_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 6)
-	{
-		ft_snprintf(buf, 50, "./textures/atomic%c.xpm", i + '0');
-		app->shtex->atomic_tex[i].img = img_to_arr(buf, app, &app->shtex->atomic_tex[i].x, &app->shtex->atomic_tex[i].y);
-		i++;
-	}
-}
-
-void	load_dmg_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 8)
-	{
-		ft_snprintf(buf, 50, "./textures/dmg%c.xpm", i + '0');
-		app->shtex->dmg_tex[i].img = img_to_arr(buf, app, &app->shtex->dmg_tex[i].x, &app->shtex->dmg_tex[i].y);
-		i++;
-	}
-}
-
-void	load_proj_green_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 4)
-	{
-		ft_snprintf(buf, 50, "./textures/proj_green%c.xpm", i + '0');
-		app->shtex->proj_green_tex[i].img = img_to_arr(buf, app, &app->shtex->proj_green_tex[i].x, &app->shtex->proj_green_tex[i].y);
-		i++;
-	}
-}
-
-void	load_holtz_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 4)
-	{
-		ft_snprintf(buf, 50, "./textures/holtz%c.xpm", i + '0');
-		app->shtex->holtz_tex[i].img = img_to_arr(buf, app, &app->shtex->holtz_tex[i].x, &app->shtex->holtz_tex[i].y);
-		i++;
-	}
-	app->shtex->holtz_tex[4].img = img_to_arr((char *)"./textures/holtz2.xpm", app, &app->shtex->holtz_tex[4].x, &app->shtex->holtz_tex[4].y);
-	app->shtex->holtz_tex[5].img = img_to_arr((char *)"./textures/holtz1.xpm", app, &app->shtex->holtz_tex[5].x, &app->shtex->holtz_tex[5].y);
-}
-
-void	load_reo_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 2)
-	{
-		ft_snprintf(buf, 50, "./textures/reo_%c.xpm", i + '0');
-		app->shtex->reo_tex[i].img = img_to_arr(buf, app, &app->shtex->reo_tex[i].x, &app->shtex->reo_tex[i].y);
-		i++;
-	}
-	while (i < 4)
-	{
-		ft_snprintf(buf, 50, "./textures/reo_attack_%c.xpm", i - 2 + '0');
-		app->shtex->reo_tex[i].img = img_to_arr(buf, app, &app->shtex->reo_tex[i].x, &app->shtex->reo_tex[i].y);
-		i++;
-	}
-}
-
-void	load_explode_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 6)
-	{
-		ft_snprintf(buf, 50, "./textures/explode%c.xpm", i + '0');
-		app->shtex->explode_tex[i].img = img_to_arr(buf, app, &app->shtex->explode_tex[i].x, &app->shtex->explode_tex[i].y);
-		i++;
-	}
-	i = 0;
-	while (i < 6)
-	{
-		ft_snprintf(buf, 50, "./textures/explode_mid%c.xpm", i + '0');
-		app->shtex->explode_tex[i + 6].img = img_to_arr(buf, app, &app->shtex->explode_tex[i + 6].x, &app->shtex->explode_tex[i + 6].y);
-		i++;
-	}
-	i = 0;
-	while (i < 5)
-	{
-		ft_snprintf(buf, 50, "./textures/explode_miss_big%c.xpm", i + '0');
-		app->shtex->explode_tex[i + 12].img = img_to_arr(buf, app, &app->shtex->explode_tex[i + 12].x, &app->shtex->explode_tex[i + 12].y);
-		i++;
-	}
-}
-
-void	load_phantoon_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 3)
-	{
-		ft_snprintf(buf, 50, "./textures/phantoon%c.xpm", i + '0');
-		app->shtex->phantoon[i].img = img_to_arr(buf, app, &app->shtex->phantoon[i].x, &app->shtex->phantoon[i].y);
-		i++;
-	}
-	app->shtex->phantoon[3].img = img_to_arr((char *)"./textures/phantoon1.xpm", app, &app->shtex->phantoon[3].x, &app->shtex->phantoon[3].y);
-	app->shtex->phantoon[4].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[4].x, &app->shtex->phantoon[4].y);
-	app->shtex->phantoon[5].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[5].x, &app->shtex->phantoon[5].y);
-	app->shtex->phantoon[6].img = img_to_arr((char *)"./textures/phantoon3.xpm", app, &app->shtex->phantoon[6].x, &app->shtex->phantoon[6].y);
-	app->shtex->phantoon[7].img = img_to_arr((char *)"./textures/phantoon4.xpm", app, &app->shtex->phantoon[7].x, &app->shtex->phantoon[7].y);
-	app->shtex->phantoon[8].img = img_to_arr((char *)"./textures/phantoon3.xpm", app, &app->shtex->phantoon[8].x, &app->shtex->phantoon[8].y);
-	app->shtex->phantoon[9].img = img_to_arr((char *)"./textures/phantoon0.xpm", app, &app->shtex->phantoon[9].x, &app->shtex->phantoon[9].y);
-	i = 0;
-	while (i < 6)
-	{
-		ft_snprintf(buf, 50, "./textures/phantoon_eye%c.xpm", i + '0');
-		app->shtex->phantoon_proj[i].img = img_to_arr(buf, app, &app->shtex->phantoon_proj[i].x, &app->shtex->phantoon_proj[i].y);
-		i++;
-	}
-}
-
-void	load_ammo_tex(t_info *app)
-{
-	int		i;
-	char	buf[50];
-
-	i = 0;
-	while (i < 2)
-	{
-		ft_snprintf(buf, 50, "./textures/missile_ammo%c.xpm", i + '0');
-		app->shtex->missile_ammo[i].img = img_to_arr(buf, app, &app->shtex->missile_ammo[i].x, &app->shtex->missile_ammo[i].y);
-		i++;
-	}
-	i = 0;
-	while (i < 2)
-	{
-		ft_snprintf(buf, 50, "./textures/super_ammo%c.xpm", i + '0');
-		app->shtex->super_ammo[i].img = img_to_arr(buf, app, &app->shtex->super_ammo[i].x, &app->shtex->super_ammo[i].y);
-		i++;
-	}
-}
-
-void	init_anims(t_info *app, t_data *map)
-{
-	int		i;
-	int		j;
-	char	tile;
-
-	i = 0;
-	while (i < map->height)
-	{
-		j = 0;
-		while (j < map->width)
-		{
-			tile = map->map[i][j];
-			if (tile == 'D')
-				map->anims[i][j].tex_arr = app->shtex->door_tex;
-			else if (tile == 'L')
-				map->anims[i][j].tex_arr = app->shtex->door_super_tex;
-			else if (tile == 'M')
-				map->anims[i][j].tex_arr = app->shtex->door_missile_tex;
-			else if (tile == 'B')
-				map->anims[i][j].tex_arr = app->shtex->door_boss_tex;
-			j++;
-		}
-		i++;
-	}
-}
-
 t_enemypos	*construct_enemypos(double x, double y, int type)
 {
 	t_enemypos	*new;
@@ -950,16 +653,6 @@ void	remove_drops(t_data *map)
 	}
 }
 
-void	reset_anims(t_info *app, t_data *map)
-{
-	int	i;
-
-	i = -1;
-	while (++i < map->height)
-		ft_bzero(map->anims[i], map->width * sizeof(t_anim));
-	init_anims(app, map);
-}
-
 void	reset_doors(t_data *map)
 {
 	int	i;
@@ -1023,9 +716,6 @@ int	parse_cub(t_info *app, char *filename)
 			printf("Error: map not provided\n"), 1);
 	if (!map_is_valid(data))
 		return (ft_list_destroy(&file, free), 1);
-	// print_list(file);
-	// ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
-	// print_list(file);
 	current = file;
 	while (current != NULL)
 	{
@@ -1047,70 +737,6 @@ int	parse_cub(t_info *app, char *filename)
 	close(fd);
 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	return (0);
-}
-
-void	load_shtex(t_info *app)
-{
-	t_shtex	*shtex;
-	t_img	dummy;
-	int	x;
-	int	y;
-
-	shtex = ft_calloc(1, sizeof(*shtex));
-	app->shtex = shtex;
-	app->shtex->door_tex[0].img = img_to_arr((char *)"./textures/metroid_door3.xpm", app, &app->shtex->door_tex[0].x, &app->shtex->door_tex[0].y);
-	app->shtex->door_tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm", app, &app->shtex->door_tex[1].x, &app->shtex->door_tex[1].y);
-	app->shtex->door_tex[2].img = img_to_arr((char *)"./textures/metroid_door_anim1.xpm", app, &app->shtex->door_tex[2].x, &app->shtex->door_tex[2].y);
-	app->shtex->door_tex[3].img = img_to_arr((char *)"./textures/metroid_door_anim2.xpm", app, &app->shtex->door_tex[3].x, &app->shtex->door_tex[3].y);
-	app->shtex->door_tex[4].img = img_to_arr((char *)"./textures/metroid_door_anim3.xpm", app, &app->shtex->door_tex[4].x, &app->shtex->door_tex[4].y);
-	app->shtex->door_tex[5].img = img_to_arr((char *)"./textures/metroid_door_anim4.xpm", app, &app->shtex->door_tex[5].x, &app->shtex->door_tex[5].y);
-	app->shtex->door_tex[6].img = img_to_arr((char *)"./textures/metroid_door_anim5.xpm", app, &app->shtex->door_tex[6].x, &app->shtex->door_tex[6].y);
-	app->shtex->cannon_tex[0].img = img_to_arr((char *)"./textures/arm_cannon_big.xpm", app, &app->shtex->cannon_tex[0].x, &app->shtex->cannon_tex[0].y);
-	app->shtex->cannon_tex[1].img = img_to_arr((char *)"./textures/arm_cannon_big_firing.xpm", app, &app->shtex->cannon_tex[1].x, &app->shtex->cannon_tex[1].y);
-	app->shtex->crawler_tex[0].img = img_to_arr((char *)"./textures/crawler1.xpm", app, &app->shtex->crawler_tex[0].x, &app->shtex->crawler_tex[0].y);
-	app->shtex->crawler_tex[1].img = img_to_arr((char *)"./textures/crawler2.xpm", app, &app->shtex->crawler_tex[1].x, &app->shtex->crawler_tex[1].y);
-	app->shtex->crawler_tex[2].img = img_to_arr((char *)"./textures/crawler3.xpm", app, &app->shtex->crawler_tex[2].x, &app->shtex->crawler_tex[2].y);
-	app->shtex->crawler_tex[3].img = img_to_arr((char *)"./textures/crawler4.xpm", app, &app->shtex->crawler_tex[3].x, &app->shtex->crawler_tex[3].y);
-	app->shtex->crawler_tex[4].img = img_to_arr((char *)"./textures/crawler5.xpm", app, &app->shtex->crawler_tex[4].x, &app->shtex->crawler_tex[4].y);
-	app->shtex->crawler_tex[5].img = img_to_arr((char *)"./textures/crawler6.xpm", app, &app->shtex->crawler_tex[5].x, &app->shtex->crawler_tex[5].y);
-	app->shtex->proj_tex[0].img = img_to_arr((char *)"./textures/projectile2.xpm", app, &app->shtex->proj_tex[0].x, &app->shtex->proj_tex[0].y);
-	app->shtex->proj_tex[1].img = img_to_arr((char *)"./textures/proj0.xpm", app, &app->shtex->proj_tex[1].x, &app->shtex->proj_tex[1].y);
-	app->shtex->proj_tex[2].img = img_to_arr((char *)"./textures/proj1.xpm", app, &app->shtex->proj_tex[2].x, &app->shtex->proj_tex[2].y);
-	app->shtex->proj_tex[3].img = img_to_arr((char *)"./textures/proj2.xpm", app, &app->shtex->proj_tex[3].x, &app->shtex->proj_tex[3].y);
-	app->shtex->proj_tex[4].img = img_to_arr((char *)"./textures/proj3.xpm", app, &app->shtex->proj_tex[4].x, &app->shtex->proj_tex[4].y);
-	app->shtex->proj_tex[5].img = img_to_arr((char *)"./textures/proj_super0.xpm", app, &app->shtex->proj_tex[5].x, &app->shtex->proj_tex[5].y);
-	app->shtex->proj_tex[6].img = img_to_arr((char *)"./textures/proj_super1.xpm", app, &app->shtex->proj_tex[6].x, &app->shtex->proj_tex[6].y);
-	app->shtex->proj_tex[7].img = img_to_arr((char *)"./textures/proj_super2.xpm", app, &app->shtex->proj_tex[7].x, &app->shtex->proj_tex[7].y);
-	app->shtex->proj_tex[8].img = img_to_arr((char *)"./textures/proj_super3.xpm", app, &app->shtex->proj_tex[8].x, &app->shtex->proj_tex[8].y);
-	app->shtex->proj_tex[9].img = img_to_arr((char *)"./textures/proj_super4.xpm", app, &app->shtex->proj_tex[9].x, &app->shtex->proj_tex[9].y);
-	app->shtex->etank_tex[0].img = img_to_arr((char *)"./textures/etank0.xpm", app, &app->shtex->etank_tex[0].x, &app->shtex->etank_tex[0].y);
-	app->shtex->etank_tex[1].img = img_to_arr((char *)"./textures/etank1.xpm", app, &app->shtex->etank_tex[1].x, &app->shtex->etank_tex[1].y);
-	app->shtex->title.img = img_to_arr((char *)"./textures/title_card.xpm", app, &app->shtex->title.x, &app->shtex->title.y);
-	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx, (char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
-	app->shtex->empty.img = img_to_arr((char *)"./textures/empty.xpm", app, &app->shtex->empty.x, &app->shtex->empty.y);
-	app->shtex->trophy_tex[0].img = img_to_arr((char *)"./textures/trophy0.xpm", app, &app->shtex->trophy_tex[0].x, &app->shtex->trophy_tex[0].y);
-	app->shtex->trophy_tex[1].img = img_to_arr((char *)"./textures/trophy1.xpm", app, &app->shtex->trophy_tex[1].x, &app->shtex->trophy_tex[1].y);
-	app->shtex->boss_bar[0].img = img_to_arr((char *)"./textures/boss_bar_left.xpm", app, &app->shtex->boss_bar[0].x, &app->shtex->boss_bar[0].y);
-	app->shtex->boss_bar[1].img = img_to_arr((char *)"./textures/boss_bar_right.xpm", app, &app->shtex->boss_bar[1].x, &app->shtex->boss_bar[1].y);
-	app->shtex->tele.img = img_to_arr((char *)"./textures/teleporter.xpm", app, &app->shtex->tele.x, &app->shtex->tele.y);
-	app->shtex->scope.img = img_to_arr((char *)"./textures/scope.xpm", app, &app->shtex->scope.x, &app->shtex->scope.y);
-	app->shtex->credits.img = img_to_arr((char *)"./textures/credits_lorem.xpm", app, &app->shtex->credits.x, &app->shtex->credits.y);
-	load_energy_textures(app);
-	load_super_textures(app);
-	load_missile_textures(app);
-	load_super_door_tex(app);
-	load_missile_door_tex(app);
-	load_boss_door_tex(app);
-	load_health_pu_tex(app);
-	load_ammo_tex(app);
-	load_explode_tex(app);
-	load_phantoon_tex(app);
-	load_atomic_tex(app);
-	load_holtz_tex(app);
-	load_reo_tex(app);
-	load_proj_green_tex(app);
-	load_dmg_tex(app);
-	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/mmap/MAPPLAYER.xpm", &x, &y);
 }
 
 // void	print_t_map(t_data *data)
