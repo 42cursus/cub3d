@@ -1,32 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   atomic.c                                           :+:      :+:    :+:   */
+/*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/16 17:47:21 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 15:39:11 by fsmyth           ###   ########.fr       */
+/*   Created: 2025/05/21 16:30:32 by fsmyth            #+#    #+#             */
+/*   Updated: 2025/05/21 16:31:02 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-void	atomic_ai(t_info *app, t_object *enemy)
+t_data	*init_map(void)
 {
-	t_vect	norm_diff;
+	t_data	*map;
 
-	if (enemy->attacking == 1 && app->player->dead == 0)
+	map = ft_calloc(1, sizeof(*map));
+	map->f_col = -1;
+	map->c_col = -1;
+	return (map);
+}
+
+t_list	*read_cub(int cubfd)
+{
+	char	*line;
+	char	*stripped;
+	t_list	*file;
+
+	line = get_next_line(cubfd);
+	file = NULL;
+	while (line != NULL)
 	{
-		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
-		enemy->dir = norm_diff;
-		enemy->speed = 0.08;
-		move_entity(&enemy->pos, app->map,
-			scale_vect(enemy->dir, enemy->speed / app->fr_scale));
+		stripped = ft_strtrim(line, "\t\n");
+		free (line);
+		ft_lstadd_back(&file, ft_lstnew(stripped));
+		line = get_next_line(cubfd);
 	}
-	else
-	{
-		enemy->speed = 0.04;
-		move_obj_bounce(app, enemy, app->map);
-	}
+	return (file);
 }

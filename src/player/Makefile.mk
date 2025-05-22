@@ -6,10 +6,15 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/05/15 15:25:54 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/05/20 18:57:14 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = player.c \
+FILES   = init.c \
+		  offsets.c \
+		  interaction.c \
+		  settings.c \
+		  weapons.c \
+		  health.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:47:32 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 18:15:51 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:41:11 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void	phantoon_phase3(t_info *app, t_object *obj, t_vect norm_diff)
 {
 	obj->dir = norm_diff;
 	obj->speed = 0.09;
-	move_entity(app, &obj->pos, app->map,
+	move_entity(&obj->pos, app->map,
 		scale_vect(obj->dir, obj->speed / app->fr_scale));
 }
 

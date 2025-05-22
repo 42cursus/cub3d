@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 17:53:25 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/17 18:15:07 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:42:38 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	copy_sky_split(t_img *const sky, t_img const *bg, t_ivect boundary)
 	height = sky->height;
 	i = -1;
 	copy_width = sky->width - boundary.x;
-	while (++i < sky->height)
+	while (++i < height)
 	{
 		ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][boundary.x],
 			copy_width * sizeof(u_int));

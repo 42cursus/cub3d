@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:43:59 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 17:49:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/19 15:40:20 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void	reo_ai(t_info *app, t_object *enemy)
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
 		enemy->dir = norm_diff;
 		enemy->speed = 0.1;
-		move_entity(app, &enemy->pos, app->map,
+		move_entity(&enemy->pos, app->map,
 			scale_vect(enemy->dir, enemy->speed / app->fr_scale));
 	}
 }

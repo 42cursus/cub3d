@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/17 17:20:16 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/21 16:22:35 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,13 @@ typedef struct s_cvect
 	char	x;
 	char	y;
 }	t_cvect;
+
+typedef struct s_cvect3
+{
+	char	x;
+	char	y;
+	char	z;
+}	t_cvect3;
 
 typedef struct s_enemypos
 {
@@ -437,6 +444,8 @@ int		mouse_move_play(int x, int y, void *param);
 
 t_data	*init_map(void);
 void	free_map(t_data *map);
+int		collect_map(t_list	*file, t_data *data);
+int		map_is_valid(t_data *data);
 int		parse_cub(t_info *app, char *filename);
 t_data	*get_cached_lvl(t_info *app, char *name);
 void	free_split(char **split);
@@ -445,7 +454,7 @@ void	load_shtex(t_info *app);
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_data *map);
-void		move_entity(t_info *app, t_vect *pos, t_data *map, t_vect dir);
+void		move_entity(t_vect *pos, t_data *map, t_vect dir);
 void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
@@ -518,6 +527,7 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
+void	free_tex_arr(t_texarr *texture);
 void	draw_rays(t_info *app, t_img *canvas);
 void	draw_hud(t_info *app);
 void	free_shtex(t_info *app);
@@ -577,6 +587,9 @@ t_object	*check_obj_proximity(t_vect pos, t_data *map);
 int	point_oob_global(t_vect pos, t_data *map);
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
 t_texarr	*handle_animation(t_info *app, t_anim anim);
+t_anim	**create_anim_arr(int x, int y);
+void	init_anims(t_info *app, t_data *map);
+void	reset_anims(t_info *app, t_data *map);
 int	count_collectables(t_data *map);
 int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
 int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);
