@@ -33,14 +33,50 @@ int	tint_red(int col)
 	return ((col & 0xffff) + 0xff0000);
 }
 
-int	interpolate_colour(int col1, int col2, double frac)
+u_int	interpolate_colour2(t_colour col1, t_colour col2)
 {
 	int	r;
 	int	g;
 	int	b;
 
-	if (col1 == col2)
-		return (col1);
+	if (col1.raw == col2.raw)
+		return col1.raw;
+
+	const double frac = col1.a / 255.0;
+	r = ((col2.r - col1.r) * frac) + col1.r;
+	g = ((col2.g - col1.g) * frac) + col1.g;
+	b = ((col2.b - col1.b) * frac) + col1.b;
+
+//	r = ((col2.raw & MLX_RED) - (col1.raw & MLX_RED)) * frac + (col1.raw & MLX_RED);
+//	g = ((col2.raw & MLX_GREEN) - (col1.raw & MLX_GREEN)) * frac + (col1.raw & MLX_GREEN);
+//	b = ((col2.raw & MLX_BLUE) - (col1.raw & MLX_BLUE)) * frac + (col1.raw & MLX_BLUE);
+	return ((t_colour){.r = r, .g = g, .b = b}).raw;
+}
+
+int	interpolate_colour(t_colour *col1, t_colour *col2)
+{
+	int	r;
+	int	g;
+	int	b;
+
+	if (col1->raw == col2->raw)
+		return col2->raw;
+
+	const double frac = col1->a / 255.0;
+	r = ((col2->r - col1->r) * frac) + col1->r;
+	g = ((col2->g - col1->g) * frac) + col1->g;
+	b = ((col2->b - col1->b) * frac) + col1->b;
+	return ((t_colour){.r = r, .g = g, .b = b}).raw;
+}
+
+int	interpolate_colour_frac(int col1, int col2, double frac)
+{
+	int	r;
+	int	g;
+	int	b;
+
+	if (col1 == col2 || (col1 & MLX_BLUE) == MLX_TRANSPARENT)
+		return (col2);
 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);

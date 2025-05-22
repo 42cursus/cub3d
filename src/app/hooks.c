@@ -62,9 +62,9 @@ void replace_frame(t_info *app)
 	cast_all_rays_alt(app, app->map, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor(app, app->player);
+	fill_floor(app, app->player, 1);
 	if (app->map->outside != 1)
-		fill_ceiling(app, app->map, app->player);
+		fill_floor(app, app->player, 0);
 	draw_rays(app, app->canvas);
 }
 
@@ -91,7 +91,7 @@ int mouse_move_play(int x, int y, void *param)
 
 	if (dx != 0)
 	{
-		rotate_player(app, app->player, dx > 0 ? 1 : 0,
+		rotate_player(app, app->player, dx > 0,
 					  fabs((300.0 + (80 * (10 - app->sensitivity)) * pow(1.1, 10 - app->sensitivity)) / (dx * app->fr_scale)));
 					  // fabs(5000 / (dx * app->fr_scale * app->sensitivity)));
 		// Reset pointer to center

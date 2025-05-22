@@ -103,15 +103,18 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	t_img *canvas;
 	t_img *stillshot;
+	t_img *pointer;
 
 	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
+	pointer = mlx_new_image(app->mlx, 50, 50);
 
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
-	if (!canvas || !stillshot)
+	if (!canvas || !stillshot || !pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 
 	app->canvas = canvas;
+	app->pointer = pointer;
 	app->stillshot = stillshot;
 
 	return (ok);
@@ -143,6 +146,7 @@ t_ret_code do_state_play(void *param)
 
 	mlx_mouse_hide(app->mlx, app->root);
 	draw_sky_alt(app);
+	draw_nav(app);
 	calculate_offsets(app, app->player);
 	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);

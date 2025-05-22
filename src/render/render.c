@@ -73,7 +73,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
-unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
+u_int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 {
 	t_img			*tex;
 	t_img			tmp;
@@ -101,3 +101,44 @@ unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 	mlx_destroy_image(app->mlx, tex);
 	return (arr);
 }
+
+// int	bilinear_filter(double x, double y, const t_texarr *tex)
+// {
+// 	int		x_lower;
+// 	int		x_upper;
+// 	int		y_lower;
+// 	int		y_upper;
+// 	double	frac_x;
+// 	double	frac_y;
+//
+// 	x_lower = (int)x;
+// 	y_lower = (int)y;
+// 	x_upper = x_lower + 1;
+// 	y_upper = y_lower + 1;
+// 	frac_x = fmod(x, 1);
+// 	frac_y = fmod(y, 1);
+// 	if (x_upper == tex->x)
+// 		x_upper = 0;
+// 	if (y_upper == tex->y)
+// 		return (interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
+// 	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
+// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
+// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
+// }
+
+void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
+{
+	if (p.x < 0 || p.y < 0 || p.x >= img->width || p.y >= img->height)
+		return;
+
+	u_int32_t *dst = (u_int32_t *)img->data + p.y * img->width + p.x;
+
+	// Clamp and convert to 0-255 range
+	u_int alpha = (u_int)(alpha_frac * 255.0);
+	if (alpha > 255)
+		alpha = 255;
+
+	// Write RGB from base_color and new alpha
+	*dst = (alpha << 24) | (base_color & MLX_WHITE);
+}
+

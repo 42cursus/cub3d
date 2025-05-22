@@ -79,9 +79,8 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 		j = -1;
 		while (++j < tile->width)
 		{
-			
 			src_pixel = src_row[j];
-			mask = -(src_pixel != MLX_TRANSPARENT);
+			mask = -(src_pixel != MLX_TRANSPARENT && (src_pixel != XPM_TRANSPARENT));
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
@@ -102,7 +101,7 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 // 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 // }
 
-void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
+void	place_tile_on_image32_alpha_frac(t_img *image, t_img *tile, t_point p, double frac)
 {
 	int			i;
 	int			j;
@@ -115,20 +114,54 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
 	while (++i < tile->height)
 	{
 		src_row = (u_int32_t *) tile->data + (i * tile->width);
-		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
+		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
 		j = -1;
 		while (++j < tile->width)
 		{
 			
 			src_pixel = src_row[j];
-			// mask = -(src_pixel != MLX_TRANSPARENT);
-			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
-			if (src_pixel != MLX_TRANSPARENT)
-				dst_row[j] = interpolate_colour(src_pixel, dst_row[j], 0.5);
+			t_colour dst1 = {.raw = interpolate_colour_frac(src_pixel, dst_row[j], frac)};
+			dst_row[j] = dst1.raw;
 		}
 	}
 }
 
+void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
+{
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+
+	i = -1;
+	while (++i < tile->height)
+	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
+		j = -1;
+		while (++j < tile->width)
+		{
+			int i_1 = interpolate_colour((t_colour *)&src_row[j], (t_colour *)&dst_row[j]);
+			dst_row[j] = i_1;
+		}
+	}
+}
+
+void	apply_alpha(t_img *img, u_char alpha)
+{
+	int			i;
+	int			j;
+	t_colour	*row;
+
+	i = -1;
+	while (++i < img->height)
+	{
+		row = (t_colour *)img->data + (i * img->width);
+		j = -1;
+		while (++j < img->width)
+			row[j].a = alpha;
+	}
+}
 
 t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
@@ -163,12 +196,20 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 void	place_mmap(t_info *app)
 {
-	t_img *const	mmap = app->map->minimap;;
+	t_img *const	mmap = app->map->minimap;
+	t_img *const	player = app->pointer;
 	t_img *const	canvas = app->canvas;
-	const int		dx = WIN_WIDTH - mmap->width;
-	const int		dy = 0;
 
-	place_tile_on_image32_alpha(canvas, mmap, dx, dy);
+	t_point p  = {.x = WIN_WIDTH - mmap->width, .y = 0};
+
+	place_tile_on_image32_alpha_frac(canvas, mmap, p, 0.5);
+
+//	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
+//	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
+
+	p.x = app->player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - player->width / 2;
+	p.y = (app->map->height - app->player->pos.y) * 8 - player->height / 2;
+	place_tile_on_image32(canvas, player, p.x, p.y);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
@@ -556,7 +597,7 @@ void	draw_hud(t_info *app)
 		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
 	if (app->last_frame - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
-	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
-						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
-						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
+//	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
+//						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
+//						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 }

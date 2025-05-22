@@ -24,6 +24,8 @@ int	cleanup(t_info *app)
 		mlx_destroy_image(app->mlx, app->stillshot);
 	if (app->skybox != NULL)
 		mlx_destroy_image(app->mlx, app->skybox);
+	if (app->pointer != NULL)
+		mlx_destroy_image(app->mlx, app->pointer);
 	mlx_destroy_window(app->mlx, app->root);
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);

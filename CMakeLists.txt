@@ -32,7 +32,7 @@ set(FT_CFLAGS
         -fstack-protector-strong
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
-        -O0
+        -O3
         -pg
         -masm=att
         -g3 -gdwarf-3

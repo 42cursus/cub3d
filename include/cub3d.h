@@ -37,11 +37,16 @@
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
 
+# define MLX_WHITE 0x00ffffff
 # define MLX_LIME 0x0000ff55
+# define MLX_DARK_SLATE_GREY 0x2f4f4f
+# define MLX_LIGHT_SLATE_GREY 0x00778899
 # define MLX_LIGHT_RED 0x00ff5555
-# define MLX_RED 0x0bff0000
-# define MLX_GREEN 0x0b00ff00
-# define MLX_BLUE 0x0b0000ff
+# define MLX_RED 0x00ff0000
+# define MLX_GREEN 0x0000ff00
+# define MLX_BLUE 0x000000ff
+# define MLX_DTURQUOISE 0x0000ddcc
+# define MLX_TANG_YELLOW 0x00ffcc00
 # define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
 
@@ -90,6 +95,17 @@ typedef struct s_ivect
 	int	x;
 	int	y;
 }	t_ivect;
+
+typedef struct s_ivect	t_point;
+
+typedef struct s_ring_segment
+{
+	t_point	center;
+	int		r_outer;
+	int		r_inner;
+	double	angle_start;
+	double	angle_end;
+}	t_ring_segment;
 
 typedef struct s_cvect
 {
@@ -293,8 +309,7 @@ typedef struct s_player
 	t_ray	rays[WIN_WIDTH];
 	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
-	double	floor_offsets[WIN_HEIGHT / 2];
-	double	ceil_offsets[WIN_HEIGHT / 2];
+	double	offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
 	t_vect	dmg_dir;
@@ -396,6 +411,7 @@ typedef struct s_info
 	double		zoom;
 	char 		*title;
 	t_img		*canvas;
+	t_img		*pointer;
 	t_img		*skybox;
 	t_img		*bg;
 	t_img		*stillshot;
@@ -432,6 +448,39 @@ typedef struct s_info
 	t_dummy		*dummy;
 	int			sensitivity;
 }	t_info;
+
+typedef struct s_colour
+{
+	union
+	{
+		u_int32_t raw;
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+		struct
+		{
+			u_char	a;
+			u_char	r;
+			u_char	g;
+			u_char	b;
+		};
+#elif __BYTE_ORDER == __BIG_ENDIAN
+
+				struct
+		{
+			u_char	b;
+			u_char	g;
+			u_char	r;
+			u_char	a;
+		};
+#else
+# error "Unsupported byte order"
+#endif
+	};
+}	t_colour;
+
+# define ANGLE_EPSILON 0.02 // angle blend width (radians)
+
+void	normalize_angles(double *angle_start, double *angle_end);
+void	apply_alpha(t_img *img, u_char alpha);
 
 int		check_endianness(void);
 void	on_expose(t_info *app);
@@ -514,7 +563,7 @@ t_ray	ray_dda_refactor(t_info *app, t_data *map, t_player *player, double angle)
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
-void replace_sky(t_info *app, char *tex_file);
+void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(int col, double fact);
 int		tint_red(int col);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
@@ -526,10 +575,14 @@ void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
-unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
+u_int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
+void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
+void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	free_tex_arr(t_texarr *texture);
 void	draw_rays(t_info *app, t_img *canvas);
 void	draw_hud(t_info *app);
+void	draw_circle_filled(t_img *img, t_point c, int r, int color);
+void	draw_ring_segment(t_img *img, t_ring_segment segment, int color);
 void	free_shtex(t_info *app);
 t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
@@ -562,9 +615,10 @@ int	render_win(void *param);
 int	render_credits(void *param);
 
 void	draw_sky(t_info *app);
+void	draw_nav(t_info *app);
 void 	draw_sky_alt(t_info *const app);
 void	fill_ceiling(t_info *app, t_data *map, t_player *player);
-void	fill_floor(t_info *app, t_player *player);
+void	fill_floor(t_info *app, t_player *player, int is_floor);
 
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);
@@ -606,7 +660,9 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_data *map);
 
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
-int		interpolate_colour(int col1, int col2, double frac);
+int		interpolate_colour_frac(int col1, int col2, double frac);
+int		interpolate_colour(t_colour *col1, t_colour *col2);
+u_int	interpolate_colour2(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);

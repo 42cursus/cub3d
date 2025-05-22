@@ -10,14 +10,14 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = ceiling.c \
-			render.c \
+FILES   = render.c \
 			hud.c \
 			floor.c \
 			menus.c \
 			render_frame.c \
 			colour.c \
 			credits.c \
+			draw.c \
 			draw_rays.c \
 			sky.c \
 
