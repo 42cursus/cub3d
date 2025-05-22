@@ -53,7 +53,7 @@ u_int	interpolate_colour2(t_colour col1, t_colour col2)
 	return ((t_colour){.r = r, .g = g, .b = b}).raw;
 }
 
-int	interpolate_colour(t_colour *col1, t_colour *col2)
+int	interpolate_colour_1(t_colour *col1, t_colour *col2)
 {
 	int	r;
 	int	g;

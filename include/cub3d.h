@@ -457,19 +457,19 @@ typedef struct s_colour
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		struct
 		{
-			u_char	a;
-			u_char	r;
-			u_char	g;
 			u_char	b;
+			u_char	g;
+			u_char	r;
+			u_char	a;
 		};
 #elif __BYTE_ORDER == __BIG_ENDIAN
 
 				struct
 		{
-			u_char	b;
-			u_char	g;
-			u_char	r;
 			u_char	a;
+			u_char	r;
+			u_char	g;
+			u_char	b;
 		};
 #else
 # error "Unsupported byte order"
@@ -661,7 +661,7 @@ void	update_objects(t_info *app, t_player *player, t_data *map);
 
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
 int		interpolate_colour_frac(int col1, int col2, double frac);
-int		interpolate_colour(t_colour *col1, t_colour *col2);
+int		interpolate_colour_1(t_colour *col1, t_colour *col2);
 u_int	interpolate_colour2(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);

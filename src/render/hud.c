@@ -101,6 +101,31 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 // 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 // }
 
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
+{
+	int			i;
+	int			j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	// u_int32_t	mask;
+
+	i = -1;
+	while (++i < tile->height)
+	{
+		src_row = (u_int32_t *) tile->data + (i * tile->width);
+		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
+		j = -1;
+		while (++j < tile->width)
+		{
+
+			src_pixel = src_row[j];
+			dst_row[j] = interpolate_colour2(
+				*(t_colour *) &src_pixel, *(t_colour *) &dst_row[j]);
+		}
+	}
+}
+
 void	place_tile_on_image32_alpha_frac(t_img *image, t_img *tile, t_point p, double frac)
 {
 	int			i;
@@ -141,7 +166,8 @@ void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
 		j = -1;
 		while (++j < tile->width)
 		{
-			int i_1 = interpolate_colour((t_colour *)&src_row[j], (t_colour *)&dst_row[j]);
+			int i_1 = interpolate_colour_1((t_colour *) &src_row[j],
+										   (t_colour *) &dst_row[j]);
 			dst_row[j] = i_1;
 		}
 	}
@@ -209,7 +235,7 @@ void	place_mmap(t_info *app)
 
 	p.x = app->player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - player->width / 2;
 	p.y = (app->map->height - app->player->pos.y) * 8 - player->height / 2;
-	place_tile_on_image32(canvas, player, p.x, p.y);
+	place_tile_on_image32_alpha(canvas, player, p);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
