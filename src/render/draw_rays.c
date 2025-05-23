@@ -39,7 +39,7 @@ void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect l
 	{
 		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 		{
-			u_int *p_int = &(*dst)[(lvars.y + draw_pos.y)][draw_pos.x];
+			u_int *p_int = dst[(lvars.y + draw_pos.y)][draw_pos.x];
 			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
 			colour = tint_red((*pixels)[(int)h_index][(int) fract]);
 			mask = -(colour != XPM_TRANSPARENT);
