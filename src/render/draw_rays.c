@@ -33,14 +33,14 @@ void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect l
 	u_int32_t		mask;
 	u_int			*p_int;
 
-	u_int (*const pixels)[texture->y][texture->x] = (void *)texture->data;
-	u_int (*const dst)[canvas->height][canvas->width] = (void *)canvas->data;
+	u_int32_t *tex_data = texture->data;
+	u_int32_t *dst_data = (u_int32_t *)canvas->data;
 
 	while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 	{
-		p_int = &(*dst)[(lvars.y + draw_pos.y)][draw_pos.x];
+		p_int = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
 		h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-		colour = (*pixels)[(int)h_index][(int) fract];
+		colour = tex_data[(int)h_index * texture->x + (int)fract];
 		u_int tinted = ((colour & 0x0000FFFF) + MLX_RED);
 		u_int final = (u_int[2]){colour, tinted}[ray->damaged];
 		mask = -(colour != XPM_TRANSPARENT);
