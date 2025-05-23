@@ -582,7 +582,7 @@ void	draw_hud(t_info *app)
 	if (!app->ads)
 	{
 		place_weapon(app);
-		mlx_put_image_to_window(app->mlx, app->root,
+		mlx_put_image_to_window(app->mlx, app->win,
 								app->shtex->playertile,
 								WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	}

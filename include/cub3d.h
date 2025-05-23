@@ -19,16 +19,18 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
- // # define WIN_HEIGHT 720
-//# define WIN_HEIGHT 960
+//# define WIN_WIDTH 720
+//# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
-# define WIN_HEIGHT 1080
+//# define WIN_HEIGHT 960
 # define WIN_WIDTH 1920
-// # define WIN_HEIGHT 900
-// # define WIN_WIDTH 1600
-// # define WIN_HEIGHT 1008
+# define WIN_HEIGHT 1080
+//# define WIN_WIDTH 1600
+//# define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
+// # define WIN_HEIGHT 1008
 
+#define GO_TO_FULLSCREEN_ON_LOAD 1
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
@@ -73,17 +75,6 @@ typedef struct s_animation
 	size_t		duration;
 	int			frames;
 }	t_anim;
-
-//typedef struct s_imgdata
-//{
-//	t_img	*img;
-//	char	*data;
-//	int		width;
-//	int		height;
-//	int		bpp;
-//	int		size_line;
-//	int		endian;
-//}	t_imgdata;
 
 typedef struct s_vect
 {
@@ -285,13 +276,6 @@ typedef struct s_poolnode
 	struct s_poolnode	*next;
 }	t_poolnode;
 
-typedef struct s_pool
-{
-	char	*pool;
-	size_t	stackp;
-	size_t	size;
-}	t_pool;
-
 typedef struct s_timer
 {
 	size_t	total_ms;
@@ -313,7 +297,6 @@ typedef struct s_player
 	int		vert_offset;
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
-	// t_pool	raypool;
 	double	angle_offsets[WIN_WIDTH];
 	double	offsets[WIN_HEIGHT / 2];
 	t_anim	hud;
@@ -407,13 +390,8 @@ enum e_idx
 
 typedef struct s_info
 {
-	struct s_fdf_win
-	{
-		int	width;
-		int	height;
-	}			win;
 	t_xvar		*mlx;
-	t_win_list	*root;
+	t_win_list	*win;
 	double		zoom;
 	char 		*title;
 	t_img		*canvas;
@@ -670,5 +648,6 @@ u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);
+void	toggle_fullscreen(t_info *const app);
 
 #endif //CUB3D_H

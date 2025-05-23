@@ -133,7 +133,7 @@ void draw_nav(t_info *app)
 	t_arc 			inner;
 	t_arc *const	outer = &(t_arc){
 		.r = 7,
-		.angle_start = -app->player->angle - 2 * M_1_PI,
+		.angle_start = -app->player->angle - 3 * M_1_PI,
 		.angle_end = -app->player->angle + M_1_PI,
 		.center = {
 			.x = app->pointer->width / 2,

@@ -24,7 +24,7 @@
  */
 void on_expose(t_info *app)
 {
-	mlx_put_image_to_window(app->mlx, app->root,
+	mlx_put_image_to_window(app->mlx, app->win,
 							app->canvas, app->clip_x_origin,
 							app->clip_y_origin);
 }

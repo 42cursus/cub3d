@@ -92,31 +92,20 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map\n"), fail);
 	load_shtex(app);
-	app->root = mlx_new_window(app->mlx, app->win.width,
-							   app->win.height, app->title);
+	app->win = mlx_new_window(app->mlx, WIN_WIDTH, WIN_HEIGHT, app->title);
 
 	app->last_frame = get_time_us();
 	app->framecount = 0;
-	// app->last_frame_us = get_time_us();
 	app->frametime = 5000;
 
-
-	t_img *canvas;
-	t_img *stillshot;
-	t_img *pointer;
-
-	stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
-	canvas = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	pointer = mlx_new_image(app->mlx, 50, 50);
+	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	app->pointer = mlx_new_image(app->mlx, 50, 50);
 
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
-	if (!canvas || !stillshot || !pointer)
+	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
-
-	app->canvas = canvas;
-	app->pointer = pointer;
-	app->stillshot = stillshot;
-
+	toggle_fullscreen(app);
 	return (ok);
 }
 
@@ -144,13 +133,13 @@ t_ret_code do_state_play(void *param)
 	t_info *const app = param;
 
 
-	mlx_mouse_hide(app->mlx, app->root);
+	mlx_mouse_hide(app->mlx, app->win);
 	draw_sky_alt(app);
 	draw_nav(app);
 	calculate_offsets(app, app->player);
 	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);
-	mlx_mouse_show(app->mlx, app->root);
+	mlx_mouse_show(app->mlx, app->win);
 
 	return (app->rc);
 }
@@ -194,12 +183,12 @@ t_ret_code do_state_credits(void *param)
 	set_fov(app, 70);
 	set_framerate(app, 30);
 	calculate_credits_offset(app, app->dummy);
-	mlx_mouse_hide(app->mlx, app->root);
+	mlx_mouse_hide(app->mlx, app->win);
 	app->last_frame = get_time_us();
 	mlx_loop(app->mlx);
 	set_fov(app, app->old_fov);
 	set_framerate(app, old_fps);
-	mlx_mouse_show(app->mlx, app->root);
+	mlx_mouse_show(app->mlx, app->win);
 
 	return (app->rc);
 }
@@ -264,10 +253,10 @@ void do_initial_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
-	mlx_hook(app->root, DestroyNotify, 0, (void *)&exit_win, app);
-	mlx_expose_hook(app->root, &expose_win, app);
+	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
+	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
@@ -318,11 +307,11 @@ void	do_mmenu_to_credits(void *param)
 	dummy->dir = (t_vect){0.0, 1.0};
 	dummy->pos =  (t_vect){0.0, -0.6};
 	dummy->speed = 0.003;
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
-	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 }
 
 void	do_credits_to_mmenu(void *param)
@@ -334,11 +323,11 @@ void	do_credits_to_mmenu(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
 	app->menu_state.no_items = 5;
@@ -352,11 +341,11 @@ void do_load_to_play(void *param)
 	// fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
-	mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
-	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
-	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
-	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->win, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+	mlx_hook(app->win, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	app->timer.cur_lvl_start = get_time_ms();
 }
@@ -390,12 +379,12 @@ void do_play_to_pmenu(void *param)
 	fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	// mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_pmenu, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = PAUSE;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 4;
@@ -438,11 +427,11 @@ void	do_play_to_load(void *param)
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
-	mlx_hook(app->root, KeyPress, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, KeyPress, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 }
 
 void do_play_to_win(void *param)
@@ -456,12 +445,12 @@ void do_play_to_win(void *param)
 	replace_image(app, &app->bg, NULL);
 	fill_with_colour(app->bg, MLX_LIME, MLX_GREEN);
 	mlx_loop_hook(app->mlx, &render_win, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_win, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, 0, (void *) &key_release_win, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	if (app->current_level < app->no_maps - 1)
 		app->current_level++;
 	app->menu_state.state = WIN;
@@ -479,12 +468,12 @@ void do_play_to_lose(void *param)
 	replace_image(app, &app->bg, NULL);
 	fill_with_colour(app->bg, MLX_RED, MLX_LIGHT_RED);
 	mlx_loop_hook(app->mlx, &render_lose, app);
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->root, KeyRelease, 0, (void *) &key_release_lose, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, 0, (void *) &key_release_lose, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = LOSE;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 3;
@@ -506,11 +495,11 @@ void do_pmenu_to_play(void *param)
 	// fill_with_colour(app->bg, app->map->f_col, app->map->c_col);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_play, app);
-	mlx_hook(app->root, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
-	mlx_hook(app->root, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
-	mlx_hook(app->root, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
-	mlx_hook(app->root, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->win, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
+	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
+	mlx_hook(app->win, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	app->timer.cur_lvl_start = get_time_ms();
 }
@@ -526,12 +515,12 @@ void do_pmenu_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
@@ -557,12 +546,12 @@ void do_lose_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
@@ -587,12 +576,12 @@ void do_win_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 
-	mlx_hook(app->root, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
 
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
@@ -617,11 +606,11 @@ void do_win_to_load(void *param)
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
-	mlx_hook(app->root, KeyPress, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, KeyPress, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->timer.total_ms = 0;
 	app->timer.cur_lvl_start = 0;
 	app->timer.stop_time = 0;
@@ -646,11 +635,11 @@ void do_lose_to_load(void *param)
 	app->mlx->end_loop = 0;
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
-	mlx_hook(app->root, KeyPress, 0, NULL, app);
-	mlx_hook(app->root, KeyRelease, 0, NULL, app);
-	mlx_hook(app->root, ButtonPress, 0, NULL, app);
-	mlx_hook(app->root, ButtonRelease, 0, NULL, app);
-	mlx_hook(app->root, MotionNotify, 0, NULL, app);
+	mlx_hook(app->win, KeyPress, 0, NULL, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	app->timer.total_ms = 0;
 	app->timer.cur_lvl_start = 0;
 	app->timer.stop_time = 0;
