@@ -12,14 +12,6 @@
 
 #include "cub3d.h"
 
-static inline __attribute__((always_inline, unused))
-void	my_put_pixel_32(const t_img *img, int x, int y, unsigned int colour)
-{
-	if (colour == XPM_TRANSPARENT)
-		return ;
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
-}
-
 // static inline __attribute__((always_inline, unused))
 // void	my_put_pixel_mask(t_img *img, int x, int y, unsigned int colour)
 // {
@@ -31,22 +23,41 @@ void	my_put_pixel_32(const t_img *img, int x, int y, unsigned int colour)
 // 	*dst_pixel = (colour & mask) | (*dst_pixel & ~mask);
 // }
 
+static inline __attribute((always_inline))
 void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect lvars)
 {
 	const double	fract = ray->pos;
 	const t_texture	*texture = ray->texture;
 	double			h_index;
 	u_int			colour;
+	u_int32_t		mask;
 
 	u_int (*const pixels)[texture->y][texture->x] = (void *)texture->data;
-	while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
+	u_int (*const dst)[canvas->height][canvas->width] = (void *)canvas->data;
+
+	if (ray->damaged)
 	{
-		h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-		colour = (*pixels)[(int)h_index][(int) fract];
-		if (ray->damaged)
-			colour = tint_red(colour);
-		my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y, colour);
-		draw_pos.y++;
+		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
+		{
+			u_int *p_int = &(*dst)[(lvars.y + draw_pos.y)][draw_pos.x];
+			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
+			colour = tint_red((*pixels)[(int)h_index][(int) fract]);
+			mask = -(colour != XPM_TRANSPARENT);
+			*p_int = (colour & mask) | (*p_int & ~mask);;
+			draw_pos.y++;
+		}
+	}
+	else
+	{
+		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
+		{
+			u_int *p_int = &(*dst)[(lvars.y + draw_pos.y)][draw_pos.x];
+			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
+			colour = (*pixels)[(int)h_index][(int) fract];
+			mask = -(colour != XPM_TRANSPARENT);
+			*p_int = (colour & mask) | (*p_int & ~mask);;
+			draw_pos.y++;
+		}
 	}
 }
 
