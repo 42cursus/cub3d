@@ -36,19 +36,18 @@ void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect l
 	const double	fract = ray->pos;
 	const t_texture	*texture = ray->texture;
 	double			h_index;
-	t_colour		colour;
+
 
 	if(texture->data == NULL)
 		return ;
-
+	u_int (*const pixels)[texture->y][texture->x] = (void *)texture->data;
 	if (ray->damaged == 1)
 	{
 		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 		{
 			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-			colour.raw = (texture->data + (int)h_index)[(int)fract];
 			my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y,
-				tint_red(colour.raw));
+				tint_red((*pixels)[(int)h_index][(int)fract]));
 			draw_pos.y++;
 		}
 	}
@@ -57,9 +56,7 @@ void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect l
 		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 		{
 			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-			u_int (*p_int)[texture->y][texture->x] = (void *)texture->data;
-			colour.raw = (*p_int)[(int)h_index][(int)fract];
-			my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y, colour.raw);
+			my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y, (*pixels)[(int)h_index][(int)fract]);
 			draw_pos.y++;
 		}
 	}
