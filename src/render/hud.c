@@ -610,7 +610,7 @@ void	format_time(char *buf, int len, size_t time)
 	time = time % 60000;
 	seconds = time / 1000;
 	ms = time % 1000;
-	ft_snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
+	snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10); //TODO: fixme
 }
 
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
