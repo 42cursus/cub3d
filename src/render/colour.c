@@ -26,11 +26,11 @@ int	dim_colour(u_int col, double fact)
 	return ((r << 16) + (g << 8) + b);
 }
 
-int	tint_red(u_int col)
+u_int	tint_red(u_int col)
 {
-	if (col == XPM_TRANSPARENT)
-		return (col);
-	return ((col & 0xffff) + 0xff0000);
+	if (col != XPM_TRANSPARENT)
+		col = ((col & 0xffff) + 0xff0000);
+	return (col);
 }
 
 u_int	interpolate_colour(t_colour col1, t_colour col2)
