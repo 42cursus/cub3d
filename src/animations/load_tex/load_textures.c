@@ -67,7 +67,6 @@ void	load_shtex(t_info *app)
 	load_holtz_tex(app);
 	load_reo_tex(app);
 	load_shtex_extra(app);
-	load_energy_textures(app);
 }
 
 void	load_shtex_extra(t_info *app)
