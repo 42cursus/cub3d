@@ -26,13 +26,6 @@ int	dim_colour(u_int col, double fact)
 	return ((r << 16) + (g << 8) + b);
 }
 
-u_int	tint_red(u_int col)
-{
-	if (col != XPM_TRANSPARENT)
-		col = ((col & 0xffff) + 0xff0000);
-	return (col);
-}
-
 // int	bilinear_filter(double x, double y, const t_texarr *tex)
 // {
 // 	int		x_lower;
