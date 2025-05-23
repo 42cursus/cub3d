@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/param.h>
 #include "cub3d.h"
 #include "libft.h"
 
@@ -103,51 +104,26 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 {
-	int			i;
-	int			j;
+	t_ivect		t;
+	t_ivect		offset;
+	t_point		boundaries;
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	// u_int32_t	mask;
 
-	i = -1;
-	while (++i < tile->height)
+	offset.x = (int []){0, -p.x}[p.x < 0];
+	offset.y = (int []){0, -p.y}[p.y < 0];
+
+	boundaries.x = MIN(tile->width, image->width - p.x);
+	boundaries.y = MIN(tile->height, image->height - p.y);
+	t.y = offset.y - 1;
+	while (++t.y < boundaries.y)
 	{
-		src_row = (u_int32_t *) tile->data + (i * tile->width);
-		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
-		j = -1;
-		while (++j < tile->width)
-		{
-
-			src_pixel = src_row[j];
-			dst_row[j] = interpolate_colour2(
-				*(t_colour *) &src_pixel, *(t_colour *) &dst_row[j]);
-		}
-	}
-}
-
-void	place_tile_on_image32_alpha_frac(t_img *image, t_img *tile, t_point p, double frac)
-{
-	int			i;
-	int			j;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	// u_int32_t	mask;
-
-	i = -1;
-	while (++i < tile->height)
-	{
-		src_row = (u_int32_t *) tile->data + (i * tile->width);
-		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
-		j = -1;
-		while (++j < tile->width)
-		{
-			
-			src_pixel = src_row[j];
-			t_colour dst1 = {.raw = interpolate_colour_frac(src_pixel, dst_row[j], frac)};
-			dst_row[j] = dst1.raw;
-		}
+		src_row = (u_int32_t *) tile->data + (t.y * tile->width);
+		dst_row = (u_int32_t *) image->data + ((t.y + p.y) * image->width) + p.x;
+		t.x = offset.x - 1;
+		while (++t.x < boundaries.x)
+			dst_row[t.x] = interpolate_colour(
+				*(t_colour *) &src_row[t.x], *(t_colour *) &dst_row[t.x]);
 	}
 }
 
@@ -165,11 +141,8 @@ void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
 		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
 		j = -1;
 		while (++j < tile->width)
-		{
-			int i_1 = interpolate_colour_1((t_colour *) &src_row[j],
-										   (t_colour *) &dst_row[j]);
-			dst_row[j] = i_1;
-		}
+			dst_row[j] = interpolate_colour(*(t_colour *) &src_row[j],
+											*(t_colour *) &dst_row[j]);
 	}
 }
 
@@ -185,7 +158,7 @@ void	apply_alpha(t_img *img, u_char alpha)
 		row = (t_colour *)img->data + (i * img->width);
 		j = -1;
 		while (++j < img->width)
-			row[j].a = alpha;
+			row[j].a = (u_char)(alpha + (row[j].a * (255 - alpha)) / 0xFF);
 	}
 }
 
@@ -197,7 +170,8 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 	int		index;
 
 	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-	fill_with_colour(img, MLX_TRANSPARENT, MLX_TRANSPARENT);
+	ft_bzero(img->data, img->size_line * img->height);
+	apply_alpha(img, 255);
 	i = -1;
 	while (++i < app->map->height)
 	{
@@ -217,25 +191,26 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 		}
 	}
+	apply_alpha(img, 127);
 	return (img);
 }
 
 void	place_mmap(t_info *app)
 {
 	t_img *const	mmap = app->map->minimap;
-	t_img *const	player = app->pointer;
+	t_img *const	pointer = app->pointer;
 	t_img *const	canvas = app->canvas;
+	t_player *const	player = app->player;
+	t_point *const	p  = &(t_point){.x = WIN_WIDTH - mmap->width, .y = 0};
 
-	t_point p  = {.x = WIN_WIDTH - mmap->width, .y = 0};
-
-	place_tile_on_image32_alpha_frac(canvas, mmap, p, 0.5);
+	place_tile_on_image32_alpha(canvas, mmap, *p);
 
 //	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
 //	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
 
-	p.x = app->player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - player->width / 2;
-	p.y = (app->map->height - app->player->pos.y) * 8 - player->height / 2;
-	place_tile_on_image32_alpha(canvas, player, p);
+	p->x = player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - pointer->width / 2;
+	p->y = (app->map->height - player->pos.y) * 8 - pointer->height / 2;
+	place_tile_on_image32_alpha(canvas, pointer, *p);
 }
 
 void	place_texarr(t_info *app, t_texarr *tex, int x, int y)

@@ -99,13 +99,18 @@ typedef struct s_ivect
 
 typedef struct s_ivect	t_point;
 
-typedef struct s_ring_segment
+typedef struct s_arc
 {
 	t_point	center;
-	int		r_outer;
-	int		r_inner;
+	int		r;
 	double	angle_start;
 	double	angle_end;
+}	t_arc;
+
+typedef struct s_ring_segment
+{
+	t_arc	outer;
+	t_arc	inner;
 }	t_ring_segment;
 
 typedef struct s_cvect
@@ -661,9 +666,7 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_data *map);
 
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
-int		interpolate_colour_frac(int col1, int col2, double frac);
-int		interpolate_colour_1(t_colour *col1, t_colour *col2);
-u_int	interpolate_colour2(t_colour col1, t_colour col2);
+u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);

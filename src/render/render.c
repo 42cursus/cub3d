@@ -128,17 +128,12 @@ u_int	**img_to_arr(char *filename, t_info *app, int *x, int *y)
 
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
 {
+	u_int32_t	*dst;
+	u_char		alpha;
+
 	if (p.x < 0 || p.y < 0 || p.x >= img->width || p.y >= img->height)
 		return;
-
-	u_int32_t *dst = (u_int32_t *)img->data + p.y * img->width + p.x;
-
-	// Clamp and convert to 0-255 range
-	u_int alpha = (u_int)(alpha_frac * 255.0);
-	if (alpha > 255)
-		alpha = 255;
-
-	// Write RGB from base_color and new alpha
-	*dst = (alpha << 24) | (base_color & MLX_WHITE);
+	dst = (u_int32_t *) img->data + p.y * img->width + p.x;
+	alpha = (u_char)((int) (alpha_frac * 255.0) & 0xFF);	// Clamp and convert to 0-255 range
+	*dst = (alpha << 24) | (base_color & MLX_WHITE);		// Write RGB from base_color and new alpha
 }
-

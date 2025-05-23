@@ -19,6 +19,7 @@ gdb.txt
 scratch/
 cmake_build
 gmon.out
+*.coredump
 
 #for test
 !tester/minitest.sh

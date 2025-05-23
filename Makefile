@@ -19,7 +19,7 @@ INC_DIR			=  ./include
 
 CC				:= clang
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
-OPTIMIZE_FLAGS	:= -O3
+OPTIMIZE_FLAGS	:= -O0
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
@@ -90,7 +90,7 @@ clean:
 ## fclean
 fclean: clean
 		@if [ -f $(NAME) ]; then $(RM) $(RMFLAGS) $(NAME); fi
-		@$(MAKE) -C $(LIBFT_DIR) --no-print-directory fclean
+		@#$(MAKE) -C $(LIBFT_DIR) --no-print-directory fclean
 
 re: fclean all
 
