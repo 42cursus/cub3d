@@ -33,19 +33,6 @@ u_int	tint_red(u_int col)
 	return (col);
 }
 
-u_int	interpolate_colour(t_colour col1, t_colour col2)
-{
-	t_colour		out;
-	const double	frac = col1.a / 255.0;
-
-	if (col1.raw == col2.raw)
-		return col1.raw;
-	out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
-	out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
-	out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
-	return (out.raw);
-}
-
 // int	bilinear_filter(double x, double y, const t_texarr *tex)
 // {
 // 	int		x_lower;

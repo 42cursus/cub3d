@@ -94,6 +94,21 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 // 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 // }
 
+static inline __attribute__((always_inline))
+u_int	interpolate_colour(t_colour col1, t_colour col2)
+{
+	t_colour		out;
+	const double	frac = col1.a / 255.0;
+
+	if (col1.raw == col2.raw)
+		return col1.raw;
+	out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
+	out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
+	out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
+	return (out.raw);
+}
+
+
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 {
 	t_ivect		t;

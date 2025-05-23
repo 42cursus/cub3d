@@ -23,14 +23,15 @@
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
 //# define WIN_HEIGHT 960
-//# define WIN_WIDTH 1920
-//# define WIN_HEIGHT 1080
-# define WIN_WIDTH 1600
-# define WIN_HEIGHT 900
+# define WIN_WIDTH 1920
+# define WIN_HEIGHT 1080
+//# define WIN_WIDTH 1600
+//# define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
 
-#define GO_TO_FULLSCREEN_ON_LOAD 0
+//#define GO_TO_FULLSCREEN_ON_LOAD 0
+#define GO_TO_FULLSCREEN_ON_LOAD 1
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
@@ -642,7 +643,7 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_data *map);
 
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
-u_int	interpolate_colour(t_colour col1, t_colour col2);
+//u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_texture	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texture	*get_close_door_tex(t_anim *anim, t_info *app);
