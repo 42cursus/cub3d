@@ -18,7 +18,7 @@ void	setup_projectile(t_object *projectile, t_info *app,
 	if (subtype == BEAM)
 	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
-		projectile->anim2.tex_arr = &app->shtex->proj_tex[1];
+		projectile->anim2.tex = &app->shtex->proj_tex[1];
 		projectile->anim2.frames = 4;
 	}
 	else
@@ -27,10 +27,10 @@ void	setup_projectile(t_object *projectile, t_info *app,
 		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
-		projectile->anim2.tex_arr = &app->shtex->proj_tex[5];
+		projectile->anim2.tex = &app->shtex->proj_tex[5];
 		projectile->anim2.frames = 5;
 		if (subtype == MISSILE)
-			projectile->anim2.tex_arr = &app->shtex->explode_tex[12];
+			projectile->anim2.tex = &app->shtex->explode_tex[12];
 	}
 }
 

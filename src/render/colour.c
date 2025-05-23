@@ -12,13 +12,13 @@
 
 #include "cub3d.h"
 
-int	dim_colour(int col, double fact)
+int	dim_colour(u_int col, double fact)
 {
 	unsigned char	r;
 	unsigned char	g;
 	unsigned char	b;
 
-	if (fact < 1 || col == MLX_TRANSPARENT)
+	if (fact < 1 || col == XPM_TRANSPARENT)
 		return (col);
 	r = ((col >> 16) & 0xff) / fact;
 	g = ((col >> 8) & 0xff) / fact;
@@ -26,9 +26,9 @@ int	dim_colour(int col, double fact)
 	return ((r << 16) + (g << 8) + b);
 }
 
-int	tint_red(int col)
+int	tint_red(u_int col)
 {
-	if (col == MLX_TRANSPARENT)
+	if (col == XPM_TRANSPARENT)
 		return (col);
 	return ((col & 0xffff) + 0xff0000);
 }

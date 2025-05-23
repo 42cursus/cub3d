@@ -43,7 +43,7 @@ void	set_starting_dir(t_data *map, char dir)
 
 int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 {
-	t_texarr	*tex_addr;
+	t_texture	*tex_addr;
 	t_img		tmp;
 
 	if (identifier == NORTH)
@@ -67,9 +67,9 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 	}
 	else
 		return (1);
-	if (tex_addr->img != NULL)
+	if (tex_addr->data != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
-	tex_addr->img = img_to_arr(str, app, &tex_addr->x, &tex_addr->y);
+	tex_addr->data = img_to_tex(app, str, &tex_addr->x, &tex_addr->y);
 	return (0);
 }
 
@@ -112,17 +112,17 @@ int	parse_line(t_data *data, char *line, t_info *app)
 
 int	all_fields_parsed(t_data *data)
 {
-	if (data->n_tex.img == NULL)
+	if (data->n_tex.data == NULL)
 		return (0);
-	if (data->s_tex.img == NULL)
+	if (data->s_tex.data == NULL)
 		return (0);
-	if (data->e_tex.img == NULL)
+	if (data->e_tex.data == NULL)
 		return (0);
-	if (data->w_tex.img == NULL)
+	if (data->w_tex.data == NULL)
 		return (0);
-	if (data->floor_tex.img == NULL)
+	if (data->floor_tex.data == NULL)
 		return (0);
-	if (data->ceil_tex.img == NULL)
+	if (data->ceil_tex.data == NULL)
 	{
 		data->outside = 1;
 		return (1);
@@ -340,12 +340,12 @@ int	parse_cub(t_info *app, char *filename)
 
 void	free_map(t_data *data)
 {
-	free_tex_arr(&data->n_tex);
-	free_tex_arr(&data->s_tex);
-	free_tex_arr(&data->e_tex);
-	free_tex_arr(&data->w_tex);
-	free_tex_arr(&data->floor_tex);
-	free_tex_arr(&data->ceil_tex);
+	free(data->n_tex.data);
+	free(data->s_tex.data);
+	free(data->e_tex.data);
+	free(data->w_tex.data);
+	free(data->floor_tex.data);
+	free(data->ceil_tex.data);
 	free(data->sublvls[0]);
 	free(data->sublvls[1]);
 	free(data->sublvls[2]);

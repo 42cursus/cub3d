@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/types.h>
 #include "cub3d.h"
 
 static inline double	normalize_angle(double angle)
@@ -55,30 +56,50 @@ static inline int	angle_in_range(double angle, double start, double end)
 
 void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 {
-	t_point	cc;
+	t_point	point;
+	t_ivect	i;
 	double	dist;
 	double	frac;
-	int		y;
-	int		x;
+	u_int32_t *dst_row;
 
-	y = -r;
-	while (++y <= r)
+	i.y = -r;
+	while (++i.y <= r)
 	{
-		x = -r;
-		while (++x <= r)
+		point.y = c.y + i.y;
+		dst_row = (u_int32_t *)img->data + point.y * img->width;
+		i.x = -r;
+		while (++i.x <= r)
 		{
-			dist = sqrt(x * x + y * y);
-			cc.x = c.x + x;
-			cc.y = c.y + y;
+			dist = sqrt(i.x * i.x + i.y * i.y);
+			point.x = c.x + i.x;
 			frac = r - dist;
-			if (dist <= r - 1.0)
-				put_pixel_alpha(img, cc, color, 0); // full opacity
-			else if (dist <= r)
-				put_pixel_alpha(img, cc, color, 1 - frac); // fade out
-//			put_pixel_alpha(img, cc, color, frac);
+			frac = (dist <= r - 1.0) * 0.0 + (dist > r - 1.0) * (1.0 - frac);
+			if (dist <= r)
+			{
+				if (point.x >= 0 && point.y >= 0 && point.x < img->width && point.y < img->height)
+				{
+					u_int32_t alpha = ((int)(frac * 255.0) & 0xFF); // Clamp and convert to 0-255 range
+					dst_row[point.x] = (alpha << 24) | (color & MLX_WHITE); // Write RGB from base_color and new alpha
+				}
+			}
 		}
 	}
 }
+
+
+//typedef struct s_arc
+//{
+//	t_point	center;
+//	int		r;
+//	double	a_start;
+//	double	a_end;
+//}	t_arc;
+//
+//typedef struct s_ring_segment
+//{
+//	t_arc	out;
+//	t_arc	in;
+//}	t_ring_segment;
 
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 {
@@ -94,37 +115,35 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 	i.y = -seg.out.r - 1;
 	while (++i.y <= seg.out.r)
 	{
+		cc.y = seg.in.center.y + i.y;
+
 		i.x = -seg.out.r - 1;
 		while (++i.x <= seg.out.r)
 		{
+			cc.x = seg.in.center.x + i.x;
 			f.x = i.x + 0.5;
 			f.y = i.y + 0.5;
 			dist = sqrt(f.x * f.x + f.y * f.y);
 			if (dist < seg.in.r - 1.0 || dist > seg.out.r)
 				continue ;
 			angle = atan2(f.y, f.x);
-			if (angle < 0)
-				angle += 2 * M_PI; // can be replaced with `angle += (angle < 0) * (2 * M_PI);`
-			if (angle_in_range(angle, seg.in.a_start, seg.in.a_end))
-			{
-				da.x = angle - seg.in.a_start;
-				da.y = seg.in.a_end - angle;
-				if (da.x < 0)
-					da.x += 2 * M_PI;
-				if (da.y < 0)
-					da.y += 2 * M_PI;
-				a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
-				a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
-				alpha = 1.0; // Linear radial edge AA
-				if (dist < seg.in.r)
-					alpha = dist - (seg.in.r - 1.0);
-				else if (dist > seg.out.r - 1.0)
-					alpha = seg.out.r - dist;
-				alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
-				cc.x = seg.in.center.x + i.x;
-				cc.y = seg.in.center.y + i.y;
-				put_pixel_alpha(img, cc, color, alpha);
-			}
+			angle += (angle < 0) * (2 * M_PI);
+			if (!angle_in_range(angle, seg.in.a_start, seg.in.a_end))
+				continue;
+			da.x = angle - seg.in.a_start;
+			da.y = seg.in.a_end - angle;
+			da.x += (da.x < 0) * (2 * M_PI);
+			da.y += (da.y < 0) * (2 * M_PI);
+			a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
+			a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
+
+			alpha = 1.0; // Linear radial edge AA
+			if (dist < seg.in.r)
+				alpha = dist - (seg.in.r - 1.0);
+			else if (dist > seg.out.r - 1.0)
+				alpha = seg.out.r - dist;
+			alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
+			put_pixel_alpha(img, cc, color, alpha);
 		}
 	}
 }

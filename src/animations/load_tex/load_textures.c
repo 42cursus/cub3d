@@ -13,6 +13,7 @@
 #include "cub3d.h"
 
 void	load_dmg_tex(t_info *app);
+void	load_energy_textures(t_info *app);
 void	load_proj_tex(t_info *app);
 void	load_proj_green_tex(t_info *app);
 void	load_reo_tex(t_info *app);
@@ -64,6 +65,7 @@ void	load_shtex(t_info *app)
 	load_holtz_tex(app);
 	load_reo_tex(app);
 	load_shtex_extra(app);
+	load_energy_textures(app);
 }
 
 void	load_shtex_extra(t_info *app)

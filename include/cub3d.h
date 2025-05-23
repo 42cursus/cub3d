@@ -59,19 +59,19 @@ enum e_dir
 	RIGHT
 };
 
-typedef struct s_texarr
+typedef struct s_texture
 {
-	unsigned int	**img;
-	int				x;
-	int				y;
-}	t_texarr;
+	u_int32_t	*data;
+	int			x;
+	int			y;
+}	t_texture;
 
 typedef struct s_animation
 {
 	int			active;
 	int			loop;
 	size_t		timestart;
-	t_texarr	*tex_arr;
+	t_texture	*tex;
 	size_t		duration;
 	int			frames;
 }	t_anim;
@@ -136,7 +136,7 @@ typedef struct s_object
 	t_vect		dir;
 	double		speed;
 	t_vect		p2;
-	t_texarr	*texture;
+	t_texture	*texture;
 	t_anim		anim;
 	t_anim		anim2;
 }	t_object;
@@ -147,7 +147,7 @@ typedef struct s_ray
 	t_ivect			maptile;
 	int				face;
 	int				damaged;
-	t_texarr		*texture;
+	t_texture		*texture;
 	double			pos;
 	double			distance;
 	struct s_ray	*in_front;
@@ -161,7 +161,7 @@ typedef struct s_dda
 	t_ivect		step;
 	t_ivect		norm;
 	int			faces[2];
-	t_texarr	*textures[2];
+	t_texture	*textures[2];
 	double		gradient;
 	double		c;
 }	t_dda;
@@ -199,36 +199,36 @@ typedef struct s_menustate
 
 typedef struct s_shtex
 {
-	t_texarr	door_tex[7];
-	t_texarr	door_super_tex[7];
-	t_texarr	door_missile_tex[7];
-	t_texarr	door_boss_tex[7];
-	t_texarr	cannon_tex[2];
-	t_texarr	crawler_tex[6];
-	t_texarr	atomic_tex[6];
-	t_texarr	holtz_tex[6];
-	t_texarr	reo_tex[4];
-	t_texarr	proj_tex[10];
-	t_texarr	proj_green_tex[4];
-	t_texarr	explode_tex[17];
-	t_texarr	energy_tex[3];
-	t_texarr	etank_tex[2];
-	t_texarr	missile_tex[12];
-	t_texarr	super_tex[12];
-	t_texarr	health_pu[4];
-	t_texarr	missile_ammo[2];
-	t_texarr	super_ammo[2];
-	t_texarr	trophy_tex[2];
-	t_texarr	phantoon[10];
-	t_texarr	phantoon_proj[6];
-	t_texarr	dmg_tex[8];
-	t_texarr	title;
-	t_texarr	scope;
+	t_texture	door_tex[7];
+	t_texture	door_super_tex[7];
+	t_texture	door_missile_tex[7];
+	t_texture	door_boss_tex[7];
+	t_texture	cannon_tex[2];
+	t_texture	crawler_tex[6];
+	t_texture	atomic_tex[6];
+	t_texture	holtz_tex[6];
+	t_texture	reo_tex[4];
+	t_texture	proj_tex[10];
+	t_texture	proj_green_tex[4];
+	t_texture	explode_tex[17];
+	t_texture	energy_tex[3];
+	t_texture	etank_tex[2];
+	t_texture	missile_tex[12];
+	t_texture	super_tex[12];
+	t_texture	health_pu[4];
+	t_texture	missile_ammo[2];
+	t_texture	super_ammo[2];
+	t_texture	trophy_tex[2];
+	t_texture	phantoon[10];
+	t_texture	phantoon_proj[6];
+	t_texture	dmg_tex[8];
+	t_texture	title;
+	t_texture	scope;
 	t_img		*alphabet;
-	t_texarr	tele;
-	t_texarr	credits;
-	t_texarr	boss_bar[2];
-	t_texarr	empty;
+	t_texture	tele;
+	t_texture	credits;
+	t_texture	boss_bar[2];
+	t_texture	empty;
 	void		*playertile;
 }	t_shtex;
 
@@ -242,12 +242,12 @@ typedef enum e_textures
 typedef	struct s_data
 {
 	struct s_info	*app;
-	t_texarr		n_tex;
-	t_texarr		s_tex;
-	t_texarr		e_tex;
-	t_texarr		w_tex;
-	t_texarr		floor_tex;
-	t_texarr		ceil_tex;
+	t_texture		n_tex;
+	t_texture		s_tex;
+	t_texture		e_tex;
+	t_texture		w_tex;
+	t_texture		floor_tex;
+	t_texture		ceil_tex;
 	int				outside;
 	t_img			*minimap;
 	int				f_col;
@@ -513,7 +513,7 @@ double	get_y_intercept(t_vect pos, double gradient);
 t_vect	get_vertical_int(double x, double gradient, double c);
 t_vect	get_horizontal_int(double y, double gradient, double c);
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
-void	add_in_front(t_ray *ray, int face, t_texarr *texture);
+void	add_in_front(t_ray *ray, int face, t_texture *texture);
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
@@ -547,21 +547,20 @@ void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 void	replace_sky(t_info *app, char *tex_file);
-int		dim_colour(int col, double fact);
-int		tint_red(int col);
+int		dim_colour(u_int col, double fact);
+int		tint_red(u_int col);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
-void	place_texarr(t_info *app, t_texarr *tex, int x, int y);
+void	place_texarr(t_info *app, t_texture *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
-u_int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
+u_int32_t *img_to_tex(t_info *app, char *filename, int *x, int *y);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
-void	free_tex_arr(t_texarr *texture);
 void	draw_rays(t_info *app, t_img *canvas);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
@@ -615,7 +614,7 @@ void	set_sensitivity(t_info *app, int sensitivity);
 void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
-int	bilinear_filter(double x, double y, const t_texarr *tex);
+int	bilinear_filter(double x, double y, const t_texture *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
 void	start_obj_death(t_object *obj, t_info *app);
@@ -623,7 +622,7 @@ t_list	*delete_object(t_list **obj_list, t_list *obj_node);
 t_object	*check_obj_proximity(t_vect pos, t_data *map);
 int	point_oob_global(t_vect pos, t_data *map);
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
-t_texarr	*handle_animation(t_info *app, t_anim anim);
+t_texture	*handle_animation(t_info *app, t_anim anim);
 t_anim	**create_anim_arr(int x, int y);
 void	init_anims(t_info *app, t_data *map);
 void	reset_anims(t_info *app, t_data *map);
@@ -645,8 +644,8 @@ void	update_objects(t_info *app, t_player *player, t_data *map);
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
 u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
-t_texarr	*get_open_door_tex(t_anim *anim, t_info *app);
-t_texarr	*get_close_door_tex(t_anim *anim, t_info *app);
+t_texture	*get_open_door_tex(t_anim *anim, t_info *app);
+t_texture	*get_close_door_tex(t_anim *anim, t_info *app);
 void	toggle_fullscreen(t_info *const app);
 
 #endif //CUB3D_H

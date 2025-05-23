@@ -24,11 +24,8 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
 					-pg \
-					# -fsanitize=address \
-					# -fsanitize=undefined \
-					# -fsanitize=float-divide-by-zero \
-					# -fsanitize=float-cast-overflow \
-					# -D FRAMERATE=60
+#					-D FRAMERATE=60 \
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
@@ -40,9 +37,7 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-lmlx -lft -lX11 -lXext -lm \
-					# -fsanitize=address -fsanitize=undefined \
-					# 		-fsanitize=float-divide-by-zero \
-					# 		-fsanitize=float-cast-overflow
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
 

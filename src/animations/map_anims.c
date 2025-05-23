@@ -30,24 +30,22 @@ void	init_anims(t_info *app, t_data *map)
 	int		j;
 	char	tile;
 
-	i = 0;
-	while (i < map->height)
+	i = -1;
+	while (++i < map->height)
 	{
-		j = 0;
-		while (j < map->width)
+		j = -1;
+		while (++j < map->width)
 		{
 			tile = map->map[i][j];
 			if (tile == 'D')
-				map->anims[i][j].tex_arr = app->shtex->door_tex;
+				map->anims[i][j].tex = app->shtex->door_tex;
 			else if (tile == 'L')
-				map->anims[i][j].tex_arr = app->shtex->door_super_tex;
+				map->anims[i][j].tex = app->shtex->door_super_tex;
 			else if (tile == 'M')
-				map->anims[i][j].tex_arr = app->shtex->door_missile_tex;
+				map->anims[i][j].tex = app->shtex->door_missile_tex;
 			else if (tile == 'B')
-				map->anims[i][j].tex_arr = app->shtex->door_boss_tex;
-			j++;
+				map->anims[i][j].tex = app->shtex->door_boss_tex;
 		}
-		i++;
 	}
 }
 

@@ -14,14 +14,6 @@
 #include "cub3d.h"
 #include "libft.h"
 
-static inline __attribute__((always_inline))
-void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
-{
-	if (colour == MLX_TRANSPARENT)
-		return ;
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
-}
-
 void	load_map_textures(t_info *app, t_img *tiles[])
 {
 	int		i;
@@ -81,7 +73,7 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 		while (++j < tile->width)
 		{
 			src_pixel = src_row[j];
-			mask = -(src_pixel != MLX_TRANSPARENT && (src_pixel != XPM_TRANSPARENT));
+			mask = -(src_pixel != XPM_TRANSPARENT);
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
@@ -213,35 +205,73 @@ void	place_mmap(t_info *app)
 	place_tile_on_image32_alpha(canvas, pointer, *p);
 }
 
-void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
+void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 {
-	t_img	*canvas = app->canvas;
-	int		i;
-	int		j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	mask;
+	t_ivect		i;
 
-	i = -1;
-	while (++i < tex->y)
+	i.y = -1;
+	while (++i.y < src->height)
 	{
-		j = -1;
-		while (++j < tex->x)
-			my_put_pixel_32(canvas, x + j, y + i, tex->img[i][j]);
+
+		src_row = (u_int32_t *) src->data + (i.y * src->width);
+		dst_row = (u_int32_t *) dst->data + ((i.y + pos.y) * dst->width) + pos.x;
+		i.x = -1;
+		while (++i.x < src->width)
+		{
+			mask = -(src_row[i.x] != XPM_TRANSPARENT);
+			dst_row[i.x] = (src_row[i.x] & mask) | (dst_row[i.x] & ~mask);
+		}
 	}
 }
 
-void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
+void	place_texarr(t_info *app, t_texture *tex, int x, int y)
 {
-	t_img	*canvas = app->canvas;
-	int		i;
-	int		j;
-	double	step;
+	t_img *const	canvas = app->canvas;
+	u_int32_t		*src_row;
+	u_int32_t		*dst_row;
+	t_ivect			i;
+
+	i.y = -1;
+	while (++i.y < tex->y)
+	{
+		src_row = (u_int32_t *)tex->data + (i.y * tex->x);
+		dst_row = (u_int32_t *)canvas->data + ((i.y + y) * canvas->width) + x;
+		i.x = -1;
+		u_int32_t *colour2;
+		while (++i.x < tex->x)
+		{
+			u_int32_t colour = src_row[i.x];
+			colour2 = &dst_row[i.x];
+			if (colour != XPM_TRANSPARENT)
+				*colour2 = colour;
+		}
+	}
+}
+
+void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
+{
+	t_ivect			i;
+	double			step;
+	u_int32_t		*src_row;
+	u_int32_t		*dst_row;
+	u_int32_t		mask;
+	t_img *const	canvas = app->canvas;
 
 	step = 1.0 / scalar;
-	i = -1;
-	while (++i < tex->y)
+	i.y = -1;
+	while (++i.y < tex->y)
 	{
-		j = -1;
-		while (++j < tex->x)
-			my_put_pixel_32(canvas, pos.x + j, pos.y + i, tex->img[(int)(i * step)][(int)(j * step)]);
+		src_row = tex->data + (int)(i.y * step + 0.5);
+		dst_row = (u_int32_t *) canvas->data + ((i.y + pos.y) * canvas->width) + pos.x;
+		i.x = -1;
+		while (++i.x < tex->x)
+		{
+			mask = -(src_row[(int)(i.x * step + 0.5)] != XPM_TRANSPARENT);
+			dst_row[i.x] = (src_row[(int)(i.x * step)] & mask) | (dst_row[i.x] & ~mask);
+		}
 	}
 }
 
@@ -319,7 +349,7 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 		while (++j < char_width * scalar)
 		{
 			src_pixel = src_row[j / scalar];
-			mask = -(src_pixel != MLX_TRANSPARENT);
+			mask = -(src_pixel != XPM_TRANSPARENT);
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
@@ -396,7 +426,7 @@ void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
 
 void	place_weapon(t_info *app)
 {
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	if (app->player->hud.active == 1)
 	{
@@ -455,7 +485,7 @@ void	place_energy(t_info *app, t_player *player)
 void	place_ammo(t_info *app, t_player *player)
 {
 	char		buf[4];
-	t_texarr	*tex;
+	t_texture	*tex;
 	
 	buf[3] = 0;
 	if (player->max_ammo[MISSILE] != 0)
@@ -499,7 +529,7 @@ void	place_fps(t_info *app)
 
 void	place_scope(t_info *app)
 {
-	t_texarr *scope;
+	t_texture *scope;
 
 	scope = &app->shtex->scope;
 	place_texarr(app, scope, WIN_WIDTH / 2 - scope->x / 2, WIN_HEIGHT / 2 - scope->y / 2);
@@ -507,7 +537,7 @@ void	place_scope(t_info *app)
 
 void	place_dmg(t_info *app, t_player *player)
 {
-	t_texarr	*tex;
+	t_texture	*tex;
 	double		angle;
 	int			dir;
 	t_vect		offset;

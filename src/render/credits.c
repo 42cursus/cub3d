@@ -34,22 +34,20 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 }
 
 static inline __attribute__((always_inline, unused))
-int	linear_filter_credits(t_vect idx, const t_texarr *tex)
+int	linear_filter_credits(t_vect idx, const t_texture *tex)
 {
 	const double	frac = fmod(idx.x, 1);
-	int				x_upper;
-	int				col1;
-	int				col2;
+	u_int				*col1;
+	u_int				*col2;
 
-	x_upper = floor(idx.x) + 1;
-	col1 = tex->img[(int) idx.y][(int)floor(idx.x)];
-	col2 = tex->img[(int) idx.y][x_upper];
-	return (interpolate_colour_inline(col1, col2, frac));
+	col1 = tex->data + (int)idx.y + (int)floor(idx.x);
+	col2 = tex->data + (int)idx.y + (int)(floor(idx.x) + 1);
+	return (interpolate_colour_inline(*col1, *col2, frac));
 }
 
 void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
-	const t_texarr		*tex = &app->shtex->credits;
+	const t_texture		*tex = &app->shtex->credits;
 	int					i;
 	double				step_x;
 	double				curr_x;
