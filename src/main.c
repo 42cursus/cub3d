@@ -15,9 +15,10 @@
 
 int	main(int argc, char **argv)
 {
-	t_info *const	app = &(t_info){.title = (char *)"cub3d", .win = {
-		.width = WIN_WIDTH, .height = WIN_HEIGHT
-	}};
+	t_info *const	app = &(t_info){
+		.title = (char *)"cub3d",
+		.fullscreen = GO_TO_FULLSCREEN_ON_LOAD
+	};
 
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
 	while (app->state != STATE_END)

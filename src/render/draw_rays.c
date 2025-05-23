@@ -15,7 +15,7 @@
 static inline __attribute__((always_inline, unused))
 void	my_put_pixel_32(const t_img *img, int x, int y, unsigned int colour)
 {
-	if (colour == MLX_TRANSPARENT)
+	if (colour == XPM_TRANSPARENT)
 		return ;
 	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
 }
@@ -31,32 +31,22 @@ void	my_put_pixel_32(const t_img *img, int x, int y, unsigned int colour)
 // 	*dst_pixel = (colour & mask) | (*dst_pixel & ~mask);
 // }
 
-void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray,
-			t_img *canvas, t_ivect lvars)
+void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect lvars)
 {
 	const double	fract = ray->pos;
-	const t_texarr	*texture = ray->texture;
+	const t_texture	*texture = ray->texture;
 	double			h_index;
+	u_int			colour;
 
-	if (ray->damaged == 1)
+	u_int (*const pixels)[texture->y][texture->x] = (void *)texture->data;
+	while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 	{
-		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
-		{
-			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-			my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y,
-				tint_red(texture->img[(int)h_index][(int)fract]));
-			draw_pos.y++;
-		}
-	}
-	else
-	{
-		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
-		{
-			h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-			my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y,
-				texture->img[(int)h_index][(int)fract]);
-			draw_pos.y++;
-		}
+		h_index = ((double)draw_pos.y / lvars.x) * texture->y;
+		colour = (*pixels)[(int)h_index][(int) fract];
+		if (ray->damaged)
+			colour = tint_red(colour);
+		my_put_pixel_32(canvas, draw_pos.x, lvars.y + draw_pos.y, colour);
+		draw_pos.y++;
 	}
 }
 

@@ -86,6 +86,7 @@ t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
 	t_dda	dda;
 	char	tile;
 
+	ray = (t_ray){0};
 	init_dda(&dda, app, &ray, angle);
 	while (1)
 	{

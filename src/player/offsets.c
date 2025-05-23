@@ -14,28 +14,26 @@
 
 void	calculate_offsets(t_info *app, t_player *player)
 {
-	t_ivect			iter;
+	int				i;
 	const double	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
 	double			angle;
 	double			distance;
 	double			scalar;
 
-	iter.x = 0;
-	while (iter.x < WIN_WIDTH / 2)
+	i = 0;
+	while (i < WIN_WIDTH / 2)
 	{
-		angle = atan(app->fov_opp_len - (iter.x * offset));
-		player->angle_offsets[iter.x] = angle;
-		player->angle_offsets[WIN_WIDTH - iter.x - 1] = -angle;
-		iter.x++;
+		angle = atan(app->fov_opp_len - (i * offset));
+		player->angle_offsets[i] = angle;
+		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
+		i++;
 	}
 	scalar = get_hyp_len(app->fov_opp_len, 1);
-	iter.x = 0;
-	iter.y = WIN_HEIGHT / 2;
-	while (iter.x < WIN_HEIGHT / 2)
+	i = 0;
+	while (i < WIN_HEIGHT / 2)
 	{
-		distance = WIN_WIDTH / (4.0 * (iter.x + 1) * app->fov_opp_len);
-		player->floor_offsets[iter.x++] = distance * scalar;
-		player->ceil_offsets[--iter.y] = distance * scalar;
+		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
+		player->offsets[i++] = distance * scalar;
 	}
 }
 

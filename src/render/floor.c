@@ -47,13 +47,12 @@ int	point_oob(t_vect pos, t_data *map)
 }
 
 static inline __attribute__((always_inline))
-void	draw_floor_row(t_info *app, t_vect pos[2], u_int (*const dst))
+void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
 {
 	int				i;
 	t_vect			step;
 	t_vect			curr;
 	t_ivect			idx;
-	const t_img		*tex = app->map->texs[T_FLOOR];
 	u_int			*src = (u_int *)tex->data;
 
 	int width = tex->width;
@@ -88,22 +87,24 @@ void	draw_floor_row(t_info *app, t_vect pos[2], u_int (*const dst))
  * @param map
  * @param player
  */
-void	fill_floor(t_info *app, t_player *player)
+void	fill_floor(t_info *app, t_player *player, int is_floor)
 {
 	t_vect	dir[2];
 	t_vect	pos[2];
 	u_int	*dst;
 	int		row;
+	double	depth;
+	t_img *const tex = (t_img *[]){app->map->texs[T_CEILING], app->map->texs[T_FLOOR]}[is_floor];
 
-	row = 0;
+	row = -1;
 	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
 	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
 	while (++row < WIN_HEIGHT / 2)
 	{
-		double depth = player->floor_offsets[row - 1];
+		depth = (double[]){player->offsets[WIN_HEIGHT / 2 - row - 1], player->offsets[row]}[is_floor];
 		pos[LEFT] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
 		pos[RIGHT] = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
-		dst = (u_int *)app->canvas->data + (row + (WIN_HEIGHT / 2)) * app->canvas->width;
-		draw_floor_row(app, pos, dst);
+		dst = (u_int *)app->canvas->data + (row + (WIN_HEIGHT / 2) * is_floor) * app->canvas->width;
+		draw_floor_row(pos, dst, tex);
 	}
 }

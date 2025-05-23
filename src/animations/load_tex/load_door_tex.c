@@ -16,7 +16,7 @@ void	load_door_tex(t_info *app)
 {
 	int			i;
 	char		buf[50];
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	tex = app->shtex->door_tex;
 	i = 0;
@@ -24,20 +24,20 @@ void	load_door_tex(t_info *app)
 	{
 		ft_snprintf(buf, 50,
 			"./textures/metroid_door_anim%c.xpm", i + '1');
-		tex[i + 2].img = img_to_arr(buf, app, &tex[i + 2].x, &tex[i + 2].y);
+		tex[i + 2].data = img_to_tex(app, buf, &tex[i + 2].x, &tex[i + 2].y);
 		i++;
 	}
-	tex[0].img = img_to_arr((char *)"./textures/metroid_door3.xpm",
-			app, &tex[0].x, &tex[0].y);
-	tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm",
-			app, &tex[1].x, &tex[1].y);
+	tex[0].data = img_to_tex(
+		app, (char *) "./textures/metroid_door3.xpm", &tex[0].x, &tex[0].y);
+	tex[1].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_open.xpm", &tex[1].x, &tex[1].y);
 }
 
 void	load_boss_door_tex(t_info *app)
 {
 	int			i;
 	char		buf[50];
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	tex = app->shtex->door_boss_tex;
 	i = 0;
@@ -45,20 +45,20 @@ void	load_boss_door_tex(t_info *app)
 	{
 		ft_snprintf(buf, 50,
 			"./textures/metroid_door_boss_anim%c.xpm", i + 1 + '0');
-		tex[i + 2].img = img_to_arr(buf, app, &tex[i + 2].x, &tex[i + 2].y);
+		tex[i + 2].data = img_to_tex(app, buf, &tex[i + 2].x, &tex[i + 2].y);
 		i++;
 	}
-	tex[0].img = img_to_arr((char *)"./textures/metroid_door_boss.xpm",
-			app, &tex[0].x, &tex[0].y);
-	tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm",
-			app, &tex[1].x, &tex[1].y);
+	tex[0].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_boss.xpm", &tex[0].x, &tex[0].y);
+	tex[1].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_open.xpm", &tex[1].x, &tex[1].y);
 }
 
 void	load_super_door_tex(t_info *app)
 {
 	int			i;
 	char		buf[50];
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	tex = app->shtex->door_super_tex;
 	i = 0;
@@ -66,20 +66,21 @@ void	load_super_door_tex(t_info *app)
 	{
 		ft_snprintf(buf, 50,
 			"./textures/metroid_door_super_anim%c.xpm", i + '1');
-		tex[i + 2].img = img_to_arr(buf, app, &tex[i + 2].x, &tex[i + 2].y);
+		tex[i + 2].data = img_to_tex(app, buf, &tex[i + 2].x, &tex[i + 2].y);
 		i++;
 	}
-	tex[0].img = img_to_arr((char *)"./textures/metroid_door_super.xpm",
-			app, &tex[0].x, &tex[0].y);
-	tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm",
-			app, &tex[1].x, &tex[1].y);
+	tex[0].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_super.xpm", &tex[0].x,
+		&tex[0].y);
+	tex[1].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_open.xpm", &tex[1].x, &tex[1].y);
 }
 
 void	load_missile_door_tex(t_info *app)
 {
 	int			i;
 	char		buf[50];
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	tex = app->shtex->door_missile_tex;
 	i = 0;
@@ -87,11 +88,12 @@ void	load_missile_door_tex(t_info *app)
 	{
 		ft_snprintf(buf, 50,
 			"./textures/metroid_door_missile_anim%c.xpm", i + 1 + '0');
-		tex[i + 2].img = img_to_arr(buf, app, &tex[i + 2].x, &tex[i + 2].y);
+		tex[i + 2].data = img_to_tex(app, buf, &tex[i + 2].x, &tex[i + 2].y);
 		i++;
 	}
-	tex[0].img = img_to_arr((char *)"./textures/metroid_door_missile.xpm",
-			app, &tex[0].x, &tex[0].y);
-	tex[1].img = img_to_arr((char *)"./textures/metroid_door_open.xpm",
-			app, &tex[1].x, &tex[1].y);
+	tex[0].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_missile.xpm", &tex[0].x,
+		&tex[0].y);
+	tex[1].data = img_to_tex(
+		app, (char *) "./textures/metroid_door_open.xpm", &tex[1].x, &tex[1].y);
 }

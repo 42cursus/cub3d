@@ -12,22 +12,11 @@
 
 #include "cub3d.h"
 
-void	free_tex_arr(t_texarr *texture)
-{
-	int	i;
 
-	if (texture == NULL)
-		return ;
-	i = 0;
-	while (i < texture->y)
-		free(texture->img[i++]);
-	free(texture->img);
-}
-
-void	free_tex_arr_arr(t_texarr *tex, int n)
+void	free_tex_arr_arr(t_texture *tex, int n)
 {
 	while (n--)
-		free_tex_arr(&tex[n]);
+		free(tex[n].data);
 }
 
 void	free_shtex_extra(t_info *app)
@@ -44,12 +33,12 @@ void	free_shtex_extra(t_info *app)
 
 void	free_shtex(t_info *app)
 {
-	free_tex_arr(&app->shtex->title);
+	free(app->shtex->title.data);
+	free(app->shtex->credits.data);
+	free(app->shtex->tele.data);
+	free(app->shtex->scope.data);
+	free(app->shtex->empty.data);
 	mlx_destroy_image(app->mlx, app->shtex->alphabet);
-	free_tex_arr(&app->shtex->credits);
-	free_tex_arr(&app->shtex->tele);
-	free_tex_arr(&app->shtex->scope);
-	free_tex_arr(&app->shtex->empty);
 	free_tex_arr_arr(app->shtex->trophy_tex, 2);
 	free_tex_arr_arr(app->shtex->super_ammo, 2);
 	free_tex_arr_arr(app->shtex->missile_ammo, 2);

@@ -1,7 +1,7 @@
 /* XPM */
 static char *dummy[]={
 "64 64 4 1",
-". c #000042",
+". c None",
 "# c #6b2921",
 "a c #ad5239",
 "b c #ff7b31",
