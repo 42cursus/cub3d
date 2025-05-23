@@ -12,16 +12,12 @@
 
 #include "cub3d.h"
 
-void	normalize_angles(double *angle_start, double *angle_end)
+static inline double	normalize_angle(double angle)
 {
-	if ((*angle_start) < 0)
-		(*angle_start) += 2 * M_PI;
-	if ((*angle_end) < 0)
-		(*angle_end)   += 2 * M_PI;
-	if ((*angle_start) >= 2 * M_PI)
-		(*angle_start) = fmod((*angle_start), 2 * M_PI);
-	if ((*angle_end) >= 2 * M_PI)
-		(*angle_end)   = fmod((*angle_end), 2 * M_PI);
+	angle = fmod(angle, 2 * M_PI);
+	if (angle < 0)
+		angle += 2 * M_PI;
+	return (angle);
 }
 
 /**
@@ -32,14 +28,14 @@ void	normalize_angles(double *angle_start, double *angle_end)
  * @param x
  * @return
  */
-static inline double smoothstep(double edge0, double edge1, double x)
+static inline double	smoothstep(double edge0, double edge1, double x)
 {
 	x = (x - edge0) / (edge1 - edge0);
 	if (x < 0.0)
 		x = 0.0;
 	if (x > 1.0)
 		x = 1.0;
-	return x * x * (3 - 2 * x);
+	return (x * x * (3 - 2 * x));
 }
 
 /**
@@ -49,7 +45,7 @@ static inline double smoothstep(double edge0, double edge1, double x)
  * @param end
  * @return
  */
-static int angle_in_range(double angle, double start, double end)
+static inline int	angle_in_range(double angle, double start, double end)
 {
 	if (start <= end)
 		return (angle >= start && angle <= end);
@@ -59,96 +55,100 @@ static int angle_in_range(double angle, double start, double end)
 
 void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 {
-	t_point cc;
-	double dist;
+	t_point	cc;
+	double	dist;
+	double	frac;
+	int		y;
+	int		x;
 
-	int y = -r;
+	y = -r;
 	while (++y <= r)
 	{
-		int x = -r;
+		x = -r;
 		while (++x <= r)
 		{
 			dist = sqrt(x * x + y * y);
-			cc = (t_point){.x = c.x + x, .y = c.y + y};
-			double frac = r - dist;
+			cc.x = c.x + x;
+			cc.y = c.y + y;
+			frac = r - dist;
 			if (dist <= r - 1.0)
 				put_pixel_alpha(img, cc, color, 0); // full opacity
 			else if (dist <= r)
 				put_pixel_alpha(img, cc, color, 1 - frac); // fade out
+//			put_pixel_alpha(img, cc, color, frac);
 		}
 	}
 }
 
-void	draw_ring_segment(t_img *img, t_ring_segment segment, int color)
+void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 {
-	int		x, y;
-	double	fx, fy, dist, angle, alpha;
+	t_ivect	i;
+	t_vect	f;
+	t_vect	da;
+	t_vect	a_edge;
+	t_point	cc;
+	double	alpha;
+	double	angle;
+	double	dist;
 
-	y = -segment.outer.r - 1;
-	while (++y <= segment.outer.r)
+	i.y = -seg.out.r - 1;
+	while (++i.y <= seg.out.r)
 	{
-		x = -segment.outer.r - 1;
-		while (++x <= segment.outer.r)
+		i.x = -seg.out.r - 1;
+		while (++i.x <= seg.out.r)
 		{
-			fx = x + 0.5;
-			fy = y + 0.5;
-			dist = sqrt(fx * fx + fy * fy);
-			if (dist < segment.inner.r - 1.0 || dist > segment.outer.r)
-				continue;
-
-			angle = atan2(fy, fx); // range: -π to π
+			f.x = i.x + 0.5;
+			f.y = i.y + 0.5;
+			dist = sqrt(f.x * f.x + f.y * f.y);
+			if (dist < seg.in.r - 1.0 || dist > seg.out.r)
+				continue ;
+			angle = atan2(f.y, f.x);
 			if (angle < 0)
-				angle += 2 * M_PI;
-
-			if (angle_in_range(angle, segment.inner.angle_start, segment.inner.angle_end))
+				angle += 2 * M_PI; // can be replaced with `angle += (angle < 0) * (2 * M_PI);`
+			if (angle_in_range(angle, seg.in.a_start, seg.in.a_end))
 			{
-				// Angular blur (soft arc boundary)
-				double da_start = angle - segment.inner.angle_start;
-				double da_end   = segment.inner.angle_end - angle;
-				if (da_start < 0) da_start += 2 * M_PI;
-				if (da_end   < 0) da_end   += 2 * M_PI;
-
-				double a_edge_start = smoothstep(0.0, ANGLE_EPSILON, da_start);
-				double a_edge_end   = smoothstep(0.0, ANGLE_EPSILON, da_end);
-
-				// Linear radial edge AA
-				alpha = 1.0;
-				if (dist < segment.inner.r)
-					alpha = dist - (segment.inner.r - 1.0);
-				else if (dist > segment.outer.r - 1.0)
-					alpha = segment.outer.r - dist;
-
-				alpha = 1 - fmin(alpha, fmin(a_edge_start, a_edge_end));
-
-				t_point cc = { .x = segment.inner.center.x + x, .y = segment.inner.center.y + y };
+				da.x = angle - seg.in.a_start;
+				da.y = seg.in.a_end - angle;
+				if (da.x < 0)
+					da.x += 2 * M_PI;
+				if (da.y < 0)
+					da.y += 2 * M_PI;
+				a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
+				a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
+				alpha = 1.0; // Linear radial edge AA
+				if (dist < seg.in.r)
+					alpha = dist - (seg.in.r - 1.0);
+				else if (dist > seg.out.r - 1.0)
+					alpha = seg.out.r - dist;
+				alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
+				cc.x = seg.in.center.x + i.x;
+				cc.y = seg.in.center.y + i.y;
 				put_pixel_alpha(img, cc, color, alpha);
 			}
 		}
 	}
 }
 
-void draw_nav(t_info *app)
+void	draw_nav(t_info *app)
 {
-	t_ring_segment	segment;
-	t_arc 			inner;
+	t_ring_segment	seg;
+	t_arc			inner;
+	t_img *const	ptr = app->pointer;
+	const t_point	center = {.x = ptr->width / 2, .y = ptr->height / 2};
 	t_arc *const	outer = &(t_arc){
-		.r = 7,
-		.angle_start = -app->player->angle - 3 * M_1_PI,
-		.angle_end = -app->player->angle + M_1_PI,
-		.center = {
-			.x = app->pointer->width / 2,
-			.y = app->pointer->height / 2
-		}
+		.r = 25,
+		.a_start = normalize_angle(-app->player->angle - 2 * M_1_PI),
+		.a_end = normalize_angle(-app->player->angle + M_1_PI),
+		.center = center
 	};
 
-	normalize_angles(&outer->angle_start, &outer->angle_end);
 	inner = *outer;
-	outer->r = 25;
-	segment.outer = *outer;
-	segment.inner = inner;
-	ft_bzero(app->pointer->data, app->pointer->size_line * app->pointer->height);
-	apply_alpha(app->pointer, 255);
-	draw_ring_segment(app->pointer, segment, MLX_LIGHT_SLATE_GREY);
-	apply_alpha(app->pointer, 96);
-	draw_circle_filled(app->pointer, (t_point){ .x = app->pointer->width / 2, .y = app->pointer->height / 2}, 4, MLX_DTURQUOISE);
+	inner.r = 7;
+	seg.out = *outer;
+	seg.in = inner;
+	ft_bzero(ptr->data, ptr->size_line * ptr->height);
+	apply_alpha(ptr, 255);
+	draw_ring_segment(ptr, seg, MLX_LIGHT_SLATE_GREY);
+	apply_alpha(ptr, 96);
+	draw_circle_filled(ptr, center, 4, MLX_DTURQUOISE);
 }

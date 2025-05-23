@@ -94,14 +94,14 @@ typedef struct s_arc
 {
 	t_point	center;
 	int		r;
-	double	angle_start;
-	double	angle_end;
+	double	a_start;
+	double	a_end;
 }	t_arc;
 
 typedef struct s_ring_segment
 {
-	t_arc	outer;
-	t_arc	inner;
+	t_arc	out;
+	t_arc	in;
 }	t_ring_segment;
 
 typedef struct s_cvect
@@ -463,7 +463,6 @@ typedef struct s_colour
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 
-void	normalize_angles(double *angle_start, double *angle_end);
 void	apply_alpha(t_img *img, u_char alpha);
 
 int		check_endianness(void);
@@ -566,7 +565,7 @@ void	free_tex_arr(t_texarr *texture);
 void	draw_rays(t_info *app, t_img *canvas);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
-void	draw_ring_segment(t_img *img, t_ring_segment segment, int color);
+void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
 t_img	*build_mmap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);

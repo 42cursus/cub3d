@@ -348,6 +348,11 @@ void do_load_to_play(void *param)
 	mlx_hook(app->win, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	app->timer.cur_lvl_start = get_time_ms();
+
+	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
+				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	XUngrabPointer(app->mlx->display, CurrentTime);
 }
 
 void do_load_to_end(void *param)
