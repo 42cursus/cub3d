@@ -76,7 +76,7 @@ void	load_misc_graphics(t_info *app)
 	tex = &app->shtex->scope;
 	tex->data = img_to_tex(app, (char *) "./textures/scope.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->credits;
-	tex->data = img_to_tex(app, (char *) "./textures/credits_lorem.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex(app, (char *) "./textures/credits.xpm", &tex->x, &tex->y);
 	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx,
 			(char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx,
