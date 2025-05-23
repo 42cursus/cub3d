@@ -6,13 +6,13 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:19:04 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 15:20:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/21 22:40:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-void	load_energy_textures(t_info *app)
+void	load_energy_tex(t_info *app)
 {
 	t_texarr	*tex;
 
