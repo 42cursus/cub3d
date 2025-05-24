@@ -6,13 +6,13 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:19:04 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 15:20:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/05/21 22:40:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-void	load_energy_textures(t_info *app)
+void	load_energy_tex(t_info *app)
 {
 	t_texture *const	tex = app->shtex->energy_tex;
 
@@ -76,7 +76,7 @@ void	load_misc_graphics(t_info *app)
 	tex = &app->shtex->scope;
 	tex->data = img_to_tex(app, (char *) "./textures/scope.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->credits;
-	tex->data = img_to_tex(app, (char *) "./textures/credits_lorem.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex(app, (char *) "./textures/credits.xpm", &tex->x, &tex->y);
 	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx,
 			(char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx,

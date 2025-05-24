@@ -306,7 +306,7 @@ void	do_mmenu_to_credits(void *param)
 	app->dummy = dummy;
 	dummy->dir = (t_vect){0.0, 1.0};
 	dummy->pos =  (t_vect){0.0, -0.6};
-	dummy->speed = 0.003;
+	dummy->speed = 0.002;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
 	mlx_hook(app->win, ButtonPress, 0, NULL, app);
