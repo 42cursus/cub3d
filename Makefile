@@ -44,16 +44,22 @@ SRC_DIR			= src
 SUB_DIRS		= parser utils app player render rays entities animations
 CUB_SRCS		:=
 
-ifndef VERBOSE
-MAKEFLAGS += --no-print-directory
-endif
-
 include $(SUB_DIRS:%=$(SRC_DIR)/%/Makefile.mk)
 
 SRCS			:= src/main.c
 SRCS			+= $(CUB_SRCS)
 
 OBJS			= $(SRCS:%.c=$(BUILD_DIR)/%.o)
+
+ifeq ($(MAKELEVEL),0)
+	# Only set --jobs if user didn't already pass a -j option manually
+	ifeq ($(filter -j,$(MAKEFLAGS)),)
+		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory --quiet
+	endif
+	ifeq ($(filter "--output-sync=target",$(MAKEFLAGS)),)
+		MAKEFLAGS += --output-sync=target
+	endif
+endif
 
 ## all
 all: $(NAME)
@@ -63,35 +69,50 @@ $(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS)
 		@$(CC) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
-## libft
-$(LIBFT_LIB):
-		@$(MAKE) -C $(LIBFT_DIR) --no-print-directory -j8
-
-## mlx
-$(LIBX):
-		@$(MAKE) -C $(LIBX_DIR) --no-print-directory -j8
-		@echo "LIBX BUILD COMPLETE!"
-
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
 		@$(CC) $(CFLAGS) $(INCLUDE) -c $^ -o $@
 
+## libft
+$(LIBFT_LIB):
+		+$(MAKE) -C $(LIBFT_DIR)
+
+$(LIBX_DIR)/Makefile.gen:
+		+$(MAKE) -C $(LIBX_DIR)
+		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
+
+## mlx
+$(LIBX): $(LIBX_DIR)/Makefile.gen
+		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
+		@echo "LIBX BUILD COMPLETE!"
+
+## clean_libft
+clean_libft:
+		+$(MAKE) -C $(LIBFT_DIR) clean
+
+## clean_libx
+clean_libx: $(LIBX_DIR)/Makefile.gen
+		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen clean
+
 ## clean
-clean:
+clean: clean_libft clean_libx
 		@if [ -d $(BUILD_DIR) ]; then $(RM) -rf $(BUILD_DIR); fi
-		@$(MAKE) -C $(LIBFT_DIR) --no-print-directory clean
-		@#$(MAKE) -C $(LIBX_DIR) --no-print-directory clean
+
+## clean_libft
+fclean_libft:
+		+$(MAKE) -C $(LIBFT_DIR) fclean
 
 ## fclean
-fclean: clean
+fclean: clean_libx fclean_libft
 		@if [ -f $(NAME) ]; then $(RM) $(RMFLAGS) $(NAME); fi
-		@#$(MAKE) -C $(LIBFT_DIR) --no-print-directory fclean
+		@#if [ -f $(LIBX_DIR)/Makefile.gen ]; then $(RM) $(RMFLAGS) $(LIBX_DIR)/Makefile.gen; fi
 
-re: fclean all
+re: fclean
+		+$(MAKE) all
 
 norm:
 		@norminette --use-gitignore $(SRCS) || true
-		@$(MAKE) -C $(LIBFT_DIR) norm
+		+$(MAKE) -C $(LIBFT_DIR) norm
 
 # Magic help adapted: from https://gitlab.com/depressiveRobot/make-help/blob/master/help.mk (MIT License)
 help:
