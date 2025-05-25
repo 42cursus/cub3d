@@ -408,9 +408,6 @@ typedef struct s_info
 	char		**map_ids;
 	int			no_maps;
 	t_player	*player;
-	size_t		last_frame;
-	size_t		frametime;
-	size_t		framecount;
 	bool		keys[16];
 	bool		mouse[16];
 	t_state		state;
@@ -423,10 +420,13 @@ typedef struct s_info
 	int			old_fov;
 	double		fov_rad_half;
 	double		fov_opp_len;
-	size_t		framerate;
+	size_t		fr_rate;
 	size_t		fr_delay;
 	double		fr_scale;
-	t_list		*lvlcache;
+	size_t		fr_last;
+	size_t		fr_time;
+	size_t		fr_count;
+	t_list		*lvl_cache;
 	int			filter;
 	int			fullscreen;
 	t_timer		timer;

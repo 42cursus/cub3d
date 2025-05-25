@@ -38,7 +38,7 @@ void	set_framerate(t_info *app, size_t framerate)
 		framerate = 30;
 	else if (framerate > 500)
 		framerate = 500;
-	app->framerate = framerate;
+	app->fr_rate = framerate;
 	app->fr_delay = 1000000 / framerate;
 	app->fr_scale = framerate / 50.0;
 }

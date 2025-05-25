@@ -445,7 +445,7 @@ void	place_weapon(t_info *app)
 
 	if (app->player->hud.active == 1)
 	{
-		if ((app->last_frame - app->player->hud.timestart) / 20000 < 6)
+		if ((app->fr_last - app->player->hud.timestart) / 20000 < 6)
 			tex = &app->shtex->cannon_tex[1];
 		else
 		{
@@ -530,7 +530,7 @@ void	place_fps(t_info *app)
 	int			x;
 	int			y;
 
-	fps = 1000000 / app->frametime;
+	fps = 1000000 / app->fr_time;
 	y = WIN_HEIGHT - 32;
 	x = WIN_WIDTH - 32;
 	while (fps > 0)
@@ -641,7 +641,7 @@ void	draw_hud(t_info *app)
 	place_fps(app);
 	if (app->timer.active == 1)
 		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
-	if (app->last_frame - app->player->dmg_time < 500000)
+	if (app->fr_last - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
 //	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
 //						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,

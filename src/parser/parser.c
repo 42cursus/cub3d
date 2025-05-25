@@ -334,7 +334,7 @@ int	parse_cub(t_info *app, char *filename)
 	init_anims(app, data);
 	free_map_textures(app, tiles);
 	close(fd);
-	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
+	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->map));
 	return (0);
 }
 
@@ -364,7 +364,7 @@ t_data *get_cached_lvl(t_info *app, char *name)
 {
 	t_list	*current;
 
-	current = app->lvlcache;
+	current = app->lvl_cache;
 	while (current != NULL)
 	{
 		if (ft_strcmp(((t_data *)current->data)->sublvls[0], name) == 0)

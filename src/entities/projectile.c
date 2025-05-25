@@ -40,7 +40,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 	t_object	*projectile;
 
 	player->hud.active = 1;
-	player->hud.timestart = app->last_frame;
+	player->hud.timestart = app->fr_last;
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
@@ -88,7 +88,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 	{
 		*tile = 'O';
 		anim->active = 1;
-		anim->timestart = app->last_frame;
+		anim->timestart = app->fr_last;
 	}
 	else if (*tile == 'L')
 	{
@@ -96,7 +96,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		{
 			*tile = 'O';
 			anim->active = 1;
-			anim->timestart = app->last_frame;
+			anim->timestart = app->fr_last;
 		}
 	}
 	else if (*tile == 'M')
@@ -105,7 +105,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		{
 			*tile = 'O';
 			anim->active = 1;
-			anim->timestart = app->last_frame;
+			anim->timestart = app->fr_last;
 		}
 	}
 }

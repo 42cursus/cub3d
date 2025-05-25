@@ -62,7 +62,7 @@ void	destroy_map(t_data *map)
 
 void	cleanup_maps(t_info *app)
 {
-	ft_lstclear(&app->lvlcache, (void (*)(void *))destroy_map);
+	ft_lstclear(&app->lvl_cache, (void (*)(void *))destroy_map);
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	get_pooled_ray(1);
 	// free(app->player);
@@ -78,7 +78,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
-	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->framerate, app->fr_delay, app->fr_scale);
+	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
 	while (++i < argc)
@@ -94,9 +94,9 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	load_shtex(app);
 	app->win = mlx_new_window(app->mlx, WIN_WIDTH, WIN_HEIGHT, app->title);
 
-	app->last_frame = get_time_us();
-	app->framecount = 0;
-	app->frametime = 5000;
+	app->fr_last = get_time_us();
+	app->fr_count = 0;
+	app->fr_time = 5000;
 
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
@@ -137,7 +137,7 @@ t_ret_code do_state_play(void *param)
 	draw_sky_alt(app);
 	draw_nav(app);
 	calculate_offsets(app, app->player);
-	app->last_frame = get_time_us();
+	app->fr_last = get_time_us();
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->win);
 
@@ -179,12 +179,12 @@ t_ret_code do_state_credits(void *param)
 	int				old_fps;
 
 	app->old_fov = app->fov_deg;
-	old_fps = app->framerate;
+	old_fps = app->fr_rate;
 	set_fov(app, 70);
 	set_framerate(app, 30);
 	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->win);
-	app->last_frame = get_time_us();
+	app->fr_last = get_time_us();
 	mlx_loop(app->mlx);
 	set_fov(app, app->old_fov);
 	set_framerate(app, old_fps);
@@ -274,7 +274,7 @@ void do_mmenu_to_load(void *param)
 {
 	t_info *const app = param;
 
-	app->framecount = 0;
+	app->fr_count = 0;
 	app->map = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
@@ -405,7 +405,7 @@ void	do_play_to_load(void *param)
 	// cleanup_map(app);
 	// if (get_cached_lvl(app, app->map->sublvls[0]) == NULL)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
-	app->framecount = 0;
+	app->fr_count = 0;
 	app->map->starting_pos = app->player->tele_pos;
 	move_entity(&app->map->starting_pos, app->map, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
 	// app->map->starting_pos = add_vect(app->player->pos, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
@@ -597,7 +597,7 @@ void do_win_to_load(void *param)
 	t_info *const app = param;
 
 	cleanup_maps(app);
-	app->framecount = 0;
+	app->fr_count = 0;
 	app->map = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
@@ -628,7 +628,7 @@ void do_lose_to_load(void *param)
 	cleanup_maps(app);
 	free(app->player);
 	app->map = init_map();
-	app->framecount = 0;
+	app->fr_count = 0;
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
 		free_map(app->map);

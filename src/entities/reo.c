@@ -20,7 +20,7 @@ void	reo_ai(t_info *app, t_object *enemy)
 	if (check_line_of_sight(app, enemy, app->player)
 		&& vector_distance(enemy->pos, app->player->pos) < 6)
 		enemy->attacking = 1;
-	frames = ((app->last_frame / 20000) % 100);
+	frames = ((app->fr_last / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)
 	{
 		enemy->anim.tex = app->shtex->reo_tex;

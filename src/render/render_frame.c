@@ -63,12 +63,12 @@ int	render_win(void *param)
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
-	app->framecount++;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	app->fr_count++;
 	on_expose(app);
 	return (0);
 }
@@ -84,12 +84,12 @@ int	render_lose(void *param)
 	replace_frame(app);
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
-	app->framecount++;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	app->fr_count++;
 	on_expose(app);
 	return (0);
 }
@@ -104,10 +104,10 @@ int	render_load(void *param)
 	// while (get_time_us() - app->last_frame < app->fr_delay)
 	// 	usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
-	app->framecount++;
-	if (app->framecount == app->framerate / 4)
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	app->fr_count++;
+	if (app->fr_count == app->fr_rate / 4)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
@@ -173,13 +173,13 @@ int	render_play(void *param)
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
-	app->fr_scale = 20000.0/app->frametime;
-	app->framecount++;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	app->fr_scale = 20000.0/app->fr_time;
+	app->fr_count++;
 	on_expose(app);
 	draw_hud(app);
 	return (0);
@@ -195,11 +195,11 @@ int	render_mmenu(void *param)
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
 
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
 
 	on_expose(app);
 	return (0);
@@ -213,11 +213,11 @@ int	render_pmenu(void *param)
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
 	on_expose(app);
 	return (0);
 }
@@ -241,12 +241,12 @@ int	render_credits(void *param)
 	}
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 	draw_credits(app, dummy);
-	while (get_time_us() - app->last_frame < app->fr_delay)
+	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
-	app->frametime = time - app->last_frame;
-	app->last_frame = time;
-	app->fr_scale = 20000.0 / app->frametime;
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	app->fr_scale = 20000.0 / app->fr_time;
 	place_fps(app);
 	on_expose(app);
 	return (0);

@@ -15,7 +15,7 @@
 t_texture	*handle_animation(t_info *app, t_anim anim)
 {
 	const int	frame_len = anim.duration / anim.frames;
-	const int	timediff = app->last_frame - anim.timestart;
+	const int	timediff = app->fr_last - anim.timestart;
 	int			index;
 
 	if (anim.frames == 1)
@@ -39,7 +39,7 @@ t_texture	*get_open_door_tex(t_anim *anim, t_info *app)
 	size_t		frames;
 	t_texture	*tex;
 
-	frames = (app->last_frame - anim->timestart) / 20000;
+	frames = (app->fr_last - anim->timestart) / 20000;
 	if (frames > 19)
 	{
 		anim->active = 0;
@@ -57,7 +57,7 @@ t_texture	*get_close_door_tex(t_anim *anim, t_info *app)
 	t_texture	*door_tex;
 	t_texture	*tex;
 
-	frames = (app->last_frame - anim->timestart) / 20000;
+	frames = (app->fr_last - anim->timestart) / 20000;
 	door_tex = app->shtex->door_tex;
 	if (anim->tex == app->shtex->door_boss_tex)
 		door_tex = anim->tex;

@@ -58,7 +58,7 @@ void	phantoon_ai(t_info *app, t_object *obj)
 	if (app->map->boss_active == 0 || app->player->dead == 1)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
-	frames = ((app->last_frame / 20000) % 100);
+	frames = ((app->fr_last / 20000) % 100);
 	if (obj->health > 350)
 		phantoon_phase1(app, obj, frames, norm_diff);
 	else if (obj->health > 100)

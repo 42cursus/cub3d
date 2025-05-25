@@ -48,7 +48,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->anim.loop = 1;
 	item->anim.frames = 2;
 	item->anim.duration = 200000;
-	item->anim.timestart = app->last_frame;
+	item->anim.timestart = app->fr_last;
 	setup_item_tex(app, item, subtype);
 	ft_lstadd_back(&map->items, ft_lstnew(item));
 }
