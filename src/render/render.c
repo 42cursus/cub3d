@@ -73,7 +73,26 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
-u_int32_t *img_to_tex(t_info *app, char *filename, int *x, int *y)
+u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
+{
+	t_img *img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
+	if (!img) return NULL;
+
+	u_int32_t *flat = malloc(*w * *h * sizeof(u_int32_t));
+	if (!flat) return NULL;
+
+	u_int32_t *src = (u_int32_t *)img->data;
+
+	// Transpose: store in column-major for fast vertical access
+	for (int y = 0; y < *h; ++y)
+		for (int x = 0; x < *w; ++x)
+			flat[x * (*h) + y] = src[y * *w + x];
+
+	mlx_destroy_image(app->mlx, img);
+	return flat;
+}
+
+u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
 {
 	t_img		*img;
 	u_int32_t	*data;

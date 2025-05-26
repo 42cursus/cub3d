@@ -103,7 +103,7 @@ fclean_libft:
 		+$(MAKE) -C $(LIBFT_DIR) fclean
 
 ## fclean
-fclean: clean_libx fclean_libft
+fclean: fclean_libft #clean_libx
 		@if [ -f $(NAME) ]; then $(RM) $(RMFLAGS) $(NAME); fi
 		@#if [ -f $(LIBX_DIR)/Makefile.gen ]; then $(RM) $(RMFLAGS) $(LIBX_DIR)/Makefile.gen; fi
 

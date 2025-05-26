@@ -23,27 +23,60 @@
 // 	*dst_pixel = (colour & mask) | (*dst_pixel & ~mask);
 // }
 
-static inline __attribute((always_inline))
+#define FIXED_SHIFT 16
+
+static inline __attribute__((always_inline, unused))
+void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect start)
+{
+
+	const t_texture	*texture = ray->texture;
+	const int		step = (texture->y << FIXED_SHIFT) / start.x;
+
+	int				tex_y_fp = 0;
+
+	u_int32_t *tex_data = texture->data + ((int)ray->pos * texture->x);
+	u_int32_t *dst_data = (u_int32_t *) canvas->data;
+
+	int i = draw_pos.y - 1;
+	int screen_y = start.y + draw_pos.y;
+	while (++i < start.x && screen_y < WIN_HEIGHT)
+	{
+		int y = (int)(tex_y_fp >> FIXED_SHIFT);
+		u_int colour = tex_data[y];
+		u_int tinted = ((colour & 0x0000FFFF) + MLX_RED);
+		u_int final = (u_int[2]){colour, tinted}[ray->damaged];
+
+		u_int32_t mask = -(colour != XPM_TRANSPARENT);
+
+		u_int *dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
+		*dst_px = (final & mask) | (*dst_px & ~mask);
+		tex_y_fp += step;
+		screen_y = start.y + i;
+	}
+}
+
+
+static inline __attribute((always_inline, unused))
 void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect lvars)
 {
 	const double	fract = ray->pos;
 	const t_texture	*texture = ray->texture;
-	double			h_index;
-	u_int			colour;
-	u_int32_t		mask;
-	u_int			*p_int;
 
-	u_int32_t *tex_data = texture->data;
+	u_int32_t *tex_data = texture->data + (texture->x * (int)fract);
 	u_int32_t *dst_data = (u_int32_t *)canvas->data;
 
 	while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 	{
-		p_int = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
-		h_index = ((double)draw_pos.y / lvars.x) * texture->y;
-		colour = tex_data[(int)h_index * texture->x + (int)fract];
+		double tex_y = ((double)draw_pos.y / lvars.x) * texture->y;
+
+		u_int colour = tex_data[(int)tex_y];
+
 		u_int tinted = ((colour & 0x0000FFFF) + MLX_RED);
 		u_int final = (u_int[2]){colour, tinted}[ray->damaged];
-		mask = -(colour != XPM_TRANSPARENT);
+		u_int32_t mask = -(colour != XPM_TRANSPARENT);
+
+		u_int *p_int = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
+
 		*p_int = (final & mask) | (*p_int & ~mask);
 		draw_pos.y++;
 	}
@@ -73,7 +106,10 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	y = 0;
 	if (top < 0)
 		y = 0 - top;
-	handle_slice_drawing((t_ivect){x, y}, ray, canvas, (t_ivect){lheight, top});
+	if (lheight > WIN_HEIGHT)
+		handle_slice_drawing((t_ivect){x, y}, ray, canvas, (t_ivect){lheight, top});
+	else
+		handle_slice_drawing_fixed((t_ivect){x, y}, ray, canvas, (t_ivect){lheight, top});
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }

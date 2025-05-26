@@ -30,8 +30,8 @@
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
 
-#define GO_TO_FULLSCREEN_ON_LOAD 0
-//#define GO_TO_FULLSCREEN_ON_LOAD 1
+//#define GO_TO_FULLSCREEN_ON_LOAD 0
+#define GO_TO_FULLSCREEN_ON_LOAD 1
 #define RAY_POOL_SIZE 5000
 
 #ifndef FRAMERATE
@@ -560,6 +560,7 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
 u_int32_t *img_to_tex(t_info *app, char *filename, int *x, int *y);
+u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y);;
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app, t_img *canvas);
