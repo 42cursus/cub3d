@@ -62,13 +62,16 @@ void	load_boss_bar_tex(t_info *app)
 		app, (char *) "./textures/boss_bar_right.xpm", &tex[1].x, &tex[1].y);
 }
 
+#include <signal.h>
+
 void	load_misc_graphics(t_info *app)
 {
-	t_texture	*tex;
-	t_img		dummy;
+	t_texture			*tex;
+	t_img				dummy;
+	extern const char	*title_card[];
 
 	tex = &app->shtex->title;
-	tex->data = img_to_tex_row_major(app, (char *) "./textures/title_card.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, title_card, &tex->x, &tex->y);
 	tex = &app->shtex->empty;
 	tex->data = img_to_tex_row_major(app, (char *) "./textures/empty.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->tele;

@@ -57,7 +57,6 @@ void	load_shtex(t_info *app)
 	load_energy_tex(app);
 	load_phantoon_tex(app);
 	load_boss_bar_tex(app);
-	load_misc_graphics(app);
 	load_trophy_tex(app);
 	load_door_tex(app);
 	load_zoomer_tex(app);
@@ -66,6 +65,7 @@ void	load_shtex(t_info *app)
 	load_holtz_tex(app);
 	load_reo_tex(app);
 	load_shtex_extra(app);
+	load_misc_graphics(app);
 }
 
 void	load_shtex_extra(t_info *app)

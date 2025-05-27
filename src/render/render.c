@@ -108,6 +108,26 @@ u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
 	return (data);
 }
 
+u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y)
+{
+	t_img		*img;
+	u_int32_t	*data;
+
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_int_static_line);
+	if (!img)
+		return (NULL);
+
+	*x = img->width;
+	*y = img->height;
+
+	data = (u_int32_t *)malloc(img->height * img->size_line);
+	if (!data)
+		return (NULL);
+	fast_memcpy_test((int *)data, (int *)img->data, img->height * img->size_line);
+	mlx_destroy_image(app->mlx, img);
+	return (data);
+}
+
 // int	bilinear_filter(double x, double y, const t_texarr *tex)
 // {
 // 	int		x_lower;

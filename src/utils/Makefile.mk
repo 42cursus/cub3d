@@ -11,7 +11,8 @@
 # **************************************************************************** #
 
 FILES   = check_endianness.c \
-		  vector.c \
-		  time.c \
+			strlcpy_is_not_posix.c \
+			vector.c \
+			time.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
