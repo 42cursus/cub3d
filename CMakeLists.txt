@@ -126,6 +126,31 @@ set_target_properties(${FT_LIB_NAME} PROPERTIES
 
 #==============================================================================#
 
+#==============================================================================#
+# Textures lib
+#==============================================================================#
+
+set(TEX_LIB_NAME libtextures)
+add_library(${TEX_LIB_NAME} STATIC)
+
+file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/textures/*.xpm")
+set_source_files_properties(${TEX_LIB_SOURCES}
+        PROPERTIES
+        LANGUAGE C
+        COMPILE_OPTIONS -xc
+)
+target_sources(${TEX_LIB_NAME}
+        PRIVATE
+        ${TEX_LIB_SOURCES}
+)
+target_compile_definitions(${TEX_LIB_NAME} PRIVATE static=)
+target_link_options(${TEX_LIB_NAME} PRIVATE ${TARGET_LINK_FLAGS})
+set_target_properties(${TEX_LIB_NAME} PROPERTIES
+        LINKER_LANGUAGE C
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/")
+
+#==============================================================================#
+
 file(GLOB_RECURSE TARGET_HEADERS "src/*.h")
 file(GLOB_RECURSE TARGET_SOURCES "src/*.c")
 
@@ -145,6 +170,7 @@ set(TARGET_LIBRARIES
         ${MLX_LIB_NAME}
         ${MATH_LIB}
         ${FT_LIB_NAME}
+        ${TEX_LIB_NAME}
         Threads::Threads
         ${X11_LIBRARIES}
         ${XT_LIBRARY}
