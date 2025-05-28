@@ -23,10 +23,10 @@
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
 //# define WIN_HEIGHT 960
-//# define WIN_WIDTH 1920
-//# define WIN_HEIGHT 1080
-# define WIN_WIDTH 1600
-# define WIN_HEIGHT 900
+# define WIN_WIDTH 1920
+# define WIN_HEIGHT 1080
+//# define WIN_WIDTH 1600
+//# define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
 

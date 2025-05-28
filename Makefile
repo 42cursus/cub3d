@@ -60,7 +60,7 @@ TEX_OBJ			= $(TEXTURES:%.xpm=$(BUILD_DIR)/%.xpm.o)
 ifeq ($(MAKELEVEL),0)
 	# Only set --jobs if user didn't already pass a -j option manually
 	ifeq ($(filter -j,$(MAKEFLAGS)),)
-		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory #--quiet
+		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory --quiet
 	endif
 	ifeq ($(filter "--output-sync=target",$(MAKEFLAGS)),)
 		MAKEFLAGS += --output-sync=target
@@ -76,7 +76,7 @@ $(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(LIBTEX)
 		@echo "CUB3D BUILD COMPLETE!"
 
 $(BUILD_DIR)/%.xpm.o: %.xpm
-		@if [ ! -d $(@D) ]; then mkdir -pv $(@D); fi
+		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
 		@$(CC) -Dstatic= -x c -c $^ -o $@
 		@#objcopy --globalize-symbol=$(*F) $@
 
@@ -117,7 +117,7 @@ clean_libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen clean
 
 ## clean
-clean: clean_libft clean_libx
+clean: clean_libft #clean_libx
 		@if [ -d $(BUILD_DIR) ]; then $(RM) $(RMFLAGS) $(BUILD_DIR); fi
 
 ## clean_libft
@@ -125,7 +125,7 @@ fclean_libft:
 		+$(MAKE) -C $(LIBFT_DIR) fclean
 
 ## fclean
-fclean: fclean_libft #clean_libx
+fclean: clean fclean_libft
 		@if [ -f $(NAME) ]; then $(RM) $(RMFLAGS) $(NAME); fi
 		@#if [ -f $(LIBX_DIR)/Makefile.gen ]; then $(RM) $(RMFLAGS) $(LIBX_DIR)/Makefile.gen; fi
 
