@@ -36,9 +36,10 @@ CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 
 LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
+LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
-LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
-					-lmlx -lft -lX11 -lXext -lm \
+LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
+					-ltextures -lmlx -lft -lX11 -lXext -lm \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
@@ -70,7 +71,7 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(TEX_OBJ)
+$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(LIBTEX)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
@@ -82,6 +83,10 @@ $(BUILD_DIR)/%.xpm.o: %.xpm
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
 		@$(CC) $(CFLAGS) $(INCLUDE) -c $^ -o $@
+
+## libtextures
+$(LIBTEX): $(TEX_OBJ)
+		@$(AR) rcsP $@ $(TEX_OBJ)
 
 ## libft
 $(LIBFT_LIB):
