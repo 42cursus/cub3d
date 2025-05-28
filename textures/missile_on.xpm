@@ -2,9 +2,9 @@
 static char *missile_on_xpm[]={
 "48 32 4 1",
 ". c None",
-"a c #de3994",
-"b c #b50031",
-"# c #e7ade7",
+"b c #50002e",
+"a c #e81099",
+"# c #ff7fa2",
 "..############################################..",
 "..############################################..",
 "####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa####",
