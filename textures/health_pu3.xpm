@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *health_pu3_xpm[]={
 "64 64 3 1",
 ". c None",
 "# c #500060",

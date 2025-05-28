@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *proj_green2_xpm[]={
 "64 64 5 1",
 ". c None",
 "a c #006028",

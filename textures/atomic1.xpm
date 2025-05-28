@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *atomic1_xpm[]={
 "64 64 12 1",
 ". c None",
 "d c #003030",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *missile_off_xpm[]={
 "48 32 4 1",
 ". c None",
 "b c #302028",

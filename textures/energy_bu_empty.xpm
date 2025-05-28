@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *energy_bu_empty_xpm[]={
 "16 16 3 1",
 ". c None",
 "a c #704850",

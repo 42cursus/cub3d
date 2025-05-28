@@ -88,9 +88,9 @@ void	load_missile_textures(t_info *app)
 		app, (char *) "./textures/missile_pu0.xpm", &tex[0].x, &tex[0].y);
 	tex[1].data = img_to_tex(
 		app, (char *) "./textures/missile_pu1.xpm", &tex[1].x, &tex[1].y);
-	tex[2].data = img_to_tex(
+	tex[2].data = img_to_tex_row_major(
 		app, (char *) "./textures/missile_off.xpm", &tex[2].x, &tex[2].y);
-	tex[3].data = img_to_tex(
+	tex[3].data = img_to_tex_row_major(
 		app, (char *) "./textures/missile_on.xpm", &tex[3].x, &tex[3].y);
 }
 
@@ -112,8 +112,8 @@ void	load_super_textures(t_info *app)
 		app, (char *) "./textures/super_missile_pu1.xpm", &tex[0].x, &tex[0].y);
 	tex[1].data = img_to_tex(
 		app, (char *) "./textures/super_missile_pu0.xpm", &tex[1].x, &tex[1].y);
-	tex[2].data = img_to_tex(
+	tex[2].data = img_to_tex_row_major(
 		app, (char *) "./textures/super_missile_off.xpm", &tex[2].x, &tex[2].y);
-	tex[3].data = img_to_tex(
+	tex[3].data = img_to_tex_row_major(
 		app, (char *) "./textures/super_missile_on.xpm", &tex[3].x, &tex[3].y);
 }

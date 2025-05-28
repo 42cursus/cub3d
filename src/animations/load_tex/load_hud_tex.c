@@ -68,10 +68,10 @@ void	load_misc_graphics(t_info *app)
 {
 	t_texture			*tex;
 	t_img				dummy;
-	extern const char	*title_card[];
+	extern const char	*title_card_xpm[];
 
 	tex = &app->shtex->title;
-	tex->data = img_to_tex_static(app, title_card, &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, title_card_xpm, &tex->x, &tex->y);
 	tex = &app->shtex->empty;
 	tex->data = img_to_tex_row_major(app, (char *) "./textures/empty.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->tele;

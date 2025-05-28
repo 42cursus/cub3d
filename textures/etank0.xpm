@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *etank0_xpm[]={
 "64 64 10 1",
 "e c #000000",
 ". c None",

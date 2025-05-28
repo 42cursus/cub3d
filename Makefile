@@ -12,10 +12,10 @@
 
 NAME			:= cub3d
 
-LIBFT_DIR		=  ./lib/ft
-LIBX_DIR		=  ./lib/mlx
+LIBFT_DIR		= ./lib/ft
+LIBX_DIR		= ./lib/mlx
 BUILD_DIR		= build
-INC_DIR			=  ./include
+INC_DIR			= ./include
 
 RMFLAGS			= -r
 
@@ -45,16 +45,16 @@ SRC_DIR			= src
 
 SUB_DIRS		= parser utils app player render rays entities animations
 CUB_SRCS		:=
+TEXTURES		:=
 
 include $(SUB_DIRS:%=$(SRC_DIR)/%/Makefile.mk)
+include textures/Makefile.mk
 
 SRCS			:= src/main.c
 SRCS			+= $(CUB_SRCS)
 
 OBJS			= $(SRCS:%.c=$(BUILD_DIR)/%.o)
-
-TEXTURES		:= title_card.xpm
-TEX_OBJ			= $(TEXTURES:%.xpm=$(BUILD_DIR)/textures/%.o)
+TEX_OBJ			= $(TEXTURES:%.xpm=$(BUILD_DIR)/%.xpm.o)
 
 ifeq ($(MAKELEVEL),0)
 	# Only set --jobs if user didn't already pass a -j option manually
@@ -71,13 +71,13 @@ all: $(NAME)
 
 ## cub3d
 $(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(TEX_OBJ)
-		$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
+		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
-$(BUILD_DIR)/%.o: %.xpm
+$(BUILD_DIR)/%.xpm.o: %.xpm
 		@if [ ! -d $(@D) ]; then mkdir -pv $(@D); fi
-		$(CC) -x c -c $^ -o $@
-		objcopy --globalize-symbol=$(*F) $@
+		@$(CC) -Dstatic= -x c -c $^ -o $@
+		@#objcopy --globalize-symbol=$(*F) $@
 
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi

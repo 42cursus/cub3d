@@ -1,5 +1,5 @@
 /* XPM */
-static const char *dummy[] = {
+static const char *crawler2_xpm[] = {
 	"64 64 14 1",
 	". c None",
 	"k c #002860",

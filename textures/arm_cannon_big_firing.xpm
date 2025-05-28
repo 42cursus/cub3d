@@ -1,5 +1,5 @@
 /* XPM */
-static const char *dummy[] = {
+static const char *arm_cannon_big_firing_xpm[] = {
 	"320 300 2720 2",
 	"Qt c None",
 	".t c #010042",

@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *reo_1_xpm[]={
 "64 64 15 1",
 ". c None",
 "j c #0038a8",

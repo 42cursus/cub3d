@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *energy_xpm[]={
 "64 14 3 1",
 ". c None",
 "# c #283888",

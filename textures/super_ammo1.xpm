@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *super_ammo1_xpm[]={
 "64 64 5 1",
 ". c None",
 "b c #c0c0c0",

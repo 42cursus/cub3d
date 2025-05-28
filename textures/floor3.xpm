@@ -1,5 +1,5 @@
 /* XPM */
-static const char *dummy[] = {
+static const char *floor3_xpm[] = {
 	"64 64 4 1",
 	"a c #001810",
 	". c #283050",

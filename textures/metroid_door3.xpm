@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *metroid_door3_xpm[]={
 "64 64 12 1",
 "# c #000008",
 ". c None",

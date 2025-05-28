@@ -1,10 +1,10 @@
 /* XPM */
-static char *dummy[]={
+static char *missile_on_xpm[]={
 "48 32 4 1",
 ". c None",
-"b c #285000",
-"a c #48a838",
-"# c #88e810",
+"a c #de3994",
+"b c #b50031",
+"# c #e7ade7",
 "..############################################..",
 "..############################################..",
 "####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa####",

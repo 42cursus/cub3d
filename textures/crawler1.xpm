@@ -1,5 +1,5 @@
 /* XPM */
-static const char *dummy[] = {
+static const char *crawler1_xpm[] = {
 /* columns rows colours chars-per-pixel */
 	"64 64 15 1",
 	". c None",

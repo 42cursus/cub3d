@@ -1,5 +1,5 @@
 /* XPM */
-static const char *xpm__[] = {
+static const char *cloud_xpm[] = {
 /* columns rows colours chars-per-pixel */
 	"64 64 20 1 ",
 	"  c #110100",

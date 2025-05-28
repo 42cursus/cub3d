@@ -1,5 +1,5 @@
 /* XPM */
-static const char __attribute__((used)) *title_card[] = {
+static const char *title_card_xpm[] = {
 	"384 200 22 1",
 	"k c None",
 	"o c #000011",

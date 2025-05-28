@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *stone_wall_xpm[]={
 "64 64 6 1",
 ". c None",
 "d c #000808",

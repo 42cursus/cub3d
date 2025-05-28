@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *arm_cannon_big_xpm[]={
 "320 300 56 1",
 ". c None",
 "n c #070707",

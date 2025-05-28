@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *explode_miss_big3_xpm[]={
 "64 64 4 1",
 ". c None",
 "a c #984000",
