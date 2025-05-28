@@ -85,7 +85,7 @@ void	toggle_boss_doors(t_info *app)
 			if (map[i][j] == 'B')
 			{
 				anims[i][j].active = 1;
-				anims[i][j].timestart = app->last_frame;
+				anims[i][j].timestart = app->fr_last;
 			}
 		}
 	}

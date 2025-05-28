@@ -33,7 +33,7 @@ void	menu_change_option(t_info *app, int dir)
 		}
 		if (menu_state->selected == 1)
 		{
-			set_framerate(app, app->framerate + (5 * dir));
+			set_framerate(app, app->fr_rate + (5 * dir));
 		}
 		if (menu_state->selected == 2)
 		{
@@ -200,12 +200,12 @@ void	draw_menu_items(t_info *app)
 	if (menu_state->state == OPTIONS)
 	{
 		ft_snprintf(buf, 40, "fov  %d", app->fov_deg);
-		ft_snprintf(buf2, 40, "fps cap  %d", app->framerate);
+		ft_snprintf(buf2, 40, "fps cap  %d", app->fr_rate);
 		ft_snprintf(buf4, 40, "sensitivity  %d", app->sensitivity);
 		if (app->timer.active == 1)
-			ft_snprintf(buf3, 40, "time trial  on", app->framerate);
+			ft_snprintf(buf3, 40, "time trial  on", app->fr_rate);
 		else
-			ft_snprintf(buf3, 40, "time trial  off", app->framerate);
+			ft_snprintf(buf3, 40, "time trial  off", app->fr_rate);
 		place_menu((const char *[]){buf, buf2, buf4, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }

@@ -1,8 +1,8 @@
 /* XPM */
-static char *dummy[]={
+static char *norfair_wall2_xpm[]={
 "64 64 11 1",
 "f c #000000",
-". c #000042",
+". c None",
 "g c #180008",
 "# c #181818",
 "h c #481838",

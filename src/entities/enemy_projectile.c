@@ -26,17 +26,17 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy,
 	projectile->anim2.duration = 320000;
 	if (subtype == P_PHANTOON)
 	{
-		projectile->anim.tex_arr = &app->shtex->phantoon_proj[0];
+		projectile->anim.tex = &app->shtex->phantoon_proj[0];
 		projectile->anim.frames = 3;
 		projectile->anim.loop = 1;
 		projectile->anim.duration = 240000;
-		projectile->anim2.tex_arr = &app->shtex->phantoon_proj[2];
+		projectile->anim2.tex = &app->shtex->phantoon_proj[2];
 	}
 	else if (subtype == P_HOLTZ)
 	{
-		projectile->anim.tex_arr = app->shtex->proj_green_tex;
+		projectile->anim.tex = app->shtex->proj_green_tex;
 		projectile->anim.frames = 1;
-		projectile->anim2.tex_arr = app->shtex->proj_green_tex;
+		projectile->anim2.tex = app->shtex->proj_green_tex;
 	}
 	ft_lstadd_back(&app->map->projectiles, ft_lstnew(projectile));
 }

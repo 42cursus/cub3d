@@ -16,48 +16,53 @@ void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray);
 
 t_ray	*get_pooled_ray(int flag)
 {
+	t_ray				*p_ray;
 	static t_poolnode	head = {
 		.stackp = 0,
 		.next = NULL,
 	};
 	static t_poolnode	*current = &head;
 
+	p_ray = NULL;
 	if (flag == 1)
-	{
 		reset_pool(&head, &current);
-		return (NULL);
-	}
-	if (flag == 2)
-	{
+	else if (flag == 2)
 		clear_poolnodes(&head, &current);
-		return (NULL);
+	else
+	{
+		if (current->stackp == RAY_POOL_SIZE)
+		{
+			current = current->next;
+			if (current == NULL)
+				current = add_poolnode(&head);
+		}
+		p_ray = &current->pool[current->stackp++];
 	}
-	if (current->stackp != RAY_POOL_SIZE)
-		return (&current->pool[current->stackp++]);
-	current = current->next;
-	if (current == NULL)
-		current = add_poolnode(&head);
-	return (&current->pool[current->stackp++]);
+	return (p_ray);
 }
 
 void	init_pooled_ray(t_ray *ray, t_object *obj,
 			t_player *player, t_vect intcpt)
 {
+	const double	angle = player->angle + M_PI_2;
+
 	ray->in_front = NULL;
 	ray->intcpt = intcpt;
 	ray->face = NONE;
 	ray->damaged = 0;
 	ray->texture = obj->texture;
-	ray->distance = get_cam_distance(player->pos,
-			player->angle + M_PI_2, ray->intcpt);
+	ray->distance = get_cam_distance(player->pos, angle, intcpt);
 	if (ray->distance < 0.00001)
 		ray->distance = 0.00001;
 }
 
-void	add_in_front(t_ray *ray, int face, t_texarr *texture)
+void	add_in_front(t_ray *ray, int face, t_texture *texture)
 {
 	t_ray	*in_front;
 	t_ray	*new;
+
+	if(texture->data == NULL)
+		return ;
 
 	new = get_pooled_ray(0);
 	new->intcpt = ray->intcpt;

@@ -24,6 +24,7 @@ void	rotate_player(t_info *app, t_player *player,
 	app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
 	if (app->map->outside)
 		draw_sky_alt(app);
+	draw_nav(app);
 }
 
 void	handle_open_door(t_info *app, t_ray *crosshair)
@@ -42,7 +43,7 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 		else
 			return ;
 		anim->active = 1;
-		anim->timestart = app->last_frame;
+		anim->timestart = app->fr_last;
 	}
 	if (crosshair->in_front != NULL)
 		handle_open_door(app, crosshair->in_front);

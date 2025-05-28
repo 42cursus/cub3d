@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static char *floor4_xpm[]={
 "64 64 3 1",
 "a c #301808",
 ". c #402810",

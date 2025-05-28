@@ -10,16 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/param.h>
 #include "cub3d.h"
 #include "libft.h"
-
-static inline __attribute__((always_inline))
-void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
-{
-	if (colour == MLX_TRANSPARENT)
-		return ;
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
-}
 
 void	load_map_textures(t_info *app, t_img *tiles[])
 {
@@ -79,9 +72,8 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 		j = -1;
 		while (++j < tile->width)
 		{
-			
 			src_pixel = src_row[j];
-			mask = -(src_pixel != MLX_TRANSPARENT);
+			mask = -(src_pixel != XPM_TRANSPARENT);
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
@@ -102,33 +94,80 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 // 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 // }
 
-void	place_tile_on_image32_alpha(t_img *image, t_img *tile, int x, int y)
+static inline __attribute__((always_inline))
+u_int	interpolate_colour(t_colour col1, t_colour col2)
+{
+	t_colour		out;
+	const double	frac = col1.a / 255.0;
+
+	if (col1.raw == col2.raw)
+		return col1.raw;
+	out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
+	out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
+	out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
+	return (out.raw);
+}
+
+
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
+{
+	t_ivect		t;
+	t_ivect		offset;
+	t_point		boundaries;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+
+	offset.x = (int []){0, -p.x}[p.x < 0];
+	offset.y = (int []){0, -p.y}[p.y < 0];
+
+	boundaries.x = MIN(tile->width, image->width - p.x);
+	boundaries.y = MIN(tile->height, image->height - p.y);
+	t.y = offset.y - 1;
+	while (++t.y < boundaries.y)
+	{
+		src_row = (u_int32_t *) tile->data + (t.y * tile->width);
+		dst_row = (u_int32_t *) image->data + ((t.y + p.y) * image->width) + p.x;
+		t.x = offset.x - 1;
+		while (++t.x < boundaries.x)
+			dst_row[t.x] = interpolate_colour(
+				*(t_colour *) &src_row[t.x], *(t_colour *) &dst_row[t.x]);
+	}
+}
+
+void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
 {
 	int			i;
 	int			j;
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	// u_int32_t	mask;
 
 	i = -1;
 	while (++i < tile->height)
 	{
 		src_row = (u_int32_t *) tile->data + (i * tile->width);
-		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
+		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
 		j = -1;
 		while (++j < tile->width)
-		{
-			
-			src_pixel = src_row[j];
-			// mask = -(src_pixel != MLX_TRANSPARENT);
-			// dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
-			if (src_pixel != MLX_TRANSPARENT)
-				dst_row[j] = interpolate_colour(src_pixel, dst_row[j], 0.5);
-		}
+			dst_row[j] = interpolate_colour(*(t_colour *) &src_row[j],
+											*(t_colour *) &dst_row[j]);
 	}
 }
 
+void	apply_alpha(t_img *img, u_char alpha)
+{
+	int			i;
+	int			j;
+	t_colour	*row;
+
+	i = -1;
+	while (++i < img->height)
+	{
+		row = (t_colour *)img->data + (i * img->width);
+		j = -1;
+		while (++j < img->width)
+			row[j].a = (u_char)(alpha + (row[j].a * (255 - alpha)) / 0xFF);
+	}
+}
 
 t_img	*build_mmap(t_info *app, t_img *tiles[])
 {
@@ -138,7 +177,8 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 	int		index;
 
 	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-	fill_with_colour(img, MLX_TRANSPARENT, MLX_TRANSPARENT);
+	ft_bzero(img->data, img->size_line * img->height);
+	apply_alpha(img, 255);
 	i = -1;
 	while (++i < app->map->height)
 	{
@@ -158,48 +198,95 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 		}
 	}
+	apply_alpha(img, 127);
 	return (img);
 }
 
 void	place_mmap(t_info *app)
 {
-	t_img *const	mmap = app->map->minimap;;
+	t_img *const	mmap = app->map->minimap;
+	t_img *const	pointer = app->pointer;
 	t_img *const	canvas = app->canvas;
-	const int		dx = WIN_WIDTH - mmap->width;
-	const int		dy = 0;
+	t_player *const	player = app->player;
+	t_point *const	p  = &(t_point){.x = WIN_WIDTH - mmap->width, .y = 0};
 
-	place_tile_on_image32_alpha(canvas, mmap, dx, dy);
+	place_tile_on_image32_alpha(canvas, mmap, *p);
+
+//	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
+//	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
+
+	p->x = player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - pointer->width / 2;
+	p->y = (app->map->height - player->pos.y) * 8 - pointer->height / 2;
+	place_tile_on_image32_alpha(canvas, pointer, *p);
 }
 
-void	place_texarr(t_info *app, t_texarr *tex, int x, int y)
+void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 {
-	t_img	*canvas = app->canvas;
-	int		i;
-	int		j;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	mask;
+	t_ivect		i;
 
-	i = -1;
-	while (++i < tex->y)
+	i.y = -1;
+	while (++i.y < src->height)
 	{
-		j = -1;
-		while (++j < tex->x)
-			my_put_pixel_32(canvas, x + j, y + i, tex->img[i][j]);
+
+		src_row = (u_int32_t *) src->data + (i.y * src->width);
+		dst_row = (u_int32_t *) dst->data + ((i.y + pos.y) * dst->width) + pos.x;
+		i.x = -1;
+		while (++i.x < src->width)
+		{
+			mask = -(src_row[i.x] != XPM_TRANSPARENT);
+			dst_row[i.x] = (src_row[i.x] & mask) | (dst_row[i.x] & ~mask);
+		}
 	}
 }
 
-void	place_texarr_scale(t_info *app, t_texarr *tex, t_ivect pos, double scalar)
+void	place_texarr(t_info *app, t_texture *tex, int x, int y)
 {
-	t_img	*canvas = app->canvas;
-	int		i;
-	int		j;
-	double	step;
+	t_img *const	canvas = app->canvas;
+	u_int32_t		*src_row;
+	u_int32_t		*dst_row;
+	t_ivect			i;
+
+	i.y = -1;
+	while (++i.y < tex->y)
+	{
+		src_row = (u_int32_t *)tex->data + (i.y * tex->x);
+		dst_row = (u_int32_t *)canvas->data + ((i.y + y) * canvas->width) + x;
+		i.x = -1;
+		u_int32_t *colour2;
+		while (++i.x < tex->x)
+		{
+			u_int32_t colour = src_row[i.x];
+			colour2 = &dst_row[i.x];
+			if (colour != XPM_TRANSPARENT)
+				*colour2 = colour;
+		}
+	}
+}
+
+void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
+{
+	t_ivect			i;
+	double			step;
+	u_int32_t		*src_row;
+	u_int32_t		*dst_row;
+	u_int32_t		mask;
+	t_img *const	canvas = app->canvas;
 
 	step = 1.0 / scalar;
-	i = -1;
-	while (++i < tex->y)
+	i.y = -1;
+	while (++i.y < tex->y)
 	{
-		j = -1;
-		while (++j < tex->x)
-			my_put_pixel_32(canvas, pos.x + j, pos.y + i, tex->img[(int)(i * step)][(int)(j * step)]);
+		src_row = tex->data + (int)(i.y * step + 0.5);
+		dst_row = (u_int32_t *) canvas->data + ((i.y + pos.y) * canvas->width) + pos.x;
+		i.x = -1;
+		while (++i.x < tex->x)
+		{
+			mask = -(src_row[(int)(i.x * step + 0.5)] != XPM_TRANSPARENT);
+			dst_row[i.x] = (src_row[(int)(i.x * step)] & mask) | (dst_row[i.x] & ~mask);
+		}
 	}
 }
 
@@ -277,7 +364,7 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 		while (++j < char_width * scalar)
 		{
 			src_pixel = src_row[j / scalar];
-			mask = -(src_pixel != MLX_TRANSPARENT);
+			mask = -(src_pixel != XPM_TRANSPARENT);
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
 	}
@@ -354,11 +441,11 @@ void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
 
 void	place_weapon(t_info *app)
 {
-	t_texarr	*tex;
+	t_texture	*tex;
 
 	if (app->player->hud.active == 1)
 	{
-		if ((app->last_frame - app->player->hud.timestart) / 20000 < 6)
+		if ((app->fr_last - app->player->hud.timestart) / 20000 < 6)
 			tex = &app->shtex->cannon_tex[1];
 		else
 		{
@@ -413,7 +500,7 @@ void	place_energy(t_info *app, t_player *player)
 void	place_ammo(t_info *app, t_player *player)
 {
 	char		buf[4];
-	t_texarr	*tex;
+	t_texture	*tex;
 	
 	buf[3] = 0;
 	if (player->max_ammo[MISSILE] != 0)
@@ -443,7 +530,7 @@ void	place_fps(t_info *app)
 	int			x;
 	int			y;
 
-	fps = 1000000 / app->frametime;
+	fps = 1000000 / app->fr_time;
 	y = WIN_HEIGHT - 32;
 	x = WIN_WIDTH - 32;
 	while (fps > 0)
@@ -457,7 +544,7 @@ void	place_fps(t_info *app)
 
 void	place_scope(t_info *app)
 {
-	t_texarr *scope;
+	t_texture *scope;
 
 	scope = &app->shtex->scope;
 	place_texarr(app, scope, WIN_WIDTH / 2 - scope->x / 2, WIN_HEIGHT / 2 - scope->y / 2);
@@ -465,7 +552,7 @@ void	place_scope(t_info *app)
 
 void	place_dmg(t_info *app, t_player *player)
 {
-	t_texarr	*tex;
+	t_texture	*tex;
 	double		angle;
 	int			dir;
 	t_vect		offset;
@@ -523,7 +610,7 @@ void	format_time(char *buf, int len, size_t time)
 	time = time % 60000;
 	seconds = time / 1000;
 	ms = time % 1000;
-	ft_snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10);
+	snprintf(buf, len, "%.2d:%.2d:%.2d", minutes, seconds, ms / 10); //TODO: fixme
 }
 
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
@@ -540,7 +627,7 @@ void	draw_hud(t_info *app)
 	if (!app->ads)
 	{
 		place_weapon(app);
-		mlx_put_image_to_window(app->mlx, app->root,
+		mlx_put_image_to_window(app->mlx, app->win,
 								app->shtex->playertile,
 								WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	}
@@ -554,9 +641,9 @@ void	draw_hud(t_info *app)
 	place_fps(app);
 	if (app->timer.active == 1)
 		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
-	if (app->last_frame - app->player->dmg_time < 500000)
+	if (app->fr_last - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
-	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
-						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
-						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
+//	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
+//						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
+//						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 }

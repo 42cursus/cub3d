@@ -29,7 +29,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->subtype = subtype;
 	enemy->anim2.frames = 6;
 	enemy->anim2.duration = 420000;
-	enemy->anim2.tex_arr = &app->shtex->explode_tex[6];
+	enemy->anim2.tex = &app->shtex->explode_tex[6];
 	if (subtype == E_ZOOMER)
 		init_zoomer(enemy, app);
 	if (subtype == E_ATOMIC)
@@ -41,7 +41,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	else if (subtype == E_PHANTOON)
 		init_phantoon(enemy, app);
 	enemy->anim.active = 1;
-	enemy->anim.timestart = app->last_frame;
+	enemy->anim.timestart = app->fr_last;
 	enemy->anim.loop = 1;
 	ft_lstadd_back(&app->map->enemies, ft_lstnew(enemy));
 	return (enemy);

@@ -54,27 +54,45 @@ set(COMMON_LDFLAGS
         -fsanitize=float-cast-overflow
 )
 
-#===========================================================================
+#==============================================================================#
+# MLX lib
+#==============================================================================#
 
 set(MLX_LIB_NAME mlx)
 set(MLX_LIB_FILENAME libmlx.a)
 set(MLX_LIB_DIR "${PROJECT_SOURCE_DIR}/lib/mlx")
+set(MLX_LIB_PATH "${MLX_LIB_DIR}/${MLX_LIB_FILENAME}")
+set(MLX_BUILD_DIR "${CMAKE_BINARY_DIR}/mlx_build")
 
 file(GLOB_RECURSE MLX_LIB_HEADERS "${MLX_LIB_DIR}/*.h")
 list(FILTER MLX_LIB_HEADERS EXCLUDE REGEX "${MLX_LIB_DIR}/test/*" )
 file(GLOB_RECURSE MLX_LIB_SOURCES "${MLX_LIB_DIR}/*.c")
 list(FILTER MLX_LIB_SOURCES EXCLUDE REGEX "${MLX_LIB_DIR}/test/*|${MLX_LIB_DIR}/mlx_lib_xpm.c")
 
+# Custom target to build and patch MLX
+add_custom_command(
+        OUTPUT "${MLX_LIB_PATH}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${MLX_BUILD_DIR}"
+        COMMAND make -C "${MLX_LIB_DIR}"
+        COMMAND ${CMAKE_AR} x "${MLX_LIB_PATH}" mlx_xpm.o --output "${MLX_BUILD_DIR}"
+        COMMAND ${CMAKE_AR} d "${MLX_LIB_PATH}" "${MLX_BUILD_DIR}/mlx_xpm.o"
+        COMMAND ${CMAKE_OBJCOPY} --globalize-symbol=strlcpy_is_not_posix "${MLX_BUILD_DIR}/mlx_xpm.o"
+        COMMAND ${CMAKE_OBJCOPY} --weaken-symbol=strlcpy_is_not_posix "${MLX_BUILD_DIR}/mlx_xpm.o"
+        COMMAND ${CMAKE_AR} rcs "${MLX_LIB_PATH}" "${MLX_BUILD_DIR}/mlx_xpm.o"
+        COMMAND ${CMAKE_COMMAND} -E rm "${MLX_BUILD_DIR}/mlx_xpm.o"
+#        BYPRODUCTS "${MLX_LIB_PATH}"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMENT "Building and patching MLX_LIB"
+)
+
 add_custom_target(${MLX_LIB_NAME}_target ALL
-        COMMAND make -C ${MLX_LIB_DIR}
-        BYPRODUCTS "${MLX_LIB_DIR}/${MLX_LIB_FILENAME}"
-        SOURCES "${MLX_LIB_HEADERS};${MLX_LIB_SOURCES}"
-        COMMENT "Building MLX_LIB")
+        DEPENDS "${MLX_LIB_PATH}"
+        SOURCES ${MLX_LIB_HEADERS} ${MLX_LIB_SOURCES})
 
 add_library(${MLX_LIB_NAME} STATIC IMPORTED)
 add_dependencies(${MLX_LIB_NAME} "${MLX_LIB_NAME}_target")
 set_target_properties(${MLX_LIB_NAME} PROPERTIES
-        IMPORTED_LOCATION "${MLX_LIB_DIR}/${MLX_LIB_FILENAME}" # Make sure to use absolute path here
+        IMPORTED_LOCATION "${MLX_LIB_PATH}" # Make sure to use absolute path here
         INTERFACE_COMPILE_DEFINITIONS ""
         INTERFACE_SOURCES "${MLX_LIB_HEADERS}"
         INTERFACE_INCLUDE_DIRECTORIES "${MLX_LIB_DIR}")

@@ -1,7 +1,7 @@
 /* XPM */
-static char *dummy[]={
+static char *super2_xpm[]={
 "64 64 9 1",
-". c #000042",
+". c None",
 "d c #006121",
 "f c #00a242",
 "g c #00fb73",

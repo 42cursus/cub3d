@@ -35,10 +35,11 @@ void mlx_allow_resize_win(Display *display, Window win)
 void toggle_fullscreen(t_info *const app)
 {
 	Display *dpy = app->mlx->display;
-	Window win = app->root->window;
+	Window win = app->win->window;
 
 	Atom wm_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
 
+	mlx_allow_resize_win(app->mlx->display, app->win->window);
 	XEvent xev = {0};
 	xev.type = ClientMessage;
 	xev.xclient.window = win;
@@ -53,6 +54,9 @@ void toggle_fullscreen(t_info *const app)
 	XSendEvent(dpy, app->mlx->root, False,
 			   SubstructureNotifyMask | SubstructureRedirectMask,
 			   &xev);
+	if (!app->fullscreen)
+		mlx_int_anti_resize_win(app->mlx, app->win->window,
+								WIN_WIDTH, WIN_HEIGHT);
 }
 
 void replace_frame(t_info *app)
@@ -62,9 +66,9 @@ void replace_frame(t_info *app)
 	cast_all_rays_alt(app, app->map, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor(app, app->player);
+	fill_floor(app, app->player, 1);
 	if (app->map->outside != 1)
-		fill_ceiling(app, app->map, app->player);
+		fill_floor(app, app->player, 0);
 	draw_rays(app, app->canvas);
 }
 
@@ -77,7 +81,7 @@ int expose_win(void *param)
 {
 	t_info *const app = param;
 
-	mlx_clear_window(app->mlx, app->root);
+	mlx_clear_window(app->mlx, app->win);
 	on_expose(app);
 	return (EXIT_SUCCESS);
 }
@@ -91,11 +95,11 @@ int mouse_move_play(int x, int y, void *param)
 
 	if (dx != 0)
 	{
-		rotate_player(app, app->player, dx > 0 ? 1 : 0,
+		rotate_player(app, app->player, dx > 0,
 					  fabs((300.0 + (80 * (10 - app->sensitivity)) * pow(1.1, 10 - app->sensitivity)) / (dx * app->fr_scale)));
 					  // fabs(5000 / (dx * app->fr_scale * app->sensitivity)));
 		// Reset pointer to center
-		mlx_mouse_move(app->mlx, app->root, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
 	}
 
@@ -209,11 +213,7 @@ int key_press_mmenu(KeySym key, void *param)
 	if (key == XK_F11)
 	{
 		app->fullscreen = !app->fullscreen;
-		mlx_allow_resize_win(app->mlx->display, app->root->window);
 		toggle_fullscreen(app);
-		if (!app->fullscreen)
-			mlx_int_anti_resize_win(app->mlx, app->root->window,
-									WIN_WIDTH, WIN_HEIGHT);
 	}
 	else if (key == XK_5 || key == XK_Escape)
 	{
@@ -337,10 +337,10 @@ int key_press_play(KeySym key, void *param)
 		if (key == XK_F11)
 		{
 			app->fullscreen = !app->fullscreen;
-			mlx_allow_resize_win(app->mlx->display, app->root->window);
+			mlx_allow_resize_win(app->mlx->display, app->win->window);
 			toggle_fullscreen(app);
 			if (!app->fullscreen)
-				mlx_int_anti_resize_win(app->mlx, app->root->window,
+				mlx_int_anti_resize_win(app->mlx, app->win->window,
 										WIN_WIDTH, WIN_HEIGHT);
 		}
 		else if (key == XK_e)

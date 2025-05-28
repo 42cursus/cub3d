@@ -1,7 +1,7 @@
 /* XPM */
-static char *dummy[]={
+static char *explode3_xpm[]={
 "64 64 6 1",
-". c #000042",
+". c None",
 "a c #520063",
 "# c #9c4200",
 "c c #b58400",

@@ -17,7 +17,7 @@ void	holtz_ai(t_info *app, t_object *enemy, t_player *player)
 	int		frames;
 	t_vect	norm_diff;
 
-	frames = ((app->last_frame / 20000) % 100);
+	frames = ((app->fr_last / 20000) % 100);
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
 	if (!check_line_of_sight(app, enemy, player))
 		enemy->attacking = 0;

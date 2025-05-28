@@ -1,7 +1,7 @@
 /* XPM */
-static char *dummy[]={
+static char *boss_bar_right_xpm[]={
 "16 16 7 1",
-". c #000042",
+". c None",
 "# c #282828",
 "c c #602800",
 "b c #605850",

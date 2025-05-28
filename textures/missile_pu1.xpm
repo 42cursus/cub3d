@@ -1,7 +1,7 @@
 /* XPM */
-static char *dummy[]={
+static char *missile_pu1_xpm[]={
 "64 64 9 1",
-". c #000042",
+". c None",
 "# c #282828",
 "g c #605850",
 "b c #808078",

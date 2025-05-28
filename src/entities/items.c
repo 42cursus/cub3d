@@ -15,20 +15,20 @@
 void	setup_item_tex(t_info *app, t_object *item, int subtype)
 {
 	if (subtype == I_SUPER)
-		item->anim.tex_arr = app->shtex->super_tex;
+		item->anim.tex = app->shtex->super_tex;
 	if (subtype == I_ETANK)
-		item->anim.tex_arr = app->shtex->etank_tex;
+		item->anim.tex = app->shtex->etank_tex;
 	if (subtype == I_MISSILE)
-		item->anim.tex_arr = app->shtex->missile_tex;
+		item->anim.tex = app->shtex->missile_tex;
 	if (subtype == I_TROPHY)
-		item->anim.tex_arr = app->shtex->trophy_tex;
+		item->anim.tex = app->shtex->trophy_tex;
 	if (subtype == I_AMMO_M)
-		item->anim.tex_arr = app->shtex->missile_ammo;
+		item->anim.tex = app->shtex->missile_ammo;
 	if (subtype == I_AMMO_S)
-		item->anim.tex_arr = app->shtex->super_ammo;
+		item->anim.tex = app->shtex->super_ammo;
 	if (subtype == I_HEALTH)
 	{
-		item->anim.tex_arr = app->shtex->health_pu;
+		item->anim.tex = app->shtex->health_pu;
 		item->anim.frames = 4;
 		item->anim.duration = 400000;
 	}
@@ -48,7 +48,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype)
 	item->anim.loop = 1;
 	item->anim.frames = 2;
 	item->anim.duration = 200000;
-	item->anim.timestart = app->last_frame;
+	item->anim.timestart = app->fr_last;
 	setup_item_tex(app, item, subtype);
 	ft_lstadd_back(&map->items, ft_lstnew(item));
 }

@@ -1,8 +1,8 @@
 /* XPM */
-static char *dummy[]={
+static char *etank1_xpm[]={
 "64 64 10 1",
 "d c #000000",
-". c #000042",
+". c None",
 "# c #182840",
 "b c #505868",
 "a c #602800",

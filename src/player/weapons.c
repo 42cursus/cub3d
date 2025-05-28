@@ -49,11 +49,11 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 {
 	enemy->health -= damage;
 	enemy->attacking = 1;
-	enemy->last_damaged = app->last_frame;
+	enemy->last_damaged = app->fr_last;
 	if (enemy->health <= 0)
 	{
 		enemy->dead = 1;
-		enemy->anim2.timestart = app->last_frame;
+		enemy->anim2.timestart = app->fr_last;
 		enemy->anim2.active = 1;
 		if (enemy->subtype == E_PHANTOON)
 		{

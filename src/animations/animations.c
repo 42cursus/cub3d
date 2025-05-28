@@ -12,55 +12,55 @@
 
 #include "cub3d.h"
 
-t_texarr	*handle_animation(t_info *app, t_anim anim)
+t_texture	*handle_animation(t_info *app, t_anim anim)
 {
 	const int	frame_len = anim.duration / anim.frames;
-	const int	timediff = app->last_frame - anim.timestart;
+	const int	timediff = app->fr_last - anim.timestart;
 	int			index;
 
 	if (anim.frames == 1)
-		return (anim.tex_arr);
+		return (anim.tex);
 	if (anim.loop)
 	{
 		index = timediff % anim.duration / frame_len;
-		return (&anim.tex_arr[index]);
+		return (&anim.tex[index]);
 	}
 	else
 	{
 		index = timediff / frame_len;
 		if (index >= anim.frames)
 			return (NULL);
-		return (&anim.tex_arr[index]);
+		return (&anim.tex[index]);
 	}
 }
 
-t_texarr	*get_open_door_tex(t_anim *anim, t_info *app)
+t_texture	*get_open_door_tex(t_anim *anim, t_info *app)
 {
 	size_t		frames;
-	t_texarr	*tex;
+	t_texture	*tex;
 
-	frames = (app->last_frame - anim->timestart) / 20000;
+	frames = (app->fr_last - anim->timestart) / 20000;
 	if (frames > 19)
 	{
 		anim->active = 0;
 		tex = &app->shtex->door_tex[1];
-		anim->tex_arr = app->shtex->door_tex;
+		anim->tex = app->shtex->door_tex;
 	}
 	else
-		tex = &anim->tex_arr[2 + (frames / 4)];
+		tex = &anim->tex[2 + (frames / 4)];
 	return (tex);
 }
 
-t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
+t_texture	*get_close_door_tex(t_anim *anim, t_info *app)
 {
 	size_t		frames;
-	t_texarr	*door_tex;
-	t_texarr	*tex;
+	t_texture	*door_tex;
+	t_texture	*tex;
 
-	frames = (app->last_frame - anim->timestart) / 20000;
+	frames = (app->fr_last - anim->timestart) / 20000;
 	door_tex = app->shtex->door_tex;
-	if (anim->tex_arr == app->shtex->door_boss_tex)
-		door_tex = anim->tex_arr;
+	if (anim->tex == app->shtex->door_boss_tex)
+		door_tex = anim->tex;
 	if (frames > 19)
 	{
 		anim->active = 0;
@@ -73,7 +73,7 @@ t_texarr	*get_close_door_tex(t_anim *anim, t_info *app)
 
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app)
 {
-	t_texarr	*tex;
+	t_texture	*tex;
 	double		angle;
 	int			index;
 

@@ -1,7 +1,7 @@
 /* XPM */
-static char *dummy[]={
+static char *super_missile_on_xpm[]={
 "32 32 4 1",
-". c #000042",
+". c None",
 "b c #285000",
 "a c #48a838",
 "# c #88e810",

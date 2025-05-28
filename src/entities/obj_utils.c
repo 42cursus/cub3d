@@ -37,7 +37,7 @@ t_list	*delete_object(t_list **obj_list, t_list *obj_node)
 void	start_obj_death(t_object *obj, t_info *app)
 {
 	obj->anim2.active = 1;
-	obj->anim2.timestart = app->last_frame;
+	obj->anim2.timestart = app->fr_last;
 }
 
 t_object	*check_obj_proximity(t_vect pos, t_data *map)

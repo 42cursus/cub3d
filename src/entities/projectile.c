@@ -18,7 +18,7 @@ void	setup_projectile(t_object *projectile, t_info *app,
 	if (subtype == BEAM)
 	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
-		projectile->anim2.tex_arr = &app->shtex->proj_tex[1];
+		projectile->anim2.tex = &app->shtex->proj_tex[1];
 		projectile->anim2.frames = 4;
 	}
 	else
@@ -27,10 +27,10 @@ void	setup_projectile(t_object *projectile, t_info *app,
 		if (player->ammo[subtype] == 0)
 			player->equipped = BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
-		projectile->anim2.tex_arr = &app->shtex->proj_tex[5];
+		projectile->anim2.tex = &app->shtex->proj_tex[5];
 		projectile->anim2.frames = 5;
 		if (subtype == MISSILE)
-			projectile->anim2.tex_arr = &app->shtex->explode_tex[12];
+			projectile->anim2.tex = &app->shtex->explode_tex[12];
 	}
 }
 
@@ -40,7 +40,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 	t_object	*projectile;
 
 	player->hud.active = 1;
-	player->hud.timestart = app->last_frame;
+	player->hud.timestart = app->fr_last;
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
@@ -88,7 +88,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 	{
 		*tile = 'O';
 		anim->active = 1;
-		anim->timestart = app->last_frame;
+		anim->timestart = app->fr_last;
 	}
 	else if (*tile == 'L')
 	{
@@ -96,7 +96,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		{
 			*tile = 'O';
 			anim->active = 1;
-			anim->timestart = app->last_frame;
+			anim->timestart = app->fr_last;
 		}
 	}
 	else if (*tile == 'M')
@@ -105,7 +105,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		{
 			*tile = 'O';
 			anim->active = 1;
-			anim->timestart = app->last_frame;
+			anim->timestart = app->fr_last;
 		}
 	}
 }
