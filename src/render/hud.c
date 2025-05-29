@@ -189,8 +189,6 @@ t_img	*build_minimap(t_info *app, t_img *tiles[])
 
 	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
 
-
-
 	ft_bzero(img->data, img->size_line * img->height);
 	apply_alpha(img, 255);
 	i = -1;
@@ -231,14 +229,14 @@ void	place_mmap(t_info *app)
 	{
 		minimap = lvl->minimap_xl;
 
-		p1.x = WIN_WIDTH - minimap->width;
-		p1.y = 0;
+		p1.x = WIN_WIDTH / 2 - minimap->width / 2;
+		p1.y = WIN_HEIGHT / 2 - minimap->height / 2;
 
-		p2.x = WIN_WIDTH - (player->pos.x - lvl->width) * -8 * map_scale_factor.x;
-		p2.y = (lvl->height - player->pos.y) * 8;
+		int dx = (lvl->width - player->pos.x) * 8 * map_scale_factor.x;
+		int dy = (lvl->height - player->pos.y) * 8 * map_scale_factor.x;
 
-//		p2.x *= scale_x;
-		p2.y *= map_scale_factor.y;
+		p2.x = minimap->width - dx + p1.x;
+		p2.y = dy + p1.y;
 
 	}
 	else
