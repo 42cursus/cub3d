@@ -35,7 +35,7 @@ int	valid_identifier(char *str)
 	return (NONE);
 }
 
-void	print_map(t_data *data)
+void	print_map(t_lvl *data)
 {
 	int	i;
 

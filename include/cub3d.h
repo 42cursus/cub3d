@@ -250,7 +250,7 @@ typedef	struct s_data
 	t_texture		floor_tex;
 	t_texture		ceil_tex;
 	int				outside;
-	t_img			*minimap;
+	t_img			*minimap_xs;
 	int				f_col;
 	int				c_col;
 	char			**map;
@@ -268,7 +268,7 @@ typedef	struct s_data
 	int				width;
 	char			*sublvls[4];
 	t_img			*texs[NUM_TEXTURES];
-}	t_data;
+}	t_lvl;
 
 typedef struct s_poolnode
 {
@@ -397,6 +397,8 @@ typedef struct s_info
 	char 		*title;
 	t_img		*canvas;
 	t_img		*pointer;
+	t_img		*minimap_xl;
+	t_vect		map_scale_factor;
 	t_img		*skybox;
 	t_img		*bg;
 	t_img		*stillshot;
@@ -404,7 +406,7 @@ typedef struct s_info
 	int			clip_y_origin;
 	int			endianness;
 	t_shtex		*shtex;
-	t_data		*map;
+	t_lvl		*map;
 	char		**map_ids;
 	int			no_maps;
 	t_player	*player;
@@ -465,7 +467,8 @@ typedef struct s_colour
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 
 void	apply_alpha(t_img *img, u_char alpha);
-
+void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y);
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
 int		check_endianness(void);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
@@ -475,26 +478,26 @@ int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
 int		mouse_move_play(int x, int y, void *param);
 
-t_data	*init_map(void);
-void	free_map(t_data *map);
-int		collect_map(t_list	*file, t_data *data);
-int		map_is_valid(t_data *data);
+t_lvl	*init_map(void);
+void	free_map(t_lvl *map);
+int		collect_map(t_list	*file, t_lvl *data);
+int		map_is_valid(t_lvl *data);
 int		parse_cub(t_info *app, char *filename);
-t_data	*get_cached_lvl(t_info *app, char *name);
+t_lvl	*get_cached_lvl(t_info *app, char *name);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
-void		refresh_map(t_info *app, t_data *map);
-void		move_entity(t_vect *pos, t_data *map, t_vect dir);
-void		move_obj_bounce(t_info *app, t_object *obj, t_data *data);
+void		refresh_map(t_info *app, t_lvl *map);
+void		move_entity(t_vect *pos, t_lvl *map, t_vect dir);
+void		move_obj_bounce(t_info *app, t_object *obj, t_lvl *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	prev_weapon(t_player *player);
 
-void	spawn_projectile(t_info *app, t_player *player, t_data *map, int subtype);
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *map, int subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype);
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
@@ -507,7 +510,7 @@ void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
-int		check_tile_open(char tile, t_data *map);
+int		check_tile_open(char tile, t_lvl *map);
 
 double	get_gradient_angle(double angle);
 double	get_y_intercept(t_vect pos, double gradient);
@@ -518,7 +521,7 @@ void	add_in_front(t_ray *ray, int face, t_texture *texture);
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
-void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray);
+void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
@@ -536,20 +539,23 @@ double	get_hyp_len(double len1, double len2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
-void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player);
+void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player);
 t_ray	*get_pooled_ray(int flag);
 t_poolnode	*add_poolnode(t_poolnode *head);
 void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
 void	reset_pool(t_poolnode *head, t_poolnode **current);
 int		count_poolnodes(t_poolnode *head);
-t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle);
-t_ray	ray_dda_refactor(t_info *app, t_data *map, t_player *player, double angle);
+t_ray	ray_dda(t_info *app, t_lvl *map, t_player *player, double angle);
+t_ray	ray_dda_refactor(t_info *app, t_lvl *map, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
+t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y);
+t_img	*img_dup(t_info *app, t_img *const src);
+void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	place_texarr(t_info *app, t_texture *tex, int x, int y);
@@ -569,7 +575,7 @@ void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
-t_img	*build_mmap(t_info *app, t_img *tiles[]);
+t_img	*build_minimap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
@@ -602,7 +608,7 @@ int	render_credits(void *param);
 void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
 void 	draw_sky_alt(t_info *const app);
-void	fill_ceiling(t_info *app, t_data *map, t_player *player);
+void	fill_ceiling(t_info *app, t_lvl *map, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
 
 void	menu_select_current(t_info *app);
@@ -622,14 +628,14 @@ int	bilinear_filter(double x, double y, const t_texture *tex);
 
 void	start_obj_death(t_object *obj, t_info *app);
 t_list	*delete_object(t_list **obj_list, t_list *obj_node);
-t_object	*check_obj_proximity(t_vect pos, t_data *map);
-int	point_oob_global(t_vect pos, t_data *map);
+t_object	*check_obj_proximity(t_vect pos, t_lvl *map);
+int	point_oob_global(t_vect pos, t_lvl *map);
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
 t_texture	*handle_animation(t_info *app, t_anim anim);
 t_anim	**create_anim_arr(int x, int y);
-void	init_anims(t_info *app, t_data *map);
-void	reset_anims(t_info *app, t_data *map);
-int	count_collectables(t_data *map);
+void	init_anims(t_info *app, t_lvl *map);
+void	reset_anims(t_info *app, t_lvl *map);
+int	count_collectables(t_lvl *map);
 int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
 int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);
 void	spawn_drops(t_info *app, t_object *obj, int no);
@@ -642,7 +648,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current);
 int	handle_trigger(t_info *app, t_object *obj, t_list **current);
 void	handle_tele(t_info *app, t_object *tele);
 int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
-void	update_objects(t_info *app, t_player *player, t_data *map);
+void	update_objects(t_info *app, t_player *player, t_lvl *map);
 
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
 //u_int	interpolate_colour(t_colour col1, t_colour col2);
@@ -650,5 +656,5 @@ void	draw_credits(t_info *app, t_dummy *dummy);
 t_texture	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texture	*get_close_door_tex(t_anim *anim, t_info *app);
 void	toggle_fullscreen(t_info *const app);
-
+int		get_key_index(KeySym key);
 #endif //CUB3D_H

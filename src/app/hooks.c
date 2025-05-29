@@ -152,7 +152,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 	((void) x, (void) y);
 }
 
-int get_index(KeySym key)
+int get_key_index(KeySym key)
 {
 	size_t i;
 	int ret;
@@ -167,6 +167,7 @@ int get_index(KeySym key)
 		XK_Up,
 		XK_Right,
 		XK_Down,
+		XK_Shift_L,
 	};
 
 	i = 0;
@@ -187,7 +188,7 @@ int key_press_credits(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_index(key);
+	int idx = get_key_index(key);
 	if (idx == idx_XK_Up || idx == idx_XK_Down)
 		app->keys[idx] = true;
 	else
@@ -202,7 +203,7 @@ int key_release_credits(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_index(key);
+	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
@@ -241,7 +242,7 @@ int key_release_mmenu(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_index(key);
+	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
@@ -372,7 +373,7 @@ int key_press_play(KeySym key, void *param)
 			player->vert_offset -= 10;
 		else if (key == XK_f)
 			app->filter = !app->filter;
-		int idx = get_index(key);
+		int idx = get_key_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;
 	}
@@ -383,7 +384,7 @@ int key_release_play(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_index(key);
+	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);

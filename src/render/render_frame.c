@@ -14,7 +14,7 @@
 #include <sys/time.h>
 #include <sysexits.h>
 
-int	point_oob_global(t_vect pos, t_data *map)
+int	point_oob_global(t_vect pos, t_lvl *map)
 {
 	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
 }

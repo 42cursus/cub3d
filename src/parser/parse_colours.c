@@ -52,7 +52,7 @@ int	convert_col(char *str)
 	return (free_split(split), col);
 }
 
-int	parse_colour(t_data *map, char *str, int identifier)
+int	parse_colour(t_lvl *map, char *str, int identifier)
 {
 	int	*coladdr;
 

@@ -37,7 +37,7 @@ void	setup_item_tex(t_info *app, t_object *item, int subtype)
 void	spawn_item(t_info *app, t_vect pos, int subtype)
 {
 	t_object	*item;
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	item = ft_calloc(1, sizeof(*item));
@@ -101,7 +101,7 @@ int	handle_pickups(t_object *obj, t_player *player)
 
 int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 {
-	t_data		*map;
+	t_lvl		*map;
 	t_player	*player;
 	int			retval;
 

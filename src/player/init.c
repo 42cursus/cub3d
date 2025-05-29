@@ -15,7 +15,7 @@
 t_player	*init_player(t_info *app)
 {
 	t_player	*player;
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	player = ft_calloc(1, sizeof(*player));
@@ -32,7 +32,7 @@ t_player	*init_player(t_info *app)
 
 void	refresh_player(t_info *app, t_player *player)
 {
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	player->pos = map->starting_pos;

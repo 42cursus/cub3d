@@ -19,6 +19,8 @@ int	cleanup(t_info *app)
 	get_pooled_ray(2);
 	if (app->canvas != NULL)
 		mlx_destroy_image(app->mlx, app->canvas);
+	if (app->minimap_xl != NULL)
+		mlx_destroy_image(app->mlx, app->minimap_xl);
 	mlx_destroy_image(app->mlx, app->bg);
 	if (app->stillshot != NULL)
 		mlx_destroy_image(app->mlx, app->stillshot);

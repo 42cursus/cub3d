@@ -169,7 +169,7 @@ void	apply_alpha(t_img *img, u_char alpha)
 	}
 }
 
-t_img	*build_mmap(t_info *app, t_img *tiles[])
+t_img	*build_minimap(t_info *app, t_img *tiles[])
 {
 	t_img	*img;
 	int		i;
@@ -204,20 +204,47 @@ t_img	*build_mmap(t_info *app, t_img *tiles[])
 
 void	place_mmap(t_info *app)
 {
-	t_img *const	mmap = app->map->minimap;
+	t_img 			*minimap;
+	t_lvl *const	lvl = app->map;
 	t_img *const	pointer = app->pointer;
 	t_img *const	canvas = app->canvas;
 	t_player *const	player = app->player;
-	t_point *const	p  = &(t_point){.x = WIN_WIDTH - mmap->width, .y = 0};
+	t_point			p1;
+	t_point			p2;
+	t_vect const	map_scale_factor = app->map_scale_factor;
 
-	place_tile_on_image32_alpha(canvas, mmap, *p);
+	if (app->keys[get_key_index(XK_Shift_L)])
+	{
+		minimap = app->minimap_xl;
 
-//	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
-//	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
+//		p1.x = WIN_WIDTH * 0.15;
+//		p1.y = WIN_HEIGHT * 0.15;
 
-	p->x = player->pos.x * 8 + WIN_WIDTH - app->map->width * 8 - pointer->width / 2;
-	p->y = (app->map->height - player->pos.y) * 8 - pointer->height / 2;
-	place_tile_on_image32_alpha(canvas, pointer, *p);
+		p1.x = WIN_WIDTH - minimap->width;
+		p1.y = 0;
+
+		p2.x = WIN_WIDTH - (player->pos.x - lvl->width) * -8 * map_scale_factor.x;
+		p2.y = (lvl->height - player->pos.y) * 8;
+
+//		p2.x *= scale_x;
+		p2.y *= map_scale_factor.y;
+
+	}
+	else
+	{
+		minimap = app->map->minimap_xs;
+		p1.x = WIN_WIDTH - minimap->width;
+		p1.y = 0;
+		//	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
+		//	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
+		p2.x = WIN_WIDTH - (player->pos.x - app->map->width) * -8;
+		p2.y = (app->map->height - player->pos.y) * 8;
+	}
+
+	p2.x -= pointer->width / 2;
+	p2.y -= pointer->height / 2;
+	place_tile_on_image32_alpha(canvas, minimap, p1);
+	place_tile_on_image32_alpha(canvas, pointer, p2);
 }
 
 void	pix_copy(t_img *const src, t_img *const dst, t_point pos)

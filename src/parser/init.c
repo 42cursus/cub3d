@@ -12,9 +12,9 @@
 
 #include "cub3d.h"
 
-t_data	*init_map(void)
+t_lvl	*init_map(void)
 {
-	t_data	*map;
+	t_lvl	*map;
 
 	map = ft_calloc(1, sizeof(*map));
 	map->f_col = -1;

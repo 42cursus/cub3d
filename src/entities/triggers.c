@@ -15,7 +15,7 @@
 void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 {
 	t_object	*trigger;
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	trigger = ft_calloc(1, sizeof(*trigger));
@@ -29,7 +29,7 @@ void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 void	spawn_teleporter(t_info *app, t_vect pos, int level)
 {
 	t_object	*tele;
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	tele = ft_calloc(1, sizeof(*tele));

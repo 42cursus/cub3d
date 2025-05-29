@@ -13,14 +13,14 @@
 #include "cub3d.h"
 
 static inline __attribute__((always_inline))
-int	point_oob(t_vect pos, t_data *map)
+int	point_oob(t_vect pos, t_lvl *map)
 {
 	return ((pos.x < 0 || pos.x > map->width)
 		|| (pos.y < 0 || pos.y > map->height));
 }
 
 static inline __attribute__((always_inline, unused))
-void	update_x_y(t_data *data, t_cvect3 tiles, t_vect new_pos, t_vect *pos)
+void	update_x_y(t_lvl *data, t_cvect3 tiles, t_vect new_pos, t_vect *pos)
 {
 	if (check_tile_open(tiles.x, data))
 		pos->x = new_pos.x;
@@ -28,7 +28,7 @@ void	update_x_y(t_data *data, t_cvect3 tiles, t_vect new_pos, t_vect *pos)
 		pos->y = new_pos.y;
 }
 
-int	check_tile_open(char tile, t_data *map)
+int	check_tile_open(char tile, t_lvl *map)
 {
 	if (tile == 'O' || tile == '0')
 		return (1);
@@ -37,7 +37,7 @@ int	check_tile_open(char tile, t_data *map)
 	return (0);
 }
 
-void	move_entity(t_vect *pos, t_data *data, t_vect dir)
+void	move_entity(t_vect *pos, t_lvl *data, t_vect dir)
 {
 	t_vect		new_pos;
 	t_cvect3	tiles;
@@ -66,7 +66,7 @@ void	move_entity(t_vect *pos, t_data *data, t_vect dir)
 	}
 }
 
-void	move_obj_bounce(t_info *app, t_object *obj, t_data *data)
+void	move_obj_bounce(t_info *app, t_object *obj, t_lvl *data)
 {
 	t_vect	new_pos;
 	char	**map;

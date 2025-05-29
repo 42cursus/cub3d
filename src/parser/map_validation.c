@@ -13,8 +13,8 @@
 #include "cub3d.h"
 
 int		is_map_line(char *line);
-void	set_starting_dir(t_data *map, char dir);
-void	normalise_map(t_data *data);
+void	set_starting_dir(t_lvl *map, char dir);
+void	normalise_map(t_lvl *data);
 int		str_cmp_whitespace(void *data, void *ref);
 
 int	surrounding_tiles_valid(char **map, size_t i, size_t j)
@@ -44,7 +44,7 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 	return (1);
 }
 
-int	check_start_pos(t_data *data, size_t i, size_t j, int *start_found)
+int	check_start_pos(t_lvl *data, size_t i, size_t j, int *start_found)
 {
 	char	tile;
 
@@ -76,7 +76,7 @@ void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
 	}
 }
 
-int	validate_map_tiles(t_data *data, char **map)
+int	validate_map_tiles(t_lvl *data, char **map)
 {
 	ssize_t	i;
 	ssize_t	j;
@@ -116,7 +116,7 @@ int	map_is_terminating(char **map)
 	return (1);
 }
 
-int	map_is_valid(t_data *data)
+int	map_is_valid(t_lvl *data)
 {
 	if (!map_is_terminating(data->map))
 		return (printf("Error: map not defined last\n"), 0);

@@ -40,7 +40,7 @@ void	start_obj_death(t_object *obj, t_info *app)
 	obj->anim2.timestart = app->fr_last;
 }
 
-t_object	*check_obj_proximity(t_vect pos, t_data *map)
+t_object	*check_obj_proximity(t_vect pos, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*cur_obj;

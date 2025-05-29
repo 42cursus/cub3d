@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	update_enemies(t_info *app, t_player *player, t_data *map)
+void	update_enemies(t_info *app, t_player *player, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*obj;
@@ -29,7 +29,7 @@ void	update_enemies(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void	update_projectiles(t_info *app, t_player *player, t_data *map)
+void	update_projectiles(t_info *app, t_player *player, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*obj;
@@ -49,7 +49,7 @@ void	update_projectiles(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void	update_items(t_info *app, t_player *player, t_data *map)
+void	update_items(t_info *app, t_player *player, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*obj;
@@ -66,7 +66,7 @@ void	update_items(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void	update_triggers(t_info *app, t_player *player, t_data *map)
+void	update_triggers(t_info *app, t_player *player, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*obj;
@@ -85,7 +85,7 @@ void	update_triggers(t_info *app, t_player *player, t_data *map)
 	}
 }
 
-void	update_objects(t_info *app, t_player *player, t_data *map)
+void	update_objects(t_info *app, t_player *player, t_lvl *map)
 {
 	update_enemies(app, player, map);
 	update_projectiles(app, player, map);

@@ -74,7 +74,7 @@ void	add_in_front(t_ray *ray, int face, t_texture *texture)
 	new->in_front = in_front;
 }
 
-void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
+void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray)
 {
 	check_collision_list(map->items, player, ray);
 	check_collision_list(map->enemies, player, ray);
@@ -82,7 +82,7 @@ void	calc_object_collisions(t_data *map, t_player *player, t_ray *ray)
 	check_collision_list(map->triggers, player, ray);
 }
 
-void	cast_all_rays_alt(t_info *app, t_data *map, t_player *player)
+void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player)
 {
 	int		i;
 

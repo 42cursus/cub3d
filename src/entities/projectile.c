@@ -35,7 +35,7 @@ void	setup_projectile(t_object *projectile, t_info *app,
 }
 
 void	spawn_projectile(t_info *app, t_player *player,
-			t_data *map, int subtype)
+						 t_lvl *map, int subtype)
 {
 	t_object	*projectile;
 

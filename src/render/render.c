@@ -14,6 +14,23 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+void	pix_dup(t_img *const src, t_img *const dst)
+{
+	if (src->height != dst->height || src->size_line != dst->size_line)
+		return ;
+	fast_memcpy_test((int *)dst->data, (const int *)src->data, src->height * src->size_line);
+}
+
+t_img	*img_dup(t_info *app, t_img *const src)
+{
+	t_img *const new = mlx_new_image(app->mlx, src->width, src->height);
+	if (!new)
+		return (NULL);
+	pix_dup(src, new);
+	return (new);
+}
+
+
 /**
  * we assume that image bits_per_pixel is 32 bit
  * @param img
@@ -21,7 +38,6 @@
  * @param y
  * @param colour
  */
-
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
 	t_vect	steps;

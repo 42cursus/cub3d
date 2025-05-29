@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 static inline __attribute__((always_inline))
-void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_data *map)
+void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 {
 	if (dda->dir.x < 0)
 	{
@@ -35,7 +35,7 @@ void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_data *map)
 }
 
 static inline __attribute__((always_inline))
-void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_data *map)
+void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 {
 	if (dda->dir.y < 0)
 	{
