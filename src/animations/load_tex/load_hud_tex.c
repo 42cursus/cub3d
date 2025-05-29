@@ -75,7 +75,7 @@ void	load_misc_graphics(t_info *app)
 	tex = &app->shtex->empty;
 	tex->data = img_to_tex_row_major(app, (char *) "./textures/empty.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->tele;
-	tex->data = img_to_tex_row_major(app, (char *) "./textures/teleporter.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex(app, (char *) "./textures/teleporter.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->scope;
 	tex->data = img_to_tex_row_major(app, (char *) "./textures/scope.xpm", &tex->x, &tex->y);
 	tex = &app->shtex->credits;

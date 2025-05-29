@@ -25,6 +25,8 @@ set(FT_CFLAGS
         -Wimplicit
         -mavx
         -mavx2
+        -ffast-math
+        -mprefer-vector-width=256
 #        -Wformat -Werror=format-security
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
@@ -32,7 +34,7 @@ set(FT_CFLAGS
         -fstack-protector-strong
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
-        -O0
+        -Ofast
         -pg
         -masm=att
         -g3 -gdwarf-3
@@ -193,7 +195,7 @@ target_include_directories(${TARGET_NAME} PRIVATE
 target_link_libraries(${TARGET_NAME} "${TARGET_LIBRARIES}")
 target_link_options(${TARGET_NAME} PRIVATE ${COMMON_LDFLAGS})
 target_compile_options(${TARGET_NAME} PRIVATE "${FT_CFLAGS}")
-target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
+#target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
         OUTPUT_NAME "${PROJECT_NAME}")

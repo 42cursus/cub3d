@@ -1,5 +1,5 @@
 /* XPM */
-static char *missile_on_xpm[]={
+static const char *missile_on_xpm[]={
 "48 32 4 1",
 ". c None",
 "b c #50002e",
