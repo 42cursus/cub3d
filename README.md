@@ -50,7 +50,7 @@ void foo(void)
 	t_texture			*tex;
 	extern const char	*title_card_xpm[];
 
-	tex->data = img_to_tex_static(app, title_card_xpm, &tex->x, &tex->y);
+	tex->data = img_to_tex_static_row_major(app, title_card_xpm, &tex->x, &tex->y);
 }
 
 ```

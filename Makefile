@@ -26,8 +26,8 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
 					-pg \
-#					-D FRAMERATE=60 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+#					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \

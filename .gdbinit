@@ -37,3 +37,5 @@ directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 
 set trace-commands on
 set print inferior-events on
+
+br main

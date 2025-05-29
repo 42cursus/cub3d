@@ -177,6 +177,9 @@ t_img	*build_minimap(t_info *app, t_img *tiles[])
 	int		index;
 
 	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
+
+
+
 	ft_bzero(img->data, img->size_line * img->height);
 	apply_alpha(img, 255);
 	i = -1;
@@ -211,14 +214,11 @@ void	place_mmap(t_info *app)
 	t_player *const	player = app->player;
 	t_point			p1;
 	t_point			p2;
-	t_vect const	map_scale_factor = app->map_scale_factor;
+	t_vect const	map_scale_factor = lvl->map_scale_factor;
 
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
-		minimap = app->minimap_xl;
-
-//		p1.x = WIN_WIDTH * 0.15;
-//		p1.y = WIN_HEIGHT * 0.15;
+		minimap = lvl->minimap_xl;
 
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
@@ -232,13 +232,11 @@ void	place_mmap(t_info *app)
 	}
 	else
 	{
-		minimap = app->map->minimap_xs;
+		minimap = lvl->minimap_xs;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
-		//	dx = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8;
-		//	dy = (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3;
-		p2.x = WIN_WIDTH - (player->pos.x - app->map->width) * -8;
-		p2.y = (app->map->height - player->pos.y) * 8;
+		p2.x = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - lvl->width * 8;
+		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 3;
 	}
 
 	p2.x -= pointer->width / 2;

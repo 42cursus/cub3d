@@ -89,31 +89,43 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
+/**
+ * 	Transpose: store in column-major for fast vertical access
+ * @param app
+ * @param filename
+ * @param w
+ * @param h
+ * @return
+ */
 u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
 {
-	t_img *img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
-	if (!img) return NULL;
+	t_point		i;
+	t_img		*img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
+	if (!img)
+		return NULL;
 
 	u_int32_t *flat = malloc(*w * *h * sizeof(u_int32_t));
 	if (!flat) return NULL;
 
 	u_int32_t *src = (u_int32_t *)img->data;
 
-	// Transpose: store in column-major for fast vertical access
-	for (int y = 0; y < *h; ++y)
-		for (int x = 0; x < *w; ++x)
-			flat[x * (*h) + y] = src[y * *w + x];
-
+	i.y = -1;
+	while (++i.y < *h)
+	{
+		i.x = -1;
+		while (++i.x < *w)
+			flat[i.x * (*h) + i.y] = src[i.y * *w + i.x];
+	}
 	mlx_destroy_image(app->mlx, img);
 	return flat;
 }
 
-u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
+u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h)
 {
 	t_img		*img;
 	u_int32_t	*data;
 
-	img = mlx_xpm_file_to_image(app->mlx, (char *)filename, x, y);
+	img = mlx_xpm_file_to_image(app->mlx, (char *)filename, w, h);
 	if (!img)
 		return (NULL);
 	data = (u_int32_t *)malloc(img->height * img->size_line);
@@ -145,7 +157,35 @@ char	*mlx_static_line(char **xpm_data, int *pos, int size)
 	(void)size;
 }
 
-u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y)
+u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h)
+{
+	t_point		i;
+	t_img		*img;
+	u_int32_t	*data;
+
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
+	if (!img)
+		return (NULL);
+
+	*w = img->width;
+	*h = img->height;
+
+	data = (u_int32_t *)malloc(img->height * img->size_line);
+	if (!data)
+		return (NULL);
+	u_int32_t *src = (u_int32_t *)img->data;
+	i.y = -1;
+	while (++i.y < *h)
+	{
+		i.x = -1;
+		while (++i.x < *w)
+			data[i.x * (*h) + i.y] = src[i.y * *w + i.x];
+	}
+	mlx_destroy_image(app->mlx, img);
+	return (data);
+}
+
+u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h)
 {
 	t_img		*img;
 	u_int32_t	*data;
@@ -154,8 +194,8 @@ u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y)
 	if (!img)
 		return (NULL);
 
-	*x = img->width;
-	*y = img->height;
+	*w = img->width;
+	*h = img->height;
 
 	data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!data)

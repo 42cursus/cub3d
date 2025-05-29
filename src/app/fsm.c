@@ -53,6 +53,7 @@ int	exit_win(t_info *const	app)
 void	destroy_map(t_lvl *map)
 {
 	mlx_destroy_image(map->app->mlx, map->minimap_xs);
+	mlx_destroy_image(map->app->mlx, map->minimap_xl);
 	if (map->texs[T_CEILING])
 		mlx_destroy_image(map->app->mlx, map->texs[T_CEILING]);
 	if (map->texs[T_FLOOR])
@@ -99,7 +100,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
-	app->minimap_xl = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));

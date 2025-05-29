@@ -23,10 +23,10 @@
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
 //# define WIN_HEIGHT 960
-# define WIN_WIDTH 1920
-# define WIN_HEIGHT 1080
-//# define WIN_WIDTH 1600
-//# define WIN_HEIGHT 900
+//# define WIN_WIDTH 1920
+//# define WIN_HEIGHT 1080
+# define WIN_WIDTH 1600
+# define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
 
@@ -251,6 +251,8 @@ typedef	struct s_data
 	t_texture		ceil_tex;
 	int				outside;
 	t_img			*minimap_xs;
+	t_img			*minimap_xl;
+	t_vect			map_scale_factor;
 	int				f_col;
 	int				c_col;
 	char			**map;
@@ -397,8 +399,6 @@ typedef struct s_info
 	char 		*title;
 	t_img		*canvas;
 	t_img		*pointer;
-	t_img		*minimap_xl;
-	t_vect		map_scale_factor;
 	t_img		*skybox;
 	t_img		*bg;
 	t_img		*stillshot;
@@ -565,9 +565,10 @@ void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 void	load_map_textures(t_info *app,  t_img *tiles[]);
 void	free_map_textures(t_info *app, t_img *tiles[]);
-u_int32_t *img_to_tex(t_info *app, char *filename, int *x, int *y);
-u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y);
-u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y);
+u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h);
+u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
+u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
+u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app, t_img *canvas);

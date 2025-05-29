@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/param.h>
 #include "cub3d.h"
 
 size_t	count_split_words(char **split);
@@ -297,36 +298,37 @@ int	count_collectables(t_lvl *map)
 	return (count);
 }
 
+__attribute__((optnone))
 void draw_large_minimap(t_lvl *lvl)
 {
 	t_info *const app = lvl->app;
 	t_img *minimap = lvl->minimap_xs;
-	t_img *large_minimap = lvl->app->minimap_xl;
+	t_img *large_minimap;
 	t_img *scaled;
 	t_point p;
+	t_ivect new;
+	double aspect_ratio;
 
+	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
+
+	if (!large_minimap)
+		return ;
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
+	aspect_ratio = (double) lvl->width / lvl->height;
 
-	double aspect_ratio = (double )lvl->width / lvl->height;
-	int new_x;
-	int new_y;
+	new.x = MIN(large_minimap->width, (int)(aspect_ratio * large_minimap->height));
+	new.y = MIN(large_minimap->height, (int)(large_minimap->width / aspect_ratio));
 
-	if (lvl->width >= lvl->height)
-	{
-		new_x = large_minimap->width;
-		new_y = (int)round(large_minimap->width / aspect_ratio);
-	}
-	else
-	{
-		new_x = (int)round(aspect_ratio * large_minimap->height);
-		new_y = large_minimap->height;
-	}
-	scaled = scale_image(app, img_dup(app, minimap), new_x, new_y);
+	double aspect_ratio2 = (double) new.x / new.y;
+	printf("%f\n", aspect_ratio2);
+
+	scaled = scale_image(app, img_dup(app, minimap), new.x, new.y);
 	p.x = large_minimap->width - scaled->width;
 	p.y = 0;
 	place_tile_on_image32(large_minimap, scaled, p.x, p.y);
-	app->map_scale_factor.x = (double)new_x / minimap->width;
-	app->map_scale_factor.y = (double)new_y / minimap->height;
+	lvl->map_scale_factor.x = (double)new.x / minimap->width;
+	lvl->map_scale_factor.y = (double)new.y / minimap->height;
+	lvl->minimap_xl = large_minimap;
 	mlx_destroy_image(app->mlx, scaled);
 }
 
