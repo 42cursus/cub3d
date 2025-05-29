@@ -99,13 +99,6 @@ $(LIBX_DIR)/Makefile.gen:
 ## mlx
 $(LIBX): $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
-		@if [ ! -d $(BUILD_DIR) ]; then mkdir -p $(BUILD_DIR); fi
-		@ar x $(LIBX) mlx_xpm.o --output $(BUILD_DIR)
-		@ar d $(LIBX) $(BUILD_DIR)/mlx_xpm.o
-		@objcopy --globalize-symbol=strlcpy_is_not_posix $(BUILD_DIR)/mlx_xpm.o
-		@objcopy --weaken-symbol=strlcpy_is_not_posix $(BUILD_DIR)/mlx_xpm.o
-		@ar rcs $(LIBX) $(BUILD_DIR)/mlx_xpm.o
-		@$(RM) -v $(BUILD_DIR)/mlx_xpm.o
 		@echo "LIBX BUILD COMPLETE!"
 
 ## clean_libft

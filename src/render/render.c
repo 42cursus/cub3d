@@ -124,12 +124,33 @@ u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
 	return (data);
 }
 
+char	*mlx_static_line(char **xpm_data, int *pos, int size)
+{
+	static char *copy = 0;
+	static int len = 0;
+	int len2;
+	char *str;
+
+	str = xpm_data[(*pos)++];
+	if ((len2 = strlen(str)) > len)
+	{
+		if (copy)
+			free(copy);
+		if (!(copy = malloc(len2 + 1)))
+			return ((char *) 0);
+		len = len2;
+	}
+	ft_strlcpy(copy, str, len2 + 1);
+	return (copy);
+	(void)size;
+}
+
 u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y)
 {
 	t_img		*img;
 	u_int32_t	*data;
 
-	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_int_static_line);
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (NULL);
 
