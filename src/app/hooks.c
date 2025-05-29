@@ -125,7 +125,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 	app->mouse[button] = true;
 	if (button == 1)
 		spawn_projectile(app, app->player, app->map, app->player->equipped);
-	else if (button == 3)
+	else if (button == 2)
 	{
 		if (!app->ads)
 		{
@@ -142,9 +142,11 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 		replace_sky(app, (char *) "./textures/skybox.xpm");
 		draw_sky_alt(app);
 	}
-	else if (button == 5)
-		next_weapon(app->player);
+	else if (button == 3)
+		app->player->equipped = 0;
 	else if (button == 4)
+		next_weapon(app->player);
+	else if (button == 5)
 		prev_weapon(app->player);
 	return (0);
 	((void) x, (void) y);
@@ -325,7 +327,8 @@ int key_release_win(KeySym key, void *param)
 
 int key_press_play(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	t_player *const	player = app->player;
 
 	if (key == XK_5 || key == XK_Escape)
 	{
@@ -334,7 +337,17 @@ int key_press_play(KeySym key, void *param)
 	}
 	else
 	{
-		if (key == XK_F11)
+		if (key == XK_1)
+		{
+			if (player->ammo[1])
+				player->equipped = 1;
+		}
+		else if (key == XK_2)
+		{
+			if (player->ammo[2])
+				player->equipped = 2;
+		}
+		else if (key == XK_F11)
 		{
 			app->fullscreen = !app->fullscreen;
 			mlx_allow_resize_win(app->mlx->display, app->win->window);
@@ -344,27 +357,21 @@ int key_press_play(KeySym key, void *param)
 										WIN_WIDTH, WIN_HEIGHT);
 		}
 		else if (key == XK_e)
-			handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
+			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
-			spawn_projectile(app, app->player, app->map, app->player->equipped);
-			// DEBUGGING
+			spawn_projectile(app, player, app->map, player->equipped); // DEBUGGING. TODO: fixme
 		else if (key == XK_h)
-			subtract_health(app, app->player, 10);
+			subtract_health(app, player, 10);
 		else if (key == XK_j)
-			add_health(app->player, 10);
+			add_health(player, 10);
 		else if (key == XK_z)
-			next_weapon(app->player);
+			next_weapon(player);
 		else if (key == XK_Up)
-			app->player->vert_offset += 10;
+			player->vert_offset += 10;
 		else if (key == XK_Down)
-				app->player->vert_offset -= 10;
+			player->vert_offset -= 10;
 		else if (key == XK_f)
-		{
-			if (app->filter)
-				app->filter = 0;
-			else
-				app->filter = 1;
-		}
+			app->filter = !app->filter;
 		int idx = get_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;
