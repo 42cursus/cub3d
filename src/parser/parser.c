@@ -311,7 +311,7 @@ void draw_large_minimap(t_lvl *lvl)
 	int new_x;
 	int new_y;
 
-	if (lvl->width < lvl->height)
+	if (lvl->width >= lvl->height)
 	{
 		new_x = large_minimap->width;
 		new_y = (int)round(large_minimap->width / aspect_ratio);
