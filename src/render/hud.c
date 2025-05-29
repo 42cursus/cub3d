@@ -94,28 +94,14 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 // 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
 // }
 
-static inline __attribute__((always_inline))
-u_int	interpolate_colour(t_colour col1, t_colour col2)
-{
-	t_colour		out;
-	const double	frac = col1.a / 255.0;
-
-	if (col1.raw == col2.raw)
-		return col1.raw;
-	out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
-	out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
-	out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
-	return (out.raw);
-}
-
 
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 {
 	t_ivect		t;
 	t_ivect		offset;
 	t_point		boundaries;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
+	t_colour	*src_row;
+	t_colour	*dst_row;
 
 	offset.x = (int []){0, -p.x}[p.x < 0];
 	offset.y = (int []){0, -p.y}[p.y < 0];
@@ -125,12 +111,23 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 	t.y = offset.y - 1;
 	while (++t.y < boundaries.y)
 	{
-		src_row = (u_int32_t *) tile->data + (t.y * tile->width);
-		dst_row = (u_int32_t *) image->data + ((t.y + p.y) * image->width) + p.x;
+		src_row = (t_colour *) tile->data + (t.y * tile->width);
+		dst_row = (t_colour *) image->data + ((t.y + p.y) * image->width) + p.x;
 		t.x = offset.x - 1;
 		while (++t.x < boundaries.x)
-			dst_row[t.x] = interpolate_colour(
-				*(t_colour *) &src_row[t.x], *(t_colour *) &dst_row[t.x]);
+		{
+			t_colour col1 = src_row[t.x];
+			t_colour *col2 = &dst_row[t.x];
+			t_colour out = col1;
+			const double frac = col1.a / 255.0;
+			if (col1.raw != col2->raw)
+			{
+				out.r = ((col2->r - col1.r) * frac) + col1.r + 0.5;
+				out.g = ((col2->g - col1.g) * frac) + col1.g + 0.5;
+				out.b = ((col2->b - col1.b) * frac) + col1.b + 0.5;
+			}
+			*col2 = out;
+		}
 	}
 }
 
@@ -148,8 +145,22 @@ void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
 		dst_row = (u_int32_t *) image->data + ((i + p.y) * image->width) + p.x;
 		j = -1;
 		while (++j < tile->width)
-			dst_row[j] = interpolate_colour(*(t_colour *) &src_row[j],
-											*(t_colour *) &dst_row[j]);
+		{
+			t_colour col1 = *(t_colour *) &src_row[j];
+			t_colour col2 = *(t_colour *) &dst_row[j];
+			t_colour out;
+			const double frac = col1.a / 255.0;
+
+			out = col1;
+			if (col1.raw != col2.raw)
+			{
+				out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
+				out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
+				out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
+			}
+			u_int colour = (out.raw);
+			dst_row[j] = colour;
+		}
 	}
 }
 

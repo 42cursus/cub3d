@@ -30,11 +30,10 @@ void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_i
 {
 	u_int			colour;
 	u_int32_t		mask;
-	const t_texture	*texture = ray->texture;
-	const int		step = (texture->y << FIXED_SHIFT) / start.x;
+	const int		step = (ray->texture->y << FIXED_SHIFT) / start.x;
 	int				tex_y_fp;
 	u_int			*dst_px;
-	u_int32_t		*const tex_data = texture->data + ((int)ray->pos * texture->x);
+	u_int32_t		*const tex_data = ray->texture->data + ((int)ray->pos * ray->texture->x);
 	u_int32_t		*const dst_data = (u_int32_t *) canvas->data;
 	t_point			i;
 	int				screen_y;
@@ -71,27 +70,28 @@ void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_i
 	}
 }
 
-
 static inline __attribute((always_inline, unused))
 void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect lvars)
 {
 	const double	fract = ray->pos;
 	const t_texture	*texture = ray->texture;
 	double			tex_y;
-
-	u_int32_t *tex_data = texture->data + (texture->x * (int)fract);
-	u_int32_t *dst_data = (u_int32_t *)canvas->data;
+	u_int32_t		mask;
+	u_int			colour;
+	u_int			*dst_px;
+	u_int32_t		*tex_data = texture->data + (texture->x * (int)fract);
+	u_int32_t		*dst_data = (u_int32_t *)canvas->data;
 
 	if (ray->damaged)
 	{
 		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 		{
 			tex_y = ((double) draw_pos.y / lvars.x) * texture->y;
-			u_int colour = tex_data[(int)tex_y];
-			u_int tinted = ((colour & 0x0000FFFF) + MLX_RED);
-			u_int32_t mask = -(colour != XPM_TRANSPARENT);
-			u_int *p_int = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
-			*p_int = (tinted & mask) | (*p_int & ~mask);
+			colour = tex_data[(int) tex_y];
+			mask = -(colour != XPM_TRANSPARENT);
+			colour = ((colour & 0x0000FFFF) + MLX_RED);
+			dst_px = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
+			*dst_px = (colour & mask) | (*dst_px & ~mask);
 			draw_pos.y++;
 		}
 	}
@@ -100,10 +100,10 @@ void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect l
 		while (draw_pos.y < lvars.x && draw_pos.y + lvars.y < WIN_HEIGHT)
 		{
 			tex_y = ((double)draw_pos.y / lvars.x) * texture->y;
-			u_int colour = tex_data[(int)tex_y];
-			u_int32_t mask = -(colour != XPM_TRANSPARENT);
-			u_int *p_int = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
-			*p_int = (colour & mask) | (*p_int & ~mask);
+			colour = tex_data[(int)tex_y];
+			mask = -(colour != XPM_TRANSPARENT);
+			dst_px = &dst_data[(lvars.y + draw_pos.y) * canvas->width + draw_pos.x];
+			*dst_px = (colour & mask) | (*dst_px & ~mask);
 			draw_pos.y++;
 		}
 	}
