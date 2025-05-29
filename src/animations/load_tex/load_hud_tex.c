@@ -62,8 +62,6 @@ void	load_boss_bar_tex(t_info *app)
 		app, (char *) "./textures/boss_bar_right.xpm", &tex[1].x, &tex[1].y);
 }
 
-#include <signal.h>
-
 void	load_misc_graphics(t_info *app)
 {
 	t_texture			*tex;

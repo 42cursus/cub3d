@@ -28,43 +28,45 @@
 static inline __attribute__((always_inline, unused))
 void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect start)
 {
-
+	u_int			colour;
+	u_int32_t		mask;
 	const t_texture	*texture = ray->texture;
 	const int		step = (texture->y << FIXED_SHIFT) / start.x;
+	int				tex_y_fp;
+	u_int			*dst_px;
+	u_int32_t		*const tex_data = texture->data + ((int)ray->pos * texture->x);
+	u_int32_t		*const dst_data = (u_int32_t *) canvas->data;
+	t_point			i;
+	int				screen_y;
 
-	int				tex_y_fp = 0;
-
-	u_int32_t *tex_data = texture->data + ((int)ray->pos * texture->x);
-	u_int32_t *dst_data = (u_int32_t *) canvas->data;
-
-	int i = draw_pos.y - 1;
-	int screen_y = start.y + draw_pos.y;
-
+	i.x = draw_pos.y - 1;
+	screen_y = start.y + draw_pos.y;
+	tex_y_fp = 0;
 	if (ray->damaged)
 	{
-		while (++i < start.x && screen_y < WIN_HEIGHT)
+		while (++i.x < start.x && screen_y < WIN_HEIGHT)
 		{
-			int y = (int)(tex_y_fp >> FIXED_SHIFT);
-			u_int colour = tex_data[y];
-			u_int tinted = ((colour & 0x0000FFFF) + MLX_RED);
-			u_int32_t mask = -(colour != XPM_TRANSPARENT);
-			u_int *dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
-			*dst_px = (tinted & mask) | (*dst_px & ~mask);
+			i.y = (int)(tex_y_fp >> FIXED_SHIFT);
+			colour = tex_data[i.y];
+			mask = -(colour != XPM_TRANSPARENT);
+			colour = ((colour & 0x0000FFFF) + MLX_RED);
+			dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
+			*dst_px = (colour & mask) | (*dst_px & ~mask);
 			tex_y_fp += step;
-			screen_y = start.y + i;
+			screen_y = start.y + i.x;
 		}
 	}
 	else
 	{
-		while (++i < start.x && screen_y < WIN_HEIGHT)
+		while (++i.x < start.x && screen_y < WIN_HEIGHT)
 		{
-			int y = (int)(tex_y_fp >> FIXED_SHIFT);
-			u_int colour = tex_data[y];
-			u_int32_t mask = -(colour != XPM_TRANSPARENT);
-			u_int *dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
+			i.y = (int)(tex_y_fp >> FIXED_SHIFT);
+			colour = tex_data[i.y];
+			mask = -(colour != XPM_TRANSPARENT);
+			dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
 			*dst_px = (colour & mask) | (*dst_px & ~mask);
 			tex_y_fp += step;
-			screen_y = start.y + i;
+			screen_y = start.y + i.x;
 		}
 	}
 }
