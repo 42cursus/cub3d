@@ -558,7 +558,7 @@ t_img	*img_dup(t_info *app, t_img *const src);
 void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
-void	place_texarr(t_info *app, t_texture *tex, int x, int y);
+void	put_texture(t_info *app, t_texture *tex, int x, int y);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);

@@ -269,11 +269,12 @@ void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 	}
 }
 
-void	place_texarr(t_info *app, t_texture *tex, int x, int y)
+void	put_texture(t_info *app, t_texture *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;
 	u_int32_t		*src_row;
 	u_int32_t		*dst_row;
+	u_int32_t		mask;
 	t_ivect			i;
 
 	i.y = -1;
@@ -282,13 +283,10 @@ void	place_texarr(t_info *app, t_texture *tex, int x, int y)
 		src_row = (u_int32_t *)tex->data + (i.y * tex->x);
 		dst_row = (u_int32_t *)canvas->data + ((i.y + y) * canvas->width) + x;
 		i.x = -1;
-		u_int32_t *colour2;
 		while (++i.x < tex->x)
 		{
-			u_int32_t colour = src_row[i.x];
-			colour2 = &dst_row[i.x];
-			if (colour != XPM_TRANSPARENT)
-				*colour2 = colour;
+			mask = -(src_row[i.x] != XPM_TRANSPARENT);
+			dst_row[i.x] = (src_row[i.x] & mask) | (dst_row[i.x] & ~mask);
 		}
 	}
 }
@@ -463,7 +461,7 @@ void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
 	}
 	start_x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
 	y = start_y + (app->menu_state.selected * 16 * scalar) - 32;
-	place_texarr(app, &app->shtex->trophy_tex[0], start_x, y);
+	put_texture(app, &app->shtex->trophy_tex[0], start_x, y);
 }
 
 void	place_weapon(t_info *app)
@@ -482,7 +480,7 @@ void	place_weapon(t_info *app)
 	}
 	else
 		tex = &app->shtex->cannon_tex[0];
-	place_texarr(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
+	put_texture(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
 }
 
 void	place_energy_backup(t_info *app, t_player *player)
@@ -492,20 +490,19 @@ void	place_energy_backup(t_info *app, t_player *player)
 	int			i;
 	t_ivect		start;
 
-	i = 0;
+	i = -1;
 	start = (t_ivect){32, 16};
-	while (i < backup)
+	while (++i < backup)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &app->shtex->energy_tex[1], start.x + i * 16, start.y);
-		i++;
+		put_texture(app, &app->shtex->energy_tex[1], start.x + i * 16, start.y);
 	}
 	while (i < max_backup)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		place_texarr(app, &app->shtex->energy_tex[2], start.x + i * 16, start.y);
+		put_texture(app, &app->shtex->energy_tex[2], start.x + i * 16, start.y);
 		i++;
 	}
 }
@@ -515,7 +512,7 @@ void	place_energy(t_info *app, t_player *player)
 	int			health;
 	char		buf[3];
 
-	place_texarr(app, &app->shtex->energy_tex[0], 16, 48);
+	put_texture(app, &app->shtex->energy_tex[0], 16, 48);
 	health = player->health % 100;
 	buf[0] = (health / 10) + '0';
 	buf[1] = (health % 10) + '0';
@@ -537,7 +534,7 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[2] = player->ammo[MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
 		tex = &app->shtex->missile_tex[2 + (player->equipped == MISSILE)];
-		place_texarr(app, tex, 160, 16);
+		put_texture(app, tex, 160, 16);
 	}
 	if (player->max_ammo[SUPER] != 0)
 	{
@@ -546,7 +543,7 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[2] = 0;
 		place_str(buf, app, (t_ivect){224, 48}, 2);
 		tex = &app->shtex->super_tex[2 + (player->equipped == SUPER)];
-		place_texarr(app, tex, 224, 16);
+		put_texture(app, tex, 224, 16);
 	}
 }
 
@@ -574,7 +571,8 @@ void	place_scope(t_info *app)
 	t_texture *scope;
 
 	scope = &app->shtex->scope;
-	place_texarr(app, scope, WIN_WIDTH / 2 - scope->x / 2, WIN_HEIGHT / 2 - scope->y / 2);
+	put_texture(app, scope, WIN_WIDTH / 2 - scope->x / 2,
+				WIN_HEIGHT / 2 - scope->y / 2);
 }
 
 void	place_dmg(t_info *app, t_player *player)
@@ -599,7 +597,7 @@ void	place_dmg(t_info *app, t_player *player)
 	coords.x += WIN_WIDTH / 2;
 	coords.y += WIN_HEIGHT / 2;
 	// printf("dmg_dir: %d offset: (%d, %d)\n", player->dmg_dir, coords.x, coords.y);
-	place_texarr(app, tex, coords.x, coords.y);
+	put_texture(app, tex, coords.x, coords.y);
 }
 
 void	place_boss_health(t_info *app)
@@ -622,8 +620,9 @@ void	place_boss_health(t_info *app)
 		while (++j <= end_x)
 			(*pixels_bg)[i][j] = 0xff0000;
 	}
-	place_texarr(app, &app->shtex->boss_bar[0], start_x - 16, start_y - 1);
-	place_texarr(app, &app->shtex->boss_bar[1], start_x + (WIN_WIDTH / 2), start_y - 1);
+	put_texture(app, &app->shtex->boss_bar[0], start_x - 16, start_y - 1);
+	put_texture(app, &app->shtex->boss_bar[1], start_x + (WIN_WIDTH / 2),
+				start_y - 1);
 	place_str((char *)"Phantoon", app, (t_ivect){start_x, start_y - 24}, 2);
 }
 

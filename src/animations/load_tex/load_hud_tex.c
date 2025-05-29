@@ -69,17 +69,21 @@ void	load_misc_graphics(t_info *app)
 	t_texture			*tex;
 	t_img				dummy;
 	extern const char	*title_card_xpm[];
+	extern const char	*empty_xpm[];
+	extern const char	*teleporter_xpm[];
+	extern const char	*scope_xpm[];
+	extern const char	*credits_xpm[];
 
 	tex = &app->shtex->title;
 	tex->data = img_to_tex_static(app, title_card_xpm, &tex->x, &tex->y);
 	tex = &app->shtex->empty;
-	tex->data = img_to_tex_row_major(app, (char *) "./textures/empty.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, empty_xpm, &tex->x, &tex->y);
 	tex = &app->shtex->tele;
-	tex->data = img_to_tex(app, (char *) "./textures/teleporter.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, teleporter_xpm, &tex->x, &tex->y);
 	tex = &app->shtex->scope;
-	tex->data = img_to_tex_row_major(app, (char *) "./textures/scope.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, scope_xpm, &tex->x, &tex->y);
 	tex = &app->shtex->credits;
-	tex->data = img_to_tex_row_major(app, (char *) "./textures/credits.xpm", &tex->x, &tex->y);
+	tex->data = img_to_tex_static(app, credits_xpm, &tex->x, &tex->y);
 	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx,
 			(char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
 	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx,

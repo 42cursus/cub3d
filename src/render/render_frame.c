@@ -61,7 +61,8 @@ int	render_win(void *param)
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
+	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
+				100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -82,7 +83,8 @@ int	render_lose(void *param)
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
+	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
+				100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -192,7 +194,8 @@ int	render_mmenu(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 
-	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
+	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
+				100);
 	draw_menu_items(app);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -211,7 +214,8 @@ int	render_pmenu(void *param)
 	t_info *const		app = param;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	place_texarr(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
+	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
+				100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
