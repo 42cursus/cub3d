@@ -230,7 +230,8 @@ typedef struct s_shtex
 	t_texture	credits;
 	t_texture	boss_bar[2];
 	t_texture	empty;
-	void		*playertile;
+	t_texture	playertile;
+	t_texture	square;
 }	t_shtex;
 
 typedef enum e_textures

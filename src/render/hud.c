@@ -218,15 +218,16 @@ void	place_mmap(t_info *app)
 {
 	t_img 			*minimap;
 	t_lvl *const	lvl = app->map;
-	t_img *const	pointer = app->pointer;
 	t_img *const	canvas = app->canvas;
 	t_player *const	player = app->player;
 	t_point			p1;
 	t_point			p2;
 	t_vect const	map_scale_factor = lvl->map_scale_factor;
 
+
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
+		t_img			*pointer = app->pointer;
 		minimap = lvl->minimap_xl;
 
 		p1.x = WIN_WIDTH / 2 - minimap->width / 2;
@@ -238,20 +239,31 @@ void	place_mmap(t_info *app)
 		p2.x = minimap->width - dx + p1.x;
 		p2.y = dy + p1.y;
 
+		p2.x -= pointer->width / 2;
+		p2.y -= pointer->height / 2;
+		place_tile_on_image32_alpha(canvas, minimap, p1);
+		place_tile_on_image32_alpha(canvas, pointer, p2);
 	}
 	else
 	{
+		t_texture *texture = &app->shtex->square;
 		minimap = lvl->minimap_xs;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
 		p2.x = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - lvl->width * 8;
 		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 3;
+
+
+		p2.x -= texture->x / 2;
+		p2.y -= texture->y / 2;
+
+		place_tile_on_image32_alpha(canvas, minimap, p1);
+		put_texture(app, texture, p2.x, p2.y);
 	}
 
-	p2.x -= pointer->width / 2;
-	p2.y -= pointer->height / 2;
-	place_tile_on_image32_alpha(canvas, minimap, p1);
-	place_tile_on_image32_alpha(canvas, pointer, p2);
+
+
+
 }
 
 void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
@@ -660,9 +672,7 @@ void	draw_hud(t_info *app)
 	if (!app->ads)
 	{
 		place_weapon(app);
-		mlx_put_image_to_window(app->mlx, app->win,
-								app->shtex->playertile,
-								WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		put_texture(app, &app->shtex->playertile, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	}
 	else
 		place_scope(app);

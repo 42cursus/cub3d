@@ -71,6 +71,8 @@ void	load_misc_graphics(t_info *app)
 	extern const char	*teleporter_xpm[];
 	extern const char	*scope_xpm[];
 	extern const char	*credits_xpm[];
+	extern const char	*MAPPLAYER_xpm[];
+	extern const char	*MAP1111_xpm[];
 
 	tex = &app->shtex->title;
 	tex->data = img_to_tex_static_row_major(app, title_card_xpm, &tex->x,
@@ -85,7 +87,8 @@ void	load_misc_graphics(t_info *app)
 	tex->data = img_to_tex_static_row_major(app, credits_xpm, &tex->x, &tex->y);
 	app->shtex->alphabet = mlx_xpm_file_to_image(app->mlx,
 			(char *)"./textures/small_font.xpm", &dummy.width, &dummy.height);
-	app->shtex->playertile = mlx_xpm_file_to_image(app->mlx,
-			(char *)"./textures/mmap/MAPPLAYER.xpm",
-			&dummy.width, &dummy.height);
+	tex = &app->shtex->playertile;
+	tex->data = img_to_tex_static_row_major(app, MAPPLAYER_xpm, &tex->x, &tex->y);
+	tex = &app->shtex->square;
+	tex->data = img_to_tex_static_row_major(app, MAP1111_xpm, &tex->x, &tex->y);
 }
