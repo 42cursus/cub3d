@@ -61,9 +61,8 @@ void	add_in_front(t_ray *ray, int face, t_texture *texture)
 	t_ray	*in_front;
 	t_ray	*new;
 
-	if(texture->data == NULL)
+	if (texture->data == NULL)
 		return ;
-
 	new = get_pooled_ray(0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
