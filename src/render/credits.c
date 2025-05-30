@@ -47,6 +47,30 @@ int	linear_filter_credits(t_vect idx, const t_texture *tex)
 	return (interpolate_colour_inline(col1, col2, frac));
 }
 
+
+// int	bilinear_filter(double x, double y, const t_texture *tex)
+// {
+// 	int		x_lower;
+// 	int		x_upper;
+// 	int		y_lower;
+// 	int		y_upper;
+// 	double	frac_x;
+// 	double	frac_y;
+//
+// 	x_lower = (int)x;
+// 	y_lower = (int)y;
+// 	x_upper = x_lower + 1;
+// 	y_upper = y_lower + 1;
+// 	frac_x = fmod(x, 1);
+// 	frac_y = fmod(y, 1);
+// 	if (x_upper == tex->x)
+// 		x_upper = 0;
+// 	if (y_upper == tex->y)
+// 		return (interpolate_colour_inline(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
+// 	int	interp_x1 = interpolate_colour_inline(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
+// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
+// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
+// }
 void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
 	const t_texture		*tex = &app->shtex->credits;
@@ -54,6 +78,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	double				step_x;
 	double				curr_x;
 	t_vect				idx;
+	double				dist;
 	// t_ivect				idx;
 
 	step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
@@ -67,9 +92,10 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 		if (curr_x > -0.5 && curr_x < 0.5)
 		{
 			idx.x = (0.5 + curr_x) * tex->x;
-			// my_put_pixel_32(app->canvas, i, row, tex->img[idx.y][idx.x]);
+			dist = app->dummy->credits_offsets[row - 1];
+			// my_put_pixel_32(app->canvas, i, row, tex->data[idx.y * tex->x + idx.x]);
 			my_put_pixel_32(app->canvas, i, row,
-				linear_filter_credits(idx, tex));
+			dim_colour(linear_filter_credits(idx, tex), (dist - 1.5) * 4));
 		}
 		curr_x += step_x;
 		i++;
