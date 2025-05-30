@@ -164,6 +164,38 @@ void	pix_copy_alpha(t_img *image, t_img *tile, t_point p)
 	}
 }
 
+void	place_char(char c, t_info *app, t_ivect pos, int scalar)
+{
+	t_img *const	canvas = app->canvas;
+	t_img *const	alphabet = app->shtex->alphabet;
+	int		i;
+	int		j;
+	int		start_x;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	src_pixel;
+	u_int32_t	mask;
+	const int char_width = 8;
+
+	if (!ft_isprint(c) || scalar < 1)
+		return ;
+	start_x = (c - ' ') * char_width;
+
+	i = -1;
+	while (++i < char_width * scalar)
+	{
+		src_row = (u_int32_t *)alphabet->data + ((i / scalar) * alphabet->width) + start_x;
+		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
+		j = -1;
+		while (++j < char_width * scalar)
+		{
+			src_pixel = src_row[j / scalar];
+			mask = -(src_pixel != XPM_TRANSPARENT);
+			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+		}
+	}
+}
+
 void	apply_alpha(t_img *img, u_char alpha)
 {
 	int			i;
@@ -227,10 +259,27 @@ t_img	*build_minimap(t_info *app, t_img *tiles[])
 
 		}
 	}
-	place_items_minimap(app, app->map, img);
+	// place_items_minimap(app, app->map, img);
 	apply_alpha(img, 127);
 	return (img);
 }
+
+// void	place_items_minimapxl(t_info *app, t_lvl *lvl)
+// {
+// 	t_list		*current;
+// 	t_object	*curr_obj;
+//
+// 	current = lvl->triggers;
+// 	while (current != NULL)
+// 	{
+// 		curr_obj = current->content;
+// 		if (curr_obj->type == O_TELE)
+// 		{
+// 			place_char('t', app, (t_ivect3){(int)curr_obj->pos.x * 8, (lvl->height - (int)curr_obj->pos.y - 1) * 8 + 1, 1});
+// 		}
+// 		current = current->next;
+// 	}
+// }
 
 void	place_mmap(t_info *app)
 {
@@ -421,38 +470,6 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
 		while (++j < char_width * pos_scalar.z)
 		{
 			src_pixel = src_row[j / pos_scalar.z];
-			mask = -(src_pixel != XPM_TRANSPARENT);
-			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
-		}
-	}
-}
-
-void	place_char(char c, t_info *app, t_ivect pos, int scalar)
-{
-	t_img *const	canvas = app->canvas;
-	t_img *const	alphabet = app->shtex->alphabet;
-	int		i;
-	int		j;
-	int		start_x;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	u_int32_t	mask;
-	const int char_width = 8;
-
-	if (!ft_isprint(c) || scalar < 1)
-		return ;
-	start_x = (c - ' ') * char_width;
-
-	i = -1;
-	while (++i < char_width * scalar)
-	{
-		src_row = (u_int32_t *)alphabet->data + ((i / scalar) * alphabet->width) + start_x;
-		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
-		j = -1;
-		while (++j < char_width * scalar)
-		{
-			src_pixel = src_row[j / scalar];
 			mask = -(src_pixel != XPM_TRANSPARENT);
 			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
 		}
