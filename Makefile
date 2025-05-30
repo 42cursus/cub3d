@@ -20,7 +20,7 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= clang
-INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
+INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2
 OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
@@ -40,6 +40,7 @@ LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
+					-lSDL2_mixer -lSDL2 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
