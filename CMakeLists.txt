@@ -25,6 +25,8 @@ set(FT_CFLAGS
         -Wimplicit
         -mavx
         -mavx2
+        -ffast-math
+        -mprefer-vector-width=256
 #        -Wformat -Werror=format-security
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
@@ -32,7 +34,7 @@ set(FT_CFLAGS
         -fstack-protector-strong
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
-        -O0
+        -Ofast
         -pg
         -masm=att
         -g3 -gdwarf-3
@@ -126,6 +128,31 @@ set_target_properties(${FT_LIB_NAME} PROPERTIES
 
 #==============================================================================#
 
+#==============================================================================#
+# Textures lib
+#==============================================================================#
+
+set(TEX_LIB_NAME libtextures)
+add_library(${TEX_LIB_NAME} STATIC)
+
+file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/textures/*.xpm")
+set_source_files_properties(${TEX_LIB_SOURCES}
+        PROPERTIES
+        LANGUAGE C
+        COMPILE_OPTIONS -xc
+)
+target_sources(${TEX_LIB_NAME}
+        PRIVATE
+        ${TEX_LIB_SOURCES}
+)
+target_compile_definitions(${TEX_LIB_NAME} PRIVATE static=)
+target_link_options(${TEX_LIB_NAME} PRIVATE ${TARGET_LINK_FLAGS})
+set_target_properties(${TEX_LIB_NAME} PROPERTIES
+        LINKER_LANGUAGE C
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/")
+
+#==============================================================================#
+
 file(GLOB_RECURSE TARGET_HEADERS "src/*.h")
 file(GLOB_RECURSE TARGET_SOURCES "src/*.c")
 
@@ -145,6 +172,7 @@ set(TARGET_LIBRARIES
         ${MLX_LIB_NAME}
         ${MATH_LIB}
         ${FT_LIB_NAME}
+        ${TEX_LIB_NAME}
         Threads::Threads
         ${X11_LIBRARIES}
         ${XT_LIBRARY}
@@ -162,12 +190,13 @@ add_executable(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}
         /usr/include
+        /usr/include/SDL2
         /usr/include/x86_64-linux-gnu)
 
 target_link_libraries(${TARGET_NAME} "${TARGET_LIBRARIES}")
 target_link_options(${TARGET_NAME} PRIVATE ${COMMON_LDFLAGS})
 target_compile_options(${TARGET_NAME} PRIVATE "${FT_CFLAGS}")
-target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
+#target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
         OUTPUT_NAME "${PROJECT_NAME}")

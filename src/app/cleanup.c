@@ -15,6 +15,7 @@
 int	cleanup(t_info *app)
 {
 	free_shtex(app);
+	free_shsnd(app);
 	free_split(app->map_ids);
 	get_pooled_ray(2);
 	if (app->canvas != NULL)

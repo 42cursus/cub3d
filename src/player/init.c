@@ -15,16 +15,16 @@
 t_player	*init_player(t_info *app)
 {
 	t_player	*player;
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = map->starting_pos;
 	player->health = 99;
 	player->max_health = 99;
-	player->equipped = BEAM;
-	player->ammo[BEAM] = -1;
-	player->max_ammo[BEAM] = -1;
+	player->equipped = pr_BEAM;
+	player->ammo[pr_BEAM] = -1;
+	player->max_ammo[pr_BEAM] = -1;
 	player->dir = map->starting_dir;
 	calculate_offsets(app, player);
 	return (player);
@@ -32,7 +32,7 @@ t_player	*init_player(t_info *app)
 
 void	refresh_player(t_info *app, t_player *player)
 {
-	t_data		*map;
+	t_lvl		*map;
 
 	map = app->map;
 	player->pos = map->starting_pos;

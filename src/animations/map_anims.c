@@ -24,7 +24,7 @@ t_anim	**create_anim_arr(int x, int y)
 	return (arr);
 }
 
-void	init_anims(t_info *app, t_data *map)
+void	init_anims(t_info *app, t_lvl *map)
 {
 	int		i;
 	int		j;
@@ -49,7 +49,7 @@ void	init_anims(t_info *app, t_data *map)
 	}
 }
 
-void	reset_anims(t_info *app, t_data *map)
+void	reset_anims(t_info *app, t_lvl *map)
 {
 	int	i;
 

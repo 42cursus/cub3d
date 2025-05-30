@@ -27,7 +27,8 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->holtz_tex, 6);
 	free_tex_arr_arr(app->shtex->proj_green_tex, 4);
 	free_tex_arr_arr(app->shtex->dmg_tex, 8);
-	mlx_destroy_image(app->mlx, app->shtex->playertile);
+	free(app->shtex->playertile.data);
+	free(app->shtex->square.data);
 	free(app->shtex);
 }
 

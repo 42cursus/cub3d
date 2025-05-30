@@ -40,7 +40,7 @@ void	start_obj_death(t_object *obj, t_info *app)
 	obj->anim2.timestart = app->fr_last;
 }
 
-t_object	*check_obj_proximity(t_vect pos, t_data *map)
+t_object	*check_obj_proximity(t_vect pos, t_lvl *map)
 {
 	t_list		*current;
 	t_object	*cur_obj;
@@ -89,8 +89,8 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 	t_player	*player;
 
 	player = app->player;
-	if (player->ammo[SUPER] == player->max_ammo[SUPER]
-		&& player->ammo[MISSILE] == player->max_ammo[MISSILE]
+	if (player->ammo[pr_SUPER] == player->max_ammo[pr_SUPER]
+		&& player->ammo[pr_MISSILE] == player->max_ammo[pr_MISSILE]
 		&& player->health == player->max_health)
 		return ;
 	while (no-- > 0)
@@ -99,10 +99,10 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 		move_entity(&pos, app->map,
 			(t_vect){rand_range(-0.5, 0.5), rand_range(-0.5, 0.5)});
 		seed = rand_range(0.0, 1.0);
-		if (seed < 0.2 && player->ammo[SUPER] != player->max_ammo[SUPER])
+		if (seed < 0.2 && player->ammo[pr_SUPER] != player->max_ammo[pr_SUPER])
 			spawn_item(app, pos, I_AMMO_S);
 		else if (seed > 0.2 && seed < 0.5
-			&& player->ammo[MISSILE] != player->max_ammo[MISSILE])
+			&& player->ammo[pr_MISSILE] != player->max_ammo[pr_MISSILE])
 			spawn_item(app, pos, I_AMMO_M);
 		else if (player->health != player->max_health)
 			spawn_item(app, pos, I_HEALTH);

@@ -5,13 +5,13 @@
 #                                                     +:+ +:+         +:+      #
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/03/08 17:02:17 by abelov            #+#    #+#              #
-#    Updated: 2025/05/16 18:31:57 by fsmyth           ###   ########.fr        #
+#    Created: 2025/05/30 20:01:20 by abelov            #+#    #+#              #
+#    Updated: 2025/05/30 20:01:20 by abelov           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = check_endianness.c \
-			vector.c \
-			time.c \
+FILES   = free_shsnd.c\
+			init_audio.c \
+			load_sounds.c
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

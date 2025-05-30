@@ -50,9 +50,10 @@ int	exit_win(t_info *const	app)
 	exit(cleanup(app));
 }
 
-void	destroy_map(t_data *map)
+void	destroy_map(t_lvl *map)
 {
-	mlx_destroy_image(map->app->mlx, map->minimap);
+	mlx_destroy_image(map->app->mlx, map->minimap_xs);
+	mlx_destroy_image(map->app->mlx, map->minimap_xl);
 	if (map->texs[T_CEILING])
 		mlx_destroy_image(map->app->mlx, map->texs[T_CEILING]);
 	if (map->texs[T_FLOOR])
@@ -63,9 +64,7 @@ void	destroy_map(t_data *map)
 void	cleanup_maps(t_info *app)
 {
 	ft_lstclear(&app->lvl_cache, (void (*)(void *))destroy_map);
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	get_pooled_ray(1);
-	// free(app->player);
 }
 
 t_ret_code do_state_initial(void *param, int argc, char **argv)
@@ -75,9 +74,11 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
+	set_audio(app);
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
+	init_audio(app);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
@@ -101,7 +102,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
-
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
@@ -284,7 +284,6 @@ void do_mmenu_to_load(void *param)
 	}
 	app->player = init_player(app);
 	app->player->total_pickups += count_collectables(app->map);
-//	replace_bg(app, (char *) "./textures/wall.xpm");
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
 	app->timer.total_ms = 0;
@@ -342,9 +341,9 @@ void do_load_to_play(void *param)
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 	mlx_hook(app->win, ButtonPress, ButtonPressMask, (void *) &mouse_press_play, app);
 	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask, (void *) &mouse_release_play, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_play, app);
 	mlx_hook(app->win, MotionNotify, PointerMotionMask, (void *) &mouse_move_play, app);
 	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	app->timer.cur_lvl_start = get_time_ms();

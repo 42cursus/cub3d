@@ -41,7 +41,7 @@ int	get_tex_index_float(double pos, int dim)
  * @return
  */
 static inline __attribute__((always_inline, unused))
-int	point_oob(t_vect pos, t_data *map)
+int	point_oob(t_vect pos, t_lvl *map)
 {
 	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
 }

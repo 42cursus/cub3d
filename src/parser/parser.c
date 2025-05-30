@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/param.h>
 #include "cub3d.h"
 
 size_t	count_split_words(char **split);
@@ -17,7 +18,7 @@ int		valid_identifier(char *str);
 int		str_cmp_whitespace(void *data, void *ref);
 t_list	*read_cub(int cubfd);
 
-void	set_starting_dir(t_data *map, char dir)
+void	set_starting_dir(t_lvl *map, char dir)
 {
 	if (dir == 'N')
 	{
@@ -41,7 +42,7 @@ void	set_starting_dir(t_data *map, char dir)
 	}
 }
 
-int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
+int	parse_texture(t_lvl *data, char *str, int identifier, t_info *app)
 {
 	t_texture	*tex_addr;
 	t_img		tmp;
@@ -73,7 +74,7 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 	return (0);
 }
 
-int	parse_levels(t_data *data, char *str, int identifier)
+int	parse_levels(t_lvl *data, char *str, int identifier)
 {
 	char	buf[100];
 	int		len;
@@ -85,7 +86,7 @@ int	parse_levels(t_data *data, char *str, int identifier)
 	return (0);
 }
 
-int	parse_line(t_data *data, char *line, t_info *app)
+int	parse_line(t_lvl *data, char *line, t_info *app)
 {
 	char	**split;
 	size_t	words;
@@ -110,21 +111,21 @@ int	parse_line(t_data *data, char *line, t_info *app)
 	return (free_split(split), retval);
 }
 
-int	all_fields_parsed(t_data *data)
+int	all_fields_parsed(t_lvl *lvl)
 {
-	if (data->n_tex.data == NULL)
+	if (lvl->n_tex.data == NULL)
 		return (0);
-	if (data->s_tex.data == NULL)
+	if (lvl->s_tex.data == NULL)
 		return (0);
-	if (data->e_tex.data == NULL)
+	if (lvl->e_tex.data == NULL)
 		return (0);
-	if (data->w_tex.data == NULL)
+	if (lvl->w_tex.data == NULL)
 		return (0);
-	if (data->floor_tex.data == NULL)
+	if (lvl->floor_tex.data == NULL)
 		return (0);
-	if (data->ceil_tex.data == NULL)
+	if (lvl->ceil_tex.data == NULL)
 	{
-		data->outside = 1;
+		lvl->outside = 1;
 		return (1);
 	}
 //	 if (data->f_col == -1)
@@ -145,18 +146,18 @@ t_enemypos	*construct_enemypos(double x, double y, int type)
 	return (new);
 }
 
-void	spawn_map_objects(t_info *app, t_data *data)
+void	spawn_map_objects(t_info *app, t_lvl *lvl)
 {
 	char	**map;
 	int		i;
 	int		j;
 
-	map = data->map;
+	map = lvl->map;
 	i = -1;
-	while (++i < data->height)
+	while (++i < lvl->height)
 	{
 		j = -1;
-		while (++j < data->width)
+		while (++j < lvl->width)
 		{
 			if (ft_strchr("mestZAHRPb234", map[i][j]))
 			{
@@ -173,31 +174,31 @@ void	spawn_map_objects(t_info *app, t_data *data)
 				else if (map[i][j] == 'Z')
 				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 1}, rand_range(-M_PI, M_PI)), E_ZOOMER);
-					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ZOOMER)));
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ZOOMER)));
 				}
 				else if (map[i][j] == 'A')
 				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0.0, 1}, rand_range(-M_PI, M_PI)), E_ATOMIC);
-					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ATOMIC)));
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_ATOMIC)));
 				}
 				else if (map[i][j] == 'R')
 				{
 					spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, rotate_vect((t_vect){0, 1}, rand_range(-M_PI, M_PI)), E_REO);
-					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_REO)));
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_REO)));
 				}
 				else if (map[i][j] == 'P')
 				{
-					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
-					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_PHANTOON)));
+					lvl->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 0}, E_PHANTOON);
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_PHANTOON)));
 				}
 				else if (map[i][j] == 'H')
 				{
-					data->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 1}, E_HOLTZ);
-					ft_lstadd_back(&data->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_HOLTZ)));
+					lvl->boss_obj = spawn_enemy(app, (t_vect){j + 0.5, i + 0.5}, (t_vect){0, 1}, E_HOLTZ);
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(j + 0.5, i + 0.5, E_HOLTZ)));
 				}
 				else if (map[i][j] >= '2' && map[i][j] <= '4')
 				{
-					if (data->sublvls[map[i][j] - '2'] != NULL)
+					if (lvl->sublvls[map[i][j] - '2'] != NULL)
 						spawn_teleporter(app, (t_vect){j + 0.5, i + 0.5}, map[i][j] - '1');
 				}
 				map[i][j] = '0';
@@ -206,7 +207,7 @@ void	spawn_map_objects(t_info *app, t_data *data)
 	}
 }
 
-void	respawn_enemies(t_info *app, t_data *map)
+void	respawn_enemies(t_info *app, t_lvl *map)
 {
 	t_list		*cur_node;
 	t_enemypos	*cur_pos;
@@ -224,7 +225,7 @@ void	respawn_enemies(t_info *app, t_data *map)
 	}
 }
 
-void	remove_drops(t_data *map)
+void	remove_drops(t_lvl *map)
 {
 	t_list	*current;
 	t_list	*temp;
@@ -253,7 +254,7 @@ void	remove_drops(t_data *map)
 	}
 }
 
-void	reset_doors(t_data *map)
+void	reset_doors(t_lvl *map)
 {
 	int	i;
 	int	j;
@@ -270,7 +271,7 @@ void	reset_doors(t_data *map)
 	}
 }
 
-void	refresh_map(t_info *app, t_data *map)
+void	refresh_map(t_info *app, t_lvl *map)
 {
 	respawn_enemies(app, map);
 	ft_lstclear(&map->projectiles, free);
@@ -279,7 +280,7 @@ void	refresh_map(t_info *app, t_data *map)
 	reset_anims(app, map);
 }
 
-int	count_collectables(t_data *map)
+int	count_collectables(t_lvl *map)
 {
 	t_list		*current;
 	t_object	*cur_obj;
@@ -297,48 +298,86 @@ int	count_collectables(t_data *map)
 	return (count);
 }
 
+__attribute__((optnone))
+void draw_large_minimap(t_lvl *lvl)
+{
+	t_info *const app = lvl->app;
+	t_img *minimap = lvl->minimap_xs;
+	t_img *large_minimap;
+	t_img *scaled;
+	t_point p;
+	t_ivect new;
+	double aspect_ratio;
+
+	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
+
+	if (!large_minimap)
+		return ;
+	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
+	aspect_ratio = (double) lvl->width / lvl->height;
+
+	new.x = MIN(large_minimap->width, (int)(aspect_ratio * large_minimap->height));
+	new.y = MIN(large_minimap->height, (int)(large_minimap->width / aspect_ratio));
+
+	double aspect_ratio2 = (double) new.x / new.y;
+	printf("%f\n", aspect_ratio2);
+
+	scaled = scale_image(app, img_dup(app, minimap), new.x, new.y);
+	p.x = large_minimap->width - scaled->width;
+	p.y = 0;
+	place_tile_on_image32(large_minimap, scaled, p.x, p.y);
+	lvl->map_scale_factor.x = (double)new.x / minimap->width;
+	lvl->map_scale_factor.y = (double)new.y / minimap->height;
+	lvl->minimap_xl = large_minimap;
+	mlx_destroy_image(app->mlx, scaled);
+}
+
 int	parse_cub(t_info *app, char *filename)
 {
 	int		fd;
 	t_list	*file;
 	t_list	*current;
-	t_data	*data;
+	t_lvl	*lvl;
 	t_img	*tiles[16];
 
 	fd = open(filename, O_RDONLY);
-	data = app->map;
-	data->app = app;
-	data->sublvls[0] = ft_strdup(filename);
+	lvl = app->map;
+	lvl->app = app;
+	lvl->sublvls[0] = ft_strdup(filename);
 	load_map_textures(app, tiles);
 	file = read_cub(fd);
-	if (!collect_map(file, data))
+	if (!collect_map(file, lvl))
 		return (ft_list_destroy(&file, free),
 			printf("Error: map not provided\n"), 1);
-	if (!map_is_valid(data))
+	if (!map_is_valid(lvl))
 		return (ft_list_destroy(&file, free), 1);
 	current = file;
 	while (current != NULL)
 	{
 		if (str_cmp_whitespace(current->data, NULL))
-			if (parse_line(data, current->data, app))
+			if (parse_line(lvl, current->data, app))
 				return (ft_printf("%s\n", current->data),
 					ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}
 	ft_list_destroy(&file, free);
-	if (!all_fields_parsed(data))
+	if (!all_fields_parsed(lvl))
 		return (printf("Error: not all fields provided\n"), 1);
-	spawn_map_objects(app, data);
-	data->minimap = build_mmap(app, tiles);
-	data->anims = create_anim_arr(data->width, data->height);
-	init_anims(app, data);
+	spawn_map_objects(app, lvl);
+
+	lvl->minimap_xs = build_minimap(app, tiles);
+
+	draw_large_minimap(lvl);
+
+	lvl->anims = create_anim_arr(lvl->width, lvl->height);
+	init_anims(app, lvl);
 	free_map_textures(app, tiles);
 	close(fd);
 	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->map));
 	return (0);
 }
 
-void	free_map(t_data *data)
+void	free_map(t_lvl *data)
 {
 	free(data->n_tex.data);
 	free(data->s_tex.data);
@@ -360,14 +399,14 @@ void	free_map(t_data *data)
 	free(data);
 }
 
-t_data *get_cached_lvl(t_info *app, char *name)
+t_lvl *get_cached_lvl(t_info *app, char *name)
 {
 	t_list	*current;
 
 	current = app->lvl_cache;
 	while (current != NULL)
 	{
-		if (ft_strcmp(((t_data *)current->data)->sublvls[0], name) == 0)
+		if (ft_strcmp(((t_lvl *)current->data)->sublvls[0], name) == 0)
 			return (current->data);
 		current = current->next;
 	}

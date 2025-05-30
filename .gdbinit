@@ -34,6 +34,9 @@ directory ~/staging/gcc-9-9.4.0/src/libsanitizer/sanitizer_common
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/asan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
+directory ~/staging/libsdl2-mixer-2.0.4+dfsg1
 
 set trace-commands on
 set print inferior-events on
+
+br main

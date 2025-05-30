@@ -77,14 +77,14 @@ void	select_projectile_tex(t_object *obj, t_player *player, t_info *app)
 	double		angle;
 	int			index;
 
-	if (obj->subtype == BEAM)
+	if (obj->subtype == pr_BEAM)
 	{
 		obj->texture = &app->shtex->proj_tex[0];
 		return ;
 	}
-	if (obj->subtype == BEAM)
+	if (obj->subtype == pr_BEAM)
 		obj->texture = &app->shtex->proj_tex[0];
-	if (obj->subtype == SUPER)
+	if (obj->subtype == pr_SUPER)
 		tex = app->shtex->super_tex + 4;
 	else
 		tex = app->shtex->missile_tex + 4;

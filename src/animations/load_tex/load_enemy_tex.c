@@ -18,13 +18,12 @@ void	load_atomic_tex(t_info *app)
 	char		buf[50];
 	t_texture	*tex;
 
-	i = 0;
 	tex = app->shtex->atomic_tex;
-	while (i < 6)
+	i = -1;
+	while (++i < 6)
 	{
 		ft_snprintf(buf, 50, "./textures/atomic%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
-		i++;
 	}
 }
 
@@ -34,13 +33,12 @@ void	load_holtz_tex(t_info *app)
 	char		buf[50];
 	t_texture	*tex;
 
-	i = 0;
 	tex = app->shtex->holtz_tex;
-	while (i < 4)
+	i = -1;
+	while (++i < 4)
 	{
 		ft_snprintf(buf, 50, "./textures/holtz%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
-		i++;
 	}
 	tex[4].data = img_to_tex(
 		app, (char *) "./textures/holtz2.xpm", &tex[4].x, &tex[4].y);
@@ -101,11 +99,10 @@ void	load_zoomer_tex(t_info *app)
 	t_texture	*tex;
 
 	tex = app->shtex->crawler_tex;
-	i = 0;
-	while (i < 6)
+	i = -1;
+	while (++i < 6)
 	{
 		ft_snprintf(buf, 50, "./textures/crawler%c.xpm", i + '1');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
-		i++;
 	}
 }

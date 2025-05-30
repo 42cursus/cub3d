@@ -14,6 +14,23 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+void	pix_dup(t_img *const src, t_img *const dst)
+{
+	if (src->height != dst->height || src->size_line != dst->size_line)
+		return ;
+	fast_memcpy_test((int *)dst->data, (const int *)src->data, src->height * src->size_line);
+}
+
+t_img	*img_dup(t_info *app, t_img *const src)
+{
+	t_img *const new = mlx_new_image(app->mlx, src->width, src->height);
+	if (!new)
+		return (NULL);
+	pix_dup(src, new);
+	return (new);
+}
+
+
 /**
  * we assume that image bits_per_pixel is 32 bit
  * @param img
@@ -21,7 +38,6 @@
  * @param y
  * @param colour
  */
-
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
 	t_vect	steps;
@@ -73,31 +89,43 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
+/**
+ * 	Transpose: store in column-major for fast vertical access
+ * @param app
+ * @param filename
+ * @param w
+ * @param h
+ * @return
+ */
 u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
 {
-	t_img *img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
-	if (!img) return NULL;
+	t_point		i;
+	t_img		*img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
+	if (!img)
+		return NULL;
 
 	u_int32_t *flat = malloc(*w * *h * sizeof(u_int32_t));
 	if (!flat) return NULL;
 
 	u_int32_t *src = (u_int32_t *)img->data;
 
-	// Transpose: store in column-major for fast vertical access
-	for (int y = 0; y < *h; ++y)
-		for (int x = 0; x < *w; ++x)
-			flat[x * (*h) + y] = src[y * *w + x];
-
+	i.y = -1;
+	while (++i.y < *h)
+	{
+		i.x = -1;
+		while (++i.x < *w)
+			flat[i.x * (*h) + i.y] = src[i.y * *w + i.x];
+	}
 	mlx_destroy_image(app->mlx, img);
 	return flat;
 }
 
-u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
+u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h)
 {
 	t_img		*img;
 	u_int32_t	*data;
 
-	img = mlx_xpm_file_to_image(app->mlx, (char *)filename, x, y);
+	img = mlx_xpm_file_to_image(app->mlx, (char *)filename, w, h);
 	if (!img)
 		return (NULL);
 	data = (u_int32_t *)malloc(img->height * img->size_line);
@@ -108,17 +136,66 @@ u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *x, int *y)
 	return (data);
 }
 
-u_int32_t *img_to_tex_static(t_info *app, const char **xpm_data, int *x, int *y)
+char	*mlx_static_line(char **xpm_data, int *pos, int size)
+{
+	static char *copy = 0;
+	static int len = 0;
+	int len2;
+	char *str;
+
+	str = xpm_data[(*pos)++];
+	if ((len2 = strlen(str)) > len)
+	{
+		if (copy)
+			free(copy);
+		if (!(copy = malloc(len2 + 1)))
+			return ((char *) 0);
+		len = len2;
+	}
+	ft_strlcpy(copy, str, len2 + 1);
+	return (copy);
+	(void)size;
+}
+
+u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h)
+{
+	t_point		i;
+	t_img		*img;
+	u_int32_t	*data;
+
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
+	if (!img)
+		return (NULL);
+
+	*w = img->width;
+	*h = img->height;
+
+	data = (u_int32_t *)malloc(img->height * img->size_line);
+	if (!data)
+		return (NULL);
+	u_int32_t *src = (u_int32_t *)img->data;
+	i.y = -1;
+	while (++i.y < *h)
+	{
+		i.x = -1;
+		while (++i.x < *w)
+			data[i.x * (*h) + i.y] = src[i.y * *w + i.x];
+	}
+	mlx_destroy_image(app->mlx, img);
+	return (data);
+}
+
+u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h)
 {
 	t_img		*img;
 	u_int32_t	*data;
 
-	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_int_static_line);
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (NULL);
 
-	*x = img->width;
-	*y = img->height;
+	*w = img->width;
+	*h = img->height;
 
 	data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!data)

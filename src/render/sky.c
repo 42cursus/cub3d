@@ -12,8 +12,6 @@
 
 #include "cub3d.h"
 
-t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y);
-
 void	replace_sky(t_info *app, char *tex_file)
 {
 	t_img	**img;

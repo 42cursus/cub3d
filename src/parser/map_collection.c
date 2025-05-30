@@ -52,7 +52,7 @@ size_t	find_longest_line(char **map)
 	return (longest);
 }
 
-void	remove_trailing_lines(t_data *data)
+void	remove_trailing_lines(t_lvl *data)
 {
 	ssize_t	lines;
 	size_t	i;
@@ -75,7 +75,7 @@ void	remove_trailing_lines(t_data *data)
 	data->map = trimmed_map;
 }
 
-void	normalise_map(t_data *data)
+void	normalise_map(t_lvl *data)
 {
 	size_t	longest;
 	size_t	i;
@@ -100,7 +100,7 @@ void	normalise_map(t_data *data)
 	data->height = i;
 }
 
-int	collect_map(t_list	*file, t_data *data)
+int	collect_map(t_list	*file, t_lvl *data)
 {
 	t_list	*current;
 

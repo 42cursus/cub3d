@@ -20,14 +20,14 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= clang
-INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include
-OPTIMIZE_FLAGS	:= -Ofast
+INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2
+OPTIMIZE_FLAGS	:= -O3
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
 					-pg \
-#					-D FRAMERATE=60 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+#					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
@@ -36,14 +36,16 @@ CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 
 LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
+LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
-LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L/usr/lib/x86_64-linux-gnu \
-					-lmlx -lft -lX11 -lXext -lm \
+LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
+					-ltextures -lmlx -lft -lX11 -lXext -lm \
+					-l:libSDL2_mixer-2.0.so.0.2.2 -lSDL2 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app player render rays entities animations
+SUB_DIRS		= parser utils app audio player render rays entities animations
 CUB_SRCS		:=
 TEXTURES		:=
 
@@ -59,7 +61,7 @@ TEX_OBJ			= $(TEXTURES:%.xpm=$(BUILD_DIR)/%.xpm.o)
 ifeq ($(MAKELEVEL),0)
 	# Only set --jobs if user didn't already pass a -j option manually
 	ifeq ($(filter -j,$(MAKEFLAGS)),)
-		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory #--quiet
+		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory --quiet
 	endif
 	ifeq ($(filter "--output-sync=target",$(MAKEFLAGS)),)
 		MAKEFLAGS += --output-sync=target
@@ -70,18 +72,22 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(TEX_OBJ)
+$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(LIBTEX)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
 $(BUILD_DIR)/%.xpm.o: %.xpm
-		@if [ ! -d $(@D) ]; then mkdir -pv $(@D); fi
+		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
 		@$(CC) -Dstatic= -x c -c $^ -o $@
 		@#objcopy --globalize-symbol=$(*F) $@
 
 $(BUILD_DIR)/%.o: %.c
 		@if [ ! -d $(@D) ]; then mkdir -p $(@D); fi
 		@$(CC) $(CFLAGS) $(INCLUDE) -c $^ -o $@
+
+## libtextures
+$(LIBTEX): $(TEX_OBJ)
+		@$(AR) rcsP $@ $(TEX_OBJ)
 
 ## libft
 $(LIBFT_LIB):
@@ -94,13 +100,6 @@ $(LIBX_DIR)/Makefile.gen:
 ## mlx
 $(LIBX): $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
-		@if [ ! -d $(BUILD_DIR) ]; then mkdir -p $(BUILD_DIR); fi
-		@ar x $(LIBX) mlx_xpm.o --output $(BUILD_DIR)
-		@ar d $(LIBX) $(BUILD_DIR)/mlx_xpm.o
-		@objcopy --globalize-symbol=strlcpy_is_not_posix $(BUILD_DIR)/mlx_xpm.o
-		@objcopy --weaken-symbol=strlcpy_is_not_posix $(BUILD_DIR)/mlx_xpm.o
-		@ar rcs $(LIBX) $(BUILD_DIR)/mlx_xpm.o
-		@$(RM) -v $(BUILD_DIR)/mlx_xpm.o
 		@echo "LIBX BUILD COMPLETE!"
 
 ## clean_libft
@@ -112,7 +111,7 @@ clean_libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen clean
 
 ## clean
-clean: clean_libft clean_libx
+clean: clean_libft #clean_libx
 		@if [ -d $(BUILD_DIR) ]; then $(RM) $(RMFLAGS) $(BUILD_DIR); fi
 
 ## clean_libft
@@ -120,7 +119,7 @@ fclean_libft:
 		+$(MAKE) -C $(LIBFT_DIR) fclean
 
 ## fclean
-fclean: fclean_libft #clean_libx
+fclean: clean fclean_libft
 		@if [ -f $(NAME) ]; then $(RM) $(RMFLAGS) $(NAME); fi
 		@#if [ -f $(LIBX_DIR)/Makefile.gen ]; then $(RM) $(RMFLAGS) $(LIBX_DIR)/Makefile.gen; fi
 

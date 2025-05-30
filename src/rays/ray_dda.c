@@ -80,7 +80,7 @@ void	progress_dda(t_dda *dda, t_ray *ray)
 	}
 }
 
-t_ray	ray_dda(t_info *app, t_data *map, t_player *player, double angle)
+t_ray	ray_dda(t_info *app, t_lvl *map, t_player *player, double angle)
 {
 	t_ray	ray;
 	t_dda	dda;

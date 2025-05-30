@@ -1,28 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   strlcpy_is_not_posix.c                             :+:      :+:    :+:   */
+/*   sound.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/27 13:21:34 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/27 13:21:35 by abelov           ###   ########.fr       */
+/*   Created: 2025/05/30 19:58:58 by abelov            #+#    #+#             */
+/*   Updated: 2025/05/30 19:58:59 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "cub3d.h"
 
-u_int	strlcpy_is_not_posix(char *dest, char *src, unsigned int size);
-
-/**
- * fixing  fixing issue for mlx_xpm_to_image #32
- * https://github.com/42paris/minilibx-linux/pull/32/files
- * @param dest
- * @param src
- * @param size
- * @return
- */
-u_int	strlcpy_is_not_posix(char *dest, char *src, unsigned int size)
+int load_sounds(t_aud *const aud)
 {
-	return ((ft_strlcpy(dest, src, size + 1)));
+	int			i;
+	Mix_Chunk	*chunk;
+
+	i = -1;
+	while (++i < snd_MAX)
+	{
+		chunk = Mix_LoadWAV(aud->files[i]);
+		if (!chunk)
+			return (EXIT_FAILURE);
+
+		aud->chunks[i] = chunk;
+	}
+	return (EXIT_SUCCESS);
 }
