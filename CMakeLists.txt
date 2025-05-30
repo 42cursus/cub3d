@@ -190,6 +190,7 @@ add_executable(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}
         /usr/include
+        /usr/include/SDL2
         /usr/include/x86_64-linux-gnu)
 
 target_link_libraries(${TARGET_NAME} "${TARGET_LIBRARIES}")

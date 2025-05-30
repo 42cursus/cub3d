@@ -58,12 +58,15 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 
 void	handle_tele(t_info *app, t_object *tele)
 {
+	t_aud *const	aud = &app->audio;
+
 	if (vector_distance(app->player->pos, tele->pos) < 0.4)
 	{
 		app->current_sublevel = tele->subtype;
 		app->rc = extra;
 		app->mlx->end_loop = 1;
 		app->player->tele_pos = tele->pos;
+		Mix_PlayChannel(-1, aud->chunks[snd_portal], 0);
 	}
 }
 

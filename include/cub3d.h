@@ -19,6 +19,9 @@
 # include "mlx_int.h"
 # include "fsm.h"
 
+# include <SDL2/SDL.h>
+# include <SDL2/SDL_mixer.h>
+
 //# define WIN_WIDTH 720
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
@@ -124,10 +127,18 @@ typedef struct s_enemypos
 	t_vect	pos;
 }	t_enemypos;
 
+typedef enum e_projectile
+{
+	pr_BEAM = 0,
+	pr_MISSILE,
+	pr_SUPER,
+	pr_MAX
+}	t_pr_type;
+
 typedef struct s_object
 {
 	int			type;
-	int			subtype;
+	t_pr_type	subtype;
 	int			dead;
 	int			attacking;
 	int			health;
@@ -371,13 +382,6 @@ typedef enum e_subtype
 	P_HOLTZ,
 }	t_subtype;
 
-enum
-{
-	BEAM,
-	MISSILE,
-	SUPER,
-};
-
 enum e_idx
 {
 	idx_XK_a = 0,
@@ -391,6 +395,27 @@ enum e_idx
 	idx_XK_Right,
 	idx_XK_Down,
 };
+
+enum e_snd
+{
+	snd_door = 0,
+	snd_gun,
+	snd_hash,
+	snd_portal,
+	snd_boss_die,
+	snd_rocket,
+	snd_MAX
+};
+
+typedef struct s_aud
+{
+	int			frequency;
+	u_int16_t	format; // MIX_DEFAULT_FORMAT == AUDIO_S16LSB
+	int			no_channels;
+	int			chunk_size;
+	const char 	*files[snd_MAX];
+	Mix_Chunk	*chunks[snd_MAX];
+}	t_aud;
 
 typedef struct s_info
 {
@@ -406,6 +431,7 @@ typedef struct s_info
 	int			clip_x_origin;
 	int			clip_y_origin;
 	int			endianness;
+	t_aud		audio;
 	t_shtex		*shtex;
 	t_lvl		*map;
 	char		**map_ids;
@@ -487,6 +513,7 @@ int		parse_cub(t_info *app, char *filename);
 t_lvl	*get_cached_lvl(t_info *app, char *name);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
+int		load_sounds(t_aud *aud);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
@@ -498,7 +525,7 @@ void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	prev_weapon(t_player *player);
 
-void	spawn_projectile(t_info *app, t_player *player, t_lvl *map, int subtype);
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *map, t_pr_type subtype);
 void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype);
 t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
@@ -577,6 +604,7 @@ void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
+void	free_shsnd(t_info *app);
 t_img	*build_minimap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
@@ -620,6 +648,8 @@ void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
+void	set_audio(t_info *const app);
+int		init_audio(t_info *const app);
 void	set_framerate(t_info *app, size_t framerate);
 void	set_sensitivity(t_info *app, int sensitivity);
 void	calculate_offsets(t_info *app, t_player *player);

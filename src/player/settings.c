@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <SDL2/SDL_mixer.h>
 #include "cub3d.h"
 
 void	set_sensitivity(t_info *app, int sensitivity)
@@ -19,6 +20,24 @@ void	set_sensitivity(t_info *app, int sensitivity)
 	if (sensitivity > 10)
 		sensitivity = 10;
 	app->sensitivity = sensitivity;
+}
+
+
+void set_audio(t_info *const app)
+{
+	t_aud	*aud = &app->audio;
+
+	app->audio.frequency = 44100;
+	app->audio.no_channels = 2;
+	app->audio.chunk_size = 2048;
+	app->audio.format = MIX_DEFAULT_FORMAT; // AUDIO_S16LSB
+
+	aud->files[snd_door] = "resources/sound/cockchafer-gentleman-1.wav";
+	aud->files[snd_gun] = "resources/sound/laser.wav";
+	aud->files[snd_hash] = "resources/sound/percussion-28.wav";
+	aud->files[snd_boss_die] = "resources/sound/explos.wav";
+	aud->files[snd_rocket] = "resources/sound/apert2.wav";
+	aud->files[snd_portal] = "resources/sound/falling.wav";
 }
 
 void	set_fov(t_info *app, int fov)

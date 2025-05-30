@@ -22,9 +22,9 @@ t_player	*init_player(t_info *app)
 	player->pos = map->starting_pos;
 	player->health = 99;
 	player->max_health = 99;
-	player->equipped = BEAM;
-	player->ammo[BEAM] = -1;
-	player->max_ammo[BEAM] = -1;
+	player->equipped = pr_BEAM;
+	player->ammo[pr_BEAM] = -1;
+	player->max_ammo[pr_BEAM] = -1;
 	player->dir = map->starting_dir;
 	calculate_offsets(app, player);
 	return (player);

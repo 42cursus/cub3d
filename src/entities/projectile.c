@@ -15,7 +15,7 @@
 void	setup_projectile(t_object *projectile, t_info *app,
 			t_player *player, int subtype)
 {
-	if (subtype == BEAM)
+	if (subtype == pr_BEAM)
 	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
 		projectile->anim2.tex = &app->shtex->proj_tex[1];
@@ -25,19 +25,20 @@ void	setup_projectile(t_object *projectile, t_info *app,
 	{
 		player->ammo[subtype] -= 1;
 		if (player->ammo[subtype] == 0)
-			player->equipped = BEAM;
+			player->equipped = pr_BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
 		projectile->anim2.tex = &app->shtex->proj_tex[5];
 		projectile->anim2.frames = 5;
-		if (subtype == MISSILE)
+		if (subtype == pr_MISSILE)
 			projectile->anim2.tex = &app->shtex->explode_tex[12];
 	}
 }
 
 void	spawn_projectile(t_info *app, t_player *player,
-						 t_lvl *map, int subtype)
+						 t_lvl *map, t_pr_type subtype)
 {
-	t_object	*projectile;
+	t_object		*projectile;
+	t_aud *const	aud = &app->audio;
 
 	player->hud.active = 1;
 	player->hud.timestart = app->fr_last;
@@ -50,6 +51,14 @@ void	spawn_projectile(t_info *app, t_player *player,
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
 	ft_lstadd_back(&map->projectiles, ft_lstnew(projectile));
+
+	if (subtype == pr_BEAM)
+	{
+		Mix_PlayChannel(-1, aud->chunks[snd_door], 0);
+		Mix_PlayChannel(-1, aud->chunks[snd_gun], 0);
+	}
+	else
+		Mix_PlayChannel(-1, aud->chunks[snd_rocket], 0);
 }
 
 int	handle_projectile_death(t_info *app, t_object *obj, t_list **current)
@@ -70,11 +79,11 @@ int	handle_projectile_death(t_info *app, t_object *obj, t_list **current)
 	if (closest != NULL)
 	{
 		start_obj_death(obj, app);
-		if (obj->subtype == BEAM)
+		if (obj->subtype == pr_BEAM)
 			damage_enemy(app, closest, 10);
-		else if (obj->subtype == SUPER)
+		else if (obj->subtype == pr_SUPER)
 			damage_enemy(app, closest, 50);
-		else if (obj->subtype == MISSILE)
+		else if (obj->subtype == pr_MISSILE)
 			damage_enemy(app, closest, 30);
 		return (0);
 	}
@@ -92,7 +101,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 	}
 	else if (*tile == 'L')
 	{
-		if (obj->subtype == SUPER)
+		if (obj->subtype == pr_SUPER)
 		{
 			*tile = 'O';
 			anim->active = 1;
@@ -101,7 +110,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 	}
 	else if (*tile == 'M')
 	{
-		if (obj->subtype != BEAM)
+		if (obj->subtype != pr_BEAM)
 		{
 			*tile = 'O';
 			anim->active = 1;

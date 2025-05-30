@@ -63,14 +63,14 @@ void	handle_collectables(t_object *obj, t_player *player, t_info *app)
 	}
 	else if (obj->subtype == I_SUPER)
 	{
-		player->max_ammo[SUPER] += 5;
-		player->ammo[SUPER] += 5;
+		player->max_ammo[pr_SUPER] += 5;
+		player->ammo[pr_SUPER] += 5;
 		player->pickups_collected++;
 	}
 	else if (obj->subtype == I_MISSILE)
 	{
-		player->max_ammo[MISSILE] += 10;
-		player->ammo[MISSILE] += 10;
+		player->max_ammo[pr_MISSILE] += 10;
+		player->ammo[pr_MISSILE] += 10;
 		player->pickups_collected++;
 	}
 	else if (obj->subtype == I_TROPHY)
@@ -86,15 +86,15 @@ int	handle_pickups(t_object *obj, t_player *player)
 		add_health(player, 20);
 	else if (obj->subtype == I_AMMO_M)
 	{
-		if (player->ammo[MISSILE] == player->max_ammo[MISSILE])
+		if (player->ammo[pr_MISSILE] == player->max_ammo[pr_MISSILE])
 			return (0);
-		add_ammo(player, MISSILE);
+		add_ammo(player, pr_MISSILE);
 	}
 	else if (obj->subtype == I_AMMO_S)
 	{
-		if (player->ammo[SUPER] == player->max_ammo[SUPER])
+		if (player->ammo[pr_SUPER] == player->max_ammo[pr_SUPER])
 			return (0);
-		add_ammo(player, SUPER);
+		add_ammo(player, pr_SUPER);
 	}
 	return (1);
 }
