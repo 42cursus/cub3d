@@ -14,7 +14,7 @@
 #include "cub3d.h"
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include "SDL_mixer.h"
 #include <stdio.h>
 
 void init_sound()
