@@ -23,10 +23,10 @@
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
 //# define WIN_HEIGHT 960
-//# define WIN_WIDTH 1920
-//# define WIN_HEIGHT 1080
-# define WIN_WIDTH 1600
-# define WIN_HEIGHT 900
+# define WIN_WIDTH 1920
+# define WIN_HEIGHT 1080
+// # define WIN_WIDTH 1600
+// # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
 
@@ -88,6 +88,13 @@ typedef struct s_ivect
 	int	x;
 	int	y;
 }	t_ivect;
+
+typedef struct s_ivect3
+{
+	int	x;
+	int	y;
+	int	z;
+}	t_ivect3;
 
 typedef struct s_ivect	t_point;
 
@@ -470,6 +477,7 @@ typedef struct s_colour
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y);
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
+void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar);
 int		check_endianness(void);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);

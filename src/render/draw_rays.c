@@ -70,7 +70,7 @@ void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_i
 	}
 }
 
-static inline __attribute((always_inline, unused))
+static inline __attribute__((always_inline, unused))
 void	handle_slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_ivect lvars)
 {
 	const double	fract = ray->pos;
