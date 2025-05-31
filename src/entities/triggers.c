@@ -66,7 +66,7 @@ void	handle_tele(t_info *app, t_object *tele)
 		app->rc = extra;
 		app->mlx->end_loop = 1;
 		app->player->tele_pos = tele->pos;
-		Mix_PlayChannel(-1, aud->chunks[snd_portal], 0);
+		Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
 	}
 }
 

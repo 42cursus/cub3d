@@ -416,7 +416,20 @@ enum e_snd
 	snd_rocket,
 	snd_door_open,
 	snd_door_close,
+	snd_pickup_ammo,
+	snd_pickup_health,
+	snd_enemy_death,
 	snd_MAX
+};
+
+enum e_channel
+{
+	ch_any = -1,
+	ch_music = 0,
+	ch_door,
+	ch_item,
+	ch_tele,
+	ch_weapons,
 };
 
 typedef struct s_aud
