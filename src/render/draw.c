@@ -156,8 +156,8 @@ void	draw_nav(t_info *app)
 	const t_point	center = {.x = ptr->width / 2, .y = ptr->height / 2};
 	t_arc *const	outer = &(t_arc){
 		.r = 25,
-		.a_start = normalize_angle(-app->player->angle - 2 * M_1_PI),
-		.a_end = normalize_angle(-app->player->angle + M_1_PI),
+		.a_start = normalize_angle(-app->player->angle - M_2_PI),
+		.a_end = normalize_angle(-app->player->angle +  M_2_PI),
 		.center = center
 	};
 
