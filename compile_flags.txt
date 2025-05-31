@@ -1,2 +1,4 @@
 -I
 ./include
+-I
+/usr/include/SDL2

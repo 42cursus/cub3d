@@ -54,8 +54,8 @@ void	spawn_projectile(t_info *app, t_player *player,
 
 	if (subtype == pr_BEAM)
 	{
-		Mix_PlayChannel(-1, aud->chunks[snd_door], 0);
-		Mix_PlayChannel(-1, aud->chunks[snd_gun], 0);
+		Mix_PlayChannel(0, aud->chunks[snd_door], 0);
+		Mix_PlayChannel(0, aud->chunks[snd_gun], 0);
 	}
 	else
 		Mix_PlayChannel(-1, aud->chunks[snd_rocket], 0);
@@ -96,6 +96,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 	if (*tile == 'D')
 	{
 		*tile = 'O';
+		Mix_PlayChannel(1, app->audio.chunks[snd_door_open], 0);
 		anim->active = 1;
 		anim->timestart = app->fr_last;
 	}
@@ -104,6 +105,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		if (obj->subtype == pr_SUPER)
 		{
 			*tile = 'O';
+			Mix_PlayChannel(1, app->audio.chunks[snd_door_open], 0);
 			anim->active = 1;
 			anim->timestart = app->fr_last;
 		}
@@ -113,6 +115,7 @@ void	handle_door_projectile(t_info *app, t_object *obj,
 		if (obj->subtype != pr_BEAM)
 		{
 			*tile = 'O';
+			Mix_PlayChannel(1, app->audio.chunks[snd_door_open], 0);
 			anim->active = 1;
 			anim->timestart = app->fr_last;
 		}

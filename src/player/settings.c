@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <SDL2/SDL_mixer.h>
 #include "cub3d.h"
 
 void	set_sensitivity(t_info *app, int sensitivity)
@@ -38,6 +37,8 @@ void set_audio(t_info *const app)
 	aud->files[snd_boss_die] = "resources/sound/explos.wav";
 	aud->files[snd_rocket] = "resources/sound/apert2.wav";
 	aud->files[snd_portal] = "resources/sound/falling.wav";
+	aud->files[snd_door_open] = "resources/sound/door_open.wav";
+	aud->files[snd_door_close] = "resources/sound/door_close.wav";
 }
 
 void	set_fov(t_info *app, int fov)

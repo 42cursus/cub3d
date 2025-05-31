@@ -259,7 +259,7 @@ t_img	*build_minimap(t_info *app, t_img *tiles[])
 
 		}
 	}
-	// place_items_minimap(app, app->map, img);
+	place_items_minimap(app, app->map, img);
 	apply_alpha(img, 127);
 	return (img);
 }

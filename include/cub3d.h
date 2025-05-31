@@ -20,7 +20,7 @@
 # include "fsm.h"
 
 # include <SDL2/SDL.h>
-# include <SDL2/SDL_mixer.h>
+# include "SDL_mixer.h"
 
 //# define WIN_WIDTH 720
 //# define WIN_HEIGHT 480
@@ -411,6 +411,8 @@ enum e_snd
 	snd_portal,
 	snd_boss_die,
 	snd_rocket,
+	snd_door_open,
+	snd_door_close,
 	snd_MAX
 };
 
