@@ -288,6 +288,7 @@ void do_initial_to_intro(void *param)
 {
 	t_info *const app = param;
 
+	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_intro, app);
 	mlx_hook(app->win, ButtonPress, 0, NULL, app);
@@ -295,6 +296,7 @@ void do_initial_to_intro(void *param)
 	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 
 	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
+
 	mlx_loop_hook(app->mlx, &render_intro, app);
 }
 
@@ -306,6 +308,8 @@ void do_intro_to_mmenu(void *param)
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, 0, NULL, app);
+	app->mlx->end_loop = 0;
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
