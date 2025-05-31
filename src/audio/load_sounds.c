@@ -26,10 +26,5 @@ int load_sounds(t_aud *const aud)
 
 		aud->chunks[i] = chunk;
 	}
-	// printf("vol chunk: %d max: %d\n", Mix_VolumeChunk(aud->chunks[snd_door_open], -1), MIX_MAX_VOLUME);
-	printf("vol1: %d max: %d\n", Mix_Volume(1, -1), MIX_MAX_VOLUME);
-	Mix_Volume(0, 64);
-	Mix_VolumeChunk(aud->chunks[snd_rocket], 48);
-	// printf("vol1: %d max: %d\n", Mix_Volume(1, -1), MIX_MAX_VOLUME);
 	return (EXIT_SUCCESS);
 }

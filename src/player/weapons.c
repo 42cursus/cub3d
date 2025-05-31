@@ -53,6 +53,7 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 	if (enemy->health <= 0)
 	{
 		enemy->dead = 1;
+		Mix_PlayChannel(-1, app->audio.chunks[snd_enemy_death], 0);
 		enemy->anim2.timestart = app->fr_last;
 		enemy->anim2.active = 1;
 		if (enemy->subtype == E_PHANTOON)

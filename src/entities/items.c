@@ -80,21 +80,26 @@ void	handle_collectables(t_object *obj, t_player *player, t_info *app)
 	}
 }
 
-int	handle_pickups(t_object *obj, t_player *player)
+int	handle_pickups(t_info *app, t_object *obj, t_player *player)
 {
 	if (obj->subtype == I_HEALTH)
+	{
 		add_health(player, 20);
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_health], 0);
+	}
 	else if (obj->subtype == I_AMMO_M)
 	{
 		if (player->ammo[pr_MISSILE] == player->max_ammo[pr_MISSILE])
 			return (0);
 		add_ammo(player, pr_MISSILE);
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
 	}
 	else if (obj->subtype == I_AMMO_S)
 	{
 		if (player->ammo[pr_SUPER] == player->max_ammo[pr_SUPER])
 			return (0);
 		add_ammo(player, pr_SUPER);
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
 	}
 	return (1);
 }
@@ -110,7 +115,7 @@ int	handle_obj_item(t_info *app, t_object *obj, t_list **current)
 	obj->texture = handle_animation(app, obj->anim);
 	if (vector_distance(player->pos, obj->pos) < 0.5)
 	{
-		retval = handle_pickups(obj, player);
+		retval = handle_pickups(app, obj, player);
 		if (!retval)
 			return (0);
 		handle_collectables(obj, player, app);

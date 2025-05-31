@@ -39,12 +39,12 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 		if (*doortile == 'D')
 		{
 			*doortile = 'O';
-			Mix_PlayChannel(1, app->audio.chunks[snd_door_open], 0);
+			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
 		}
 		else if (*doortile == 'O')
 		{
 			*doortile = 'D';
-			Mix_PlayChannel(1, app->audio.chunks[snd_door_close], 0);
+			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_close], 0);
 		}
 		else
 			return ;
