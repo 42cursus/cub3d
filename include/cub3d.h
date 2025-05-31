@@ -22,16 +22,19 @@
 # include <SDL2/SDL.h>
 # include "SDL_mixer.h"
 
+# if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
 //# define WIN_HEIGHT 480
 //# define WIN_WIDTH 1280
 //# define WIN_HEIGHT 960
-# define WIN_WIDTH 1920
-# define WIN_HEIGHT 1080
+#  define WIN_WIDTH 1920
+#  define WIN_HEIGHT 1080
 // # define WIN_WIDTH 1600
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
+# endif //CUB3D_H
+
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
 #define GO_TO_FULLSCREEN_ON_LOAD 1

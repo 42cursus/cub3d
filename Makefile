@@ -12,6 +12,10 @@
 
 NAME			:= cub3d
 
+UNAME_S			= $(shell uname -s)
+UNAME_M			= $(shell uname -m)
+UNAME_R			= $(shell uname -r)
+
 LIBFT_DIR		= ./lib/ft
 LIBX_DIR		= ./lib/mlx
 BUILD_DIR		= build
@@ -33,6 +37,18 @@ MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
 
+SDL_MIX_LIB			:= -lSDL2_mixer
+
+ifeq ($(UNAME_M),x86_64)
+	ifeq ($(UNAME_R), 5.15.0-138-generic)
+		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080
+		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
+	endif
+	ifeq ($(UNAME_R), 5.15.0-139-generic)
+		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+	endif
+endif
+
 
 LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
@@ -40,7 +56,7 @@ LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
-					-l:libSDL2_mixer-2.0.so.0.2.2 -lSDL2 \
+					$(SDL_MIX_LIB) -lSDL2 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
