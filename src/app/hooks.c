@@ -337,10 +337,14 @@ int key_press_play(KeySym key, void *param)
 	{
 		if (key == XK_1)
 		{
-			if (player->ammo[1])
-				player->equipped = 1;
+			player->equipped = 0;
 		}
 		else if (key == XK_2)
+		{
+			if (player->ammo[2])
+				player->equipped = 1;
+		}
+		else if (key == XK_3)
 		{
 			if (player->ammo[2])
 				player->equipped = 2;
