@@ -35,13 +35,14 @@ void set_audio(t_info *const app)
 	aud->files[snd_gun] = "resources/sound/beam_shot.wav";
 	aud->files[snd_hash] = "resources/sound/percussion-28.wav";
 	aud->files[snd_boss_die] = "resources/sound/explos.wav";
-	aud->files[snd_rocket] = "resources/sound/apert2.wav";
+	aud->files[snd_rocket] = "resources/sound/missile.wav";
 	aud->files[snd_portal] = "resources/sound/falling.wav";
 	aud->files[snd_door_open] = "resources/sound/door_open.wav";
 	aud->files[snd_door_close] = "resources/sound/door_close.wav";
 	aud->files[snd_pickup_ammo] = "resources/sound/pickup_ammo.wav";
 	aud->files[snd_pickup_health] = "resources/sound/pickup_heal.wav";
 	aud->files[snd_enemy_death] = "resources/sound/enemy_death.wav";
+	aud->files[snd_music_outside] = "resources/sound/outside_music.wav";
 }
 
 void	set_fov(t_info *app, int fov)

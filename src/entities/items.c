@@ -78,6 +78,7 @@ void	handle_collectables(t_object *obj, t_player *player, t_info *app)
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
+	Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
 }
 
 int	handle_pickups(t_info *app, t_object *obj, t_player *player)
