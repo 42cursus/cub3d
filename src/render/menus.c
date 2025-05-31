@@ -159,7 +159,8 @@ void	draw_menu_items(t_info *app)
 	menu_state = &app->menu_state;
 	if (menu_state->state == MAIN)
 	{
-		place_menu((const char *[]){"START", "LEVEL SELECT", "options", "credits", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
+		const char *strings[] = (const char *[]) {"START", "LEVEL SELECT", "options", "credits", "EXIT"};
+		place_menu(strings, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 	}
 	else if (menu_state->state == LVL_SELECT)
 	{

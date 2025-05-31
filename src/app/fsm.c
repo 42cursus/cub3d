@@ -106,6 +106,18 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 	toggle_fullscreen(app);
+	
+	if (SKIP_INTRO)
+		return (ok);
+	else
+		return (extra);
+}
+
+t_ret_code do_state_intro(void *param)
+{
+	t_info *const app = param;
+
+	mlx_loop(app->mlx);
 	return (ok);
 }
 
@@ -250,6 +262,7 @@ t_ret_code do_state_credits(void *param)
 //	};
 
 //	ft_memcpy(app->root->hooks, &hooks[new_state], MLX_MAX_EVENT * sizeof(t_event_list));
+
 void do_initial_to_mmenu(void *param)
 {
 	t_info *const app = param;
@@ -264,6 +277,41 @@ void do_initial_to_mmenu(void *param)
 }
 
 void do_initial_to_end(void *param)
+{
+	t_info *const app = param;
+
+	return ;
+	(void)app;
+}
+
+void do_initial_to_intro(void *param)
+{
+	t_info *const app = param;
+
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_intro, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
+
+	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
+	mlx_loop_hook(app->mlx, &render_intro, app);
+}
+
+void do_intro_to_mmenu(void *param)
+{
+	t_info *const app = param;
+
+	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
+	mlx_expose_hook(app->win, &expose_win, app);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 5;
+}
+
+void do_intro_to_end(void *param)
 {
 	t_info *const app = param;
 
@@ -314,6 +362,23 @@ void	do_mmenu_to_credits(void *param)
 	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 }
 
+void do_mmenu_to_intro(void *param)
+{
+	t_info *const app = param;
+
+	return ;
+	(void)app;
+}
+
+void do_mmenu_to_end(void *param)
+{
+	t_info *const app = param;
+
+	return ;
+	(void)app;
+}
+
+
 void	do_credits_to_mmenu(void *param)
 {
 	t_info *const app = param;
@@ -355,18 +420,18 @@ void do_load_to_play(void *param)
 	XUngrabPointer(app->mlx->display, CurrentTime);
 }
 
-void do_load_to_end(void *param)
+void do_credits_to_end(void *param)
 {
 	t_info *const app = param;
 
 	return ;
 	(void)app;
-
 }
 
-void do_mmenu_to_end(void *param)
+void do_load_to_end(void *param)
 {
 	t_info *const app = param;
+
 	return ;
 	(void)app;
 }

@@ -63,7 +63,7 @@ LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app audio player render rays entities animations
+SUB_DIRS		= parser utils app audio player render rays entities anim
 CUB_SRCS		:=
 TEXTURES		:=
 

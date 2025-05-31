@@ -184,13 +184,38 @@ int get_key_index(KeySym key)
 	return ret;
 }
 
+int key_press_intro(KeySym key, void *param)
+{
+	t_info *const	app = param;
+
+	if (key == XK_Up || key == XK_Down)
+	{
+		app->keys[get_key_index(key)] = true;
+	}
+	else
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
+	return (0);
+}
+
+int key_release_intro(KeySym key, void *param)
+{
+	t_info *const	app = param;
+	const int		idx = get_key_index(key);
+
+	if (idx != -1)
+		app->keys[idx] = false;
+	return (0);
+}
+
 int key_press_credits(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_key_index(key);
-	if (idx == idx_XK_Up || idx == idx_XK_Down)
-		app->keys[idx] = true;
+	if (key == XK_Up || key == XK_Down)
+		app->keys[get_key_index(key)] = true;
 	else
 	{
 		app->rc = ok;
@@ -201,9 +226,9 @@ int key_press_credits(KeySym key, void *param)
 
 int key_release_credits(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	const int		idx = get_key_index(key);
 
-	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);

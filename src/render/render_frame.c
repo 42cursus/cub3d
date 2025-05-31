@@ -187,6 +187,23 @@ int	render_play(void *param)
 	return (0);
 }
 
+int	render_intro(void *param)
+{
+	size_t				time;
+	t_info *const		app = param;
+
+	place_str_centred((char *)	"INTRO", app, (t_ivect){WIN_WIDTH / 2, 400}, 5);
+	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 470}, 3);
+
+	while (get_time_us() - app->fr_last < app->fr_delay)
+		usleep(100);
+	time = get_time_us();
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	on_expose(app);
+	return (0);
+}
+
 int	render_mmenu(void *param)
 {
 	size_t				time;
@@ -194,8 +211,7 @@ int	render_mmenu(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
 
-	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
-				100);
+	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
 	draw_menu_items(app);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)

@@ -35,14 +35,15 @@
 // # define WIN_HEIGHT 1008
 # endif //CUB3D_H
 
+# define SKIP_INTRO 0
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
-#define GO_TO_FULLSCREEN_ON_LOAD 1
-#define RAY_POOL_SIZE 5000
+# define GO_TO_FULLSCREEN_ON_LOAD 1
+# define RAY_POOL_SIZE 5000
 
-#ifndef FRAMERATE
-# define FRAMERATE 120
-#endif
+# ifndef FRAMERATE
+#  define FRAMERATE 120
+# endif
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
 
@@ -638,10 +639,14 @@ size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
 
-int key_press_play(KeySym key, void *param);
-int key_release_play(KeySym key, void *param);
+int key_press_intro(KeySym key, void *param);
+int key_release_intro(KeySym key, void *param);
+
 int key_press_mmenu(KeySym key, void *param);
 int key_release_mmenu(KeySym key, void *param);
+
+int key_press_play(KeySym key, void *param);
+int key_release_play(KeySym key, void *param);
 
 int key_press_pmenu(KeySym key, void *param);
 int key_release_pmenu(KeySym key, void *param);
@@ -655,6 +660,7 @@ int key_release_win(KeySym key, void *param);
 int key_press_credits(KeySym key, void *param);
 int key_release_credits(KeySym key, void *param);
 
+int	render_intro(void *param);
 int	render_mmenu(void *param);
 int	render_pmenu(void *param);
 int	render_play(void *app);
