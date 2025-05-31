@@ -14,7 +14,6 @@ cub3d
 hello
 world
 log.txt
-resources/
 gdb.txt
 scratch/
 cmake_build
