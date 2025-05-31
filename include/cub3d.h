@@ -145,7 +145,7 @@ typedef enum e_projectile
 typedef struct s_object
 {
 	int			type;
-	t_pr_type	subtype;
+	int			subtype;
 	int			dead;
 	int			attacking;
 	int			health;
