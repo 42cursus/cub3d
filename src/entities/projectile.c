@@ -58,7 +58,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 		Mix_PlayChannel(ch_weapons, aud->chunks[snd_gun], 0);
 	}
 	else
-		Mix_PlayChannel(ch_any, aud->chunks[snd_rocket], 0);
+		Mix_PlayChannel(ch_weapons, aud->chunks[snd_rocket], 0);
 }
 
 int	handle_projectile_death(t_info *app, t_object *obj, t_list **current)

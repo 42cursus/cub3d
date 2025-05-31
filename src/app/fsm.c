@@ -121,6 +121,7 @@ t_ret_code do_state_load(void *param)
 {
 	t_info *const app = param;
 
+	Mix_PlayChannel(ch_music, app->audio.chunks[snd_music_outside], 0);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) "./textures/skybox.xpm");
 

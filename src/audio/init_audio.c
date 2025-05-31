@@ -32,7 +32,7 @@ int	init_audio(t_info *const app)
 	}
 
 	load_sounds(aud);
-	// Mix_Volume(ch_weapons, 64);
-	Mix_VolumeChunk(aud->chunks[snd_rocket], 32);
+	Mix_Volume(ch_music, 64);
+	// Mix_VolumeChunk(aud->chunks[snd_rocket], 32);
 	return (err);
 }

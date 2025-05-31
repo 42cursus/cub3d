@@ -416,6 +416,7 @@ enum e_snd
 	snd_pickup_ammo,
 	snd_pickup_health,
 	snd_enemy_death,
+	snd_music_outside,
 	snd_MAX
 };
 
@@ -427,6 +428,7 @@ enum e_channel
 	ch_item,
 	ch_tele,
 	ch_weapons,
+	ch_enemies,
 };
 
 typedef struct s_aud
