@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 15:13:37 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 15:13:59 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/01 19:28:20 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ void set_fonts(t_info *const app)
 	t_typing *const	typing = &app->typ;
 
 	typing->default_size = 20;
-	typing->files[tp_main] = "/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf";
+	//typing->files[tp_main] = "/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf";
+	typing->files[tp_main] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
 
 void set_audio(t_info *const app)
