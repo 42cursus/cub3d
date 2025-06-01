@@ -12,6 +12,22 @@
 
 #include "cub3d.h"
 
+static int load_sounds(t_aud *const aud)
+{
+	int			i;
+	Mix_Chunk	*chunk;
+
+	i = -1;
+	while (++i < snd_MAX)
+	{
+		chunk = Mix_LoadWAV(aud->files[i]);
+		if (!chunk)
+			return (EXIT_FAILURE);
+		aud->chunks[i] = chunk;
+	}
+	return (EXIT_SUCCESS);
+}
+
 int	init_audio(t_info *const app)
 {
 	int 	err;

@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "SDL_mixer.h"
 #include "cub3d.h"
 
 void	set_sensitivity(t_info *app, int sensitivity)
@@ -22,6 +21,13 @@ void	set_sensitivity(t_info *app, int sensitivity)
 	app->sensitivity = sensitivity;
 }
 
+void set_fonts(t_info *const app)
+{
+	t_typing *const	typing = &app->typ;
+
+	typing->default_size = 20;
+	typing->files[tp_main] = "/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf";
+}
 
 void set_audio(t_info *const app)
 {
@@ -85,11 +91,8 @@ void	set_sound_volume(t_info *app, int volume)
 	app->snd_volume = volume;
 	new_volume = (volume / 100.0) * 128;
 	i = 1;
-	while (i < 8)
-	{
-		Mix_Volume(i, new_volume);
-		i++;
-	}
+	while (i < MIX_CHANNELS)
+		Mix_Volume(i++, new_volume);
 }
 
 void	set_music_volume(t_info *app, int volume)

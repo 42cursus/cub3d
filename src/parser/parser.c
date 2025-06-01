@@ -311,7 +311,7 @@ int	count_collectables(t_lvl *map)
 	return (count);
 }
 
-__attribute__((optnone))
+//__attribute__((optnone))
 void draw_large_minimap(t_lvl *lvl)
 {
 	t_info *const app = lvl->app;
@@ -328,6 +328,11 @@ void draw_large_minimap(t_lvl *lvl)
 		return ;
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
 	aspect_ratio = (double) lvl->width / lvl->height;
+
+	p.x = 50;
+	p.y = large_minimap->height - 50;
+
+	draw_text_freetype(app, large_minimap, "minimap", p);
 
 	new.x = MIN(large_minimap->width, (int)(aspect_ratio * large_minimap->height));
 	new.y = MIN(large_minimap->height, (int)(large_minimap->width / aspect_ratio));

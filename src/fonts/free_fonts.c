@@ -1,30 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   sound.c                                            :+:      :+:    :+:   */
+/*   free_fonts.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/30 19:58:58 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/30 19:58:59 by abelov           ###   ########.fr       */
+/*   Created: 2025/06/01 18:10:47 by abelov            #+#    #+#             */
+/*   Updated: 2025/06/01 18:10:48 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-int load_sounds(t_aud *const aud)
+void free_fonts(t_info *const app)
 {
-	int			i;
-	Mix_Chunk	*chunk;
+	t_typing *const		typing = &app->typ;
+	FT_Library			ft = typing->ft;
+	FT_Face				face;
+	int 				i;
 
 	i = -1;
-	while (++i < snd_MAX)
+	while (++i < tp_MAX)
 	{
-		chunk = Mix_LoadWAV(aud->files[i]);
-		if (!chunk)
-			return (EXIT_FAILURE);
 
-		aud->chunks[i] = chunk;
+		face = typing->faces[i];
+		FT_Done_Face(face);
 	}
-	return (EXIT_SUCCESS);
+	FT_Done_FreeType(ft);
 }

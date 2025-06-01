@@ -72,29 +72,16 @@ file(GLOB_RECURSE MLX_LIB_SOURCES "${MLX_LIB_DIR}/*.c")
 list(FILTER MLX_LIB_SOURCES EXCLUDE REGEX "${MLX_LIB_DIR}/test/*|${MLX_LIB_DIR}/mlx_lib_xpm.c")
 
 # Custom target to build and patch MLX
-add_custom_command(
-        OUTPUT "${MLX_LIB_PATH}"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${MLX_BUILD_DIR}"
-        COMMAND make -C "${MLX_LIB_DIR}"
-        COMMAND ${CMAKE_AR} x "${MLX_LIB_PATH}" mlx_xpm.o --output "${MLX_BUILD_DIR}"
-        COMMAND ${CMAKE_AR} d "${MLX_LIB_PATH}" "${MLX_BUILD_DIR}/mlx_xpm.o"
-        COMMAND ${CMAKE_OBJCOPY} --globalize-symbol=strlcpy_is_not_posix "${MLX_BUILD_DIR}/mlx_xpm.o"
-        COMMAND ${CMAKE_OBJCOPY} --weaken-symbol=strlcpy_is_not_posix "${MLX_BUILD_DIR}/mlx_xpm.o"
-        COMMAND ${CMAKE_AR} rcs "${MLX_LIB_PATH}" "${MLX_BUILD_DIR}/mlx_xpm.o"
-        COMMAND ${CMAKE_COMMAND} -E rm "${MLX_BUILD_DIR}/mlx_xpm.o"
-#        BYPRODUCTS "${MLX_LIB_PATH}"
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        COMMENT "Building and patching MLX_LIB"
-)
-
 add_custom_target(${MLX_LIB_NAME}_target ALL
-        DEPENDS "${MLX_LIB_PATH}"
-        SOURCES ${MLX_LIB_HEADERS} ${MLX_LIB_SOURCES})
+        COMMAND make -C ${MLX_LIB_DIR}
+        BYPRODUCTS "${MLX_LIB_DIR}/${MLX_LIB_FILENAME}"
+        SOURCES "${MLX_LIB_HEADERS};${MLX_LIB_SOURCES}"
+        COMMENT "Building MLX_LIB")
 
 add_library(${MLX_LIB_NAME} STATIC IMPORTED)
 add_dependencies(${MLX_LIB_NAME} "${MLX_LIB_NAME}_target")
 set_target_properties(${MLX_LIB_NAME} PROPERTIES
-        IMPORTED_LOCATION "${MLX_LIB_PATH}" # Make sure to use absolute path here
+        IMPORTED_LOCATION "${MLX_LIB_DIR}/${MLX_LIB_FILENAME}" # Make sure to use absolute path here
         INTERFACE_COMPILE_DEFINITIONS ""
         INTERFACE_SOURCES "${MLX_LIB_HEADERS}"
         INTERFACE_INCLUDE_DIRECTORIES "${MLX_LIB_DIR}")
@@ -136,6 +123,9 @@ set(TEX_LIB_NAME libtextures)
 add_library(${TEX_LIB_NAME} STATIC)
 
 file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/textures/*.xpm")
+file(GLOB TEX_LIB_SOURCES_EXTRA "${PROJECT_SOURCE_DIR}/textures/mmap/*.xpm")
+list (APPEND TEX_LIB_SOURCES ${TEX_LIB_SOURCES_EXTRA})
+
 set_source_files_properties(${TEX_LIB_SOURCES}
         PROPERTIES
         LANGUAGE C
@@ -168,11 +158,18 @@ find_library(XM_LIBRARY Xm REQUIRED)
 find_library(MRM_LIBRARY Mrm REQUIRED)
 find_library(XPM_LIBRARY Xpm REQUIRED)
 
+pkg_check_modules(SDL2 REQUIRED sdl2)
+pkg_check_modules(SDL2_MIXER QUIET SDL2_mixer)
+pkg_check_modules(FREETYPE2 REQUIRED freetype2)
+
 set(TARGET_LIBRARIES
         ${MLX_LIB_NAME}
         ${MATH_LIB}
         ${FT_LIB_NAME}
         ${TEX_LIB_NAME}
+        ${SDL2_LIBRARIES}
+        ${SDL2_MIXER_LIBRARIES}
+        ${FREETYPE2_LIBRARIES}
         Threads::Threads
         ${X11_LIBRARIES}
         ${XT_LIBRARY}
@@ -190,12 +187,21 @@ add_executable(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}
         /usr/include
-        /usr/include/SDL2
+        ${SDL2_INCLUDE_DIRS}
+        ${SDL2_MIXER_INCLUDE_DIRS}
+        ${FREETYPE2_INCLUDE_DIRS}
         /usr/include/x86_64-linux-gnu)
 
 target_link_libraries(${TARGET_NAME} "${TARGET_LIBRARIES}")
 target_link_options(${TARGET_NAME} PRIVATE ${COMMON_LDFLAGS})
-target_compile_options(${TARGET_NAME} PRIVATE "${FT_CFLAGS}")
+target_compile_options(${TARGET_NAME}
+        PRIVATE "${FT_CFLAGS}"
+        PUBLIC
+            ${SDL2_CFLAGS_OTHER}
+            ${SDL2_MIXER_CFLAGS_OTHER}
+            ${FREETYPE2_CFLAGS_OTHER}
+)
+
 #target_compile_definitions(${TARGET_NAME} PRIVATE FRAMERATE=50)
 set_target_properties(${TARGET_NAME} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"

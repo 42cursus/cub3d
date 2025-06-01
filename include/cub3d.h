@@ -20,7 +20,9 @@
 # include "fsm.h"
 
 # include <SDL2/SDL.h>
-# include "SDL_mixer.h"
+# include "SDL_mixer.h" //# include <SDL2/SDL_mixer.h>
+# include <ft2build.h>
+# include FT_FREETYPE_H
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
@@ -366,7 +368,7 @@ enum
 	MU,
 };
 
-typedef	enum e_type
+typedef	enum e_etype
 {
 	O_PROJ = 0,
 	O_ENTITY = 1,
@@ -441,6 +443,7 @@ enum e_channel
 	ch_weapons,
 	ch_enemies,
 	ch_player,
+	ch_MAX = MIX_CHANNELS
 };
 
 typedef struct s_aud
@@ -453,9 +456,24 @@ typedef struct s_aud
 	Mix_Chunk	*chunks[snd_MAX];
 }	t_aud;
 
+enum e_type
+{
+	tp_main = 0,
+	tp_MAX
+};
+
+typedef struct s_typing
+{
+	FT_Library	ft;
+	int 		default_size;
+	const char 	*files[snd_MAX];
+	struct FT_FaceRec_ *faces[1];
+}	t_typing;
+
 typedef struct s_info
 {
 	t_xvar		*mlx;
+	t_typing	typ;
 	t_win_list	*win;
 	double		zoom;
 	char 		*title;
@@ -552,7 +570,6 @@ int		parse_cub(t_info *app, char *filename);
 t_lvl	*get_cached_lvl(t_info *app, char *name);
 void	free_split(char **split);
 void	load_shtex(t_info *app);
-int		load_sounds(t_aud *aud);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
@@ -644,6 +661,7 @@ void	draw_circle_filled(t_img *img, t_point c, int r, int color);
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
 void	free_shsnd(t_info *app);
+void	free_fonts(t_info *app);
 t_img	*build_minimap(t_info *app, t_img *tiles[]);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
@@ -692,8 +710,10 @@ void	menu_change_option(t_info *app, int dir);
 
 t_state run_state(t_info *app, int argc, char **argv);
 void	set_fov(t_info *app, int fov);
-void	set_audio(t_info *const app);
-int		init_audio(t_info *const app);
+void	set_fonts(t_info *app);
+int		init_fonts(t_info *app);
+void	set_audio(t_info *app);
+int		init_audio(t_info *app);
 void	set_framerate(t_info *app, size_t framerate);
 void	set_sensitivity(t_info *app, int sensitivity);
 void	set_music_volume(t_info *app, int volume);
@@ -735,4 +755,7 @@ t_texture	*get_open_door_tex(t_anim *anim, t_info *app);
 t_texture	*get_close_door_tex(t_anim *anim, t_info *app);
 void	toggle_fullscreen(t_info *const app);
 int		get_key_index(KeySym key);
+
+void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
+
 #endif //CUB3D_H
