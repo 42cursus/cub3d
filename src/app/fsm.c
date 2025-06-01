@@ -80,11 +80,10 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
-	set_sound_volume(app, 100);
-	set_music_volume(app, 100);
 	init_audio(app);
 	init_fonts(app);
-
+	set_sound_volume(app, 100);
+	set_music_volume(app, 100);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
@@ -124,7 +123,7 @@ t_ret_code do_state_intro(void *param)
 	t_info *const app = param;
 	t_aud *const aud = &app->audio;
 
-	Mix_PlayChannel(ch_tele, aud->chunks[snd_intro], 0);
+	Mix_PlayChannel(ch_music, aud->chunks[snd_intro], 0);
 	mlx_loop(app->mlx);
 	return (ok);
 }
@@ -485,9 +484,7 @@ void	do_play_to_load(void *param)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	app->fr_count = 0;
 	app->map->starting_pos = app->player->tele_pos;
-	move_entity(&app->map->starting_pos, app->map, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
-	// app->map->starting_pos = add_vect(app->player->pos, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
-	// app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
+	move_entity(&app->map->starting_pos, app->map, subtract_vect(app->player->pos, app->player->tele_pos));
 	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);
 	refresh_map(app, app->map);
 	app->map = get_cached_lvl(app, next_lvl);

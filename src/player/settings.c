@@ -55,6 +55,7 @@ void set_audio(t_info *const app)
 	aud->files[snd_enemy_attack2] = "resources/sound/enemy_jump2.wav";
 	aud->files[snd_enemy_shot] = "resources/sound/enemy_damage.wav";
 	aud->files[snd_player_damage] = "resources/sound/samus_damage.wav";
+	aud->files[snd_win_music] = "resources/sound/win_music.wav";
 }
 
 void	set_fov(t_info *app, int fov)
@@ -97,13 +98,10 @@ void	set_sound_volume(t_info *app, int volume)
 
 void	set_music_volume(t_info *app, int volume)
 {
-	int	new_volume;
-
 	if (volume < 0)
 		volume = 0;
 	if (volume > 100)
 		volume = 100;
 	app->mus_volume = volume;
-	new_volume = (volume / 100.0) * 128;
-	Mix_Volume(ch_music, new_volume);
+	Mix_Volume(ch_music, volume);
 }

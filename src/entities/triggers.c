@@ -35,6 +35,7 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 	tele = ft_calloc(1, sizeof(*tele));
 	tele->pos = pos;
 	tele->type = O_TELE;
+	tele->dead = 1;
 	tele->subtype = level;
 	tele->texture = &app->shtex->tele;
 	ft_lstadd_back(&map->triggers, ft_lstnew(tele));
@@ -61,14 +62,17 @@ void	handle_tele(t_info *app, t_object *tele)
 {
 	t_aud *const	aud = &app->audio;
 
-	if (vector_distance(app->player->pos, tele->pos) < 0.4)
+	if (tele->dead == 0 && vector_distance(app->player->pos, tele->pos) < 0.4)
 	{
+		tele->dead = 1;
 		app->current_sublevel = tele->subtype;
 		app->rc = extra;
 		app->mlx->end_loop = 1;
 		app->player->tele_pos = tele->pos;
 		Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
 	}
+	else if (vector_distance(app->player->pos, tele->pos) > 1.5)
+		tele->dead = 0;
 }
 
 void	toggle_boss_doors(t_info *app)
