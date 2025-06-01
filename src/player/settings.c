@@ -36,7 +36,8 @@ void set_audio(t_info *const app)
 	aud->files[snd_hash] = "resources/sound/percussion-28.wav";
 	aud->files[snd_boss_die] = "resources/sound/explos.wav";
 	aud->files[snd_rocket] = "resources/sound/missile.wav";
-	aud->files[snd_portal] = "resources/sound/falling.wav";
+	aud->files[snd_intro] = "resources/sound/falling.wav";
+	aud->files[snd_portal] = "resources/sound/roll.wav";
 	aud->files[snd_door_open] = "resources/sound/door_open.wav";
 	aud->files[snd_door_close] = "resources/sound/door_close.wav";
 	aud->files[snd_pickup_ammo] = "resources/sound/pickup_ammo.wav";

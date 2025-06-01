@@ -116,7 +116,9 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 t_ret_code do_state_intro(void *param)
 {
 	t_info *const app = param;
+	t_aud *const aud = &app->audio;
 
+	Mix_PlayChannel(ch_tele, aud->chunks[snd_intro], 0);
 	mlx_loop(app->mlx);
 	return (ok);
 }

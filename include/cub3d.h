@@ -412,6 +412,7 @@ enum e_snd
 	snd_door = 0,
 	snd_gun,
 	snd_hash,
+	snd_intro,
 	snd_portal,
 	snd_boss_die,
 	snd_rocket,
