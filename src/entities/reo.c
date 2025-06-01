@@ -17,9 +17,12 @@ void	reo_ai(t_info *app, t_object *enemy)
 	int		frames;
 	t_vect	norm_diff;
 
-	if (check_line_of_sight(app, enemy, app->player)
+	if (enemy->attacking == 0 && check_line_of_sight(app, enemy, app->player)
 		&& vector_distance(enemy->pos, app->player->pos) < 6)
+	{
 		enemy->attacking = 1;
+		Mix_PlayChannel(ch_enemies, app->audio.chunks[snd_enemy_attack1 + (int)rand_range(0, 2)], 0);
+	}
 	frames = ((app->fr_last / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)
 	{

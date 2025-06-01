@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "SDL_mixer.h"
 #include "cub3d.h"
 
 void	set_sensitivity(t_info *app, int sensitivity)
@@ -43,7 +44,11 @@ void set_audio(t_info *const app)
 	aud->files[snd_pickup_ammo] = "resources/sound/pickup_ammo.wav";
 	aud->files[snd_pickup_health] = "resources/sound/pickup_heal.wav";
 	aud->files[snd_enemy_death] = "resources/sound/enemy_death.wav";
-	aud->files[snd_music_outside] = "resources/sound/outside_music.wav";
+	aud->files[snd_music_boss] = "resources/sound/boss_music.wav";
+	aud->files[snd_enemy_attack1] = "resources/sound/enemy_jump.wav";
+	aud->files[snd_enemy_attack2] = "resources/sound/enemy_jump2.wav";
+	aud->files[snd_enemy_shot] = "resources/sound/enemy_damage.wav";
+	aud->files[snd_player_damage] = "resources/sound/samus_damage.wav";
 }
 
 void	set_fov(t_info *app, int fov)
@@ -66,4 +71,36 @@ void	set_framerate(t_info *app, size_t framerate)
 	app->fr_rate = framerate;
 	app->fr_delay = 1000000 / framerate;
 	app->fr_scale = framerate / 50.0;
+}
+
+void	set_sound_volume(t_info *app, int volume)
+{
+	int	i;
+	int	new_volume;
+
+	if (volume < 0)
+		volume = 0;
+	if (volume > 100)
+		volume = 100;
+	app->snd_volume = volume;
+	new_volume = (volume / 100.0) * 128;
+	i = 1;
+	while (i < 8)
+	{
+		Mix_Volume(i, new_volume);
+		i++;
+	}
+}
+
+void	set_music_volume(t_info *app, int volume)
+{
+	int	new_volume;
+
+	if (volume < 0)
+		volume = 0;
+	if (volume > 100)
+		volume = 100;
+	app->mus_volume = volume;
+	new_volume = (volume / 100.0) * 128;
+	Mix_Volume(ch_music, new_volume);
 }

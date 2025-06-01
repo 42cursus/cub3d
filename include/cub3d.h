@@ -272,6 +272,7 @@ typedef	struct s_data
 	t_texture		w_tex;
 	t_texture		floor_tex;
 	t_texture		ceil_tex;
+	Mix_Chunk		*music;
 	int				outside;
 	t_img			*minimap_xs;
 	t_img			*minimap_xl;
@@ -362,6 +363,7 @@ enum
 	LVL_A = 15,
 	LVL_B = 16,
 	LVL_C = 17,
+	MU,
 };
 
 typedef	enum e_type
@@ -421,7 +423,11 @@ enum e_snd
 	snd_pickup_ammo,
 	snd_pickup_health,
 	snd_enemy_death,
-	snd_music_outside,
+	snd_enemy_attack1,
+	snd_enemy_attack2,
+	snd_enemy_shot,
+	snd_music_boss,
+	snd_player_damage,
 	snd_MAX
 };
 
@@ -434,6 +440,7 @@ enum e_channel
 	ch_tele,
 	ch_weapons,
 	ch_enemies,
+	ch_player,
 };
 
 typedef struct s_aud
@@ -490,6 +497,8 @@ typedef struct s_info
 	t_timer		timer;
 	t_dummy		*dummy;
 	int			sensitivity;
+	int			snd_volume;
+	int			mus_volume;
 }	t_info;
 
 typedef struct s_colour
@@ -687,6 +696,8 @@ void	set_audio(t_info *const app);
 int		init_audio(t_info *const app);
 void	set_framerate(t_info *app, size_t framerate);
 void	set_sensitivity(t_info *app, int sensitivity);
+void	set_music_volume(t_info *app, int volume);
+void	set_sound_volume(t_info *app, int volume);
 void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 

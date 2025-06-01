@@ -78,6 +78,8 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	set_fov(app, 110);
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
+	set_sound_volume(app, 100);
+	set_music_volume(app, 100);
 	init_audio(app);
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
@@ -135,7 +137,8 @@ t_ret_code do_state_load(void *param)
 {
 	t_info *const app = param;
 
-	Mix_PlayChannel(ch_music, app->audio.chunks[snd_music_outside], 0);
+	if (app->map->music)
+		Mix_PlayChannel(ch_music, app->map->music, -1);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) "./textures/skybox.xpm");
 

@@ -6,6 +6,8 @@ EA textures/norfair_wall2.xpm
 F textures/floor_norfair.xpm
 C 0x64,0x9d,0xfa
 
+MU resources/sound/lava_music.wav
+
 LVL_A start.cub
 
                                                 

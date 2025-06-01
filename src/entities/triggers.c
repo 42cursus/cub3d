@@ -46,6 +46,7 @@ int	handle_trigger(t_info *app, t_object *obj, t_list **current)
 	{
 		if (vector_distance(obj->pos, app->player->pos) < 1.5)
 		{
+			Mix_PlayChannel(ch_music, app->audio.chunks[snd_music_boss], -1);
 			toggle_boss_doors(app);
 			app->map->boss_active = 1;
 			app->map->boss_obj->dir = (t_vect){0.0, 1.0};

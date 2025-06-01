@@ -6,6 +6,8 @@ EA textures/metroid2.xpm
 F textures/floor5.xpm
 C textures/floor.xpm
 
+MU resources/sound/inside_music.wav
+
 LVL_A test4.cub
 
                                   11111111111111111111

@@ -24,7 +24,10 @@ void	holtz_ai(t_info *app, t_object *enemy, t_player *player)
 	else if (vector_distance(enemy->pos, player->pos) < 5)
 		enemy->attacking = 1;
 	if (frames % 20 == 0 && enemy->attacking == 1)
+	{
 		spawn_enemy_projectile(app, enemy,
 			scale_vect(norm_diff, 0.2 / app->fr_scale), P_HOLTZ);
+		Mix_PlayChannel(ch_enemies, app->audio.chunks[snd_player_damage], 0);
+	}
 	move_obj_bounce(app, enemy, app->map);
 }

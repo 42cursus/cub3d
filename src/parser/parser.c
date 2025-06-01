@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <sys/param.h>
+#include "SDL_mixer.h"
 #include "cub3d.h"
 
 size_t	count_split_words(char **split);
@@ -74,6 +75,16 @@ int	parse_texture(t_lvl *data, char *str, int identifier, t_info *app)
 	return (0);
 }
 
+int	parse_music(t_lvl *lvl, char *str)
+{
+	if (lvl->music != NULL)
+		return (printf("Error: music defined multiple times\n"), 1);
+	lvl->music = Mix_LoadWAV(str);
+	if (!lvl->music)
+		return (printf("Error: failed to load music file\n"), 1);
+	return (0);
+}
+
 int	parse_levels(t_lvl *data, char *str, int identifier)
 {
 	char	buf[100];
@@ -106,8 +117,10 @@ int	parse_line(t_lvl *data, char *line, t_info *app)
 //		retval = parse_colour(data, split[1], identifier);
 	else if (identifier <= WEST)
 		retval = parse_texture(data, split[1], identifier, app);
-	else
+	else if (identifier <= LVL_C)
 		parse_levels(data, split[1], identifier);
+	else
+		retval = parse_music(data, split[1]);
 	return (free_split(split), retval);
 }
 
@@ -396,6 +409,7 @@ void	free_map(t_lvl *data)
 	ft_lstclear(&data->triggers, free);
 	ft_lstclear(&data->projectiles, free);
 	ft_lstclear(&data->enemy_pos, free);
+	Mix_FreeChunk(data->music);
 	free(data);
 }
 
