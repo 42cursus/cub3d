@@ -196,6 +196,48 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
+void	place_char_alpha(char c, t_info *app, t_ivect3 pos, int alpha)
+{
+	t_img *const	canvas = app->canvas;
+	t_img *const	alphabet = app->shtex->alphabet;
+	int		i;
+	int		j;
+	int		start_x;
+	u_int32_t	*src_row;
+	u_int32_t	*dst_row;
+	u_int32_t	mask;
+	const int char_width = 8;
+
+	if (!ft_isprint(c) || pos.z < 1)
+		return ;
+	start_x = (c - ' ') * char_width;
+
+	i = -1;
+	while (++i < char_width * pos.z)
+	{
+		src_row = (u_int32_t *)alphabet->data + ((i / pos.z) * alphabet->width) + start_x;
+		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
+		j = -1;
+		while (++j < char_width * pos.z)
+		{
+			t_colour col1 = *(t_colour *) &src_row[j / pos.z];
+			t_colour col2 = *(t_colour *) &dst_row[j];
+			t_colour out;
+			const double frac = alpha / 255.0;
+
+			out = col1;
+			if (col1.raw != col2.raw)
+			{
+				out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
+				out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
+				out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
+			}
+			mask = -(src_row[j / pos.z]!= XPM_TRANSPARENT);
+			dst_row[j] = (out.raw & mask) | (dst_row[j] & ~mask);
+		}
+	}
+}
+
 void	apply_alpha(t_img *img, u_char alpha)
 {
 	int			i;
@@ -514,7 +556,10 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	i = 0;
 	while (str[i])
 	{
-		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		if (!ft_strncmp(str, "time trial", 10) && app->menu_state.prev == PAUSE)
+			place_char_alpha(str[i], app, (t_ivect3){pos_x, pos_y, scalar}, 127);
+		else
+			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
 		if (str[i++] == '\n')
 		{
 			pos_y += 8 * scalar;
