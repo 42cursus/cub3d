@@ -586,7 +586,7 @@ void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
 		y += scalar * 16;
 	}
 	start_x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
-	y = start_y + (app->menu_state.selected * 16 * scalar) - 32;
+	y = start_y + (app->menu_state.selected * 16 * scalar) - 24;
 	put_texture(app, &app->shtex->trophy_tex[0], start_x, y);
 }
 
