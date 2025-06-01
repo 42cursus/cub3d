@@ -317,8 +317,8 @@ void	place_mmap(t_info *app)
 		minimap = lvl->minimap_xs;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
-		p2.x = floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - lvl->width * 8;
-		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 3;
+		p2.x = floor(app->player->pos.x) * 8 + 4 + WIN_WIDTH - lvl->width * 8;
+		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 4;
 
 
 		p2.x -= texture->x / 2;

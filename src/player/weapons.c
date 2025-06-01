@@ -59,6 +59,7 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		if (enemy->subtype == E_PHANTOON)
 		{
 			app->map->boss_active = 0;
+			Mix_PlayChannel(ch_music, app->map->music, -1);
 			toggle_boss_doors(app);
 		}
 	}

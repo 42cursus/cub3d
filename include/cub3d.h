@@ -428,6 +428,7 @@ enum e_snd
 	snd_enemy_shot,
 	snd_music_boss,
 	snd_player_damage,
+	snd_win_music,
 	snd_MAX
 };
 

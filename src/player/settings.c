@@ -49,6 +49,7 @@ void set_audio(t_info *const app)
 	aud->files[snd_enemy_attack2] = "resources/sound/enemy_jump2.wav";
 	aud->files[snd_enemy_shot] = "resources/sound/enemy_damage.wav";
 	aud->files[snd_player_damage] = "resources/sound/samus_damage.wav";
+	aud->files[snd_win_music] = "resources/sound/win_music.wav";
 }
 
 void	set_fov(t_info *app, int fov)
