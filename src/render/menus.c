@@ -35,14 +35,14 @@ void	menu_change_option(t_info *app, int dir)
 			set_framerate(app, app->fr_rate + (5 * dir));
 		if (menu_state->selected == 2)
 			set_sensitivity(app, app->sensitivity + (1 * dir));
-		else if (menu_state->selected == 3)
+		else if (menu_state->selected == 5)
 		{
 			if (menu_state->prev == MAIN)
 				app->timer.active = !app->timer.active;
 		}
-		if (menu_state->selected == 4)
+		if (menu_state->selected == 3)
 			set_sound_volume(app, app->snd_volume + (5 * dir));
-		if (menu_state->selected == 5)
+		if (menu_state->selected == 4)
 			set_music_volume(app, app->mus_volume + (5 * dir));
 	}
 }
@@ -211,7 +211,7 @@ void	draw_menu_items(t_info *app)
 			ft_snprintf(buf3, 40, "time trial  off", app->fr_rate);
 		ft_snprintf(buf5, 40, "sound vol  %d", app->snd_volume);
 		ft_snprintf(buf6, 40, "music vol  %d", app->mus_volume);
-		place_menu((const char *[]){buf, buf2, buf4, buf3, buf5, buf6, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		place_menu((const char *[]){buf, buf2, buf4, buf5, buf6, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 

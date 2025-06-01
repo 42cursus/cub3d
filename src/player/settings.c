@@ -94,13 +94,10 @@ void	set_sound_volume(t_info *app, int volume)
 
 void	set_music_volume(t_info *app, int volume)
 {
-	int	new_volume;
-
 	if (volume < 0)
 		volume = 0;
 	if (volume > 100)
 		volume = 100;
 	app->mus_volume = volume;
-	new_volume = (volume / 100.0) * 128;
-	Mix_Volume(ch_music, new_volume);
+	Mix_Volume(ch_music, volume);
 }
