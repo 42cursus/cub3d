@@ -168,6 +168,7 @@ int get_key_index(KeySym key)
 		XK_Right,
 		XK_Down,
 		XK_Shift_L,
+		XK_h,
 	};
 
 	i = 0;
@@ -387,7 +388,7 @@ int key_press_play(KeySym key, void *param)
 			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
 			spawn_projectile(app, player, app->map, player->equipped); // DEBUGGING. TODO: fixme
-		else if (key == XK_h)
+		else if (key == XK_k)
 			subtract_health(app, player, 10);
 		else if (key == XK_j)
 			add_health(player, 10);

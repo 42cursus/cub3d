@@ -311,16 +311,49 @@ int	count_collectables(t_lvl *map)
 	return (count);
 }
 
-//__attribute__((optnone))
+__attribute__((optnone))
+void draw_help(t_lvl *lvl)
+{
+	t_info *const	app = lvl->app;
+	t_point			p;
+	t_img			*help;
+	int				i;
+
+	static const char *help_msgs[] = {
+		"W, A, S, D => Move forward, left, backward, and right",
+		"left arrow, right arrow => Rotate left and right",
+		"E => Open/close door",
+		"Left Shift => large minimap",
+		"Left Mouse button => shoot",
+		"1, 2, 3 or z => Switch weapons",
+		"Right Mouse button => deselect missile",
+	};
+
+	help = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
+	if (!help)
+		return ;
+	fill_with_colour(help, (int)0xC0000000, (int)0xC0000000);
+
+	p.x = 50;
+	p.y = 50;
+	i = -1;
+	while (++i < (int)(sizeof(help_msgs)/sizeof(help_msgs[0])))
+	{
+		draw_text_freetype(app, help, help_msgs[i], p);
+		p.y += 60;
+	}
+	lvl->help = help;
+}
+
 void draw_large_minimap(t_lvl *lvl)
 {
-	t_info *const app = lvl->app;
-	t_img *minimap = lvl->minimap_xs;
-	t_img *large_minimap;
-	t_img *scaled;
+	t_info	*const app = lvl->app;
+	t_img	*minimap = lvl->minimap_xs;
+	t_img	*large_minimap;
+	t_img	*scaled;
 	t_point p;
 	t_ivect new;
-	double aspect_ratio;
+	double	aspect_ratio;
 
 	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
 
@@ -332,7 +365,7 @@ void draw_large_minimap(t_lvl *lvl)
 	p.x = 50;
 	p.y = large_minimap->height - 50;
 
-	draw_text_freetype(app, large_minimap, "minimap", p);
+	draw_text_freetype(app, large_minimap, "Minimap =>", p);
 
 	new.x = MIN(large_minimap->width, (int)(aspect_ratio * large_minimap->height));
 	new.y = MIN(large_minimap->height, (int)(large_minimap->width / aspect_ratio));
@@ -348,6 +381,26 @@ void draw_large_minimap(t_lvl *lvl)
 	lvl->map_scale_factor.y = (double)new.y / minimap->height;
 	lvl->minimap_xl = large_minimap;
 	mlx_destroy_image(app->mlx, scaled);
+}
+
+void draw_startup_overlay(t_lvl *lvl)
+{
+	t_info *const	app = lvl->app;
+	t_point			p;
+	t_img			*overlay;
+
+	overlay = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
+	if (!overlay)
+		return ;
+	fill_with_colour(overlay, (int)0xFF000000, (int)0xFF000000);
+
+
+	p.x = 350;
+	p.y = 50;
+
+	draw_text_freetype(app, overlay, "[PRESS 'H' FOR HELP]", p);
+
+	lvl->overlay = overlay;
 }
 
 int	parse_cub(t_info *app, char *filename)
@@ -386,6 +439,8 @@ int	parse_cub(t_info *app, char *filename)
 	lvl->minimap_xs = build_minimap(app, tiles);
 
 	draw_large_minimap(lvl);
+	draw_help(lvl);
+	draw_startup_overlay(lvl);
 
 	lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	init_anims(app, lvl);

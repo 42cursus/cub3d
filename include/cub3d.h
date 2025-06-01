@@ -98,10 +98,21 @@ typedef struct s_ivect
 	int	y;
 }	t_ivect;
 
+
+/**
+ * https://www.reddit.com/r/C_Programming/comments/p4rpkm/confused_about_unions_with_multiple_structs/
+ * https://stackoverflow.com/questions/20752149/union-of-structs-with-common-first-member
+ * https://gcc.gnu.org/onlinedocs/gcc/Cast-to-Union.html
+ */
 typedef struct s_ivect3
 {
-	int	x;
-	int	y;
+	union {
+		struct {
+			int x;
+			int y;
+		};
+		t_ivect xy;
+	};
 	int	z;
 }	t_ivect3;
 
@@ -278,6 +289,8 @@ typedef	struct s_data
 	int				outside;
 	t_img			*minimap_xs;
 	t_img			*minimap_xl;
+	t_img			*help;
+	t_img			*overlay;
 	t_vect			map_scale_factor;
 	int				f_col;
 	int				c_col;
@@ -459,16 +472,17 @@ typedef struct s_aud
 
 enum e_type
 {
-	tp_main = 0,
-	tp_MAX
+	fnt_main = 0,
+	fnt_SansMono,
+	fnt_MAX
 };
 
 typedef struct s_typing
 {
 	FT_Library	ft;
 	int 		default_size;
-	const char 	*files[snd_MAX];
-	struct FT_FaceRec_ *faces[1];
+	const char 	*files[fnt_MAX];
+	FT_Face		faces[fnt_MAX];
 }	t_typing;
 
 typedef struct s_info

@@ -20,9 +20,8 @@ void free_fonts(t_info *const app)
 	int 				i;
 
 	i = -1;
-	while (++i < tp_MAX)
+	while (++i < fnt_MAX)
 	{
-
 		face = typing->faces[i];
 		FT_Done_Face(face);
 	}

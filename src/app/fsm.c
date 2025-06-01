@@ -54,6 +54,8 @@ void	destroy_map(t_lvl *map)
 {
 	mlx_destroy_image(map->app->mlx, map->minimap_xs);
 	mlx_destroy_image(map->app->mlx, map->minimap_xl);
+	mlx_destroy_image(map->app->mlx, map->help);
+	mlx_destroy_image(map->app->mlx, map->overlay);
 	if (map->texs[T_CEILING])
 		mlx_destroy_image(map->app->mlx, map->texs[T_CEILING]);
 	if (map->texs[T_FLOOR])

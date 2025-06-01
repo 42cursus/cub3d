@@ -258,14 +258,18 @@ void	place_items_minimap(t_info *app, t_lvl *lvl, t_img *img)
 {
 	t_list		*current;
 	t_object	*curr_obj;
+	t_ivect3	pos_scalar;
 
 	current = lvl->triggers;
+	pos_scalar.z = 1;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
 		if (curr_obj->type == O_TELE)
 		{
-			place_char_img('t', img, app, (t_ivect3){(int)curr_obj->pos.x * 8, (lvl->height - (int)curr_obj->pos.y - 1) * 8 + 1, 1});
+			pos_scalar.x = (int)curr_obj->pos.x * 8;
+			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * 8 + 1;
+			place_char_img('t', img, app, pos_scalar);
 		}
 		current = current->next;
 	}
@@ -322,6 +326,36 @@ t_img	*build_minimap(t_info *app, t_img *tiles[])
 // 		current = current->next;
 // 	}
 // }
+
+void	place_startup_overlay(t_info *app)
+{
+	t_point			p1;
+	t_lvl *const	lvl = app->map;
+	t_img *const	overlay = lvl->overlay;
+	t_img *const	canvas = app->canvas;
+
+	if (app->fr_count < 500)
+	{
+		p1.x = WIN_WIDTH / 2 - overlay->width / 2;
+		p1.y = WIN_HEIGHT / 2 - overlay->height / 2;
+		place_tile_on_image32_alpha(canvas, overlay, p1);
+	}
+}
+
+void	place_help(t_info *app)
+{
+	t_point			p1;
+	t_lvl *const	lvl = app->map;
+	t_img *const	help = lvl->help;
+	t_img *const	canvas = app->canvas;
+
+	if (app->keys[get_key_index(XK_h)])
+	{
+		p1.x = WIN_WIDTH / 2 - help->width / 2;
+		p1.y = WIN_HEIGHT / 2 - help->height / 2;
+		place_tile_on_image32_alpha(canvas, help, p1);
+	}
+}
 
 void	place_mmap(t_info *app)
 {
@@ -542,31 +576,31 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 {
-	int	i;
-	int	pos_x;
-	int	pos_y;
-	int	start_x;
-	int	width;
-
+	int			i;
+	int			start_x;
+	int			width;
+	t_ivect3	pos3;
 
 	width = (int)ft_strlen(str) * 8 * scalar;
 	start_x = pos.x - width / 2;
-	pos_x = start_x;
-	pos_y = pos.y;
+	pos.x = start_x;
+	pos.y = pos.y;
+	pos3.z = scalar;
 	i = 0;
 	while (str[i])
 	{
+		pos3.xy = pos;
 		if (!ft_strncmp(str, "time trial", 10) && app->menu_state.prev == PAUSE)
-			place_char_alpha(str[i], app, (t_ivect3){pos_x, pos_y, scalar}, 127);
+			place_char_alpha(str[i], app, pos3, 127);
 		else
-			place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+			place_char(str[i], app, pos, scalar);
 		if (str[i++] == '\n')
 		{
-			pos_y += 8 * scalar;
-			pos_x = start_x;
+			pos.y += 8 * scalar;
+			pos.x = start_x;
 			continue ;
 		}
-		pos_x += 8 * scalar;
+		pos.x += 8 * scalar;
 	}
 }
 
@@ -775,7 +809,9 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 
 void	draw_hud(t_info *app)
 {
+	place_startup_overlay(app);
 	place_mmap(app);
+	place_help(app);
 	if (!app->ads)
 	{
 		place_weapon(app);

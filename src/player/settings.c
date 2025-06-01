@@ -25,9 +25,9 @@ void set_fonts(t_info *const app)
 {
 	t_typing *const	typing = &app->typ;
 
-	typing->default_size = 20;
-	//typing->files[tp_main] = "/usr/share/fonts/truetype/ubuntu/UbuntuMono-R.ttf";
-	typing->files[tp_main] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
+	typing->default_size = 50;
+	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
+	typing->files[fnt_SansMono] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
 
 void set_audio(t_info *const app)
@@ -91,7 +91,7 @@ void	set_sound_volume(t_info *app, int volume)
 	if (volume > 100)
 		volume = 100;
 	app->snd_volume = volume;
-	new_volume = (volume / 100.0) * 128;
+	new_volume = (int)((volume / 100.0) * 128 + 0.5);
 	i = 1;
 	while (i < MIX_CHANNELS)
 		Mix_Volume(i++, new_volume);

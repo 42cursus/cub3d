@@ -14,41 +14,32 @@
 
 void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c)
 {
-	int			col;
-	int			row;
+	t_ivect		i;
 	t_point		p;
 	FT_Bitmap	*bmp;
 	double		alpha_frac;
+	FT_Face		face = app->typ.faces[fnt_main];
 
-	t_typing *const	typing = &app->typ;
-	FT_Face	face = typing->faces[tp_main];
-
-	FT_Set_Pixel_Sizes(face, 0, typing->default_size);
-
-	int pen_x = c.x;
-	const char *str = text;
-	while(*str)
+	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
+	while(*text)
 	{
-		if (FT_Load_Char(face, *str, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *text, FT_LOAD_RENDER))
 			continue;
-
 		bmp = &face->glyph->bitmap;
-		row = -1;
-		while (++row < (int)bmp->rows)
+		i.y = -1;
+		while (++i.y < (int)bmp->rows)
 		{
-			col = -1;
-			while (++col < (int)bmp->width)
+			i.x = -1;
+			while (++i.x < (int)bmp->width)
 			{
-				alpha_frac = 1.0f - bmp->buffer[row * bmp->pitch + col] / 255.0;
-
-				p.x = pen_x + face->glyph->bitmap_left + col;
-				p.y = c.y - face->glyph->bitmap_top + row;
-
+				alpha_frac = 1.0f - bmp->buffer[i.y * bmp->pitch + i.x] / 255.0;
+				p.x = c.x + face->glyph->bitmap_left + i.x;
+				p.y = c.y - face->glyph->bitmap_top + i.y;
 				if (alpha_frac != 1)
 					put_pixel_alpha(img, p, 0xCCFFFF, alpha_frac);
 			}
 		}
-		pen_x += face->glyph->advance.x >> 6;
-		str++;
+		c.x += face->glyph->advance.x >> 6;
+		text++;
 	}
 }
