@@ -481,9 +481,7 @@ void	do_play_to_load(void *param)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	app->fr_count = 0;
 	app->map->starting_pos = app->player->tele_pos;
-	move_entity(&app->map->starting_pos, app->map, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
-	// app->map->starting_pos = add_vect(app->player->pos, scale_vect(subtract_vect(app->player->pos, app->player->tele_pos), 2));
-	// app->map->starting_dir = normalise_vect(subtract_vect(app->player->tele_pos, app->player->pos));
+	move_entity(&app->map->starting_pos, app->map, subtract_vect(app->player->pos, app->player->tele_pos));
 	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);
 	refresh_map(app, app->map);
 	app->map = get_cached_lvl(app, next_lvl);
