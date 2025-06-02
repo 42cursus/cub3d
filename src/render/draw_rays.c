@@ -23,15 +23,15 @@
 // 	*dst_pixel = (colour & mask) | (*dst_pixel & ~mask);
 // }
 
-#define FIXED_SHIFT 16
+#define FIXED_SHIFT 32
 
 static inline __attribute__((always_inline, used))
 void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars start)
 {
 	u_int			colour;
 	u_int32_t		mask;
-	const int		step = (ray->texture->y << FIXED_SHIFT) / start.line_height;
-	int				tex_y_fp;
+	const long		step = ((long)ray->texture->y << FIXED_SHIFT) / start.line_height;
+	long			tex_y_fp;
 	u_int			*dst_px;
 	u_int32_t		*const tex_data = ray->texture->data + ((int)ray->pos * ray->texture->x);
 	u_int32_t		*const dst_data = (u_int32_t *) canvas->data;
@@ -141,12 +141,12 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	}
 	line_vars.line_height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line_vars.top = WIN_HEIGHT / 2 - line_vars.line_height / 2;
-	if (line_vars.line_height > WIN_HEIGHT)
-		handle_slice_drawing(pos, ray, canvas, line_vars);
-	else
-		handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
-//	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
-//	handle_slice_drawing(pos, ray, canvas, line_vars);
+	// if (line_vars.line_height > WIN_HEIGHT)
+	// 	handle_slice_drawing(pos, ray, canvas, line_vars);
+	// else
+	// 	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
+	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
+	// handle_slice_drawing(pos, ray, canvas, line_vars);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }
