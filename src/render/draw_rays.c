@@ -32,33 +32,34 @@ void	slice_draw_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars start
 	u_int32_t		mask;
 	const long		step = ((long)ray->texture->y << FIXED_SHIFT) / start.lheight;
 	long			tex_y_fp;
-	u_int			*dst_px;
 	u_int32_t		*const tex_data = ray->texture->data + ((int)ray->pos * ray->texture->x);
-	u_int32_t		*const dst_data = (u_int32_t *) canvas->data;
-	t_point			i;
+	u_int32_t		*const dst_data = (u_int32_t *)canvas->data;
+	int				row;
 	int				screen_y;
 	const u_int32_t modifier = ((u_int32_t[]){0, MLX_RED})[ray->damaged];
+	const int		row_stride = canvas->width;
 
-	i.x = draw_pos.y - 1;
+	row = draw_pos.y - 1;
 	tex_y_fp = 0;
 	screen_y = start.top + draw_pos.y;
 	if (screen_y < 0)
 	{
-		i.x = 0 - screen_y;
-		tex_y_fp = i.x * step;
+		row = 0 - screen_y;
+		tex_y_fp = row * step;
 		screen_y = 0;
 	}
-	while (++i.x < start.lheight && screen_y < WIN_HEIGHT)
+	u_int32_t		*dst_px = dst_data + screen_y * row_stride + draw_pos.x;
+	while (++row < start.lheight && screen_y < WIN_HEIGHT)
 	{
-		i.y = (int)(tex_y_fp >> FIXED_SHIFT);
-		colour = tex_data[i.y];
+		colour = tex_data[(int)(tex_y_fp >> FIXED_SHIFT)];
 		mask = -(colour != XPM_TRANSPARENT);
 //		colour = ((colour & 0x0000FFFF) + modifier);
 		colour |= modifier;
 		dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
 		*dst_px = (colour & mask) | (*dst_px & ~mask);
+//		dst_px += row_stride;
 		tex_y_fp += step;
-		screen_y = start.top + i.x;
+		screen_y = start.top + row;
 	}
 }
 
