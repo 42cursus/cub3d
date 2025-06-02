@@ -43,8 +43,8 @@ void	handle_slice_drawing_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_l
 	screen_y = start.top + draw_pos.y;
 	if (screen_y < 0)
 	{
-		tex_y_fp = (0 - screen_y) * step;
 		i.x = 0 - screen_y;
+		tex_y_fp = i.x * step;
 		screen_y = 0;
 	}
 	if (ray->damaged)
@@ -141,11 +141,11 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	}
 	line_vars.line_height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line_vars.top = WIN_HEIGHT / 2 - line_vars.line_height / 2;
-	// if (line_vars.line_height > WIN_HEIGHT)
-	// 	handle_slice_drawing(pos, ray, canvas, line_vars);
-	// else
-	// 	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
-	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
+	 if (line_vars.line_height > WIN_HEIGHT)
+	 	handle_slice_drawing(pos, ray, canvas, line_vars);
+	 else
+	 	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
+//	handle_slice_drawing_fixed(pos, ray, canvas, line_vars);
 	// handle_slice_drawing(pos, ray, canvas, line_vars);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
