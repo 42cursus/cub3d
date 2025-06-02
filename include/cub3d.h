@@ -96,15 +96,13 @@ typedef struct s_ivect
 {
 	int	x;
 	int	y;
-
 }	t_ivect;
 
 typedef	struct s_lvars
 {
-	int line_height;
+	int lheight;
 	int	top;
 }	t_lvars;
-
 
 /**
  * https://www.reddit.com/r/C_Programming/comments/p4rpkm/confused_about_unions_with_multiple_structs/
@@ -576,6 +574,8 @@ typedef struct s_colour
 #endif
 	};
 }	t_colour;
+
+typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 
