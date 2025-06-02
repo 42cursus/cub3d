@@ -192,8 +192,8 @@ int	render_intro(void *param)
 	size_t				time;
 	t_info *const		app = param;
 
-	place_str_centred((char *)	"INTRO", app, (t_ivect){WIN_WIDTH / 2, 400}, 5);
-	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 470}, 3);
+	place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
+	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);

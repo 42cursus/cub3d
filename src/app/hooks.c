@@ -190,8 +190,11 @@ int key_press_intro(KeySym key, void *param)
 	t_info *const	app = param;
 
 	if (key == XK_Up || key == XK_Down)
-	{
 		app->keys[get_key_index(key)] = true;
+	else if (key == XK_F11)
+	{
+		app->fullscreen = !app->fullscreen;
+		toggle_fullscreen(app);
 	}
 	else
 	{
@@ -367,7 +370,7 @@ int key_press_play(KeySym key, void *param)
 		}
 		else if (key == XK_2)
 		{
-			if (player->ammo[2])
+			if (player->ammo[1])
 				player->equipped = 1;
 		}
 		else if (key == XK_3)
