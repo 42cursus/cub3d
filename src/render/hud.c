@@ -458,14 +458,17 @@ void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
 	u_int32_t		mask;
 	t_img *const	canvas = app->canvas;
 
+	int new_x = tex->x * scalar;
+	int new_y = tex->y * scalar;
+
 	step = 1.0 / scalar;
 	i.y = -1;
-	while (++i.y < tex->y)
+	while (++i.y < new_y)
 	{
-		src_row = tex->data + (int)(i.y * step + 0.5);
+		src_row = tex->data + (int)(i.y * step + 0.5) * tex->x;
 		dst_row = (u_int32_t *) canvas->data + ((i.y + pos.y) * canvas->width) + pos.x;
 		i.x = -1;
-		while (++i.x < tex->x)
+		while (++i.x < new_x)
 		{
 			mask = -(src_row[(int)(i.x * step + 0.5)] != XPM_TRANSPARENT);
 			dst_row[i.x] = (src_row[(int)(i.x * step)] & mask) | (dst_row[i.x] & ~mask);

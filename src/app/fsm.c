@@ -109,7 +109,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
-	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
+	replace_image(app, &app->bg, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 	toggle_fullscreen(app);
@@ -294,6 +294,7 @@ void do_initial_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -315,6 +316,7 @@ void do_initial_to_intro(void *param)
 {
 	t_info *const app = param;
 
+	replace_image(app, &app->bg, NULL);
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_intro, app);
@@ -331,6 +333,7 @@ void do_intro_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
+	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
