@@ -130,6 +130,23 @@ t_ret_code do_state_intro(void *param)
 	return (ok);
 }
 
+//t_info *const	app = param;
+//t_aud *const	aud = &app->audio;
+//int				old_fps;
+//
+//app->old_fov = app->fov_deg;
+//old_fps = app->fr_rate;
+//set_fov(app, 70);
+//set_framerate(app, 30);
+//calculate_credits_offset(app, app->dummy);
+//mlx_mouse_hide(app->mlx, app->win);
+//app->fr_last = get_time_us();
+//mlx_loop(app->mlx);
+//set_fov(app, app->old_fov);
+//set_framerate(app, old_fps);
+//mlx_mouse_show(app->mlx, app->win);
+
+
 t_ret_code do_state_mmenu(void *param)
 {
 	t_info *const app = param;

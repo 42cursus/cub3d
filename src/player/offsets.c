@@ -20,20 +20,19 @@ void	calculate_offsets(t_info *app, t_player *player)
 	double			distance;
 	double			scalar;
 
-	i = 0;
-	while (i < WIN_WIDTH / 2)
+	i = -1;
+	while (++i < WIN_WIDTH / 2)
 	{
 		angle = atan(app->fov_opp_len - (i * offset));
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
-		i++;
 	}
 	scalar = get_hyp_len(app->fov_opp_len, 1);
-	i = 0;
-	while (i < WIN_HEIGHT / 2)
+	i = -1;
+	while (++i < WIN_HEIGHT / 2)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
-		player->offsets[i++] = distance * scalar;
+		player->offsets[i] = distance * scalar;
 	}
 }
 
@@ -44,10 +43,10 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy)
 	double	scalar;
 
 	scalar = get_hyp_len(app->fov_opp_len, 1);
-	i = 0;
-	while (i < WIN_HEIGHT)
+	i = -1;
+	while (++i < WIN_HEIGHT)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
-		dummy->credits_offsets[i++] = distance * scalar;
+		dummy->credits_offsets[i] = distance * scalar;
 	}
 }

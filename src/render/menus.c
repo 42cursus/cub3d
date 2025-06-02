@@ -41,9 +41,9 @@ void	menu_change_option(t_info *app, int dir)
 				app->timer.active = !app->timer.active;
 		}
 		if (menu_state->selected == 3)
-			set_sound_volume(app, app->snd_volume + (5 * dir));
+			set_sound_volume(app, app->audio.snd_volume + (5 * dir));
 		if (menu_state->selected == 4)
-			set_music_volume(app, app->mus_volume + (5 * dir));
+			set_music_volume(app, app->audio.mus_volume + (5 * dir));
 	}
 }
 
@@ -209,8 +209,8 @@ void	draw_menu_items(t_info *app)
 			ft_snprintf(buf3, 40, "time trial  on", app->fr_rate);
 		else
 			ft_snprintf(buf3, 40, "time trial  off", app->fr_rate);
-		ft_snprintf(buf5, 40, "sound vol  %d", app->snd_volume);
-		ft_snprintf(buf6, 40, "music vol  %d", app->mus_volume);
+		ft_snprintf(buf5, 40, "sound vol  %d", app->audio.snd_volume);
+		ft_snprintf(buf6, 40, "music vol  %d", app->audio.mus_volume);
 		place_menu((const char *[]){buf, buf2, buf4, buf5, buf6, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }

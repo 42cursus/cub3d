@@ -34,7 +34,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
 
@@ -45,7 +45,7 @@ ifeq ($(UNAME_M),x86_64)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
 	endif
 	ifeq ($(UNAME_R), 5.15.0-139-generic)
-		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
 	else
 		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080
 	endif

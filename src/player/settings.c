@@ -27,6 +27,7 @@ void set_fonts(t_info *const app)
 
 	typing->default_size = 50;
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
+//	typing->files[fnt_main] = "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
 	typing->files[fnt_SansMono] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
 
@@ -35,9 +36,9 @@ void set_audio(t_info *const app)
 	t_aud	*aud = &app->audio;
 
 	app->audio.frequency = 44100;
-	app->audio.no_channels = 2;
+	app->audio.nchannels = 2;
 	app->audio.chunk_size = 2048;
-	app->audio.format = MIX_DEFAULT_FORMAT; // AUDIO_S16LSB
+	app->audio.format = MIX_DEFAULT_FORMAT;
 
 	aud->files[snd_door] = "resources/sound/cockchafer-gentleman-1.wav";
 	aud->files[snd_gun] = "resources/sound/beam_shot.wav";
@@ -90,7 +91,7 @@ void	set_sound_volume(t_info *app, int volume)
 		volume = 0;
 	if (volume > 100)
 		volume = 100;
-	app->snd_volume = volume;
+	app->audio.snd_volume = volume;
 	new_volume = (int)((volume / 100.0) * 128 + 0.5);
 	i = 1;
 	while (i < MIX_CHANNELS)
@@ -103,6 +104,6 @@ void	set_music_volume(t_info *app, int volume)
 		volume = 0;
 	if (volume > 100)
 		volume = 100;
-	app->mus_volume = volume;
+	app->audio.mus_volume = volume;
 	Mix_Volume(ch_music, volume);
 }

@@ -96,7 +96,14 @@ typedef struct s_ivect
 {
 	int	x;
 	int	y;
+
 }	t_ivect;
+
+typedef	struct s_lvars
+{
+	int line_height;
+	int	top;
+}	t_lvars;
 
 
 /**
@@ -460,12 +467,22 @@ enum e_channel
 	ch_MAX = MIX_CHANNELS
 };
 
+/**
+ * frequency: DSP frequency -- samples per second
+ * format: Audio data format. MIX_DEFAULT_FORMAT == AUDIO_S16LSB
+ * nchannels: Number of channels: 1 mono, 2 stereo
+ * chunk_size: Audio buffer size in sample FRAMES (total samples divided by channel count)
+ *
+ * For more: see `struct SDL_AudioSpec`
+ */
 typedef struct s_aud
 {
 	int			frequency;
-	u_int16_t	format; // MIX_DEFAULT_FORMAT == AUDIO_S16LSB
-	int			no_channels;
+	u_int16_t	format;
+	int			nchannels;
 	int			chunk_size;
+	int			snd_volume;
+	int			mus_volume;
 	const char 	*files[snd_MAX];
 	Mix_Chunk	*chunks[snd_MAX];
 }	t_aud;
@@ -530,8 +547,6 @@ typedef struct s_info
 	t_timer		timer;
 	t_dummy		*dummy;
 	int			sensitivity;
-	int			snd_volume;
-	int			mus_volume;
 }	t_info;
 
 typedef struct s_colour

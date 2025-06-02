@@ -40,7 +40,7 @@ int	init_audio(t_info *const app)
 		exit((cleanup(app), EXIT_FAILURE));
 	}
 
-	err = Mix_OpenAudio(aud->frequency, aud->format, aud->no_channels, aud->chunk_size);
+	err = Mix_OpenAudio(aud->frequency, aud->format, aud->nchannels, aud->chunk_size);
 	if (err < 0)
 	{
 		ft_dprintf(STDERR_FILENO, "Mix_OpenAudio error: %s\n", Mix_GetError());
