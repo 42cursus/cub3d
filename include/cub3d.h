@@ -94,11 +94,29 @@ typedef struct s_vect
 	double	y;
 }	t_vect;
 
+typedef struct s_tstep
+{
+	double	step;
+	double	tex_y;
+}	t_tstep;
+
 typedef struct s_ivect
 {
 	int	x;
 	int	y;
 }	t_ivect;
+
+typedef struct s_cdata
+{
+	int	*src;
+	int	*dst;
+}	t_cdata;
+
+typedef struct s_dmask
+{
+	int	diff;
+	int	mask;
+}	t_dmask;
 
 typedef struct s_mcol
 {
@@ -106,6 +124,18 @@ typedef struct s_mcol
 	u_int32_t	mask;
 	double		frac;
 }	t_mcol;
+
+typedef struct s_m128i
+{
+	__m128i	tex_vec;
+	__m128i	dst_vec;
+	__m128i	mask;
+	__m128i	blend;
+	struct {
+		int colour;
+		u_int overlay;
+	};
+}	t_m128i;
 
 typedef struct s_imask
 {

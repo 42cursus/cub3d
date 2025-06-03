@@ -120,36 +120,33 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 	}
 }
 
-static inline __attribute__((always_inline, unused))
-void	slice_drawing_float_v2(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars line)
+static inline __attribute__((always_inline))
+void	slice_drawing_avx2(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
 {
-	t_ctex	*texture = ray->tex;
-	t_mcol	mc;
-	t_point	i;
-	u_int	*dst_px;
-	u_int	*tex_data = texture->data + (texture->x * (int) ray->pos);
+	const t_dmask	dm = {line.top + pos.y, (line.top + pos.y) >> 31};
+	t_iter			it;
+	t_tstep			ts;
+	t_m128i			mc;
+	t_cdata			cd;
 
-	i.x = draw_pos.y - 1;
-	double tex_y = 0;
-	int screen_y = line.top + draw_pos.y;
-	double step = (double)texture->y / line.height;
-
-	if (screen_y < 0)
+	mc.overlay = ((u_int[]){0, MLX_RED})[ray->damaged];
+	cd.src = (int *)ray->tex->data + (ray->tex->x * (int)ray->pos);
+	it.i = ((~dm.mask) & (pos.y - 1)) | (dm.mask & (-dm.diff));
+	it.j = dm.diff & ~dm.mask;
+	ts.step = (double)ray->tex->y / line.height;
+	ts.tex_y = ts.step * it.i * (dm.diff < 0);
+	cd.dst = (int *)cnvs->data + it.j * cnvs->width + pos.x;
+	while (++it.i < line.height && it.j < WIN_HEIGHT)
 	{
-		i.x = 0 - screen_y;
-		tex_y = step * i.x;
-		screen_y = 0;
-	}
-	dst_px = (u_int *)canvas->data + screen_y * canvas->width + draw_pos.x;
-	while (++i.x < line.height && screen_y < WIN_HEIGHT)
-	{
-		mc.colour = tex_data[(int)tex_y];
-		mc.mask = -(mc.colour != XPM_TRANSPARENT);
-		mc.colour |= ((u_int[]) {0, MLX_RED})[ray->damaged];
-		*dst_px = (mc.colour & mc.mask) | (*dst_px & ~mc.mask);
-		dst_px += canvas->width;
-		tex_y += step;
-		screen_y = line.top + i.x;
+		mc.colour = cd.src[(int)ts.tex_y];
+		mc.tex_vec = _mm_set1_epi32(mc.colour | mc.overlay);
+		mc.dst_vec = _mm_set1_epi32(*cd.dst);
+		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
+		mc.blend = _mm_blendv_epi8(mc.dst_vec, mc.tex_vec, mc.mask);
+		*cd.dst = _mm_cvtsi128_si32(mc.blend);
+		cd.dst += cnvs->width;
+		ts.tex_y += ts.step;
+		it.j = line.top + it.i;
 	}
 }
 
@@ -183,7 +180,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 //		slice_draw_fixed(pos, ray, canvas, line);
 //	fns[line.height > WIN_HEIGHT](pos, ray, canvas, line);
 //	slice_draw_fixed_old(pos, ray, canvas, line);
-	slice_drawing_float_v2(pos, ray, canvas, line);
+	slice_drawing_avx2(pos, ray, canvas, line);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }

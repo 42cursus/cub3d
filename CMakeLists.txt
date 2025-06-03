@@ -23,9 +23,8 @@ set(FT_CFLAGS
         -Wall -Wextra -Werror
         -Wwrite-strings
         -Wimplicit
-        -mavx
-        -mavx2
-        -ffast-math
+        -march=native
+        -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer
         -mprefer-vector-width=256
 #        -Wformat -Werror=format-security
 #        -Wstrict-prototypes
@@ -34,8 +33,7 @@ set(FT_CFLAGS
         -fstack-protector-strong
         -Wno-error=unused-parameter
         -Wno-error=unused-variable
-        -Ofast
-        -pg
+#        -pg
         -masm=att
         -g3 -gdwarf-3
 #        -fasynchronous-unwind-tables
