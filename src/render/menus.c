@@ -135,7 +135,11 @@ void	menu_select_current(t_info *app)
 	else if (menu_state->state == WIN || menu_state->state == LOSE)
 	{
 		if (menu_state->selected == 0)
+		{
 			app->rc = ok;
+			if (app->current_level == 0)
+				app->rc = extra;
+		}
 		if (menu_state->selected == 1)
 			app->rc = repeat;
 		if (menu_state->selected == 2)
@@ -203,12 +207,12 @@ void	draw_menu_items(t_info *app)
 	if (menu_state->state == OPTIONS)
 	{
 		ft_snprintf(buf, 40, "fov  %d", app->fov_deg);
-		ft_snprintf(buf2, 40, "fps cap  %d", app->fr_rate);
+		ft_snprintf(buf2, 40, "fps cap  %d", (int)app->fr_rate);
 		ft_snprintf(buf4, 40, "sensitivity  %d", app->sensitivity);
 		if (app->timer.active == 1)
-			ft_snprintf(buf3, 40, "time trial  on", app->fr_rate);
+			ft_snprintf(buf3, 40, "time trial  on");
 		else
-			ft_snprintf(buf3, 40, "time trial  off", app->fr_rate);
+			ft_snprintf(buf3, 40, "time trial  off");
 		ft_snprintf(buf5, 40, "sound vol  %d", app->audio.snd_volume);
 		ft_snprintf(buf6, 40, "music vol  %d", app->audio.mus_volume);
 		place_menu((const char *[]){buf, buf2, buf4, buf5, buf6, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
