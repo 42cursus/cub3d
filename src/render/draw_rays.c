@@ -25,41 +25,44 @@
 
 #define FIXED_SHIFT 32
 
-static inline __attribute__((always_inline, used))
+static inline __attribute__((always_inline))
+t_var3	adjust_values(t_ivect draw_pos, t_lvars start, t_lvect *var)
+{
+	const int	dy = start.top + draw_pos.y;
+	const int	adjust = -dy & dy >> 31;
+	const int	row = draw_pos.y - 1 + adjust;
+	int			max_rows;
+	int			diff;
+
+	var->y = var->x * adjust;
+	max_rows = WIN_HEIGHT - (dy + adjust);
+	diff = start.lheight - max_rows;
+	max_rows += diff & diff >> 31;
+	max_rows += row;
+	return ((t_var3){row, dy + adjust, max_rows});
+}
+
+static inline __attribute__((always_inline))
 void	slice_draw_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars start)
 {
-	u_int			colour;
-	u_int32_t		mask;
-	const long		step = ((long)ray->texture->y << FIXED_SHIFT) / start.lheight;
-	long			tex_y_fp;
-	u_int32_t		*const tex_data = ray->texture->data + ((int)ray->pos * ray->texture->x);
-	u_int32_t		*const dst_data = (u_int32_t *)canvas->data;
-	int				row;
-	int				screen_y;
-	const u_int32_t modifier = ((u_int32_t[]){0, MLX_RED})[ray->damaged];
-	const int		row_stride = canvas->width;
+	t_var3		v3;
+	t_mcol		mc;
+	t_lvect		var;
+	u_int32_t	*dst_px;
+	t_texture	*texture = ray->texture;
+	u_int32_t	*const tex_data = texture->data + ((int)ray->pos * texture->x);
 
-	row = draw_pos.y - 1;
-	tex_y_fp = 0;
-	screen_y = start.top + draw_pos.y;
-	if (screen_y < 0)
+	var.x = ((long)texture->y << FIXED_SHIFT) / start.lheight;
+	v3 = adjust_values(draw_pos, start, &var);
+	dst_px = (u_int32_t *) canvas->data + v3.screen_y * canvas->width + draw_pos.x;
+	while (++v3.row < v3.max_rows)
 	{
-		row = 0 - screen_y;
-		tex_y_fp = row * step;
-		screen_y = 0;
-	}
-	u_int32_t		*dst_px = dst_data + screen_y * row_stride + draw_pos.x;
-	while (++row < start.lheight && screen_y < WIN_HEIGHT)
-	{
-		colour = tex_data[(int)(tex_y_fp >> FIXED_SHIFT)];
-		mask = -(colour != XPM_TRANSPARENT);
-//		colour = ((colour & 0x0000FFFF) + modifier);
-		colour |= modifier;
-		dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
-		*dst_px = (colour & mask) | (*dst_px & ~mask);
-//		dst_px += row_stride;
-		tex_y_fp += step;
-		screen_y = start.top + row;
+		mc.colour = tex_data[(int)(var.y >> FIXED_SHIFT)];
+		mc.mask = -(mc.colour != XPM_TRANSPARENT);
+		mc.colour |= ((u_int32_t[]) {0, MLX_RED})[ray->damaged];
+		*dst_px = (mc.colour & mc.mask) | (*dst_px & ~mc.mask);
+		dst_px += canvas->width;
+		var.y += var.x;
 	}
 }
 
@@ -69,8 +72,7 @@ void	slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars lvars)
 	const double	fract = ray->pos;
 	const t_texture	*texture = ray->texture;
 	double			tex_y;
-	u_int32_t		mask;
-	u_int			colour;
+	t_mcol			mc;
 	u_int			*dst_px;
 	u_int32_t		*tex_data = texture->data + (texture->x * (int)fract);
 	u_int32_t		*dst_data = (u_int32_t *)canvas->data;
@@ -83,13 +85,13 @@ void	slice_drawing(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars lvars)
 	while (draw_pos.y < lvars.lheight && draw_pos.y + lvars.top < WIN_HEIGHT)
 	{
 		tex_y = ((double) draw_pos.y / lvars.lheight) * texture->y;
-		colour = tex_data[(int) tex_y];
-		mask = -(colour != XPM_TRANSPARENT);
+		mc.colour = tex_data[(int) tex_y];
+		mc.mask = -(mc.colour != XPM_TRANSPARENT);
 //		colour = ((colour & 0x0000FFFF) + MLX_RED);
 //		colour = ((colour & 0x0000FFFF) + modifier);
-		colour |= modifier;
+		mc.colour |= modifier;
 		dst_px = &dst_data[(lvars.top + draw_pos.y) * canvas->width + draw_pos.x];
-		*dst_px = (colour & mask) | (*dst_px & ~mask);
+		*dst_px = (mc.colour & mc.mask) | (*dst_px & ~mc.mask);
 		draw_pos.y++;
 	}
 }
@@ -99,7 +101,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	t_anim				*anim;
 	t_ivect				pos;
 	t_lvars				lvars;
-	static t_sldraw_f	fns[2] = {&slice_draw_fixed, &slice_drawing };
+//	static t_sldraw_f	fns[2] = {&slice_draw_fixed, &slice_drawing };
 
 	pos.x = x;
 	pos.y = 0;
@@ -121,7 +123,9 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 //		slice_drawing(pos, ray, canvas, lvars);
 //	else
 //		slice_draw_fixed(pos, ray, canvas, lvars);
-	fns[lvars.lheight > WIN_HEIGHT](pos, ray, canvas, lvars);
+//	fns[lvars.lheight > WIN_HEIGHT](pos, ray, canvas, lvars);
+	slice_draw_fixed(pos, ray, canvas, lvars);
+//	slice_drawing(pos, ray, canvas, lvars);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }

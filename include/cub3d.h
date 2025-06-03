@@ -98,6 +98,19 @@ typedef struct s_ivect
 	int	y;
 }	t_ivect;
 
+typedef struct s_mcol
+{
+	u_int32_t	colour;
+	u_int32_t	mask;
+	double		frac;
+}	t_mcol;
+
+typedef struct s_lvect
+{
+	long	x;
+	long	y;
+}	t_lvect;
+
 typedef	struct s_lvars
 {
 	int lheight;
@@ -120,6 +133,13 @@ typedef struct s_ivect3
 	};
 	int	z;
 }	t_ivect3;
+
+typedef struct s_var3
+{
+	int row;
+	int screen_y;
+	int	max_rows;
+}	t_var3;
 
 typedef struct s_ivect	t_point;
 
@@ -578,6 +598,7 @@ typedef struct s_colour
 typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
+# define CHAR_WIDTH 8
 
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y);

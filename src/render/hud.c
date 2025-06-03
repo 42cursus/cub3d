@@ -173,8 +173,7 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 	int		start_x;
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	u_int32_t	mask;
+	t_mcol		mc;
 	const int char_width = 8;
 
 	if (!ft_isprint(c) || scalar < 1)
@@ -189,9 +188,9 @@ void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 		j = -1;
 		while (++j < char_width * scalar)
 		{
-			src_pixel = src_row[j / scalar];
-			mask = -(src_pixel != XPM_TRANSPARENT);
-			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			mc.colour = src_row[j / scalar];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[j] = (mc.colour & mc.mask) | (dst_row[j] & ~mc.mask);
 		}
 	}
 }
@@ -200,40 +199,36 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 pos, int alpha)
 {
 	t_img *const	canvas = app->canvas;
 	t_img *const	alphabet = app->shtex->alphabet;
-	int		i;
-	int		j;
-	int		start_x;
+	t_ivect	it;
+
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	mask;
-	const int char_width = 8;
+	t_mcol		mc;
 
 	if (!ft_isprint(c) || pos.z < 1)
 		return ;
-	start_x = (c - ' ') * char_width;
+	int start_x = (c - ' ') * CHAR_WIDTH;
 
-	i = -1;
-	while (++i < char_width * pos.z)
+	it.y = -1;
+	while (++it.y < CHAR_WIDTH * pos.z)
 	{
-		src_row = (u_int32_t *)alphabet->data + ((i / pos.z) * alphabet->width) + start_x;
-		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
-		j = -1;
-		while (++j < char_width * pos.z)
+		src_row = (u_int32_t *)alphabet->data + ((it.y / pos.z) * alphabet->width) + start_x;
+		dst_row = (u_int32_t *)canvas->data + ((it.y + pos.y) * canvas->width) + pos.x;
+		it.x = -1;
+		while (++it.x < CHAR_WIDTH * pos.z)
 		{
-			t_colour col1 = *(t_colour *) &src_row[j / pos.z];
-			t_colour col2 = *(t_colour *) &dst_row[j];
-			t_colour out;
-			const double frac = alpha / 255.0;
-
-			out = col1;
-			if (col1.raw != col2.raw)
+			mc.colour = src_row[it.x / pos.z];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			t_colour src = *(t_colour *) &mc.colour;
+			t_colour dst = *(t_colour *) &dst_row[it.x];
+			mc.frac = alpha / 255.0;
+			if (src.raw != dst.raw)
 			{
-				out.r = ((col2.r - col1.r) * frac) + col1.r + 0.5;
-				out.g = ((col2.g - col1.g) * frac) + col1.g + 0.5;
-				out.b = ((col2.b - col1.b) * frac) + col1.b + 0.5;
+				src.r = ((dst.r - src.r) * mc.frac) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * mc.frac) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * mc.frac) + src.b + 0.5;
 			}
-			mask = -(src_row[j / pos.z]!= XPM_TRANSPARENT);
-			dst_row[j] = (out.raw & mask) | (dst_row[j] & ~mask);
+			dst_row[it.x] = (src.raw & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
 	}
 }

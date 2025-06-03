@@ -38,22 +38,22 @@ set(FT_CFLAGS
         -pg
         -masm=att
         -g3 -gdwarf-3
-        -fasynchronous-unwind-tables
-        -fno-omit-frame-pointer
-        -fsanitize=address
-        -fsanitize=undefined
-        -fno-sanitize-recover=all
-        -fsanitize=float-divide-by-zero
-        -fsanitize=float-cast-overflow
+#        -fasynchronous-unwind-tables
+#        -fno-omit-frame-pointer
+#        -fsanitize=address
+#        -fsanitize=undefined
+#        -fno-sanitize-recover=all
+#        -fsanitize=float-divide-by-zero
+#        -fsanitize=float-cast-overflow
 )
 
 set(COMMON_LDFLAGS
         -pg
-        -fsanitize=address
-        -fsanitize=undefined
-        -fno-sanitize-recover=all
-        -fsanitize=float-divide-by-zero
-        -fsanitize=float-cast-overflow
+#        -fsanitize=address
+#        -fsanitize=undefined
+#        -fno-sanitize-recover=all
+#        -fsanitize=float-divide-by-zero
+#        -fsanitize=float-cast-overflow
 )
 
 #==============================================================================#
