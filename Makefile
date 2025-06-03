@@ -26,7 +26,7 @@ RMFLAGS			= -r
 
 CC				:= clang
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
-OPTIMIZE_FLAGS	:= -O3
+OPTIMIZE_FLAGS	:= -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
@@ -34,7 +34,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer #-Wno-missing-braces
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
 

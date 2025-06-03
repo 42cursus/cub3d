@@ -88,3 +88,16 @@ or using Ninja:
 cmake -S . -B build -G Ninja
 cmake --build build
 ```
+
+
+### Optimisations
+
+LLVM IR-level struct decomposition:
+There is an optimization called Scalar Replacement of Aggregates (SROA).
+
+Clang/LLVM is SROA, which effectively decomposes structs into Static Single Assignment values (SSA) during optimization.
+There's no direct source-level feature for this, but we can help the compiler by:
+
+- Keeping structs small (fewer fields, all PODs). // POD - Plain Old Data
+- Avoiding pointers to structs or taking addresses of struct fields.
+- Declaring structs locally in the function if possible.

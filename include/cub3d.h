@@ -105,6 +105,12 @@ typedef struct s_mcol
 	double		frac;
 }	t_mcol;
 
+typedef struct s_imask
+{
+	int		i;
+	u_int	mask;
+}	t_imask;
+
 typedef struct s_lvect
 {
 	long	x;
