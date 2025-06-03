@@ -30,8 +30,8 @@ OPTIMIZE_FLAGS	:= -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointe
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-pg \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 #					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces

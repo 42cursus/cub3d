@@ -89,7 +89,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	i = 0;
 	while (i < WIN_WIDTH)
 	{
-		if (curr_x > -0.5 && curr_x < 0.5)
+		if (curr_x > -0.48 && curr_x < 0.48)
 		{
 			idx.x = (0.5 + curr_x) * tex->x;
 			dist = app->dummy->credits_offsets[row - 1];
