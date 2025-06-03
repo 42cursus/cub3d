@@ -42,7 +42,7 @@
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
 # define GO_TO_FULLSCREEN_ON_LOAD 1
 # define RAY_POOL_SIZE 5000
-
+# define FIXED_SHIFT 32
 # ifndef FRAMERATE
 #  define FRAMERATE 120
 # endif
@@ -119,7 +119,7 @@ typedef struct s_lvect
 
 typedef	struct s_lvars
 {
-	int lheight;
+	int height;
 	int	top;
 }	t_lvars;
 
@@ -214,7 +214,7 @@ typedef struct s_ray
 	t_ivect			maptile;
 	int				face;
 	int				damaged;
-	t_texture		*texture;
+	t_texture		*tex;
 	double			pos;
 	double			distance;
 	struct s_ray	*in_front;

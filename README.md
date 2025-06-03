@@ -2,7 +2,7 @@
 
 ### XPM load
 
-XPM texture files can be loaded either via 
+XPM tex files can be loaded either via 
 
 ```c
 t_img *img = mlx_xpm_file_to_image(app->mlx, (char *)filename, &width, &height);

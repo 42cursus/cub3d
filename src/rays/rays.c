@@ -50,7 +50,7 @@ void	init_pooled_ray(t_ray *ray, t_object *obj,
 	ray->intcpt = intcpt;
 	ray->face = NONE;
 	ray->damaged = 0;
-	ray->texture = obj->texture;
+	ray->tex = obj->texture;
 	ray->distance = get_cam_distance(player->pos, angle, intcpt);
 	if (ray->distance < 0.00001)
 		ray->distance = 0.00001;
@@ -66,7 +66,7 @@ void	add_in_front(t_ray *ray, int face, t_texture *texture)
 	new = get_pooled_ray(0);
 	new->intcpt = ray->intcpt;
 	new->face = face;
-	new->texture = texture;
+	new->tex = texture;
 	new->damaged = 0;
 	in_front = ray->in_front;
 	ray->in_front = new;

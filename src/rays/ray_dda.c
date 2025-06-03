@@ -24,12 +24,12 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player,
 	if (face_mod == 3 || face_mod == 0)
 	{
 		ray->intcpt = get_horizontal_int(ray->intcpt.y, gradient, c);
-		ray->pos = (fmod(ray->intcpt.x, 1) * ray->texture->x);
+		ray->pos = (fmod(ray->intcpt.x, 1) * ray->tex->x);
 	}
 	else
 	{
 		ray->intcpt = get_vertical_int(ray->intcpt.x, gradient, c);
-		ray->pos = (fmod(ray->intcpt.y, 1) * ray->texture->x);
+		ray->pos = (fmod(ray->intcpt.y, 1) * ray->tex->x);
 	}
 	ray->distance = get_cam_distance(player->pos,
 			player->angle + M_PI_2, ray->intcpt);
@@ -69,14 +69,14 @@ void	progress_dda(t_dda *dda, t_ray *ray)
 		dda->side_dist.x += dda->delta_dist.x;
 		ray->intcpt.x += dda->step.x;
 		ray->face = dda->faces[0];
-		ray->texture = dda->textures[0];
+		ray->tex = dda->textures[0];
 	}
 	else
 	{
 		dda->side_dist.y += dda->delta_dist.y;
 		ray->intcpt.y += dda->step.y;
 		ray->face = dda->faces[1];
-		ray->texture = dda->textures[1];
+		ray->tex = dda->textures[1];
 	}
 }
 
