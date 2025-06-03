@@ -120,6 +120,40 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 	}
 }
 
+static inline __attribute__((always_inline, unused))
+void	slice_drawing_float_v2(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars line)
+{
+	t_ctex	*texture = ray->tex;
+	t_mcol	mc;
+	t_point	i;
+	u_int	*dst_px;
+	u_int	*tex_data = texture->data + (texture->x * (int) ray->pos);
+	u_int	*dst_data = (u_int *)canvas->data;
+
+	i.x = draw_pos.y - 1;
+	double tex_y = 0;
+	int screen_y = line.top + draw_pos.y;
+	double step = (double)texture->y / line.height;
+
+	if (screen_y < 0)
+	{
+		i.x = 0 - screen_y;
+		tex_y = step * i.x;
+		screen_y = 0;
+	}
+
+	while (++i.x < line.height && screen_y < WIN_HEIGHT)
+	{
+		mc.colour = tex_data[(int)tex_y];
+		mc.mask = -(mc.colour != XPM_TRANSPARENT);
+		mc.colour |= ((u_int[]) {0, MLX_RED})[ray->damaged];
+		dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
+		*dst_px = (mc.colour & mc.mask) | (*dst_px & ~mc.mask);
+		tex_y += step;
+		screen_y = line.top + i.x;
+	}
+}
+
 void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 {
 	t_anim				*anim;
@@ -150,7 +184,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 //		slice_draw_fixed(pos, ray, canvas, line);
 //	fns[line.height > WIN_HEIGHT](pos, ray, canvas, line);
 //	slice_draw_fixed_old(pos, ray, canvas, line);
-	slice_drawing_float(pos, ray, canvas, line);
+	slice_drawing_float_v2(pos, ray, canvas, line);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }
