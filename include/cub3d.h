@@ -76,6 +76,8 @@ typedef struct s_texture
 	int			y;
 }	t_texture;
 
+typedef const struct s_texture t_ctex;
+
 typedef struct s_animation
 {
 	int			active;
