@@ -121,7 +121,7 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 }
 
 static inline __attribute__((always_inline))
-void	slice_drawing_avx2(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
+void	slice_drawing_sse41(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
 {
 	const t_dmask	dm = {line.top + pos.y, (line.top + pos.y) >> 31};
 	t_iter			it;
@@ -180,7 +180,7 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 //		slice_draw_fixed(pos, ray, canvas, line);
 //	fns[line.height > WIN_HEIGHT](pos, ray, canvas, line);
 //	slice_draw_fixed_old(pos, ray, canvas, line);
-	slice_drawing_avx2(pos, ray, canvas, line);
+	slice_drawing_sse41(pos, ray, canvas, line);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);
 }
