@@ -11,6 +11,7 @@
 # **************************************************************************** #
 
 FILES   = check_endianness.c \
+			place_tile_on_image32_alpha.c \
 			vector.c \
 			time.c \
 

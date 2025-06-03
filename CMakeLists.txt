@@ -19,6 +19,8 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_C_STANDARD 99)
 include_directories(include)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(FT_CFLAGS
         -Wall -Wextra -Werror
         -Wwrite-strings
@@ -26,8 +28,9 @@ set(FT_CFLAGS
         -march=native
         -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer
         -mprefer-vector-width=256
-#        -Wformat -Werror=format-security
-#        -Wstrict-prototypes
+        -Wformat
+        -Werror=format-security
+        -Wstrict-prototypes
 #        -Wmissing-prototypes
         -include include/cub3d.h
         -fstack-protector-strong
