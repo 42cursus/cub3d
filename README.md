@@ -89,7 +89,6 @@ cmake -S . -B build -G Ninja
 cmake --build build
 ```
 
-
 ### Optimisations
 
 LLVM IR-level struct decomposition:
@@ -101,3 +100,22 @@ There's no direct source-level feature for this, but we can help the compiler by
 - Keeping structs small (fewer fields, all PODs). // POD - Plain Old Data
 - Avoiding pointers to structs or taking addresses of struct fields.
 - Declaring structs locally in the function if possible.
+
+
+#### Intrinsics
+
+```c
+#include <mmintrin.h>  // MMX
+#include <xmmintrin.h> // SSE
+#include <emmintrin.h> // SSE2
+#include <pmmintrin.h> // SSE3
+#include <tmmintrin.h> // SSSE3
+#include <smmintrin.h> // SSE4.1
+#include <nmmintrin.h> // SSE4.2
+#include <ammintrin.h> // SSE4A
+#include <wmmintrin.h> // AES
+#include <immintrin.h> // AVX, AVX2, FMA
+#include <zmmintrin.h> // AVX512
+```
+
+Including one of these pulls in all previous ones
