@@ -404,7 +404,7 @@ void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 {
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	mask;
+	t_mcol		mc;
 	t_ivect		i;
 
 	i.y = -1;
@@ -416,8 +416,9 @@ void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 		i.x = -1;
 		while (++i.x < src->width)
 		{
-			mask = -(src_row[i.x] != XPM_TRANSPARENT);
-			dst_row[i.x] = (src_row[i.x] & mask) | (dst_row[i.x] & ~mask);
+			mc.colour = src_row[i.x];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[i.x] = (mc.colour & mc.mask) | (dst_row[i.x] & ~mc.mask);
 		}
 	}
 }
@@ -427,7 +428,7 @@ void	put_texture(t_info *app, t_texture *tex, int x, int y)
 	t_img *const	canvas = app->canvas;
 	u_int32_t		*src_row;
 	u_int32_t		*dst_row;
-	u_int32_t		mask;
+	t_mcol			mc;
 	t_ivect			i;
 
 	i.y = -1;
@@ -438,35 +439,37 @@ void	put_texture(t_info *app, t_texture *tex, int x, int y)
 		i.x = -1;
 		while (++i.x < tex->x)
 		{
-			mask = -(src_row[i.x] != XPM_TRANSPARENT);
-			dst_row[i.x] = (src_row[i.x] & mask) | (dst_row[i.x] & ~mask);
+			mc.colour = src_row[i.x];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[i.x] = (mc.colour & mc.mask) | (dst_row[i.x] & ~mc.mask);
 		}
 	}
 }
 
 void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
 {
-	t_ivect			i;
+	t_ivect			it;
 	double			step;
 	u_int32_t		*src_row;
 	u_int32_t		*dst_row;
-	u_int32_t		mask;
+	t_mcol			mc;
 	t_img *const	canvas = app->canvas;
 
 	int new_x = tex->x * scalar;
 	int new_y = tex->y * scalar;
 
 	step = 1.0 / scalar;
-	i.y = -1;
-	while (++i.y < new_y)
+	it.y = -1;
+	while (++it.y < new_y)
 	{
-		src_row = tex->data + (int)(i.y * step + 0.5) * tex->x;
-		dst_row = (u_int32_t *) canvas->data + ((i.y + pos.y) * canvas->width) + pos.x;
-		i.x = -1;
-		while (++i.x < new_x)
+		src_row = tex->data + (int)(it.y * step + 0.5) * tex->x;
+		dst_row = (u_int32_t *) canvas->data + ((it.y + pos.y) * canvas->width) + pos.x;
+		it.x = -1;
+		while (++it.x < new_x)
 		{
-			mask = -(src_row[(int)(i.x * step + 0.5)] != XPM_TRANSPARENT);
-			dst_row[i.x] = (src_row[(int)(i.x * step)] & mask) | (dst_row[i.x] & ~mask);
+			mc.colour = src_row[(int)(it.x * step + 0.5)];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
 	}
 }
@@ -527,8 +530,7 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
 	int		start_x;
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	u_int32_t	mask;
+	t_mcol		mc;
 	const int char_width = 8;
 
 	if (!ft_isprint(c) || pos_scalar.z < 1)
@@ -543,9 +545,9 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
 		j = -1;
 		while (++j < char_width * pos_scalar.z)
 		{
-			src_pixel = src_row[j / pos_scalar.z];
-			mask = -(src_pixel != XPM_TRANSPARENT);
-			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			mc.colour = src_row[j / pos_scalar.z];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[j] = (mc.colour & mc.mask) | (dst_row[j] & ~mc.mask);
 		}
 	}
 }
