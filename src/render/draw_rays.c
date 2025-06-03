@@ -128,7 +128,6 @@ void	slice_drawing_float_v2(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars
 	t_point	i;
 	u_int	*dst_px;
 	u_int	*tex_data = texture->data + (texture->x * (int) ray->pos);
-	u_int	*dst_data = (u_int *)canvas->data;
 
 	i.x = draw_pos.y - 1;
 	double tex_y = 0;
@@ -141,14 +140,14 @@ void	slice_drawing_float_v2(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars
 		tex_y = step * i.x;
 		screen_y = 0;
 	}
-
+	dst_px = (u_int *)canvas->data + screen_y * canvas->width + draw_pos.x;
 	while (++i.x < line.height && screen_y < WIN_HEIGHT)
 	{
 		mc.colour = tex_data[(int)tex_y];
 		mc.mask = -(mc.colour != XPM_TRANSPARENT);
 		mc.colour |= ((u_int[]) {0, MLX_RED})[ray->damaged];
-		dst_px = &dst_data[screen_y * canvas->width + draw_pos.x];
 		*dst_px = (mc.colour & mc.mask) | (*dst_px & ~mc.mask);
+		dst_px += canvas->width;
 		tex_y += step;
 		screen_y = line.top + i.x;
 	}
