@@ -100,8 +100,10 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 	t_ivect		t;
 	t_ivect		offset;
 	t_point		boundaries;
-	t_colour	*src_row;
+	u_int32_t	*src_row;
 	t_colour	*dst_row;
+
+	t_mcol			mc;
 
 	offset.x = (int []){0, -p.x}[p.x < 0];
 	offset.y = (int []){0, -p.y}[p.y < 0];
@@ -111,22 +113,22 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 	t.y = offset.y - 1;
 	while (++t.y < boundaries.y)
 	{
-		src_row = (t_colour *) tile->data + (t.y * tile->width);
+		src_row = (u_int32_t *) tile->data + (t.y * tile->width);
 		dst_row = (t_colour *) image->data + ((t.y + p.y) * image->width) + p.x;
 		t.x = offset.x - 1;
 		while (++t.x < boundaries.x)
 		{
-			t_colour col1 = src_row[t.x];
-			t_colour *col2 = &dst_row[t.x];
-			t_colour out = col1;
-			const double frac = col1.a / 255.0;
-			if (col1.raw != col2->raw)
+			mc.colour = src_row[t.x];
+			t_colour src = *(t_colour *) &mc.colour;
+			t_colour dst = dst_row[t.x];
+			mc.frac = src.a / 255.0;
+			if (src.raw != dst.raw)
 			{
-				out.r = ((col2->r - col1.r) * frac) + col1.r + 0.5;
-				out.g = ((col2->g - col1.g) * frac) + col1.g + 0.5;
-				out.b = ((col2->b - col1.b) * frac) + col1.b + 0.5;
+				src.r = ((dst.r - src.r) * mc.frac) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * mc.frac) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * mc.frac) + src.b + 0.5;
 			}
-			*col2 = out;
+			dst_row[t.x] = src;
 		}
 	}
 }
