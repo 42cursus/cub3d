@@ -555,6 +555,8 @@ void do_play_to_win(void *param)
 	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 	if (app->current_level < app->no_maps - 1)
 		app->current_level++;
+	else
+		app->current_level = 0;
 	app->menu_state.state = WIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 3;
@@ -665,6 +667,28 @@ void do_lose_to_end(void *param)
 
 	cleanup_maps(app);
 	free(app->player);
+}
+
+void	do_win_to_credits(void * param)
+{
+	t_info *const app = param;
+	t_dummy			*dummy;
+
+	cleanup_maps(app);
+	free(app->player);
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	mlx_loop_hook(app->mlx, &render_credits, app);
+	app->mlx->end_loop = 0;
+	dummy = ft_calloc(1, sizeof(*dummy));
+	app->dummy = dummy;
+	dummy->dir = (t_vect){0.0, 1.0};
+	dummy->pos =  (t_vect){0.0, -0.6};
+	dummy->speed = 0.002;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
+	mlx_hook(app->win, ButtonPress, 0, NULL, app);
+	mlx_hook(app->win, ButtonRelease, 0, NULL, app);
+	mlx_hook(app->win, MotionNotify, 0, NULL, app);
 }
 
 void do_win_to_mmenu(void *param)
