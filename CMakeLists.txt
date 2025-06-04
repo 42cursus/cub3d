@@ -30,7 +30,7 @@ set(FT_CFLAGS
         -mprefer-vector-width=256
         -Wformat
         -Werror=format-security
-        -Wstrict-prototypes
+#        -Wstrict-prototypes
 #        -Wmissing-prototypes
         -include include/cub3d.h
         -fstack-protector-strong
