@@ -137,7 +137,7 @@ void	menu_select_current(t_info *app)
 		if (menu_state->selected == 0)
 		{
 			app->rc = ok;
-			if (app->current_level == 0)
+			if (app->current_level == 0 && menu_state->state == WIN)
 				app->rc = extra;
 		}
 		if (menu_state->selected == 1)
