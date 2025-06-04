@@ -12,12 +12,6 @@
 
 #include "cub3d.h"
 
-static inline __attribute__((always_inline))
-void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour)
-{
-	(*(unsigned int (*)[img->height][img->width])img->data)[y][x] = colour;
-}
-
 static inline __attribute__((always_inline, unused))
 int	interpolate_colour_inline(int col1, int col2, double frac)
 {
@@ -25,7 +19,7 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 	int	g;
 	int	b;
 
-	if (col1 == col2)
+	if (col1 == col2 || col1 == (int)XPM_TRANSPARENT)
 		return (col1);
 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
@@ -94,8 +88,10 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 			idx.x = (0.5 + curr_x) * tex->x;
 			dist = app->dummy->credits_offsets[row - 1];
 			// my_put_pixel_32(app->canvas, i, row, tex->data[idx.y * tex->x + idx.x]);
-			my_put_pixel_32(app->canvas, i, row,
-			dim_colour(linear_filter_credits(idx, tex), (dist - 1.5) * 6));
+			unsigned int colour = dim_colour(linear_filter_credits(idx, tex),
+											 (dist - 1.5) * 6);
+
+			(*(unsigned int (*)[app->overlay->height][app->overlay->width]) app->overlay->data)[row][i] = colour;
 			// dim_colour(bilinear_filter(idx.x, idx.y, tex), (dist - 1.5) * 4));
 		}
 		curr_x += step_x;
@@ -122,4 +118,5 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 				scale_vect(r_dir, dummy->credits_offsets[row - 1]));
 		draw_credits_row(app, l_pos, r_pos, row);
 	}
+	place_tile_on_image32_alpha(app->canvas, app->overlay, (t_point){0,0});
 }

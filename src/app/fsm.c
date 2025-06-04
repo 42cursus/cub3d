@@ -108,8 +108,10 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	app->overlay = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
 	replace_image(app, &app->bg, NULL);
+	replace_image(app, &app->overlay, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 	toggle_fullscreen(app);
@@ -317,6 +319,8 @@ void do_initial_to_intro(void *param)
 	t_info *const app = param;
 
 	replace_image(app, &app->bg, NULL);
+	replace_sky(app, (char *) "./textures/skybox.xpm");
+	draw_sky(app);
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_intro, app);
@@ -382,6 +386,8 @@ void	do_mmenu_to_credits(void *param)
 	t_dummy			*dummy;
 
 	fill_with_colour(app->bg, 0x000000, 0x000000);
+	replace_sky(app, (char *) "./textures/skybox.xpm");
+	draw_sky(app);
 	mlx_loop_hook(app->mlx, &render_credits, app);
 	app->mlx->end_loop = 0;
 	dummy = ft_calloc(1, sizeof(*dummy));

@@ -291,6 +291,7 @@ int	render_credits(void *param)
 		app->mlx->end_loop = 1;
 	}
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
+	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
 	draw_credits(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);

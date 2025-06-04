@@ -82,3 +82,20 @@ void	draw_sky_alt(t_info *const app)
 	else
 		copy_sky_split(sky, bg, boundary);
 }
+
+void	draw_sky(t_info *const app)
+{
+	const double	angle = atan2(1, 0);
+	t_img *const	sky = app->skybox;
+	t_img *const	bg = app->bg;
+	int				offset;
+	t_ivect			boundary;
+
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
+	boundary.x = (0 - offset + sky->width) % sky->width;
+	boundary.y = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
+	if (boundary.y > boundary.x)
+		copy_sky_full(sky, bg, boundary);
+	else
+		copy_sky_split(sky, bg, boundary);
+}

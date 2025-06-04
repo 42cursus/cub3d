@@ -76,7 +76,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	if (tex_file)
 	{
 		new = mlx_xpm_file_to_image(app->mlx,
-				tex_file, &tmp.width, &tmp.height);
+									tex_file, &tmp.width, &tmp.height);
 		if (!new)
 		{
 			ft_printf("Error opening file: \"%s\"\n", tex_file);
@@ -85,7 +85,10 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
+	{
 		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+		fill_with_colour(new, XPM_TRANSPARENT, XPM_TRANSPARENT);
+	}
 	*img = new;
 }
 

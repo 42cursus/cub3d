@@ -574,6 +574,7 @@ typedef struct s_info
 	double		zoom;
 	char 		*title;
 	t_img		*canvas;
+	t_img		*overlay;
 	t_img		*pointer;
 	t_img		*skybox;
 	t_img		*bg;
@@ -797,6 +798,7 @@ int	render_credits(void *param);
 
 void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
+void	draw_sky(t_info *const app);
 void 	draw_sky_alt(t_info *const app);
 void	fill_ceiling(t_info *app, t_lvl *map, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
