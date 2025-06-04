@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/04 20:34:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 23:43:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 	init_fonts(app);
 	set_sound_volume(app, 100);
 	set_music_volume(app, 100);
+	srand(get_time_ms());
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n", app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
 	int	i = 0;
@@ -124,9 +125,14 @@ t_ret_code do_state_intro(void *param)
 {
 	t_info *const app = param;
 	t_aud *const aud = &app->audio;
+	int				old_fps;
 
 	Mix_PlayChannel(ch_music, aud->chunks[snd_intro], 0);
+	old_fps = app->fr_rate;
+	set_framerate(app, 60);
+	app->fr_last = get_time_us();
 	mlx_loop(app->mlx);
+	set_framerate(app, old_fps);
 	return (ok);
 }
 
@@ -221,7 +227,7 @@ t_ret_code do_state_credits(void *param)
 	app->old_fov = app->fov_deg;
 	old_fps = app->fr_rate;
 	set_fov(app, 70);
-	set_framerate(app, 30);
+	set_framerate(app, 60);
 	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->win);
 	app->fr_last = get_time_us();
@@ -316,8 +322,31 @@ void do_initial_to_intro(void *param)
 {
 	t_info *const app = param;
 
-	replace_image(app, &app->bg, NULL);
-	mlx_expose_hook(app->win, &expose_win, app);
+	app->fr_count = 0;
+	app->map = init_map();
+	if (parse_cub(app, (char *)"./maps/logo_test.cub"))
+	{
+		free_map(app->map);
+		app->rc = fail;
+		return ;
+	}
+	spawn_logo_piece(app, (t_vect) {14.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[0]);
+	spawn_logo_piece(app, (t_vect) {14.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[1]);
+	spawn_logo_piece(app, (t_vect) {14.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[2]);
+	spawn_logo_piece(app, (t_vect) {14.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[3]);
+	spawn_logo_piece(app, (t_vect) {14.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[4]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[5]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[6]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[7]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[8]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[9]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[10]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[11]);
+	spawn_logo_piece(app, (t_vect) {15.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[12]);
+	spawn_logo_piece(app, (t_vect) {16.7, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[13]);
+	app->player = init_player(app);
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	// mlx_expose_hook(app->win, &expose_win, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_intro, app);
 	mlx_hook(app->win, ButtonPress, 0, NULL, app);
@@ -327,12 +356,15 @@ void do_initial_to_intro(void *param)
 	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
 
 	mlx_loop_hook(app->mlx, &render_intro, app);
+	app->mlx->end_loop = 0;
 }
 
 void do_intro_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
+	cleanup_maps(app);
+	free(app->player);
 	replace_image(app, &app->bg, (char *) "./textures/wall.xpm");
 	mlx_hook(app->win, DestroyNotify, 0, (void *)&exit_win, app);
 	mlx_expose_hook(app->win, &expose_win, app);
@@ -364,23 +396,6 @@ void do_mmenu_to_load(void *param)
 		free_map(app->map);
 		app->rc = fail;
 		return ;
-	}
-	if (ft_strcmp(app->map_ids[app->current_level], "maps/logo_test.cub") == 0)
-	{
-		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0, 0.01}, &app->shtex->logo_tex[0]);
-		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[1]);
-		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0.01, 0.01}, &app->shtex->logo_tex[2]);
-		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0, -0.01}, &app->shtex->logo_tex[3]);
-		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){-0.01, 0}, &app->shtex->logo_tex[4]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){-0.01, 0.01}, &app->shtex->logo_tex[5]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[6]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[7]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0, 0.01}, &app->shtex->logo_tex[8]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0.01}, &app->shtex->logo_tex[9]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[10]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){-0.01, 0.01}, &app->shtex->logo_tex[11]);
-		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[12]);
-		spawn_logo_piece(app, (t_vect) {12.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[13]);
 	}
 	app->player = init_player(app);
 	app->player->total_pickups += count_collectables(app->map);
