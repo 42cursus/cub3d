@@ -1,5 +1,5 @@
 /* XPM */
-static char *dummy[]={
+static const char *credits_xpm[]={
 "1000 1750 2 1",
 ". c #000042",
 "# c #ffea00",
