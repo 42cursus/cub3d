@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/05 00:03:50 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/05 00:24:23 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,7 +227,7 @@ t_ret_code do_state_credits(void *param)
 	app->old_fov = app->fov_deg;
 	old_fps = app->fr_rate;
 	set_fov(app, 70);
-	set_framerate(app, 60);
+	set_framerate(app, 30);
 	calculate_credits_offset(app, app->dummy);
 	mlx_mouse_hide(app->mlx, app->win);
 	app->fr_last = get_time_us();
