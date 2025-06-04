@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:34:50 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 23:48:38 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -468,6 +468,7 @@ void	free_map(t_lvl *data)
 	ft_lstclear(&data->items, free);
 	ft_lstclear(&data->triggers, free);
 	ft_lstclear(&data->projectiles, free);
+	ft_lstclear(&data->logo, free);
 	ft_lstclear(&data->enemy_pos, free);
 	Mix_FreeChunk(data->music);
 	free(data);
