@@ -137,6 +137,14 @@ typedef struct s_m128i
 	};
 }	t_m128i;
 
+typedef struct s_vec4
+{
+	__m128	r0;
+	__m128	r1;
+	__m128	r2;
+	__m128	r3;
+}	t_vec4;
+
 typedef struct s_imask
 {
 	int		i;
