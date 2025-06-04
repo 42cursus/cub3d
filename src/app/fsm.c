@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/19 15:40:40 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 20:34:11 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -364,6 +364,23 @@ void do_mmenu_to_load(void *param)
 		free_map(app->map);
 		app->rc = fail;
 		return ;
+	}
+	if (ft_strcmp(app->map_ids[app->current_level], "maps/logo_test.cub") == 0)
+	{
+		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0, 0.01}, &app->shtex->logo_tex[0]);
+		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[1]);
+		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0.01, 0.01}, &app->shtex->logo_tex[2]);
+		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){0, -0.01}, &app->shtex->logo_tex[3]);
+		spawn_logo_piece(app, (t_vect) {10.7, 10}, (t_vect){-0.01, 0}, &app->shtex->logo_tex[4]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){-0.01, 0.01}, &app->shtex->logo_tex[5]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[6]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[7]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0, 0.01}, &app->shtex->logo_tex[8]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0.01}, &app->shtex->logo_tex[9]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[10]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){-0.01, 0.01}, &app->shtex->logo_tex[11]);
+		spawn_logo_piece(app, (t_vect) {11.7, 10}, (t_vect){0.01, 0}, &app->shtex->logo_tex[12]);
+		spawn_logo_piece(app, (t_vect) {12.7, 10}, (t_vect){0.01, -0.01}, &app->shtex->logo_tex[13]);
 	}
 	app->player = init_player(app);
 	app->player->total_pickups += count_collectables(app->map);

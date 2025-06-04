@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 17:54:19 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/15 15:24:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 19:57:57 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray)
 	check_collision_list(map->enemies, player, ray);
 	check_collision_list(map->projectiles, player, ray);
 	check_collision_list(map->triggers, player, ray);
+	check_collision_list(map->logo, player, ray);
 }
 
 void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player)
