@@ -689,6 +689,7 @@ void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_texture *texture);
+void	init_logo_pieces(t_info *app, t_vect pos);
 
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
