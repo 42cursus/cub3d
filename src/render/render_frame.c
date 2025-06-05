@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 15:42:06 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 23:40:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,50 +190,82 @@ int	render_play(void *param)
 int	render_intro(void *param)
 {
 	size_t				time;
+	size_t				diff;
 	t_info *const		app = param;
 
-//	place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
-//	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
-
-
-	double scalar;
-
-	scalar = app->fr_count * 0.01;
-
-	if (scalar == 0)
-		scalar = 1;
-
-	ft_memcpy(app->canvas->data, app->bg->data, app->bg->size_line * app->bg->height);
-	if (scalar < 3.8)
+	update_objects(app, app->player, app->map);
+	if (app->player->dead)
 	{
-		t_texture *tex = &app->shtex->title;
-		int new_x = tex->x * scalar;
-		int new_y = tex->y * scalar;
-		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
-		place_texarr_scale(app, tex, pos, scalar);
+		diff = get_time_ms() - app->timer.cur_lvl_start;
+		if (diff > 1000)
+			app->player->pos.y += 0.03;
+		if (diff > 2500)
+			app->mlx->end_loop = 1;
 	}
-	else if (app->fr_count > 710)
-	{
-		place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
-		place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
-	}
-	else
-	{
-		t_texture *tex = &app->shtex->title;
-		int new_x = tex->x * 3.8;
-		int new_y = tex->y * 3.8;
-		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
-		place_texarr_scale(app, tex, pos, 3.8);
-	}
+	cast_all_rays_alt(app, app->map, app->player);
+	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
+					 WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	draw_rays(app, app->canvas);
+	// place_fps(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
-	app->fr_count++;
+	// app->fr_scale = 20000.0/app->fr_time;
+	// app->fr_count++;
 	on_expose(app);
+	// draw_hud(app);
 	return (0);
 }
+
+// int	render_intro(void *param)
+// {
+// 	size_t				time;
+// 	t_info *const		app = param;
+//
+// //	place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
+// //	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
+//
+//
+// 	double scalar;
+//
+// 	scalar = app->fr_count * 0.01;
+//
+// 	if (scalar == 0)
+// 		scalar = 1;
+//
+// 	ft_memcpy(app->canvas->data, app->bg->data, app->bg->size_line * app->bg->height);
+// 	if (scalar < 3.8)
+// 	{
+// 		t_texture *tex = &app->shtex->title;
+// 		int new_x = tex->x * scalar;
+// 		int new_y = tex->y * scalar;
+// 		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
+// 		place_texarr_scale(app, tex, pos, scalar);
+// 	}
+// 	else if (app->fr_count > 710)
+// 	{
+// 		place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
+// 		place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
+// 	}
+// 	else
+// 	{
+// 		t_texture *tex = &app->shtex->title;
+// 		int new_x = tex->x * 3.8;
+// 		int new_y = tex->y * 3.8;
+// 		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
+// 		place_texarr_scale(app, tex, pos, 3.8);
+// 	}
+// 	while (get_time_us() - app->fr_last < app->fr_delay)
+// 		usleep(100);
+// 	time = get_time_us();
+// 	app->fr_time = time - app->fr_last;
+// 	app->fr_last = time;
+// 	app->fr_count++;
+// 	on_expose(app);
+// 	return (0);
+// }
 
 int	render_mmenu(void *param)
 {

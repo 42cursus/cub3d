@@ -6,11 +6,13 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 18:33:14 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/16 18:37:21 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 20:31:24 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+void	update_logo_pieces(t_info *app, t_player *player, t_lvl *map);
 
 void	update_enemies(t_info *app, t_player *player, t_lvl *map)
 {
@@ -91,4 +93,5 @@ void	update_objects(t_info *app, t_player *player, t_lvl *map)
 	update_projectiles(app, player, map);
 	update_items(app, player, map);
 	update_triggers(app, player, map);
+	update_logo_pieces(app, player, map);
 }

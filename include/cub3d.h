@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/21 16:22:35 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 20:25:44 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -239,6 +239,7 @@ typedef struct s_object
 	int			health;
 	size_t		last_damaged;
 	t_vect		pos;
+	t_vect		end_pos;
 	t_vect		norm;
 	t_vect		dir;
 	double		speed;
@@ -328,6 +329,7 @@ typedef struct s_shtex
 	t_texture	trophy_tex[2];
 	t_texture	phantoon[10];
 	t_texture	phantoon_proj[6];
+	t_texture	logo_tex[14];
 	t_texture	dmg_tex[8];
 	t_texture	title;
 	t_texture	scope;
@@ -371,6 +373,7 @@ typedef	struct s_data
 	t_list			*items;
 	t_list			*triggers;
 	t_list			*projectiles;
+	t_list			*logo;
 	t_list			*enemy_pos;
 	t_object		*boss_obj;
 	bool			boss_active;
@@ -460,6 +463,7 @@ typedef	enum e_etype
 	O_EPROJ = 3,
 	O_TRIGGER = 4,
 	O_TELE = 5,
+	O_LOGO,
 }	t_etype;
 
 typedef enum e_subtype
@@ -685,6 +689,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
+void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_texture *texture);
 
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);

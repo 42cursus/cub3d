@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:19:04 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 22:40:03 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 20:06:39 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,40 @@ void	load_energy_tex(t_info *app)
 		app, (char *) "./textures/energy_bu_full.xpm", &tex[1].x, &tex[1].y);
 	tex[2].data = img_to_tex_row_major(
 		app, (char *) "./textures/energy_bu_empty.xpm", &tex[2].x, &tex[2].y);
+}
+
+void	load_logo_tex(t_info *app)
+{
+	t_texture *const	tex = app->shtex->logo_tex;
+
+	tex[0].data = img_to_tex(
+		app, (char *) "./textures/logo_4-1.xpm", &tex[0].x, &tex[0].y);
+	tex[1].data = img_to_tex(
+		app, (char *) "./textures/logo_4-2.xpm", &tex[1].x, &tex[1].y);
+	tex[2].data = img_to_tex(
+		app, (char *) "./textures/logo_4-3.xpm", &tex[2].x, &tex[2].y);
+	tex[3].data = img_to_tex(
+		app, (char *) "./textures/logo_2a-1.xpm", &tex[3].x, &tex[3].y);
+	tex[4].data = img_to_tex(
+		app, (char *) "./textures/logo_2a-2.xpm", &tex[4].x, &tex[4].y);
+	tex[5].data = img_to_tex(
+		app, (char *) "./textures/logo_2b-1.xpm", &tex[5].x, &tex[5].y);
+	tex[6].data = img_to_tex(
+		app, (char *) "./textures/logo_2b-2.xpm", &tex[6].x, &tex[6].y);
+	tex[7].data = img_to_tex(
+		app, (char *) "./textures/logo_pipe.xpm", &tex[7].x, &tex[7].y);
+	tex[8].data = img_to_tex(
+		app, (char *) "./textures/logo_l.xpm", &tex[8].x, &tex[8].y);
+	tex[9].data = img_to_tex(
+		app, (char *) "./textures/logo_o1.xpm", &tex[9].x, &tex[9].y);
+	tex[10].data = img_to_tex(
+		app, (char *) "./textures/logo_n1.xpm", &tex[10].x, &tex[10].y);
+	tex[11].data = img_to_tex(
+		app, (char *) "./textures/logo_d.xpm", &tex[11].x, &tex[11].y);
+	tex[12].data = img_to_tex(
+		app, (char *) "./textures/logo_o2.xpm", &tex[12].x, &tex[12].y);
+	tex[13].data = img_to_tex(
+		app, (char *) "./textures/logo_n2.xpm", &tex[13].x, &tex[13].y);
 }
 
 void	load_dmg_tex(t_info *app)

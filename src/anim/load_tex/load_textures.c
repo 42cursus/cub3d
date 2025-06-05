@@ -26,6 +26,7 @@ void	load_misc_graphics(t_info *app);
 void	load_boss_bar_tex(t_info *app);
 void	load_phantoon_tex(t_info *app);
 void	load_explode_tex(t_info *app);
+void	load_logo_tex(t_info *app);
 void	load_ammo_tex(t_info *app);
 void	load_health_pu_tex(t_info *app);
 void	load_boss_door_tex(t_info *app);
@@ -53,6 +54,7 @@ void	load_shtex(t_info *app)
 	load_boss_door_tex(app);
 	load_health_pu_tex(app);
 	load_ammo_tex(app);
+	load_logo_tex(app);
 	load_explode_tex(app);
 	load_energy_tex(app);
 	load_phantoon_tex(app);

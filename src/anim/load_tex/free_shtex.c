@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:51:51 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:03:33 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 23:47:37 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->holtz_tex, 6);
 	free_tex_arr_arr(app->shtex->proj_green_tex, 4);
 	free_tex_arr_arr(app->shtex->dmg_tex, 8);
+	free_tex_arr_arr(app->shtex->logo_tex, 14);
 	free(app->shtex->playertile.data);
 	free(app->shtex->square.data);
 	free(app->shtex);
