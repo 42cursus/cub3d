@@ -332,20 +332,7 @@ void do_initial_to_intro(void *param)
 		app->rc = fail;
 		return ;
 	}
-	spawn_logo_piece(app, (t_vect) {14.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[0]);
-	spawn_logo_piece(app, (t_vect) {14.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[1]);
-	spawn_logo_piece(app, (t_vect) {14.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[2]);
-	spawn_logo_piece(app, (t_vect) {14.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[3]);
-	spawn_logo_piece(app, (t_vect) {14.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[4]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[5]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[6]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[7]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[8]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[9]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[10]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[11]);
-	spawn_logo_piece(app, (t_vect) {15.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[12]);
-	spawn_logo_piece(app, (t_vect) {16.9, 10}, rotate_vect((t_vect){0, 0.015}, rand_range(-M_PI_2, M_PI_2)), &app->shtex->logo_tex[13]);
+	init_logo_pieces(app, (t_vect) {14.7, 10});
 	app->player = init_player(app);
 	fill_with_colour(app->bg, 0x000000, 0x000000);
 	// mlx_expose_hook(app->win, &expose_win, app);

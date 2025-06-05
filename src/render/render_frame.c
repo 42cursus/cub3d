@@ -206,7 +206,7 @@ int	render_intro(void *param)
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	draw_rays(app, app->canvas);
-	// place_fps(app);
+	place_fps(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
