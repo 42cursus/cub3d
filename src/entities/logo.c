@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 19:51:25 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/04 23:19:24 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/05 09:33:49 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_texture *texture)
 	logo_piece->type = O_LOGO;
 	logo_piece->texture = texture;
 	logo_piece->dir = dir;
+	printf("\e[34mpiece\e[m:\t%2ld\t\e[34mdir\e[m:\t\e[31m% f\e[m, \e[32m% f\e[m\n", texture - app->shtex->logo_tex, dir.x, dir.y);
 	ft_lstadd_back(&map->logo, ft_lstnew(logo_piece));
 }
 
