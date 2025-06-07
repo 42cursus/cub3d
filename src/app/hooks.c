@@ -218,6 +218,10 @@ int key_press_credits(KeySym key, void *param)
 
 	if (key == XK_Up || key == XK_Down)
 		app->keys[get_key_index(key)] = true;
+	else if  (key == XK_Alt_L)
+	{
+		;
+	}
 	else
 	{
 		app->rc = ok;

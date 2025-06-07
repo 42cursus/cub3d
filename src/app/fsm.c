@@ -405,13 +405,15 @@ void	do_mmenu_to_credits(void *param)
 	fill_with_colour(app->bg, 0x000000, 0x000000);
 	replace_sky(app, (char *) "./textures/skybox.xpm");
 	draw_sky(app);
-	mlx_loop_hook(app->mlx, &render_credits, app);
-	app->mlx->end_loop = 0;
+
 	dummy = ft_calloc(1, sizeof(*dummy));
-	app->dummy = dummy;
 	dummy->dir = (t_vect){0.0, 1.0};
-	dummy->pos =  (t_vect){0.0, -0.6};
+	dummy->pos = (t_vect){0.0, -0.6};
 	dummy->speed = 0.002;
+
+	app->dummy = dummy;
+	app->mlx->end_loop = 0;
+	mlx_loop_hook(app->mlx, &render_credits, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *) &key_release_credits, app);
 	mlx_hook(app->win, ButtonPress, 0, NULL, app);
