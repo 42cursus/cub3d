@@ -137,7 +137,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 			set_fov(app, app->old_fov);
 		}
 		calculate_offsets(app, app->player);
-		replace_sky(app, (char *) "./textures/skybox.xpm");
+		replace_sky(app, (char *) "./resources/textures/skybox.xpm");
 		draw_sky_alt(app);
 	}
 	else if (button == 3)

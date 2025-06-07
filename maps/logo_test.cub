@@ -1,10 +1,10 @@
-NO textures/empty.xpm
-SO textures/empty.xpm
-WE textures/empty.xpm
-EA textures/empty.xpm
+NO resources/textures/empty.xpm
+SO resources/textures/empty.xpm
+WE resources/textures/empty.xpm
+EA resources/textures/empty.xpm
 
-F textures/empty.xpm
-C textures/empty.xpm
+F resources/textures/empty.xpm
+C resources/textures/empty.xpm
 
 1111111111111111111111111111111
 1000000000000000000000000000001

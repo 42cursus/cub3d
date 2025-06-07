@@ -1,9 +1,9 @@
-NO textures/grass_stone.xpm
-SO textures/grass_stone.xpm
-WE textures/stone_wall.xpm
-EA textures/stone_wall.xpm
+NO resources/textures/grass_stone.xpm
+SO resources/textures/grass_stone.xpm
+WE resources/textures/stone_wall.xpm
+EA resources/textures/stone_wall.xpm
 
-F textures/outside_floor.xpm
+F resources/textures/outside_floor.xpm
 C 0x64,0x9d,0xfa
 
 11111111111111111
