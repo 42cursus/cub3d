@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/04 20:25:44 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/07 18:05:05 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
 # include "SDL_mixer.h" //# include <SDL2/SDL_mixer.h>
 # include <ft2build.h>
 # include FT_FREETYPE_H
+#ifdef ft_snprintf
+# undef ft_snprintf
+#endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
