@@ -376,7 +376,7 @@ void draw_large_minimap(t_lvl *lvl)
 	scaled = scale_image(app, img_dup(app, minimap), new.x, new.y);
 	p.x = large_minimap->width - scaled->width;
 	p.y = 0;
-	place_tile_on_image32(large_minimap, scaled, p.x, p.y);
+	place_tile_on_image32(large_minimap, scaled, p);
 	lvl->map_scale_factor.x = (double)new.x / minimap->width;
 	lvl->map_scale_factor.y = (double)new.y / minimap->height;
 	lvl->minimap_xl = large_minimap;

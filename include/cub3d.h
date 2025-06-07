@@ -655,7 +655,7 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 # define CHAR_WIDTH 8
 
 void	apply_alpha(t_img *img, u_char alpha);
-void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y);
+void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar);
 int		check_endianness(void);
@@ -717,6 +717,7 @@ void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray);
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
+t_ivect scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
