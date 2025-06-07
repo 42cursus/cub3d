@@ -41,27 +41,29 @@ void	free_map_textures(t_info *app, t_img *tiles[])
 		mlx_destroy_image(app->mlx, tiles[i]);
 }
 
-int	get_tile_index(char **map, int i, int j)
+int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
 
 	index = 0;
-	index += !!((map[i + 1][j] - '0')) << 3;
-	index += !!((map[i][j + 1] - '0')) << 2;
-	index += !!((map[i - 1][j] - '0')) << 1;
-	index += !!((map[i][j - 1] - '0'));
+	/* Direct neighbors */
+	index += (map[i + 1][j] - '0' != 0) << 3;
+	index += (map[i][j + 1] - '0' != 0) << 2;
+	index += (map[i - 1][j] - '0' != 0) << 1;
+	index += map[i][j - 1] - '0' != 0;
+
 	return (index);
 }
-
 void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 {
 	int			i;
 	int			j;
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	u_int32_t	mask;
+	t_mcol		mc;
 
+	if (!tile)
+		return ;
 	i = -1;
 	while (++i < tile->height)
 	{
@@ -70,27 +72,12 @@ void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
 		j = -1;
 		while (++j < tile->width)
 		{
-			src_pixel = src_row[j];
-			mask = -(src_pixel != XPM_TRANSPARENT);
-			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			mc.colour = src_row[j];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[j] = (mc.colour & mc.mask) | (dst_row[j] & ~mc.mask);
 		}
 	}
 }
-
-// static inline __attribute__((always_inline, unused))
-// int	interpolate_colour(int col1, int col2, double frac)
-// {
-// 	int	r;
-// 	int	g;
-// 	int	b;
-//
-// 	if (col1 == col2)
-// 		return (col1);
-// 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-// 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
-// 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
-// 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
-// }
 
 void	place_char(char c, t_info *app, t_ivect pos, int scalar)
 {
@@ -198,37 +185,38 @@ void	place_items_minimap(t_info *app, t_lvl *lvl, t_img *img)
 	}
 }
 
-t_img	*build_minimap(t_info *app, t_img *tiles[])
+t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img	*img;
 	int		i;
 	int		j;
-	int		index;
+	t_img	*tile;
+	t_lvl	*const lvl = app->map;
+	t_img	*tiles[16];
 
-	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-
+	load_map_textures(app, tiles);
+	img = mlx_new_image(app->mlx, lvl->width * scale, lvl->height * scale);
 	ft_bzero(img->data, img->size_line * img->height);
 	apply_alpha(img, 255);
 	i = -1;
-	while (++i < app->map->height)
+	while (++i < lvl->height)
 	{
+		char *row = lvl->map[lvl->height - i - 1];
 		j = -1;
-		while (++j < app->map->width)
+		while (++j < lvl->width)
 		{
-			if (app->map->map[app->map->height - i - 1][j] == '0')
-			{
-				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				place_tile_on_image32(img, tiles[index], j * 8, i * 8);
-			}
-			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
-					 app->map->map[app->map->height - i - 1][j] == 'M' ||
-					 app->map->map[app->map->height - i - 1][j] == 'B' ||
-					 app->map->map[app->map->height - i - 1][j] == 'L')
-				place_tile_on_image32(img, tiles[15], j * 8, i * 8);
-
+			char chr = row[j];
+			if (chr == '0')
+				tile = tiles[get_tile_idx(lvl->map, lvl->height - i - 1, j)];
+			else if (ft_strchr("DMBL", chr))
+				tile = tiles[15];
+			else
+				tile = NULL;
+			place_tile_on_image32(img, tile, j * scale, i * scale);
 		}
 	}
-	place_items_minimap(app, app->map, img);
+	free_map_textures(app, tiles);
+	place_items_minimap(app, lvl, img);
 	apply_alpha(img, 127);
 	return (img);
 }

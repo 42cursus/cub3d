@@ -409,13 +409,11 @@ int	parse_cub(t_info *app, char *filename)
 	t_list	*file;
 	t_list	*current;
 	t_lvl	*lvl;
-	t_img	*tiles[16];
 
 	fd = open(filename, O_RDONLY);
 	lvl = app->map;
 	lvl->app = app;
 	lvl->sublvls[0] = ft_strdup(filename);
-	load_map_textures(app, tiles);
 	file = read_cub(fd);
 	if (!collect_map(file, lvl))
 		return (ft_list_destroy(&file, free),
@@ -436,7 +434,7 @@ int	parse_cub(t_info *app, char *filename)
 		return (printf("Error: not all fields provided\n"), 1);
 	spawn_map_objects(app, lvl);
 
-	lvl->minimap_xs = build_minimap(app, tiles);
+	lvl->minimap_xs = build_minimap(app, 8);
 
 	draw_large_minimap(lvl);
 	draw_help(lvl);
@@ -444,7 +442,6 @@ int	parse_cub(t_info *app, char *filename)
 
 	lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	init_anims(app, lvl);
-	free_map_textures(app, tiles);
 	close(fd);
 	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->map));
 	return (0);

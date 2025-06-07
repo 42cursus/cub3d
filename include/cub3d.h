@@ -770,7 +770,7 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
 void	free_shsnd(t_info *app);
 void	free_fonts(t_info *app);
-t_img	*build_minimap(t_info *app, t_img *tiles[]);
+t_img	*build_minimap(t_info *app, int scale);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
