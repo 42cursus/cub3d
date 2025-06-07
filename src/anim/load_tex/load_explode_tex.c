@@ -22,20 +22,20 @@ void	load_explode_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./textures/explode%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/explode%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 	}
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./textures/explode_mid%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/explode_mid%c.xpm", i + '0');
 		tex[i + 6].data = img_to_tex(app, buf, &tex[i + 6].x,
 									 &tex[i + 6].y);
 	}
 	i = -1;
 	while (++i < 5)
 	{
-		ft_snprintf(buf, 50, "./textures/explode_miss_big%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/explode_miss_big%c.xpm", i + '0');
 		tex[i + 12].data = img_to_tex(app, buf, &tex[i + 12].x,
 									  &tex[i + 12].y);
 	}

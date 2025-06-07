@@ -22,7 +22,7 @@ void	load_health_pu_tex(t_info *app)
 	i = 0;
 	while (i < 4)
 	{
-		ft_snprintf(buf, 50, "./textures/health_pu%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/health_pu%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
@@ -38,7 +38,7 @@ void	load_ammo_tex(t_info *app)
 	tex = app->shtex->missile_ammo;
 	while (i < 2)
 	{
-		ft_snprintf(buf, 50, "./textures/missile_ammo%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/missile_ammo%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
@@ -46,7 +46,7 @@ void	load_ammo_tex(t_info *app)
 	i = 0;
 	while (i < 2)
 	{
-		ft_snprintf(buf, 50, "./textures/super_ammo%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/super_ammo%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
@@ -58,9 +58,9 @@ void	load_etank_tex(t_info *app)
 
 	tex = app->shtex->etank_tex;
 	tex[0].data = img_to_tex(
-		app, (char *) "./textures/etank0.xpm", &tex[0].x, &tex[0].y);
+		app, (char *) "./resources/textures/etank0.xpm", &tex[0].x, &tex[0].y);
 	tex[1].data = img_to_tex(
-		app, (char *) "./textures/etank1.xpm", &tex[1].x, &tex[1].y);
+		app, (char *) "./resources/textures/etank1.xpm", &tex[1].x, &tex[1].y);
 }
 
 void	load_trophy_tex(t_info *app)
@@ -69,7 +69,7 @@ void	load_trophy_tex(t_info *app)
 
 	tex = app->shtex->trophy_tex;
 	tex[0].data = img_to_tex(
-		app, (char *) "./textures/trophy0.xpm", &tex[0].x, &tex[0].y);
+		app, (char *) "./resources/textures/trophy0.xpm", &tex[0].x, &tex[0].y);
 	tex[1].data = img_to_tex(
-		app, (char *) "./textures/trophy1.xpm", &tex[1].x, &tex[1].y);
+		app, (char *) "./resources/textures/trophy1.xpm", &tex[1].x, &tex[1].y);
 }

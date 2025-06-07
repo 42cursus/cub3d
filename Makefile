@@ -68,7 +68,7 @@ CUB_SRCS		:=
 TEXTURES		:=
 
 include $(SUB_DIRS:%=$(SRC_DIR)/%/Makefile.mk)
-include textures/Makefile.mk
+include resources/textures/Makefile.mk
 
 SRCS			:= src/main.c
 SRCS			+= $(CUB_SRCS)

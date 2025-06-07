@@ -22,7 +22,7 @@ void	load_atomic_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./textures/atomic%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/atomic%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 	}
 }
@@ -37,13 +37,13 @@ void	load_holtz_tex(t_info *app)
 	i = -1;
 	while (++i < 4)
 	{
-		ft_snprintf(buf, 50, "./textures/holtz%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/holtz%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 	}
 	tex[4].data = img_to_tex(
-		app, (char *) "./textures/holtz2.xpm", &tex[4].x, &tex[4].y);
+		app, (char *) "./resources/textures/holtz2.xpm", &tex[4].x, &tex[4].y);
 	tex[5].data = img_to_tex(
-		app, (char *) "./textures/holtz1.xpm", &tex[5].x, &tex[5].y);
+		app, (char *) "./resources/textures/holtz1.xpm", &tex[5].x, &tex[5].y);
 }
 
 void	load_reo_tex(t_info *app)
@@ -56,13 +56,13 @@ void	load_reo_tex(t_info *app)
 	tex = app->shtex->reo_tex;
 	while (i < 2)
 	{
-		ft_snprintf(buf, 50, "./textures/reo_%c.xpm", i + '0');
+		ft_snprintf(buf, 50, "./resources/textures/reo_%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
 	while (i < 4)
 	{
-		ft_snprintf(buf, 50, "./textures/reo_attack_%c.xpm", i - 2 + '0');
+		ft_snprintf(buf, 50, "./resources/textures/reo_attack_%c.xpm", i - 2 + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
@@ -86,7 +86,7 @@ void	load_phantoon_tex(t_info *app)
 	tex = app->shtex->phantoon;
 	while (i < 10)
 	{
-		ft_snprintf(buf, 50, "./textures/phantoon%c.xpm", ids[i] + '0');
+		ft_snprintf(buf, 50, "./resources/textures/phantoon%c.xpm", ids[i] + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 		i++;
 	}
@@ -102,7 +102,7 @@ void	load_zoomer_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./textures/crawler%c.xpm", i + '1');
+		ft_snprintf(buf, 50, "./resources/textures/crawler%c.xpm", i + '1');
 		tex[i].data = img_to_tex(app, buf, &tex[i].x, &tex[i].y);
 	}
 }

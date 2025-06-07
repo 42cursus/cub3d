@@ -22,7 +22,7 @@ void	load_map_textures(t_info *app, t_img *tiles[])
 	i = -1;
 	while (++i < 16)
 	{
-		ft_snprintf(buf, 40, "./textures/mmap/MAP%c%c%c%c.xpm",
+		ft_snprintf(buf, 40, "./resources/textures/mmap/MAP%c%c%c%c.xpm",
 			  // ((i & 16) >> 4) + '0',
 			  ((i & 8) >> 3) + '0',
 			  ((i & 4) >> 2) + '0',
