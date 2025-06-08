@@ -40,7 +40,7 @@ void	free_shtex(t_info *app)
 	free(app->shtex->tele.data);
 	free(app->shtex->scope.data);
 	free(app->shtex->empty.data);
-	mlx_destroy_image(app->mlx, app->shtex->alphabet);
+	free(app->shtex->alphabet.data);
 	free_tex_arr_arr(app->shtex->trophy_tex, 2);
 	free_tex_arr_arr(app->shtex->super_ammo, 2);
 	free_tex_arr_arr(app->shtex->missile_ammo, 2);

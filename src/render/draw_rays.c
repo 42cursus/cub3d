@@ -48,9 +48,9 @@ void	slice_draw_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars line)
 	t_lvect		var;
 	u_int32_t	*dst_px;
 	t_texture	*texture = ray->tex;
-	u_int32_t	*const tex_data = texture->data + ((int)ray->pos * texture->x);
+	u_int32_t	*const tex_data = texture->data + ((int)ray->pos * texture->w);
 
-	var.x = ((long)texture->y << FIXED_SHIFT) / line.height;
+	var.x = ((long)texture->h << FIXED_SHIFT) / line.height;
 	v3 = adjust_values(draw_pos, line, &var);
 	dst_px = (u_int32_t *) canvas->data + v3.screen_y * canvas->width + draw_pos.x;
 	while (++v3.row < v3.max_rows)
@@ -72,9 +72,9 @@ void	slice_draw_fixed_old(t_ivect draw_pos, t_ray *ray, t_img *canvas,
 	t_lvect			src_it;
 	t_ivect			it;
 	u_int			*dst_px;
-	u_int *const	tex_data = ray->tex->data + ((int)ray->pos * ray->tex->x);
+	u_int *const	tex_data = ray->tex->data + ((int)ray->pos * ray->tex->w);
 
-	src_it.x = ((long)ray->tex->y << FIXED_SHIFT) / line.height;
+	src_it.x = ((long)ray->tex->h << FIXED_SHIFT) / line.height;
 	src_it.y = 0;
 	it = (t_ivect){.x = line.top + draw_pos.y, .y = draw_pos.y - 1};
 	if (it.x < 0)
@@ -103,14 +103,14 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 	double	tex_y;
 	t_mcol	mc;
 	u_int	*dst_px;
-	u_int	*tex_data = texture->data + (texture->x * (int) ray->pos);
+	u_int	*tex_data = texture->data + (texture->w * (int) ray->pos);
 	u_int	*dst_data = (u_int *)canvas->data;
 
 	if (line.top < 0)
 		draw_pos.y = 0 - line.top;
 	while (draw_pos.y < line.height && draw_pos.y + line.top < WIN_HEIGHT)
 	{
-		tex_y = ((double) draw_pos.y / line.height) * texture->y;
+		tex_y = ((double) draw_pos.y / line.height) * texture->h;
 		mc.colour = tex_data[(int) tex_y];
 		mc.mask = -(mc.colour != XPM_TRANSPARENT);
 		mc.colour |= ((u_int[]) {0, MLX_RED})[ray->damaged];
@@ -119,7 +119,30 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 		draw_pos.y++;
 	}
 }
-
+/**
+ * 	typedef struct s_cdata
+ * 	{
+ * 		int	*src;
+ * 		int	*dst;
+ * 	}	t_cdata;
+ *
+ * 	typedef struct s_m128i
+ * 	{
+ * 		__m128i	tex_vec;
+ * 		__m128i	dst_vec;
+ * 		__m128i	mask;
+ * 		__m128i	blend;
+ * 		struct {
+ * 			int colour;
+ * 			u_int overlay;
+ * 		};
+ * 	}	t_m128i;
+ *
+ * @param pos
+ * @param ray
+ * @param cnvs
+ * @param line
+ */
 static inline __attribute__((always_inline))
 void	slice_drawing_sse41(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
 {
@@ -130,10 +153,10 @@ void	slice_drawing_sse41(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
 	t_cdata			cd;
 
 	mc.overlay = ((u_int[]){0, MLX_RED})[ray->damaged];
-	cd.src = (int *)ray->tex->data + (ray->tex->x * (int)ray->pos);
+	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
 	it.i = ((~dm.mask) & (pos.y - 1)) | (dm.mask & (-dm.diff));
 	it.j = dm.diff & ~dm.mask;
-	ts.step = (double)ray->tex->y / line.height;
+	ts.step = (double)ray->tex->h / line.height;
 	ts.tex_y = ts.step * it.i * (dm.diff < 0);
 	cd.dst = (int *)cnvs->data + it.j * cnvs->width + pos.x;
 	while (++it.i < line.height && it.j < WIN_HEIGHT)

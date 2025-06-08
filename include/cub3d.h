@@ -180,8 +180,8 @@ enum e_channel
 typedef struct s_texture
 {
 	u_int32_t	*data;
-	int			x;
-	int			y;
+	int			w;
+	int			h;
 }	t_texture;
 
 typedef const struct s_texture t_ctex;
@@ -441,7 +441,7 @@ typedef struct s_shtex
 	t_texture	dmg_tex[8];
 	t_texture	title;
 	t_texture	scope;
-	t_img		*alphabet;
+	t_texture	alphabet;
 	t_texture	tele;
 	t_texture	credits;
 	t_texture	boss_bar[2];
@@ -663,7 +663,7 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
-void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar);
+void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 int		check_endianness(void);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);

@@ -54,15 +54,16 @@ void	fill_with_colour(t_img *img, int f_col, int c_col)
 
 int	render_win(void *param)
 {
-	t_info *const	app = param;
-	size_t			time;
+	size_t				time;
+	t_info *const		app = param;
+	t_texture *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
-				100);
+
+	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -76,15 +77,15 @@ int	render_win(void *param)
 
 int	render_lose(void *param)
 {
-	size_t			time;
-	t_info *const	app = param;
+	size_t				time;
+	t_info *const		app = param;
+	t_texture *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
-	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
-				100);
+	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -152,13 +153,9 @@ int	render_play(void *param)
 	size_t				time;
 	t_info *const		app = param;
 
-	// if (app->keys[idx_XK_e])
-	// 	handle_open_door(app, &app->player->rays[WIN_WIDTH / 2]);
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	// if (app->mouse[1])
-	// 	spawn_projectile(app, app->player, app->map);
 	if (app->keys[idx_XK_w])
-		move_entity(&app->player->pos, app->map, scale_vect(app->player->dir, 0.1 / app->fr_scale));
+		move_entity(&app->player->pos, app->map,
+					scale_vect(app->player->dir, 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_s])
 		move_entity(&app->player->pos, app->map,
 					scale_vect(rotate_vect(app->player->dir, M_PI), 0.1 / app->fr_scale));
@@ -172,7 +169,6 @@ int	render_play(void *param)
 		rotate_player(app, app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 0, 12);
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
 	update_objects(app, app->player, app->map);
 	replace_frame(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -215,66 +211,19 @@ int	render_intro(void *param)
 	// app->fr_scale = 20000.0/app->fr_time;
 	// app->fr_count++;
 	on_expose(app);
-	// draw_hud(app);
 	return (0);
 }
-
-// int	render_intro(void *param)
-// {
-// 	size_t				time;
-// 	t_info *const		app = param;
-//
-// //	place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
-// //	place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
-//
-//
-// 	double scalar;
-//
-// 	scalar = app->fr_count * 0.01;
-//
-// 	if (scalar == 0)
-// 		scalar = 1;
-//
-// 	ft_memcpy(app->canvas->data, app->bg->data, app->bg->size_line * app->bg->height);
-// 	if (scalar < 3.8)
-// 	{
-// 		t_texture *tex = &app->shtex->title;
-// 		int new_x = tex->x * scalar;
-// 		int new_y = tex->y * scalar;
-// 		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
-// 		place_texarr_scale(app, tex, pos, scalar);
-// 	}
-// 	else if (app->fr_count > 710)
-// 	{
-// 		place_str_centred((char *)	"42 cub3D", app, (t_ivect){WIN_WIDTH / 2, 400}, 10);
-// 		place_str_centred((char *)	"[press any key to continue]", app, (t_ivect){WIN_WIDTH / 2, 550}, 2);
-// 	}
-// 	else
-// 	{
-// 		t_texture *tex = &app->shtex->title;
-// 		int new_x = tex->x * 3.8;
-// 		int new_y = tex->y * 3.8;
-// 		t_ivect pos = {WIN_WIDTH / 2 - new_x / 2, WIN_HEIGHT / 2 - new_y / 2};
-// 		place_texarr_scale(app, tex, pos, 3.8);
-// 	}
-// 	while (get_time_us() - app->fr_last < app->fr_delay)
-// 		usleep(100);
-// 	time = get_time_us();
-// 	app->fr_time = time - app->fr_last;
-// 	app->fr_last = time;
-// 	app->fr_count++;
-// 	on_expose(app);
-// 	return (0);
-// }
 
 int	render_mmenu(void *param)
 {
 	size_t				time;
 	t_info *const		app = param;
+	t_img *const		bg = app->bg;
+	t_texture *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
-
-	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2, 100);
+	fast_memcpy_test((int *)app->canvas->data,
+					 (int *)bg->data,  bg->size_line * bg->height);
+	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -291,10 +240,12 @@ int	render_pmenu(void *param)
 {
 	size_t				time;
 	t_info *const		app = param;
+	t_img *const		sshot = app->stillshot;
+	t_texture *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->stillshot->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	put_texture(app, &app->shtex->title, (WIN_WIDTH - app->shtex->title.x) / 2,
-				100);
+	fast_memcpy_test((int *)app->canvas->data, (int *)sshot->data,
+					 sshot->size_line * sshot->height);
+	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -310,6 +261,7 @@ int	render_credits(void *param)
 	t_info *const	app = param;
 	t_dummy			*dummy;
 	size_t			time;
+	t_img *const	bg = app->bg;
 
 	dummy = app->dummy;
 	if (app->keys[idx_XK_Up])
@@ -317,12 +269,13 @@ int	render_credits(void *param)
 	if (app->keys[idx_XK_Down])
 		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
 	dummy->pos.y -= dummy->speed / app->fr_scale;
-	if ((-dummy->pos.y) > ((double)app->shtex->credits.y / app->shtex->credits.x) + 2)
+	if ((-dummy->pos.y) > ((double)app->shtex->credits.h / app->shtex->credits.w) + 2)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_WIDTH * WIN_HEIGHT * sizeof(int));
+	fast_memcpy_test((int *)app->canvas->data,
+					 (int *)bg->data,  bg->size_line * bg->height);
 	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
 	draw_credits(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)

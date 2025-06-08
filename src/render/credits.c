@@ -18,7 +18,7 @@ int	linear_filter_credits(t_vect idx, const t_texture *tex)
 {
 	const double	frac = fmod(idx.x, 1.0);
 
-	int x = (int) idx.y * tex->x + (int) (idx.x);
+	int x = (int) idx.y * tex->w + (int) (idx.x);
 
 	t_colour left = *(t_colour *)&tex->data[x];
 	t_colour right = *(t_colour *)&tex->data[x + 1];
@@ -65,8 +65,8 @@ int bilinear_credits(t_vect idx, const t_texture *tex)
 	const double frac_x = fmod(idx.x, 1.0);
 	const double frac_y = fmod(idx.y, 1.0);
 
-	const int row1 = y * tex->x;
-	const int row2 = (y + 1 < tex->y) ? (y + 1) * tex->x : row1;
+	const int row1 = y * tex->w;
+	const int row2 = (y + 1 < tex->h) ? (y + 1) * tex->w : row1;
 
 	const int x1 = x;
 	const int x2 = x + 1;
@@ -132,14 +132,14 @@ int	bilinear_filter_old(double x, double y, const t_texture *tex)
 
 	int interp;
 
-	if (x_upper == tex->x)
+	if (x_upper == tex->w)
 		x_upper = 0;
-	int col1 = (int)tex->data[y_lower * tex->x + x_lower];
-	int col2 = (int)tex->data[y_lower * tex->x + x_upper];
-	if (y_upper != tex->y)
+	int col1 = (int)tex->data[y_lower * tex->w + x_lower];
+	int col2 = (int)tex->data[y_lower * tex->w + x_upper];
+	if (y_upper != tex->h)
 	{
-		int col3 = (int) tex->data[y_upper * tex->x + x_lower];
-		int col4 = (int) tex->data[y_upper * tex->x + x_upper];
+		int col3 = (int) tex->data[y_upper * tex->w + x_lower];
+		int col4 = (int) tex->data[y_upper * tex->w + x_upper];
 
 		col1 = interpolate_colour_inline(col1, col2, fmod(x, 1));
 		col2 = interpolate_colour_inline(col3, col4, fmod(x, 1));
@@ -174,15 +174,15 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 
 	step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
 	curr_x = l_pos.x;
-	idx.y = (-l_pos.y) * tex->x;
-	if (l_pos.y > 0 || idx.y > tex->y)
+	idx.y = (-l_pos.y) * tex->w;
+	if (l_pos.y > 0 || idx.y > tex->h)
 		return ;
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
 		if (curr_x > lim.x && curr_x < lim.y)
 		{
-			idx.x = (0.5 + curr_x) * tex->x;
+			idx.x = (0.5 + curr_x) * tex->w;
 //			t_colour *colour = (void *)&(int [1]){ bilinear_filter_old(idx, tex)};
 			t_colour *colour = (void *)&(int [1]){bilinear_credits(idx, tex)};
 //			t_colour *colour = (void *)&(int [1]){linear_filter_credits(idx, tex)};

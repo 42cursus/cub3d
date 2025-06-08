@@ -96,9 +96,9 @@ t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 	init_pooled_ray(out, object, player, intcpt);
 	if (out->distance > ray->distance)
 		return (NULL);
-	out->pos = vector_distance2(intcpt, object->p2) * out->tex->x;
-	if (out->pos >= out->tex->x)
-		out->pos = out->tex->x - 1;
+	out->pos = vector_distance2(intcpt, object->p2) * out->tex->w;
+	if (out->pos >= out->tex->w)
+		out->pos = out->tex->w - 1;
 	if (get_time_us() - object->last_damaged < 100000)
 		out->damaged = 1;
 	return (out);

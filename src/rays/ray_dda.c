@@ -24,12 +24,12 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player,
 	if (face_mod == 3 || face_mod == 0)
 	{
 		ray->intcpt = get_horizontal_int(ray->intcpt.y, gradient, c);
-		ray->pos = (fmod(ray->intcpt.x, 1) * ray->tex->x);
+		ray->pos = (fmod(ray->intcpt.x, 1) * ray->tex->w);
 	}
 	else
 	{
 		ray->intcpt = get_vertical_int(ray->intcpt.x, gradient, c);
-		ray->pos = (fmod(ray->intcpt.y, 1) * ray->tex->x);
+		ray->pos = (fmod(ray->intcpt.y, 1) * ray->tex->w);
 	}
 	ray->distance = get_cam_distance(player->pos,
 			player->angle + M_PI_2, ray->intcpt);

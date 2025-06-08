@@ -252,7 +252,7 @@ void	blend_4pixels(u_int32_t *src, u_int32_t *dst)
 	t_vec4 fd = unpack_rgba_bytes_to_floats(_dst);
 	t_vec4 opacity = extract_opacity_from_inverted_alpha(fs);
 	t_vec4 blended = blend_pixels(fs, fd, opacity);
-	_mm_storeu_si128((__m128i *) dst, repack_floats_to_bytes(blended));
+	_mm_storeu_si128((__m128i *)dst, repack_floats_to_bytes(blended));
 }
 
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)

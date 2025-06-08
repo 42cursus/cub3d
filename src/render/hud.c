@@ -81,11 +81,11 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
 	t_img *const	cnvs = app->canvas;
-	t_img *const	alph = app->shtex->alphabet;
+	t_texture const	alph = app->shtex->alphabet;
 	t_ivect			it;
 	int const 		x = (c - ' ') * CHAR_WIDTH;
-	u_int32_t		*src_row;
-	u_int32_t		*dst_row;
+	u_int			*src_row;
+	u_int			*dst_row;
 	t_mcol			mc;
 
 	if (!ft_isprint(c) || scalar < 1)
@@ -93,8 +93,8 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 	it.y = -1;
 	while (++it.y < CHAR_WIDTH * scalar)
 	{
-		src_row = (u_int32_t *)alph->data + ((it.y / scalar) * alph->width) + x;
-		dst_row = (u_int32_t *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
+		src_row = (u_int *)alph.data + ((it.y / scalar) * alph.w) + x;
+		dst_row = (u_int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
 		it.x = -1;
 		while (++it.x < CHAR_WIDTH * scalar)
 		{
@@ -108,7 +108,7 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
 	t_img *const	cnvs = app->canvas;
-	t_img *const	alph = app->shtex->alphabet;
+	t_texture const	alph = app->shtex->alphabet;
 	t_ivect			it;
 	int const		x = (c - ' ') * CHAR_WIDTH;
 	u_int	*src_row;
@@ -120,7 +120,7 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 	it.y = -1;
 	while (++it.y < CHAR_WIDTH * p.z)
 	{
-		src_row = (u_int *)alph->data + ((it.y / p.z) * alph->width) + x;
+		src_row = (u_int *)alph.data + ((it.y / p.z) * alph.w) + x;
 		dst_row = (u_int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
 		it.x = -1;
 		while (++it.x < CHAR_WIDTH * p.z)
@@ -290,8 +290,8 @@ void	place_mmap(t_info *app)
 		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 4;
 
 
-		p2.x -= texture->x / 2;
-		p2.y -= texture->y / 2;
+		p2.x -= texture->w / 2;
+		p2.y -= texture->h / 2;
 
 		place_tile_on_image32_alpha(canvas, minimap, p1);
 		put_texture(app, texture, p2.x, p2.y);
@@ -330,12 +330,12 @@ void	put_texture(t_info *app, t_texture *tex, int x, int y)
 	t_ivect			i;
 
 	i.y = -1;
-	while (++i.y < tex->y)
+	while (++i.y < tex->h)
 	{
-		src_row = (u_int32_t *)tex->data + (i.y * tex->x);
+		src_row = (u_int32_t *)tex->data + (i.y * tex->w);
 		dst_row = (u_int32_t *)canvas->data + ((i.y + y) * canvas->width) + x;
 		i.x = -1;
-		while (++i.x < tex->x)
+		while (++i.x < tex->w)
 		{
 			mc.colour = src_row[i.x];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
@@ -351,13 +351,13 @@ void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, dou
 	u_int32_t		*src_row;
 	u_int32_t		*dst_row;
 	t_mcol			mc;
-	t_ivect			limit = scale_ivect((t_ivect){tex->x, tex->y}, scalar);
+	t_ivect			limit = scale_ivect((t_ivect){tex->w, tex->h}, scalar);
 
 	step = 1.0 / scalar;
 	it.y = -1;
 	while (++it.y < limit.y)
 	{
-		src_row = tex->data + (int)(it.y * step + 0.5) * tex->x;
+		src_row = tex->data + (int)(it.y * step + 0.5) * tex->w;
 		dst_row = (u_int32_t *) img->data + ((it.y + pos.y) * img->width) + pos.x;
 		it.x = -1;
 		while (++it.x < limit.x)
@@ -369,31 +369,37 @@ void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, dou
 	}
 }
 
-void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
+/**
+ *
+ * @param c
+ * @param img
+ * @param app
+ * @param ps position + scalar => ps
+ */
+void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 {
-	t_img *const	alphabet = app->shtex->alphabet;
-	int		i;
-	int		j;
-	int		start_x;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	t_mcol		mc;
+	t_texture const	alph = app->shtex->alphabet;
+	t_ivect			it;
+	int				start_x;
+	u_int			*src_row;
+	u_int			*dst_row;
+	t_mcol			mc;
 
-	if (!ft_isprint(c) || pos_scalar.z < 1)
+	if (!ft_isprint(c) || ps.z < 1)
 		return ;
 	start_x = (c - ' ') * CHAR_WIDTH;
 
-	i = -1;
-	while (++i < CHAR_WIDTH * pos_scalar.z)
+	it.y = -1;
+	while (++it.y < CHAR_WIDTH * ps.z)
 	{
-		src_row = (u_int32_t *)alphabet->data + ((i / pos_scalar.z) * alphabet->width) + start_x;
-		dst_row = (u_int32_t *)img->data + ((i + pos_scalar.y) * img->width) + pos_scalar.x;
-		j = -1;
-		while (++j < CHAR_WIDTH * pos_scalar.z)
+		src_row = (u_int *)alph.data + ((it.y / ps.z) * alph.w) + start_x;
+		dst_row = (u_int *)img->data + ((it.y + ps.y) * img->width) + ps.x;
+		it.x = -1;
+		while (++it.x < CHAR_WIDTH * ps.z)
 		{
-			mc.colour = src_row[j / pos_scalar.z];
+			mc.colour = src_row[it.x / ps.z];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			dst_row[j] = (mc.colour & mc.mask) | (dst_row[j] & ~mc.mask);
+			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
 	}
 }
@@ -486,7 +492,7 @@ void	place_weapon(t_info *app)
 	}
 	else
 		tex = &app->shtex->cannon_tex[0];
-	put_texture(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->y);
+	put_texture(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->h);
 }
 
 void	place_energy_backup(t_info *app, t_player *player)
@@ -577,8 +583,8 @@ void	place_scope(t_info *app)
 	t_texture *scope;
 
 	scope = &app->shtex->scope;
-	put_texture(app, scope, WIN_WIDTH / 2 - scope->x / 2,
-				WIN_HEIGHT / 2 - scope->y / 2);
+	put_texture(app, scope, WIN_WIDTH / 2 - scope->w / 2,
+				WIN_HEIGHT / 2 - scope->h / 2);
 }
 
 void	place_dmg(t_info *app, t_player *player)
@@ -598,8 +604,8 @@ void	place_dmg(t_info *app, t_player *player)
 	offset = scale_vect((t_vect){0, -1}, WIN_HEIGHT / 4.0);
 	offset = rotate_vect(offset, (-dir) * M_PI_4);
 	coords = (t_ivect){offset.x, offset.y};
-	coords.x -= (tex->x / 2);
-	coords.y -= (tex->y / 2);
+	coords.x -= (tex->w / 2);
+	coords.y -= (tex->h / 2);
 	coords.x += WIN_WIDTH / 2;
 	coords.y += WIN_HEIGHT / 2;
 	// printf("dmg_dir: %d offset: (%d, %d)\n", player->dmg_dir, coords.x, coords.y);
