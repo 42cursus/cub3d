@@ -623,6 +623,7 @@ typedef struct s_info
 	t_timer		timer;
 	t_dummy		*dummy;
 	int			sensitivity;
+	int 		hint_shown;
 }	t_info;
 
 typedef struct s_colour

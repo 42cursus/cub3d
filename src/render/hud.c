@@ -157,11 +157,47 @@ void	apply_alpha(t_img *img, u_char alpha)
 	}
 }
 
-void	place_triggers_minimap(t_info *app, t_lvl *lvl, t_img *img, int scale)
+__attribute__((optnone))
+void	place_items_minimap(t_lvl *lvl, t_point offset)
 {
 	t_list		*current;
 	t_object	*curr_obj;
-	t_ivect3	pos_scalar;
+	t_img *const	cnvs = lvl->app->canvas;
+	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_WHITE + 0xAA000000}, .w = 2, .h = 2};
+
+	t_img 	*mmap = lvl->minimap_xl;
+	t_point			p3;
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+
+	t_point l = (t_point){lvl->width, lvl->height};
+
+	int scalar = 2;
+	current = lvl->items;
+	while (current != NULL)
+	{
+		curr_obj = current->content;
+		if (curr_obj->type == O_ITEM)
+		{
+			int dx = (l.x - curr_obj->pos.x) * msf.x;
+			int dy = (l.y - curr_obj->pos.y) * msf.y;
+
+			p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
+			p3.y = dy + offset.y + lvl->mmap_origin.y;
+
+			p3.x -= tile->w * scalar / 2;
+			p3.y -= tile->h * scalar / 2;
+			place_tex_to_image_scale(cnvs, tile, p3, scalar);
+		}
+		current = current->next;
+	}
+}
+
+void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
+{
+	t_list			*current;
+	t_object		*curr_obj;
+	t_ivect3		pos_scalar;
+	t_info *const	app = lvl->app;
 
 	current = lvl->triggers;
 	pos_scalar.z = scale / MMAP_TILE_WIDTH;
@@ -216,7 +252,7 @@ t_img	*build_minimap(t_info *app, int scale)
 		}
 	}
 	free_map_textures(app, tiles);
-	place_triggers_minimap(app, lvl, img, scale);
+	place_triggers_minimap(lvl, img, scale);
 	apply_alpha(img, 0x7F);
 	return (img);
 }
@@ -227,12 +263,18 @@ void	place_startup_overlay(t_info *app)
 	t_lvl *const	lvl = app->map;
 	t_img *const	overlay = lvl->overlay;
 	t_img *const	canvas = app->canvas;
+	int				hint_shown = app->hint_shown;
 
-	if (app->fr_count < 500)
+	if (!hint_shown)
 	{
-		p1.x = WIN_WIDTH / 2 - overlay->width / 2;
-		p1.y = WIN_HEIGHT / 2 - overlay->height / 2;
-		place_tile_on_image32_alpha(canvas, overlay, p1);
+		if (app->fr_count < 500)
+		{
+			p1.x = WIN_WIDTH / 2 - overlay->width / 2;
+			p1.y = 0;
+			place_tile_on_image32_alpha(canvas, overlay, p1);
+		}
+		else
+			app->hint_shown = true;
 	}
 }
 
@@ -251,39 +293,53 @@ void	place_help(t_info *app)
 	}
 }
 
+t_point getIvect(t_lvl *const lvl, t_point offset, const t_img *pointer, const t_player *obj)
+{
+	t_img 	*mmap = lvl->minimap_xl;
+	t_point			p3;
+	t_vect const	map_scale_factor = lvl->map_scale_factor;
+
+	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_WIDTH * map_scale_factor.x;
+	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * map_scale_factor.x;
+
+	p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
+	p3.y = dy + offset.y + lvl->mmap_origin.y;
+
+	p3.x -= pointer->width / 2;
+	p3.y -= pointer->height / 2;
+
+	return p3;
+}
+
 void	place_mmap(t_info *app)
 {
-	t_img 			*minimap;
 	t_lvl *const	lvl = app->map;
 	t_img *const	canvas = app->canvas;
 	t_player *const	player = app->player;
 	t_point			p1;
 	t_point			p2;
-	t_vect const	map_scale_factor = lvl->map_scale_factor;
+
 
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
-		t_img			*pointer = app->pointer;
-		minimap = lvl->minimap_xl;
+		t_img	*pointer = app->pointer;
 
+		t_player *obj = player;
+		t_img 	*minimap = lvl->minimap_xl;
 		p1.x = WIN_WIDTH / 2 - minimap->width / 2;
 		p1.y = WIN_HEIGHT / 2 - minimap->height / 2;
 
-		int dx = (lvl->width - player->pos.x) * MMAP_TILE_WIDTH * map_scale_factor.x;
-		int dy = (lvl->height - player->pos.y) * MMAP_TILE_HEIGHT * map_scale_factor.x;
+		p2 = getIvect(lvl, p1, pointer, obj);
 
-		p2.x = minimap->width - dx + p1.x - lvl->mmap_origin.x;
-		p2.y = dy + p1.y + lvl->mmap_origin.y;
-
-		p2.x -= pointer->width / 2;
-		p2.y -= pointer->height / 2;
 		place_tile_on_image32_alpha(canvas, minimap, p1);
 		place_tile_on_image32_alpha(canvas, pointer, p2);
+
+		place_items_minimap(lvl, p1);
 	}
 	else
 	{
 		t_texture *texture = &app->shtex->square;
-		minimap = lvl->minimap_xs;
+		t_img 	*minimap = lvl->minimap_xs;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
 		p2.x = floor(app->player->pos.x) * 8 + 4 + WIN_WIDTH - lvl->width * 8;
@@ -357,12 +413,12 @@ void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, dou
 	it.y = -1;
 	while (++it.y < limit.y)
 	{
-		src_row = tex->data + (int)(it.y * step + 0.5) * tex->w;
+		src_row = tex->data + (int)(it.y * step) * tex->w;
 		dst_row = (u_int32_t *) img->data + ((it.y + pos.y) * img->width) + pos.x;
 		it.x = -1;
 		while (++it.x < limit.x)
 		{
-			mc.colour = src_row[(int)(it.x * step + 0.5)];
+			mc.colour = src_row[(int)(it.x * step)];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
