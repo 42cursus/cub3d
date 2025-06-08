@@ -158,12 +158,12 @@ void	apply_alpha(t_img *img, u_char alpha)
 }
 
 __attribute__((optnone))
-void	place_items_minimap(t_lvl *lvl, t_point offset)
+void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list		*current;
 	t_object	*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
-	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_WHITE + 0xAA000000}, .w = 2, .h = 2};
+	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
 
 	t_img 	*mmap = lvl->minimap_xl;
 	t_point			p3;
@@ -171,21 +171,46 @@ void	place_items_minimap(t_lvl *lvl, t_point offset)
 
 	t_point l = (t_point){lvl->width, lvl->height};
 
-	int scalar = 2;
+	offset.x += mmap->width - lvl->mmap_origin.x - l.x * msf.x - tile->w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + l.y * msf.y - tile->h * scalar / 2;
 	current = lvl->items;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
 		if (curr_obj->type == O_ITEM)
 		{
-			int dx = (l.x - curr_obj->pos.x) * msf.x;
-			int dy = (l.y - curr_obj->pos.y) * msf.y;
+			p3.x = offset.x + curr_obj->pos.x * msf.x;
+			p3.y = offset.y - curr_obj->pos.y * msf.y;
+			place_tex_to_image_scale(cnvs, tile, p3, scalar);
+		}
+		current = current->next;
+	}
+}
 
-			p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
-			p3.y = dy + offset.y + lvl->mmap_origin.y;
+__attribute__((optnone))
+void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
+{
+	t_list		*current;
+	t_object	*curr_obj;
+	t_img *const	cnvs = lvl->app->canvas;
+	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
-			p3.x -= tile->w * scalar / 2;
-			p3.y -= tile->h * scalar / 2;
+	t_img 	*mmap = lvl->minimap_xl;
+	t_point			p3;
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+
+	t_point l = (t_point){lvl->width, lvl->height};
+
+	offset.x += mmap->width - lvl->mmap_origin.x - l.x * msf.x - tile->w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + l.y * msf.y - tile->h * scalar / 2;
+	current = lvl->enemies;
+	while (current != NULL)
+	{
+		curr_obj = current->content;
+		if (curr_obj->type == O_ENTITY)
+		{
+			p3.x = offset.x + curr_obj->pos.x * msf.x;
+			p3.y = offset.y - curr_obj->pos.y * msf.y;
 			place_tex_to_image_scale(cnvs, tile, p3, scalar);
 		}
 		current = current->next;
@@ -293,14 +318,16 @@ void	place_help(t_info *app)
 	}
 }
 
-t_point getIvect(t_lvl *const lvl, t_point offset, const t_img *pointer, const t_player *obj)
+static inline __attribute__((always_inline, unused))
+t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
+						const t_player *obj)
 {
 	t_img 	*mmap = lvl->minimap_xl;
 	t_point			p3;
-	t_vect const	map_scale_factor = lvl->map_scale_factor;
+	t_vect const	msf = lvl->map_scale_factor;
 
-	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_WIDTH * map_scale_factor.x;
-	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * map_scale_factor.x;
+	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_WIDTH * msf.x;
+	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * msf.x;
 
 	p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
 	p3.y = dy + offset.y + lvl->mmap_origin.y;
@@ -319,32 +346,33 @@ void	place_mmap(t_info *app)
 	t_point			p1;
 	t_point			p2;
 
+	t_texture *texture = &app->shtex->square;
+	t_img 	*minimap;
 
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
 		t_img	*pointer = app->pointer;
+		minimap = lvl->minimap_xl;
+		p1.x = (WIN_WIDTH - minimap->width) / 2;
+		p1.y = (WIN_HEIGHT - minimap->height) / 2;
 
-		t_player *obj = player;
-		t_img 	*minimap = lvl->minimap_xl;
-		p1.x = WIN_WIDTH / 2 - minimap->width / 2;
-		p1.y = WIN_HEIGHT / 2 - minimap->height / 2;
-
-		p2 = getIvect(lvl, p1, pointer, obj);
+		p2 = calc_player_pos(lvl, p1, pointer, player);
 
 		place_tile_on_image32_alpha(canvas, minimap, p1);
 		place_tile_on_image32_alpha(canvas, pointer, p2);
 
-		place_items_minimap(lvl, p1);
+		place_items_minimap(lvl, p1, 2);
+		place_enemies_minimap(lvl, p1, 2);
 	}
 	else
 	{
-		t_texture *texture = &app->shtex->square;
-		t_img 	*minimap = lvl->minimap_xs;
+		minimap = lvl->minimap_xs;
+		texture = &app->shtex->square;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
-		p2.x = floor(app->player->pos.x) * 8 + 4 + WIN_WIDTH - lvl->width * 8;
-		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * 8 + 4;
 
+		p2.x = (floor(app->player->pos.x) - lvl->width) * MMAP_TILE_WIDTH + 4 + WIN_WIDTH;
+		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * MMAP_TILE_WIDTH + 4;
 
 		p2.x -= texture->w / 2;
 		p2.y -= texture->h / 2;
