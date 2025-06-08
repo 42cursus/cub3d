@@ -74,6 +74,109 @@ enum e_dir
 	RIGHT
 };
 
+enum
+{
+	NONE = 0,
+	FLOOR = 1,
+	CEILING = 2,
+	NORTH = 3,
+	SOUTH = 4,
+	EAST = 5,
+	WEST = 6,
+	DOOR_N = 7,
+	DOOR_S = 8,
+	DOOR_E = 9,
+	DOOR_W = 10,
+	DOOR_N_OPEN = 11,
+	DOOR_S_OPEN = 12,
+	DOOR_E_OPEN = 13,
+	DOOR_W_OPEN = 14,
+	LVL_A = 15,
+	LVL_B = 16,
+	LVL_C = 17,
+	MU,
+};
+
+typedef	enum e_etype
+{
+	O_PROJ = 0,
+	O_ENTITY = 1,
+	O_ITEM = 2,
+	O_EPROJ = 3,
+	O_TRIGGER = 4,
+	O_TELE = 5,
+	O_LOGO,
+}	t_etype;
+
+typedef enum e_subtype
+{
+	E_ZOOMER,
+	E_ATOMIC,
+	E_REO,
+	E_HOLTZ,
+	E_PHANTOON,
+	I_ETANK,
+	I_SUPER,
+	I_MISSILE,
+	I_AMMO_M,
+	I_AMMO_S,
+	I_HEALTH,
+	I_TROPHY,
+	T_BOSS,
+	P_PHANTOON,
+	P_HOLTZ,
+}	t_subtype;
+
+enum e_idx
+{
+	idx_XK_a = 0,
+	idx_XK_d,
+	idx_XK_e,
+	idx_XK_s,
+	idx_XK_w,
+	idx_XK_x,
+	idx_XK_Left,
+	idx_XK_Up,
+	idx_XK_Right,
+	idx_XK_Down,
+};
+
+enum e_snd
+{
+	snd_door = 0,
+	snd_gun,
+	snd_hash,
+	snd_intro,
+	snd_portal,
+	snd_boss_die,
+	snd_rocket,
+	snd_door_open,
+	snd_door_close,
+	snd_pickup_ammo,
+	snd_pickup_health,
+	snd_enemy_death,
+	snd_enemy_attack1,
+	snd_enemy_attack2,
+	snd_enemy_shot,
+	snd_music_boss,
+	snd_player_damage,
+	snd_win_music,
+	snd_MAX
+};
+
+enum e_channel
+{
+	ch_any = -1,
+	ch_music = 0,
+	ch_door,
+	ch_item,
+	ch_tele,
+	ch_weapons,
+	ch_enemies,
+	ch_player,
+	ch_MAX = MIX_CHANNELS
+};
+
 typedef struct s_texture
 {
 	u_int32_t	*data;
@@ -438,108 +541,6 @@ typedef struct s_dummy
 	double	speed;
 }	t_dummy;
 
-enum
-{
-	NONE = 0,
-	FLOOR = 1,
-	CEILING = 2,
-	NORTH = 3,
-	SOUTH = 4,
-	EAST = 5,
-	WEST = 6,
-	DOOR_N = 7,
-	DOOR_S = 8,
-	DOOR_E = 9,
-	DOOR_W = 10,
-	DOOR_N_OPEN = 11,
-	DOOR_S_OPEN = 12,
-	DOOR_E_OPEN = 13,
-	DOOR_W_OPEN = 14,
-	LVL_A = 15,
-	LVL_B = 16,
-	LVL_C = 17,
-	MU,
-};
-
-typedef	enum e_etype
-{
-	O_PROJ = 0,
-	O_ENTITY = 1,
-	O_ITEM = 2,
-	O_EPROJ = 3,
-	O_TRIGGER = 4,
-	O_TELE = 5,
-	O_LOGO,
-}	t_etype;
-
-typedef enum e_subtype
-{
-	E_ZOOMER,
-	E_ATOMIC,
-	E_REO,
-	E_HOLTZ,
-	E_PHANTOON,
-	I_ETANK,
-	I_SUPER,
-	I_MISSILE,
-	I_AMMO_M,
-	I_AMMO_S,
-	I_HEALTH,
-	I_TROPHY,
-	T_BOSS,
-	P_PHANTOON,
-	P_HOLTZ,
-}	t_subtype;
-
-enum e_idx
-{
-	idx_XK_a = 0,
-	idx_XK_d,
-	idx_XK_e,
-	idx_XK_s,
-	idx_XK_w,
-	idx_XK_x,
-	idx_XK_Left,
-	idx_XK_Up,
-	idx_XK_Right,
-	idx_XK_Down,
-};
-
-enum e_snd
-{
-	snd_door = 0,
-	snd_gun,
-	snd_hash,
-	snd_intro,
-	snd_portal,
-	snd_boss_die,
-	snd_rocket,
-	snd_door_open,
-	snd_door_close,
-	snd_pickup_ammo,
-	snd_pickup_health,
-	snd_enemy_death,
-	snd_enemy_attack1,
-	snd_enemy_attack2,
-	snd_enemy_shot,
-	snd_music_boss,
-	snd_player_damage,
-	snd_win_music,
-	snd_MAX
-};
-
-enum e_channel
-{
-	ch_any = -1,
-	ch_music = 0,
-	ch_door,
-	ch_item,
-	ch_tele,
-	ch_weapons,
-	ch_enemies,
-	ch_player,
-	ch_MAX = MIX_CHANNELS
-};
 
 /**
  * frequency: DSP frequency -- samples per second
@@ -656,6 +657,8 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 # define CHAR_WIDTH 8
+# define MMAP_TILE_WIDTH 8
+# define MMAP_TILE_HEIGHT 8
 
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
@@ -754,7 +757,7 @@ void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_texture *tex, int x, int y);
-void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar);
+void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, double scalar);
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);

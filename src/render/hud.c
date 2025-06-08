@@ -157,21 +157,22 @@ void	apply_alpha(t_img *img, u_char alpha)
 	}
 }
 
-void	place_items_minimap(t_info *app, t_lvl *lvl, t_img *img)
+void	place_triggers_minimap(t_info *app, t_lvl *lvl, t_img *img, int scale)
 {
 	t_list		*current;
 	t_object	*curr_obj;
 	t_ivect3	pos_scalar;
 
 	current = lvl->triggers;
-	pos_scalar.z = 1;
+	pos_scalar.z = scale / MMAP_TILE_WIDTH;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
 		if (curr_obj->type == O_TELE)
 		{
-			pos_scalar.x = (int)curr_obj->pos.x * 8;
-			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * 8 + 1;
+			pos_scalar.x = (int)curr_obj->pos.x * MMAP_TILE_WIDTH;
+			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * MMAP_TILE_HEIGHT + 1;
+			pos_scalar.xy = scale_ivect(pos_scalar.xy,  scale / MMAP_TILE_WIDTH);
 			place_char_img('t', img, app, pos_scalar);
 		}
 		current = current->next;
@@ -212,31 +213,13 @@ t_img	*build_minimap(t_info *app, int scale)
 				place_tile_on_image32(img, tile, scale_ivect(it, scale));
 				mlx_destroy_image(app->mlx, tile);
 			}
-
 		}
 	}
 	free_map_textures(app, tiles);
-	place_items_minimap(app, lvl, img);
+	place_triggers_minimap(app, lvl, img, scale);
 	apply_alpha(img, 0x7F);
 	return (img);
 }
-
-// void	place_items_minimapxl(t_info *app, t_lvl *lvl)
-// {
-// 	t_list		*current;
-// 	t_object	*curr_obj;
-//
-// 	current = lvl->triggers;
-// 	while (current != NULL)
-// 	{
-// 		curr_obj = current->content;
-// 		if (curr_obj->type == O_TELE)
-// 		{
-// 			place_char('t', app, (t_ivect3){(int)curr_obj->pos.x * 8, (lvl->height - (int)curr_obj->pos.y - 1) * 8 + 1, 1});
-// 		}
-// 		current = current->next;
-// 	}
-// }
 
 void	place_startup_overlay(t_info *app)
 {
@@ -286,8 +269,8 @@ void	place_mmap(t_info *app)
 		p1.x = WIN_WIDTH / 2 - minimap->width / 2;
 		p1.y = WIN_HEIGHT / 2 - minimap->height / 2;
 
-		int dx = (lvl->width - player->pos.x) * 8 * map_scale_factor.x;
-		int dy = (lvl->height - player->pos.y) * 8 * map_scale_factor.x;
+		int dx = (lvl->width - player->pos.x) * MMAP_TILE_WIDTH * map_scale_factor.x;
+		int dy = (lvl->height - player->pos.y) * MMAP_TILE_HEIGHT * map_scale_factor.x;
 
 		p2.x = minimap->width - dx + p1.x - lvl->mmap_origin.x;
 		p2.y = dy + p1.y + lvl->mmap_origin.y;
@@ -361,26 +344,23 @@ void	put_texture(t_info *app, t_texture *tex, int x, int y)
 	}
 }
 
-void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
+void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, double scalar)
 {
 	t_ivect			it;
 	double			step;
 	u_int32_t		*src_row;
 	u_int32_t		*dst_row;
 	t_mcol			mc;
-	t_img *const	canvas = app->canvas;
-
-	int new_x = tex->x * scalar;
-	int new_y = tex->y * scalar;
+	t_ivect			limit = scale_ivect((t_ivect){tex->x, tex->y}, scalar);
 
 	step = 1.0 / scalar;
 	it.y = -1;
-	while (++it.y < new_y)
+	while (++it.y < limit.y)
 	{
 		src_row = tex->data + (int)(it.y * step + 0.5) * tex->x;
-		dst_row = (u_int32_t *) canvas->data + ((it.y + pos.y) * canvas->width) + pos.x;
+		dst_row = (u_int32_t *) img->data + ((it.y + pos.y) * img->width) + pos.x;
 		it.x = -1;
-		while (++it.x < new_x)
+		while (++it.x < limit.x)
 		{
 			mc.colour = src_row[(int)(it.x * step + 0.5)];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
@@ -388,54 +368,6 @@ void	place_texarr_scale(t_info *app, t_texture *tex, t_ivect pos, double scalar)
 		}
 	}
 }
-
-// void	place_char_8(char c, t_info *app, int x, int y)
-// {
-// 	t_imgdata	canvas = app->canvas;
-// 	int			i;
-// 	int			j;
-// 	int			start_x;
-//
-// 	if (!ft_isalnum(c))
-// 		return ;
-// 	c = ft_tolower(c);
-// 	if (ft_isalpha(c))
-// 		start_x = (c - 'a') * 8;
-// 	else
-// 		start_x = (c - '0') * 8 + 208;
-// 	i = -1;
-// 	while (++i < 8)
-// 	{
-// 		j = -1;
-// 		while (++j < 8)
-// 			my_put_pixel_32(&canvas, x + j, y + i, app->map->alphabet.img[i][j + start_x]);
-// 	}
-// }
-//
-// void	place_char_16(char c, t_info *app, int x, int y)
-// {
-// 	t_imgdata	canvas = app->canvas;
-// 	int			i;
-// 	int			j;
-// 	int			start_x;
-//
-// 	if (!ft_isalnum(c))
-// 		return ;
-// 	c = ft_tolower(c);
-// 	if (ft_isalpha(c))
-// 		start_x = (c - 'a') * 8;
-// 	else
-// 		start_x = (c - '0') * 8 + 208;
-// 	i = -1;
-// 	while (++i < 16)
-// 	{
-// 		j = -1;
-// 		while (++j < 16)
-// 		{
-// 			my_put_pixel_32(&canvas, x + j, y + i, app->map->alphabet.img[i / 2][(j / 2) + start_x]);
-// 		}
-// 	}
-// }
 
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
 {
