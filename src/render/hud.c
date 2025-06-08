@@ -169,10 +169,8 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
 
-	t_point l = (t_point){lvl->width, lvl->height};
-
-	offset.x += mmap->width - lvl->mmap_origin.x - l.x * msf.x - tile->w * scalar / 2;
-	offset.y += lvl->mmap_origin.y + l.y * msf.y - tile->h * scalar / 2;
+	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
 	current = lvl->items;
 	while (current != NULL)
 	{
@@ -199,18 +197,16 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
 
-	t_point l = (t_point){lvl->width, lvl->height};
-
-	offset.x += mmap->width - lvl->mmap_origin.x - l.x * msf.x - tile->w * scalar / 2;
-	offset.y += lvl->mmap_origin.y + l.y * msf.y - tile->h * scalar / 2;
+	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
 	current = lvl->enemies;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
 		if (curr_obj->type == O_ENTITY)
 		{
-			p3.x = offset.x + curr_obj->pos.x * msf.x;
-			p3.y = offset.y - curr_obj->pos.y * msf.y;
+			p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
+			p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
 			place_tex_to_image_scale(cnvs, tile, p3, scalar);
 		}
 		current = current->next;
