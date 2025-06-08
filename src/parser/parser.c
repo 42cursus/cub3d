@@ -348,37 +348,28 @@ void draw_help(t_lvl *lvl)
 void draw_large_minimap(t_lvl *lvl)
 {
 	t_info	*const app = lvl->app;
-	t_img	*minimap = lvl->minimap_xs;
 	t_img	*large_minimap;
 	t_img	*scaled;
 	t_point p;
-	t_ivect new;
-	double	aspect_ratio;
 
 	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
 
 	if (!large_minimap)
 		return ;
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
-	aspect_ratio = (double) lvl->width / lvl->height;
 
 	p.x = 50;
 	p.y = large_minimap->height - 50;
 
 	draw_text_freetype(app, large_minimap, "Minimap =>", p);
 
-	new.x = MIN(large_minimap->width, (int)(aspect_ratio * large_minimap->height));
-	new.y = MIN(large_minimap->height, (int)(large_minimap->width / aspect_ratio));
-
-	double aspect_ratio2 = (double) new.x / new.y;
-	printf("%f\n", aspect_ratio2);
-
-	scaled = scale_image(app, img_dup(app, minimap), new.x, new.y);
-	p.x = large_minimap->width - scaled->width;
-	p.y = 0;
-	place_tile_on_image32(large_minimap, scaled, p.x, p.y);
-	lvl->map_scale_factor.x = (double)new.x / minimap->width;
-	lvl->map_scale_factor.y = (double)new.y / minimap->height;
+	scaled = build_minimap(app, LARGE_MMAP_SCALE);
+	p.x = (large_minimap->width - scaled->width) / 2;
+	p.y = (large_minimap->height - scaled->height) / 2;
+	place_tile_on_image32(large_minimap, scaled, p);
+	lvl->mmap_origin = p;
+	lvl->map_scale_factor.x = (double)scaled->width / lvl->minimap_xs->width;
+	lvl->map_scale_factor.y = (double)scaled->height / lvl->minimap_xs->height;
 	lvl->minimap_xl = large_minimap;
 	mlx_destroy_image(app->mlx, scaled);
 }
@@ -409,13 +400,11 @@ int	parse_cub(t_info *app, char *filename)
 	t_list	*file;
 	t_list	*current;
 	t_lvl	*lvl;
-	t_img	*tiles[16];
 
 	fd = open(filename, O_RDONLY);
 	lvl = app->map;
 	lvl->app = app;
 	lvl->sublvls[0] = ft_strdup(filename);
-	load_map_textures(app, tiles);
 	file = read_cub(fd);
 	if (!collect_map(file, lvl))
 		return (ft_list_destroy(&file, free),
@@ -436,7 +425,10 @@ int	parse_cub(t_info *app, char *filename)
 		return (printf("Error: not all fields provided\n"), 1);
 	spawn_map_objects(app, lvl);
 
-	lvl->minimap_xs = build_minimap(app, tiles);
+//	raise(SIGTSTP);
+
+	int small_mmap_scale = 8;
+	lvl->minimap_xs = build_minimap(app, small_mmap_scale);
 
 	draw_large_minimap(lvl);
 	draw_help(lvl);
@@ -444,7 +436,6 @@ int	parse_cub(t_info *app, char *filename)
 
 	lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	init_anims(app, lvl);
-	free_map_textures(app, tiles);
 	close(fd);
 	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->map));
 	return (0);

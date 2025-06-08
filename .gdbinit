@@ -35,7 +35,31 @@ directory ~/staging/gcc-9-9.4.0/src/libsanitizer/asan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 directory ~/staging/libsdl2-mixer-2.0.4+dfsg1
-
+directory ~/staging/freetype-2.10.1/src/truetype
+directory ~/staging/freetype-2.10.1/src/autofit
+directory ~/staging/freetype-2.10.1/src/base
+directory ~/staging/freetype-2.10.1/src/bdf
+directory ~/staging/freetype-2.10.1/src/bzip2
+directory ~/staging/freetype-2.10.1/src/cache
+directory ~/staging/freetype-2.10.1/src/cff
+directory ~/staging/freetype-2.10.1/src/cid
+directory ~/staging/freetype-2.10.1/src/gxvalid
+directory ~/staging/freetype-2.10.1/src/gzip
+directory ~/staging/freetype-2.10.1/src/lzw
+directory ~/staging/freetype-2.10.1/src/otvalid
+directory ~/staging/freetype-2.10.1/src/pcf
+directory ~/staging/freetype-2.10.1/src/pfr
+directory ~/staging/freetype-2.10.1/src/psaux
+directory ~/staging/freetype-2.10.1/src/pshinter
+directory ~/staging/freetype-2.10.1/src/psnames
+directory ~/staging/freetype-2.10.1/src/raster
+directory ~/staging/freetype-2.10.1/src/sfnt
+directory ~/staging/freetype-2.10.1/src/smooth
+directory ~/staging/freetype-2.10.1/src/tools
+directory ~/staging/freetype-2.10.1/src/truetype
+directory ~/staging/freetype-2.10.1/src/type1
+directory ~/staging/freetype-2.10.1/src/type42
+directory ~/staging/freetype-2.10.1/src/winfonts
 set trace-commands on
 set print inferior-events on
 

@@ -30,6 +30,15 @@ t_vect scale_vect(t_vect vect, double scalar)
 	return (out);
 }
 
+t_ivect scale_ivect(t_ivect vect, int scalar)
+{
+	t_ivect out;
+
+	out.x = vect.x * scalar;
+	out.y = vect.y * scalar;
+	return (out);
+}
+
 void rotate_vect_inplace(t_vect *vect, double angle)
 {
 	double temp_x;

@@ -41,111 +41,91 @@ void	free_map_textures(t_info *app, t_img *tiles[])
 		mlx_destroy_image(app->mlx, tiles[i]);
 }
 
-int	get_tile_index(char **map, int i, int j)
+int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
 
 	index = 0;
-	index += !!((map[i + 1][j] - '0')) << 3;
-	index += !!((map[i][j + 1] - '0')) << 2;
-	index += !!((map[i - 1][j] - '0')) << 1;
-	index += !!((map[i][j - 1] - '0'));
+	/* Direct neighbors */
+	index += (map[i + 1][j] - '0' != 0) << 3;
+	index += (map[i][j + 1] - '0' != 0) << 2;
+	index += (map[i - 1][j] - '0' != 0) << 1;
+	index += (map[i][j - 1] - '0' != 0);
 	return (index);
 }
 
-void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y)
+void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 {
-	int			i;
-	int			j;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	u_int32_t	src_pixel;
-	u_int32_t	mask;
+	t_ivect	it;
+	u_int	*src_row;
+	u_int	*dst_row;
+	t_mcol	mc;
 
-	i = -1;
-	while (++i < tile->height)
+	if (!tile || !img)
+		return ;
+	it.y = -1;
+	while (++it.y < tile->height)
 	{
-		src_row = (u_int32_t *) tile->data + (i * tile->width);
-		dst_row = (u_int32_t *) image->data + ((i + y) * image->width) + x;
-		j = -1;
-		while (++j < tile->width)
+		src_row = (u_int *)tile->data + (it.y * tile->width);
+		dst_row = (u_int *)img->data + ((it.y + p.y) * img->width) + p.x;
+		it.x = -1;
+		while (++it.x < tile->width)
 		{
-			src_pixel = src_row[j];
-			mask = -(src_pixel != XPM_TRANSPARENT);
-			dst_row[j] = (src_pixel & mask) | (dst_row[j] & ~mask);
+			mc.colour = src_row[it.x];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
+			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
 	}
 }
 
-// static inline __attribute__((always_inline, unused))
-// int	interpolate_colour(int col1, int col2, double frac)
-// {
-// 	int	r;
-// 	int	g;
-// 	int	b;
-//
-// 	if (col1 == col2)
-// 		return (col1);
-// 	r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-// 	g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
-// 	b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
-// 	return ((r & MLX_RED) + (g & MLX_GREEN) + b);
-// }
-
-void	place_char(char c, t_info *app, t_ivect pos, int scalar)
+void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
-	t_img *const	canvas = app->canvas;
-	t_img *const	alphabet = app->shtex->alphabet;
-	int		i;
-	int		j;
-	int		start_x;
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	t_mcol		mc;
-	const int char_width = 8;
+	t_img *const	cnvs = app->canvas;
+	t_img *const	alph = app->shtex->alphabet;
+	t_ivect			it;
+	int const 		x = (c - ' ') * CHAR_WIDTH;
+	u_int32_t		*src_row;
+	u_int32_t		*dst_row;
+	t_mcol			mc;
 
 	if (!ft_isprint(c) || scalar < 1)
 		return ;
-	start_x = (c - ' ') * char_width;
-
-	i = -1;
-	while (++i < char_width * scalar)
+	it.y = -1;
+	while (++it.y < CHAR_WIDTH * scalar)
 	{
-		src_row = (u_int32_t *)alphabet->data + ((i / scalar) * alphabet->width) + start_x;
-		dst_row = (u_int32_t *)canvas->data + ((i + pos.y) * canvas->width) + pos.x;
-		j = -1;
-		while (++j < char_width * scalar)
+		src_row = (u_int32_t *)alph->data + ((it.y / scalar) * alph->width) + x;
+		dst_row = (u_int32_t *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
+		it.x = -1;
+		while (++it.x < CHAR_WIDTH * scalar)
 		{
-			mc.colour = src_row[j / scalar];
+			mc.colour = src_row[it.x / scalar];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			dst_row[j] = (mc.colour & mc.mask) | (dst_row[j] & ~mc.mask);
+			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
 	}
 }
 
-void	place_char_alpha(char c, t_info *app, t_ivect3 pos, int alpha)
+void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
-	t_img *const	canvas = app->canvas;
-	t_img *const	alphabet = app->shtex->alphabet;
-	t_ivect	it;
-
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
+	t_img *const	cnvs = app->canvas;
+	t_img *const	alph = app->shtex->alphabet;
+	t_ivect			it;
+	int const		x = (c - ' ') * CHAR_WIDTH;
+	u_int	*src_row;
+	u_int	*dst_row;
 	t_mcol		mc;
 
-	if (!ft_isprint(c) || pos.z < 1)
+	if (!ft_isprint(c) || p.z < 1)
 		return ;
-	int start_x = (c - ' ') * CHAR_WIDTH;
-
 	it.y = -1;
-	while (++it.y < CHAR_WIDTH * pos.z)
+	while (++it.y < CHAR_WIDTH * p.z)
 	{
-		src_row = (u_int32_t *)alphabet->data + ((it.y / pos.z) * alphabet->width) + start_x;
-		dst_row = (u_int32_t *)canvas->data + ((it.y + pos.y) * canvas->width) + pos.x;
+		src_row = (u_int *)alph->data + ((it.y / p.z) * alph->width) + x;
+		dst_row = (u_int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
 		it.x = -1;
-		while (++it.x < CHAR_WIDTH * pos.z)
+		while (++it.x < CHAR_WIDTH * p.z)
 		{
-			mc.colour = src_row[it.x / pos.z];
+			mc.colour = src_row[it.x / p.z];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			t_colour src = *(t_colour *) &mc.colour;
 			t_colour dst = *(t_colour *) &dst_row[it.x];
@@ -163,17 +143,17 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 pos, int alpha)
 
 void	apply_alpha(t_img *img, u_char alpha)
 {
-	int			i;
-	int			j;
-	t_colour	*row;
+	t_ivect			it;
+	t_colour		*row;
+	const double	frac = (255.0 - alpha) / 0xFF;
 
-	i = -1;
-	while (++i < img->height)
+	it.y = -1;
+	while (++it.y < img->height)
 	{
-		row = (t_colour *)img->data + (i * img->width);
-		j = -1;
-		while (++j < img->width)
-			row[j].a = (u_char)(alpha + (row[j].a * (255 - alpha)) / 0xFF);
+		row = (t_colour *)img->data + (it.y * img->width);
+		it.x = -1;
+		while (++it.x < img->width)
+			row[it.x].a = (u_char)(alpha + row[it.x].a * frac);
 	}
 }
 
@@ -198,38 +178,46 @@ void	place_items_minimap(t_info *app, t_lvl *lvl, t_img *img)
 	}
 }
 
-t_img	*build_minimap(t_info *app, t_img *tiles[])
+t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img	*img;
-	int		i;
-	int		j;
-	int		index;
+	t_ivect it;
+	t_img	*tile;
+	t_lvl	*const lvl = app->map;
+	t_img	*tiles[16];
 
-	img = mlx_new_image(app->mlx, app->map->width * 8, app->map->height * 8);
-
+	load_map_textures(app, tiles);
+	img = mlx_new_image(app->mlx, lvl->width * scale, lvl->height * scale);
 	ft_bzero(img->data, img->size_line * img->height);
-	apply_alpha(img, 255);
-	i = -1;
-	while (++i < app->map->height)
+	apply_alpha(img, 0xFF);
+	it.y = -1;
+	while (++it.y < lvl->height)
 	{
-		j = -1;
-		while (++j < app->map->width)
+		int i = lvl->height - it.y - 1;
+		char *row = lvl->map[i];
+
+		it.x = -1;
+		while (++it.x < lvl->width)
 		{
-			if (app->map->map[app->map->height - i - 1][j] == '0')
+			int idx = -1;
+			char chr = row[it.x];
+			if (chr == '0')
+				idx = get_tile_idx(lvl->map, i, it.x);
+			else if (ft_strchr("DMBL", chr))
+				idx = 15;
+			if (idx >= 0)
 			{
-				index = get_tile_index(app->map->map, app->map->height - i - 1, j);
-				place_tile_on_image32(img, tiles[index], j * 8, i * 8);
+				tile = tiles[idx];
+				tile = scale_image(app, img_dup(app, tile), tile->width * scale / 8, tile->height * scale / 8);
+				place_tile_on_image32(img, tile, scale_ivect(it, scale));
+				mlx_destroy_image(app->mlx, tile);
 			}
-			else if (app->map->map[app->map->height - i - 1][j] == 'D' ||
-					 app->map->map[app->map->height - i - 1][j] == 'M' ||
-					 app->map->map[app->map->height - i - 1][j] == 'B' ||
-					 app->map->map[app->map->height - i - 1][j] == 'L')
-				place_tile_on_image32(img, tiles[15], j * 8, i * 8);
 
 		}
 	}
-	place_items_minimap(app, app->map, img);
-	apply_alpha(img, 127);
+	free_map_textures(app, tiles);
+	place_items_minimap(app, lvl, img);
+	apply_alpha(img, 0x7F);
 	return (img);
 }
 
@@ -290,7 +278,6 @@ void	place_mmap(t_info *app)
 	t_point			p2;
 	t_vect const	map_scale_factor = lvl->map_scale_factor;
 
-
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
 		t_img			*pointer = app->pointer;
@@ -302,8 +289,8 @@ void	place_mmap(t_info *app)
 		int dx = (lvl->width - player->pos.x) * 8 * map_scale_factor.x;
 		int dy = (lvl->height - player->pos.y) * 8 * map_scale_factor.x;
 
-		p2.x = minimap->width - dx + p1.x;
-		p2.y = dy + p1.y;
+		p2.x = minimap->width - dx + p1.x - lvl->mmap_origin.x;
+		p2.y = dy + p1.y + lvl->mmap_origin.y;
 
 		p2.x -= pointer->width / 2;
 		p2.y -= pointer->height / 2;
@@ -459,19 +446,18 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar)
 	u_int32_t	*src_row;
 	u_int32_t	*dst_row;
 	t_mcol		mc;
-	const int char_width = 8;
 
 	if (!ft_isprint(c) || pos_scalar.z < 1)
 		return ;
-	start_x = (c - ' ') * char_width;
+	start_x = (c - ' ') * CHAR_WIDTH;
 
 	i = -1;
-	while (++i < char_width * pos_scalar.z)
+	while (++i < CHAR_WIDTH * pos_scalar.z)
 	{
 		src_row = (u_int32_t *)alphabet->data + ((i / pos_scalar.z) * alphabet->width) + start_x;
 		dst_row = (u_int32_t *)img->data + ((i + pos_scalar.y) * img->width) + pos_scalar.x;
 		j = -1;
-		while (++j < char_width * pos_scalar.z)
+		while (++j < CHAR_WIDTH * pos_scalar.z)
 		{
 			mc.colour = src_row[j / pos_scalar.z];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);

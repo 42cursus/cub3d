@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/04 20:25:44 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/07 18:05:05 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
 # include "SDL_mixer.h" //# include <SDL2/SDL_mixer.h>
 # include <ft2build.h>
 # include FT_FREETYPE_H
+# ifdef ft_snprintf
+#  undef ft_snprintf
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
@@ -62,6 +65,8 @@
 # define MLX_TANG_YELLOW 0x00ffcc00
 # define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
+
+# define LARGE_MMAP_SCALE 16
 
 enum e_dir
 {
@@ -365,6 +370,7 @@ typedef	struct s_data
 	t_img			*help;
 	t_img			*overlay;
 	t_vect			map_scale_factor;
+	t_point			mmap_origin;
 	int				f_col;
 	int				c_col;
 	char			**map;
@@ -652,7 +658,7 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 # define CHAR_WIDTH 8
 
 void	apply_alpha(t_img *img, u_char alpha);
-void	place_tile_on_image32(t_img *image, t_img *tile, int x, int y);
+void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 pos_scalar);
 int		check_endianness(void);
@@ -714,6 +720,7 @@ void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray);
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
+t_ivect scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
@@ -741,7 +748,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file);
 void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
-t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y);
+t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
 t_img	*img_dup(t_info *app, t_img *const src);
 void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
@@ -767,7 +774,7 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
 void	free_shsnd(t_info *app);
 void	free_fonts(t_info *app);
-t_img	*build_minimap(t_info *app, t_img *tiles[]);
+t_img	*build_minimap(t_info *app, int scale);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
