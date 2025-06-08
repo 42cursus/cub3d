@@ -23,9 +23,9 @@
 # include "SDL_mixer.h" //# include <SDL2/SDL_mixer.h>
 # include <ft2build.h>
 # include FT_FREETYPE_H
-#ifdef ft_snprintf
-# undef ft_snprintf
-#endif
+# ifdef ft_snprintf
+#  undef ft_snprintf
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
@@ -65,6 +65,8 @@
 # define MLX_TANG_YELLOW 0x00ffcc00
 # define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
+
+# define LARGE_MMAP_SCALE 16
 
 enum e_dir
 {
@@ -368,6 +370,7 @@ typedef	struct s_data
 	t_img			*help;
 	t_img			*overlay;
 	t_vect			map_scale_factor;
+	t_point			mmap_origin;
 	int				f_col;
 	int				c_col;
 	char			**map;
@@ -745,7 +748,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file);
 void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
-t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y);
+t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
 t_img	*img_dup(t_info *app, t_img *const src);
 void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);

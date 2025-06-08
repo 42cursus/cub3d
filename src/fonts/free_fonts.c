@@ -15,7 +15,7 @@
 void free_fonts(t_info *const app)
 {
 	t_typing *const		typing = &app->typ;
-	FT_Library			ft = typing->ft;
+	FT_Library			*ft = &typing->ft;
 	FT_Face				face;
 	int 				i;
 
@@ -25,5 +25,6 @@ void free_fonts(t_info *const app)
 		face = typing->faces[i];
 		FT_Done_Face(face);
 	}
-	FT_Done_FreeType(ft);
+	FT_Done_FreeType(*ft);
+	*ft = NULL;
 }

@@ -61,7 +61,7 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 	u_int	*dst_row;
 	t_mcol	mc;
 
-	if (!tile)
+	if (!tile || !img)
 		return ;
 	it.y = -1;
 	while (++it.y < tile->height)
@@ -199,13 +199,20 @@ t_img	*build_minimap(t_info *app, int scale)
 		it.x = -1;
 		while (++it.x < lvl->width)
 		{
-			tile = NULL;
+			int idx = -1;
 			char chr = row[it.x];
 			if (chr == '0')
-				tile = tiles[get_tile_idx(lvl->map, i, it.x)];
+				idx = get_tile_idx(lvl->map, i, it.x);
 			else if (ft_strchr("DMBL", chr))
-				tile = tiles[15];
-			place_tile_on_image32(img, tile, scale_ivect(it, scale));
+				idx = 15;
+			if (idx >= 0)
+			{
+				tile = tiles[idx];
+				tile = scale_image(app, img_dup(app, tile), tile->width * scale / 8, tile->height * scale / 8);
+				place_tile_on_image32(img, tile, scale_ivect(it, scale));
+				mlx_destroy_image(app->mlx, tile);
+			}
+
 		}
 	}
 	free_map_textures(app, tiles);
@@ -271,7 +278,6 @@ void	place_mmap(t_info *app)
 	t_point			p2;
 	t_vect const	map_scale_factor = lvl->map_scale_factor;
 
-
 	if (app->keys[get_key_index(XK_Shift_L)])
 	{
 		t_img			*pointer = app->pointer;
@@ -283,8 +289,8 @@ void	place_mmap(t_info *app)
 		int dx = (lvl->width - player->pos.x) * 8 * map_scale_factor.x;
 		int dy = (lvl->height - player->pos.y) * 8 * map_scale_factor.x;
 
-		p2.x = minimap->width - dx + p1.x;
-		p2.y = dy + p1.y;
+		p2.x = minimap->width - dx + p1.x - lvl->mmap_origin.x;
+		p2.y = dy + p1.y + lvl->mmap_origin.y;
 
 		p2.x -= pointer->width / 2;
 		p2.y -= pointer->height / 2;

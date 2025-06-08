@@ -123,8 +123,8 @@ set_target_properties(${FT_LIB_NAME} PROPERTIES
 set(TEX_LIB_NAME libtextures)
 add_library(${TEX_LIB_NAME} STATIC)
 
-file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/textures/*.xpm")
-file(GLOB TEX_LIB_SOURCES_EXTRA "${PROJECT_SOURCE_DIR}/textures/mmap/*.xpm")
+file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/resources/textures/*.xpm")
+file(GLOB TEX_LIB_SOURCES_EXTRA "${PROJECT_SOURCE_DIR}/resources/textures/mmap/*.xpm")
 list (APPEND TEX_LIB_SOURCES ${TEX_LIB_SOURCES_EXTRA})
 
 set_source_files_properties(${TEX_LIB_SOURCES}
