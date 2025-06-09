@@ -193,22 +193,7 @@ FILES   = arm_cannon_big.xpm \
 			trophy0.xpm \
 			trophy1.xpm \
 			wall.xpm \
-			mmap/MAP0000.xpm \
-            mmap/MAP0001.xpm \
-            mmap/MAP0010.xpm \
-            mmap/MAP0011.xpm \
-            mmap/MAP0100.xpm \
-            mmap/MAP0101.xpm \
-            mmap/MAP0110.xpm \
-            mmap/MAP0111.xpm \
-            mmap/MAP1000.xpm \
-            mmap/MAP1001.xpm \
-            mmap/MAP1010.xpm \
-            mmap/MAP1011.xpm \
-            mmap/MAP1100.xpm \
-            mmap/MAP1101.xpm \
-            mmap/MAP1110.xpm \
-            mmap/MAP1111.xpm \
-            mmap/MAPPLAYER.xpm
+	        mmap/MAP1111.xpm \
+	        mmap/MAPPLAYER.xpm
 
 TEXTURES    += $(FILES:%.xpm=$(dir $(lastword $(MAKEFILE_LIST)))%.xpm)

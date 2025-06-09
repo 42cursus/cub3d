@@ -374,7 +374,7 @@ t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 	t_vect const	msf = lvl->map_scale_factor;
 
 	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_WIDTH * msf.x;
-	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * msf.x;
+	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * msf.y;
 
 	p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
 	p3.y = dy + offset.y + lvl->mmap_origin.y;
