@@ -48,8 +48,7 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	u_int (*const pixels)[image->height][image->width] = (void *)image->data;
 	out = mlx_new_image(app->mlx, new_x, new_y);
 	u_int (*const scaled_pix)[out->height][out->width] = (void *)out->data;
-	steps = (t_vect){(double)image->width / new_x,
-		(double)image->height / new_y};
+	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
 	iter.y = -1;
 	pos.y = 0;
 	while (++iter.y < new_y)

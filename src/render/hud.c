@@ -41,21 +41,35 @@ void	free_map_textures(t_info *app, t_img *tiles[])
 		mlx_destroy_image(app->mlx, tiles[i]);
 }
 
+#pragma pack(push, 1)
+typedef struct s_map_tile
+{
+	bool	left : 1;
+	bool	top : 1;
+	bool	right : 1;
+	bool	bottom : 1;
+	bool	t_left : 1;
+	bool	t_right : 1;
+	bool	b_left : 1;
+	bool	b_right : 1;
+}	__attribute__((packed)) t_map_tile;
+#pragma pack(pop)
+
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
 
 	index = 0;
 	/* Direct neighbors */
-	index += (map[i][j - 1] - '0' != 0);
-	index += (map[i - 1][j] - '0' != 0) << 1;
-	index += (map[i][j + 1] - '0' != 0) << 2;
-	index += (map[i + 1][j] - '0' != 0) << 3;
+	index += (map[i - 0][j - 1] - '0' != 0) << 0;
+	index += (map[i - 1][j + 0] - '0' != 0) << 1;
+	index += (map[i - 0][j + 1] - '0' != 0) << 2;
+	index += (map[i + 1][j + 0] - '0' != 0) << 3;
 	/* Diagonal neighbors */
-//	index += (map[i - 1][j - 1] - '0' != 0) << 4;
-//	index += (map[i - 1][j + 1] - '0' != 0) << 5;
-//	index += (map[i + 1][j - 1] - '0' != 0) << 6;
-//	index += (map[i + 1][j + 1] - '0' != 0) << 7;
+	index += (map[i - 1][j - 1] - '0' != 0) << 4;
+	index += (map[i - 1][j + 1] - '0' != 0) << 5;
+	index += (map[i + 1][j - 1] - '0' != 0) << 6;
+	index += (map[i + 1][j + 1] - '0' != 0) << 7;
 	return (index);
 }
 
@@ -241,14 +255,31 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	}
 }
 
-t_img	*get_tile(int idx, t_img	*tiles[])
+__attribute__((optnone))
+t_img	*get_tile(int idx, t_img **tiles)
 {
+	static u_int data[64] = {[0 ... 63] = MLX_PINK};
+	static t_img t = {.data = (char *)data, .width = 8, .height = 8, .size_line = 32};
+
 	t_img	*tile = NULL;
-	if ((idx & 0x11110000) == 0)
-		tile = tiles[idx];
+	ft_memcpy(data, tiles[idx & 0b1111]->data, sizeof(int) * 64);
+	if (idx & 0b00010000)
+		data[7 * 8] = 0xF8F8F8;
+
+	if (idx & 0b00100000)
+		data[8 * 8 - 1] = 0xF8F8F8;
+
+	if (idx & 0b01000000)
+		data[0] = 0xF8F8F8;
+
+	if (idx & 0b10000000)
+		data[8 - 1] = 0xF8F8F8;
+
+	tile = &t;
 	return tile;
 }
 
+__attribute__((optnone))
 t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img	*img;

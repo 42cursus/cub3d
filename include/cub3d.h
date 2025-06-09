@@ -33,6 +33,9 @@
 # ifdef ft_strrchr
 #  undef ft_strrchr
 # endif
+# ifdef ft_memcpy
+#  undef ft_memcpy
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
@@ -73,6 +76,7 @@
 # define MLX_DTURQUOISE 0x0000ddcc
 # define MLX_PALETURQUOISE 0xafeeee
 # define MLX_TANG_YELLOW 0x00ffcc00
+# define MLX_PINK 0x00d6428e
 # define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
 
