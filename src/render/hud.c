@@ -41,24 +41,6 @@ void	free_map_textures(t_info *app, t_img *tiles[])
 		mlx_destroy_image(app->mlx, tiles[i]);
 }
 
-int	get_tile_idx(char **map, int i, int j)
-{
-	int	index;
-
-	index = 0;
-	/* Direct neighbors */
-	index += (map[i - 0][j - 1] - '0' != 0) << 0;
-	index += (map[i - 1][j + 0] - '0' != 0) << 1;
-	index += (map[i - 0][j + 1] - '0' != 0) << 2;
-	index += (map[i + 1][j + 0] - '0' != 0) << 3;
-	/* Diagonal neighbors */
-	index += (map[i - 1][j - 1] - '0' != 0) << 4;
-	index += (map[i - 1][j + 1] - '0' != 0) << 5;
-	index += (map[i + 1][j - 1] - '0' != 0) << 6;
-	index += (map[i + 1][j + 1] - '0' != 0) << 7;
-	return (index);
-}
-
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 {
 	t_ivect	it;
@@ -269,85 +251,107 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	}
 }
 
-__attribute__((optnone))
-t_texture get_tile(int idx)
+#define TILE_W 8
+#define TILE_H 8
+
+static inline __attribute__((always_inline, unused))
+uint32_t	get_tile_pix(int x, int y, int idx)
 {
-	t_texture	tile;
-	u_int32_t	*data;
+	int	is_edge = 0;
 
-	data = malloc(sizeof(int) * 64);
-	tile.data = data;
-	int i = -1;
-	while (++i < 64)
-		data[i] = MLX_PINK;
-	tile = (t_texture) {.data = data, .w = 8, .h = 8, .sl = 8 * sizeof(int)};
+	/* Direct neighbors */
+	if (idx & MAP_LEFT && x == 0)
+		is_edge = 1;
+	if (idx & MAP_RIGHT && x == TILE_W - 1)
+		is_edge = 1;
+	if (idx & MAP_BOTTOM && y == 0)
+		is_edge = 1;
+	if (idx & MAP_TOP && y == TILE_H - 1)
+		is_edge = 1;
+	/* Diagonal neighbors */
+	if ((idx & MAP_BOT_LEFT) && x == 0 && y == 0)
+		is_edge = 1;
+	if ((idx & MAP_BOT_RIGHT) && x == TILE_W - 1 && y == 0)
+		is_edge = 1;
+	if ((idx & MAP_TOP_LEFT) && x == 0 && y == TILE_H - 1)
+		is_edge = 1;
+	if ((idx & MAP_TOP_RIGHT) && x == TILE_W - 1 && y == TILE_H - 1)
+		is_edge = 1;
+	return (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
+}
 
-	if (idx & MAP_LEFT)
+t_texture	get_tile(int idx)
+{
+	t_ivect		it;
+	t_texture	tex;
+	u_int32_t	*row;
+
+	tex = (t_texture){.w = TILE_W, .h = TILE_H, .sl = TILE_W * sizeof(int)};
+	tex.data = malloc(sizeof(u_int32_t) * TILE_W * TILE_H);
+	if (tex.data != NULL)
 	{
-		i = -1;
-		while (++i < 8)
-			*(data + i * 8) = MLX_PALE_GRAY;
+		it.y = -1;
+		while (++it.y < TILE_H)
+		{
+			row = tex.data + it.y * TILE_W;
+			it.x = -1;
+			while (++it.x < TILE_W)
+				row[it.x] = get_tile_pix(it.x, it.y, idx);
+		}
 	}
-	if (idx & MAP_TOP)
-	{
-		i = -1;
-		while (++i < 8)
-			(data + 7 * 8)[i] = MLX_PALE_GRAY;
-	}
-	if (idx & MAP_RIGHT)
-	{
-		i = -1;
-		while (++i < 8)
-			*(data + i * 8 + 7) = MLX_PALE_GRAY;
-	}
-	if (idx & MAP_BOTTOM)
-	{
-		i = -1;
-		while (++i < 8)
-			data[i] = MLX_PALE_GRAY;
-	}
-	if (idx & MAP_TOP_LEFT)
-		data[7 * 8] = MLX_PALE_GRAY;
-	if (idx & MAP_TOP_RIGHT)
-		data[8 * 8 - 1] = MLX_PALE_GRAY;
-	if (idx & MAP_BOT_LEFT)
-		data[0] = MLX_PALE_GRAY;
-	if (idx & MAP_BOT_RIGHT)
-		data[8 - 1] = MLX_PALE_GRAY;
-	return tile;
+	return (tex);
+}
+
+int	get_tile_idx(char **map, int i, int j)
+{
+	int	index;
+
+	index = 0;
+	/* Direct neighbors */
+	index += (map[i - 0][j - 1] - '0' != 0) << 0;
+	index += (map[i - 1][j + 0] - '0' != 0) << 1;
+	index += (map[i - 0][j + 1] - '0' != 0) << 2;
+	index += (map[i + 1][j + 0] - '0' != 0) << 3;
+	/* Diagonal neighbors */
+	index += (map[i - 1][j - 1] - '0' != 0) << 4;
+	index += (map[i - 1][j + 1] - '0' != 0) << 5;
+	index += (map[i + 1][j - 1] - '0' != 0) << 6;
+	index += (map[i + 1][j + 1] - '0' != 0) << 7;
+	return (index);
 }
 
 __attribute__((optnone))
 t_img	*build_minimap(t_info *app, int scale)
 {
-	t_img	*img;
-	t_ivect it;
-	t_texture tile;
-	t_lvl	*const lvl = app->map;
+	t_img		*img;
+	t_ivect		it;
+	int			idx;
+	t_texture	tile;
+	t_lvl		*const lvl = app->map;
 
-	img = mlx_new_image(app->mlx, lvl->width * scale, lvl->height * scale);
-	ft_bzero(img->data, img->size_line * img->height);
+	img = mlx_new_image(app->mlx, lvl->width * scale,
+			lvl->height * scale);
+	ft_memset(img->data, 0, img->size_line * img->height);
 	apply_alpha(img, 0xFF);
 	it.y = -1;
 	while (++it.y < lvl->height)
 	{
 		int i = lvl->height - it.y - 1;
 		char *row = lvl->map[i];
-
 		it.x = -1;
 		while (++it.x < lvl->width)
 		{
-			int idx = -1;
-			char chr = row[it.x];
-			if (chr == '0')
+			idx = -1;
+			if (row[it.x] == '0')
 				idx = get_tile_idx(lvl->map, i, it.x);
-			else if (ft_strchr("DMBL", chr))
+			else if (ft_strchr("DMBL", row[it.x]))
 				idx = 15;
 			if (idx >= 0)
 			{
 				tile = get_tile(idx);
-				tile = scale_texture(&tile, tile.w * scale / 8, tile.h * scale / 8);
-				place_tex_to_image_scale(img, &tile, scale_ivect(it, scale), 1);
+				tile = scale_texture(&tile, scale);
+				place_tex_to_image_scale(img, &tile,
+					scale_ivect(it, scale), 1);
 				free(tile.data);
 			}
 		}
