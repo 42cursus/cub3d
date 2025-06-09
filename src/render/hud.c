@@ -256,26 +256,21 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 }
 
 __attribute__((optnone))
-t_img	*get_tile(int idx, t_img **tiles)
+t_texture get_tile(int idx, t_img **tiles)
 {
-	static u_int data[64] = {[0 ... 63] = MLX_PINK};
-	static t_img t = {.data = (char *)data, .width = 8, .height = 8, .size_line = 32};
+	static u_int	data[64] = {[0 ... 63] = MLX_PINK};
+	t_texture		tile;
 
-	t_img	*tile = NULL;
 	ft_memcpy(data, tiles[idx & 0b1111]->data, sizeof(int) * 64);
+	tile = (t_texture) {.data = data, .w = 8, .h = 8, .sl = 8 * sizeof(int)};
 	if (idx & 0b00010000)
 		data[7 * 8] = 0xF8F8F8;
-
 	if (idx & 0b00100000)
 		data[8 * 8 - 1] = 0xF8F8F8;
-
 	if (idx & 0b01000000)
 		data[0] = 0xF8F8F8;
-
 	if (idx & 0b10000000)
 		data[8 - 1] = 0xF8F8F8;
-
-	tile = &t;
 	return tile;
 }
 
@@ -284,7 +279,7 @@ t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img	*img;
 	t_ivect it;
-	t_img	*tile;
+	t_texture tile;
 	t_lvl	*const lvl = app->map;
 	t_img	*tiles[16];
 
@@ -310,9 +305,9 @@ t_img	*build_minimap(t_info *app, int scale)
 			if (idx >= 0)
 			{
 				tile = get_tile(idx, tiles);
-				tile = scale_image(app, img_dup(app, tile), tile->width * scale / 8, tile->height * scale / 8);
-				place_tile_on_image32(img, tile, scale_ivect(it, scale));
-				mlx_destroy_image(app->mlx, tile);
+				tile = scale_texture(&tile, tile.w * scale / 8, tile.h * scale / 8);
+				place_tex_to_image_scale(img, &tile, scale_ivect(it, scale), 1);
+				free(tile.data);
 			}
 		}
 	}

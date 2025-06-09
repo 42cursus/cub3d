@@ -41,7 +41,7 @@ t_img	*img_dup(t_info *app, t_img *const src)
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
 	t_vect	steps;
-	t_ivect	iter;
+	t_ivect	it;
 	t_vect	pos;
 	t_img	*out;
 
@@ -49,20 +49,50 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	out = mlx_new_image(app->mlx, new_x, new_y);
 	u_int (*const scaled_pix)[out->height][out->width] = (void *)out->data;
 	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
-	iter.y = -1;
+	it.y = -1;
 	pos.y = 0;
-	while (++iter.y < new_y)
+	while (++it.y < new_y)
 	{
-		iter.x = -1;
+		it.x = -1;
 		pos.x = 0;
-		while (++iter.x < new_x)
+		while (++it.x < new_x)
 		{
-			(*scaled_pix)[iter.y][iter.x] = (*pixels)[(int)pos.y][(int)pos.x];
+			(*scaled_pix)[it.y][it.x] = (*pixels)[(int)pos.y][(int)pos.x];
 			pos.x += steps.x;
 		}
 		pos.y += steps.y;
 	}
 	return (mlx_destroy_image(app->mlx, image), out);
+}
+
+t_texture	scale_texture(t_texture *tex, int new_x, int new_y)
+{
+	t_vect	steps;
+	t_ivect	it;
+	t_vect	pos;
+	t_texture scaled;
+	t_cdata cd;
+
+	scaled.w = new_x;
+	scaled.h = new_y;
+	scaled.data = malloc(new_x * new_y * sizeof(int));
+	steps = (t_vect){(double)tex->w / new_x, (double)tex->h / new_y};
+	it.y = -1;
+	pos.y = 0;
+	while (++it.y < new_y)
+	{
+		it.x = -1;
+		pos.x = 0;
+		cd.src = (int *)tex->data + (int)pos.y *  tex->w;
+		cd.dst = (int *)scaled.data + new_x * it.y;
+		while (++it.x < new_x)
+		{
+			cd.dst[it.x] = cd.src[(int)pos.x];
+			pos.x += steps.x;
+		}
+		pos.y += steps.y;
+	}
+	return (scaled);
 }
 
 void	replace_image(t_info *app, t_img **img, char *tex_file)

@@ -196,6 +196,7 @@ typedef struct s_texture
 	u_int32_t	*data;
 	int			w;
 	int			h;
+	int			sl;
 }	t_texture;
 
 typedef const struct s_texture t_ctex;
@@ -769,6 +770,7 @@ void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
 t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
+t_texture	scale_texture(t_texture *tex, int new_x, int new_y);
 t_img	*img_dup(t_info *app, t_img *const src);
 void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
