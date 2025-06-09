@@ -191,6 +191,34 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 }
 
 __attribute__((optnone))
+void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
+{
+	t_list		*current;
+	t_object	*curr_obj;
+	t_img *const	cnvs = lvl->app->canvas;
+	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
+
+	t_img 	*mmap = lvl->minimap_xl;
+	t_point			p3;
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+
+	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
+	current = lvl->enemies;
+	while (current != NULL)
+	{
+		curr_obj = current->content;
+		if (curr_obj->type == O_ENTITY)
+		{
+			p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
+			p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
+			place_tex_to_image_scale(cnvs, tile, p3, scalar);
+		}
+		current = current->next;
+	}
+}
+
+__attribute__((optnone))
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list		*current;
