@@ -119,7 +119,12 @@ int	map_is_terminating(char **map)
 int	map_is_valid(t_lvl *data)
 {
 	if (!map_is_terminating(data->map))
-		return (printf("Error: map not defined last\n"), 0);
+	{
+		if (errno == C3D_FORBIDDEN_CHAR)
+			ft_dprintf(STDERR_FILENO, "Error: forbidden character on the map\n");
+		ft_dprintf(STDERR_FILENO, "Error: map not defined last\n"); //FIXME: what does it mean?
+		return (0);
+	}
 	normalise_map(data);
 	if (!validate_map_tiles(data, data->map))
 		return (0);

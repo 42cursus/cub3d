@@ -47,10 +47,15 @@ int	get_tile_idx(char **map, int i, int j)
 
 	index = 0;
 	/* Direct neighbors */
-	index += (map[i + 1][j] - '0' != 0) << 3;
-	index += (map[i][j + 1] - '0' != 0) << 2;
-	index += (map[i - 1][j] - '0' != 0) << 1;
 	index += (map[i][j - 1] - '0' != 0);
+	index += (map[i - 1][j] - '0' != 0) << 1;
+	index += (map[i][j + 1] - '0' != 0) << 2;
+	index += (map[i + 1][j] - '0' != 0) << 3;
+	/* Diagonal neighbors */
+//	index += (map[i - 1][j - 1] - '0' != 0) << 4;
+//	index += (map[i - 1][j + 1] - '0' != 0) << 5;
+//	index += (map[i + 1][j - 1] - '0' != 0) << 6;
+//	index += (map[i + 1][j + 1] - '0' != 0) << 7;
 	return (index);
 }
 
@@ -236,6 +241,14 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	}
 }
 
+t_img	*get_tile(int idx, t_img	*tiles[])
+{
+	t_img	*tile = NULL;
+	if ((idx & 0x11110000) == 0)
+		tile = tiles[idx];
+	return tile;
+}
+
 t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img	*img;
@@ -265,7 +278,7 @@ t_img	*build_minimap(t_info *app, int scale)
 				idx = 15;
 			if (idx >= 0)
 			{
-				tile = tiles[idx];
+				tile = get_tile(idx, tiles);
 				tile = scale_image(app, img_dup(app, tile), tile->width * scale / 8, tile->height * scale / 8);
 				place_tile_on_image32(img, tile, scale_ivect(it, scale));
 				mlx_destroy_image(app->mlx, tile);
@@ -345,7 +358,7 @@ void	place_mmap(t_info *app)
 	t_texture *texture = &app->shtex->square;
 	t_img 	*minimap;
 
-	if (app->keys[get_key_index(XK_Shift_L)])
+	if (app->keys[get_key_index(XK_Shift_L)] || app->keys[get_key_index(XK_m)])
 	{
 		t_img	*pointer = app->pointer;
 		minimap = lvl->minimap_xl;

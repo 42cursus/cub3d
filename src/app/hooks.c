@@ -167,6 +167,7 @@ int get_key_index(KeySym key)
 		XK_Down,
 		XK_Shift_L,
 		XK_h,
+		XK_m,
 	};
 
 	i = 0;

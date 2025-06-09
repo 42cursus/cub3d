@@ -14,6 +14,7 @@
 # define CUB3D_H
 # include <math.h>
 # include <sys/types.h>
+# include <errno.h>
 # include "libft.h"
 # include "mlx.h"
 # include "mlx_int.h"
@@ -25,6 +26,12 @@
 # include FT_FREETYPE_H
 # ifdef ft_snprintf
 #  undef ft_snprintf
+# endif
+# ifdef ft_memset
+#  undef ft_memset
+# endif
+# ifdef ft_strrchr
+#  undef ft_strrchr
 # endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
@@ -40,7 +47,9 @@
 // # define WIN_HEIGHT 1008
 # endif //CUB3D_H
 
-# define SKIP_INTRO 0
+# ifndef SKIP_INTRO
+#  define SKIP_INTRO 120
+# endif
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
 # define GO_TO_FULLSCREEN_ON_LOAD 1
@@ -661,6 +670,8 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 # define CHAR_WIDTH 8
 # define MMAP_TILE_WIDTH 8
 # define MMAP_TILE_HEIGHT 8
+
+#define C3D_FORBIDDEN_CHAR -1
 
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
