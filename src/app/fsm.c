@@ -310,6 +310,27 @@ void do_initial_to_mmenu(void *param)
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
+
+	XSetInputFocus(app->mlx->display, app->win->window, RevertToPointerRoot, CurrentTime);
+
+	int grab_result =  XGrabKeyboard(
+		app->mlx->display,
+		app->win->window,
+		True,
+		GrabModeAsync,
+		GrabModeAsync,
+		CurrentTime
+	);
+	if (grab_result != GrabSuccess)
+		ft_dprintf(STDERR_FILENO, "XGrabKeyboard failed: %d\n", grab_result);
+	XGrabPointer(
+		app->mlx->display,
+		app->win->window,
+		True, PointerMotionMask,
+		GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	XUngrabPointer(app->mlx->display, CurrentTime);
+	XUngrabKeyboard(app->mlx->display, CurrentTime);
 }
 
 void do_initial_to_end(void *param)
@@ -473,8 +494,7 @@ void do_load_to_play(void *param)
 	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
 	app->timer.cur_lvl_start = get_time_ms();
 
-	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
-				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask, GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	XUngrabPointer(app->mlx->display, CurrentTime);
 }

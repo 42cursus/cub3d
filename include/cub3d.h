@@ -77,6 +77,7 @@
 # define MLX_PALETURQUOISE 0xafeeee
 # define MLX_TANG_YELLOW 0x00ffcc00
 # define MLX_PINK 0x00d6428e
+# define MLX_PALE_GRAY 0xf8f8f8
 # define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
 
@@ -677,6 +678,30 @@ typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
 # define MMAP_TILE_HEIGHT 8
 
 #define C3D_FORBIDDEN_CHAR -1
+
+#define MAP_LEFT		0b00000001
+#define MAP_TOP			0b00000010
+#define MAP_RIGHT		0b00000100
+#define MAP_BOTTOM		0b00001000
+#define MAP_TOP_LEFT	0b00010000
+#define MAP_TOP_RIGHT	0b00100000
+#define MAP_BOT_LEFT	0b01000000
+#define MAP_BOT_RIGHT	0b10000000
+
+
+#pragma pack(push, 1)
+typedef struct s_map_tile
+{
+	bool	left : 1;
+	bool	top : 1;
+	bool	right : 1;
+	bool	bottom : 1;
+	bool	t_left : 1;
+	bool	t_right : 1;
+	bool	b_left : 1;
+	bool	b_right : 1;
+}	__attribute__((packed)) t_map_tile;
+#pragma pack(pop)
 
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);

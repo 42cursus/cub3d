@@ -41,20 +41,6 @@ void	free_map_textures(t_info *app, t_img *tiles[])
 		mlx_destroy_image(app->mlx, tiles[i]);
 }
 
-#pragma pack(push, 1)
-typedef struct s_map_tile
-{
-	bool	left : 1;
-	bool	top : 1;
-	bool	right : 1;
-	bool	bottom : 1;
-	bool	t_left : 1;
-	bool	t_right : 1;
-	bool	b_left : 1;
-	bool	b_right : 1;
-}	__attribute__((packed)) t_map_tile;
-#pragma pack(pop)
-
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
@@ -256,21 +242,50 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 }
 
 __attribute__((optnone))
-t_texture get_tile(int idx, t_img **tiles)
+t_texture get_tile(int idx)
 {
-	static u_int	data[64] = {[0 ... 63] = MLX_PINK};
-	t_texture		tile;
+	t_texture	tile;
+	u_int32_t	*data;
 
-	ft_memcpy(data, tiles[idx & 0b1111]->data, sizeof(int) * 64);
+	data = malloc(sizeof(int) * 64);
+	tile.data = data;
+	int i = -1;
+	while (++i < 64)
+		data[i] = MLX_PINK;
 	tile = (t_texture) {.data = data, .w = 8, .h = 8, .sl = 8 * sizeof(int)};
-	if (idx & 0b00010000)
-		data[7 * 8] = 0xF8F8F8;
-	if (idx & 0b00100000)
-		data[8 * 8 - 1] = 0xF8F8F8;
-	if (idx & 0b01000000)
-		data[0] = 0xF8F8F8;
-	if (idx & 0b10000000)
-		data[8 - 1] = 0xF8F8F8;
+
+	if (idx & MAP_LEFT)
+	{
+		i = -1;
+		while (++i < 8)
+			*(data + i * 8) = MLX_PALE_GRAY;
+	}
+	if (idx & MAP_TOP)
+	{
+		i = -1;
+		while (++i < 8)
+			(data + 7 * 8)[i] = MLX_PALE_GRAY;
+	}
+	if (idx & MAP_RIGHT)
+	{
+		i = -1;
+		while (++i < 8)
+			*(data + i * 8 + 7) = MLX_PALE_GRAY;
+	}
+	if (idx & MAP_BOTTOM)
+	{
+		i = -1;
+		while (++i < 8)
+			data[i] = MLX_PALE_GRAY;
+	}
+	if (idx & MAP_TOP_LEFT)
+		data[7 * 8] = MLX_PALE_GRAY;
+	if (idx & MAP_TOP_RIGHT)
+		data[8 * 8 - 1] = MLX_PALE_GRAY;
+	if (idx & MAP_BOT_LEFT)
+		data[0] = MLX_PALE_GRAY;
+	if (idx & MAP_BOT_RIGHT)
+		data[8 - 1] = MLX_PALE_GRAY;
 	return tile;
 }
 
@@ -281,9 +296,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	t_ivect it;
 	t_texture tile;
 	t_lvl	*const lvl = app->map;
-	t_img	*tiles[16];
 
-	load_map_textures(app, tiles);
 	img = mlx_new_image(app->mlx, lvl->width * scale, lvl->height * scale);
 	ft_bzero(img->data, img->size_line * img->height);
 	apply_alpha(img, 0xFF);
@@ -304,14 +317,13 @@ t_img	*build_minimap(t_info *app, int scale)
 				idx = 15;
 			if (idx >= 0)
 			{
-				tile = get_tile(idx, tiles);
+				tile = get_tile(idx);
 				tile = scale_texture(&tile, tile.w * scale / 8, tile.h * scale / 8);
 				place_tex_to_image_scale(img, &tile, scale_ivect(it, scale), 1);
 				free(tile.data);
 			}
 		}
 	}
-	free_map_textures(app, tiles);
 	place_triggers_minimap(lvl, img, scale);
 	apply_alpha(img, 0x7F);
 	return (img);

@@ -92,6 +92,7 @@ t_texture	scale_texture(t_texture *tex, int new_x, int new_y)
 		}
 		pos.y += steps.y;
 	}
+	free(tex->data);
 	return (scaled);
 }
 
