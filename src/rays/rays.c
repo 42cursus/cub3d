@@ -41,8 +41,8 @@ t_ray	*get_pooled_ray(int flag)
 	return (p_ray);
 }
 
-void	init_pooled_ray(t_ray *ray, t_object *obj,
-			t_player *player, t_vect intcpt)
+void	init_pooled_ray(t_ray *ray, t_obj *obj,
+						t_player *player, t_vect intcpt)
 {
 	const double	angle = player->angle + M_PI_2;
 
@@ -73,16 +73,16 @@ void	add_in_front(t_ray *ray, int face, t_tex *texture)
 	new->in_front = in_front;
 }
 
-void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray)
+void	calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray)
 {
-	check_collision_list(map->items, player, ray);
-	check_collision_list(map->enemies, player, ray);
-	check_collision_list(map->projectiles, player, ray);
-	check_collision_list(map->triggers, player, ray);
-	check_collision_list(map->logo, player, ray);
+	check_collision_list(lvl->items, player, ray);
+	check_collision_list(lvl->enemies, player, ray);
+	check_collision_list(lvl->projectiles, player, ray);
+	check_collision_list(lvl->triggers, player, ray);
+	check_collision_list(lvl->logo, player, ray);
 }
 
-void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player)
+void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player)
 {
 	int	i;
 
@@ -90,7 +90,7 @@ void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player)
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
-		player->rays[i] = ray_dda(app, map, player, player->angle_offsets[i]);
-		calc_object_collisions(map, player, &player->rays[i]);
+		player->rays[i] = ray_dda(app, lvl, player, player->angle_offsets[i]);
+		calc_object_collisions(lvl, player, &player->rays[i]);
 	}
 }

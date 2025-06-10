@@ -49,8 +49,8 @@ void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 		else if (tile == 'M')
 			add_in_front(ray, ray->face + 4, &app->shtex->door_missile_tex[0]);
 		else if (tile == 'B')
-			add_in_front(ray, ray->face + 4 + (4 * !app->map->boss_active),
-				&app->shtex->door_boss_tex[!app->map->boss_active]);
+			add_in_front(ray, ray->face + 4 + (4 * !app->lvl->boss_active),
+				&app->shtex->door_boss_tex[!app->lvl->boss_active]);
 		else
 			add_in_front(ray, ray->face + 4, &app->shtex->door_tex[0]);
 		ray->in_front->maptile.x = (int)ray->intcpt.x;
@@ -80,7 +80,7 @@ void	progress_dda(t_dda *dda, t_ray *ray)
 	}
 }
 
-t_ray	ray_dda(t_info *app, t_lvl *map, t_player *player, double angle)
+t_ray	ray_dda(t_info *app, t_lvl *lvl, t_player *player, double angle)
 {
 	t_ray	ray;
 	t_dda	dda;
@@ -91,7 +91,7 @@ t_ray	ray_dda(t_info *app, t_lvl *map, t_player *player, double angle)
 	while (1)
 	{
 		progress_dda(&dda, &ray);
-		tile = map->map[(int)ray.intcpt.y][(int)ray.intcpt.x];
+		tile = lvl->map[(int)ray.intcpt.y][(int)ray.intcpt.x];
 		if (tile == '1')
 			break ;
 		add_door_rays(&dda, &ray, app, tile);

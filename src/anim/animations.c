@@ -71,7 +71,7 @@ t_tex	*get_close_door_tex(t_anim *anim, t_info *app)
 	return (tex);
 }
 
-void	select_projectile_tex(t_object *obj, t_player *player, t_info *app)
+void	select_projectile_tex(t_obj *obj, t_player *player, t_info *app)
 {
 	t_tex	*tex;
 	double	angle;

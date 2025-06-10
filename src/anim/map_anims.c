@@ -24,37 +24,37 @@ t_anim	**create_anim_arr(int x, int y)
 	return (arr);
 }
 
-void	init_anims(t_info *app, t_lvl *map)
+void	init_anims(t_info *app, t_lvl *lvl)
 {
 	int		i;
 	int		j;
 	char	tile;
 
 	i = -1;
-	while (++i < map->height)
+	while (++i < lvl->height)
 	{
 		j = -1;
-		while (++j < map->width)
+		while (++j < lvl->width)
 		{
-			tile = map->map[i][j];
+			tile = lvl->map[i][j];
 			if (tile == 'D')
-				map->anims[i][j].tex = app->shtex->door_tex;
+				lvl->anims[i][j].tex = app->shtex->door_tex;
 			else if (tile == 'L')
-				map->anims[i][j].tex = app->shtex->door_super_tex;
+				lvl->anims[i][j].tex = app->shtex->door_super_tex;
 			else if (tile == 'M')
-				map->anims[i][j].tex = app->shtex->door_missile_tex;
+				lvl->anims[i][j].tex = app->shtex->door_missile_tex;
 			else if (tile == 'B')
-				map->anims[i][j].tex = app->shtex->door_boss_tex;
+				lvl->anims[i][j].tex = app->shtex->door_boss_tex;
 		}
 	}
 }
 
-void	reset_anims(t_info *app, t_lvl *map)
+void	reset_anims(t_info *app, t_lvl *lvl)
 {
 	int	i;
 
 	i = -1;
-	while (++i < map->height)
-		ft_bzero(map->anims[i], map->width * sizeof(t_anim));
-	init_anims(app, map);
+	while (++i < lvl->height)
+		ft_bzero(lvl->anims[i], lvl->width * sizeof(t_anim));
+	init_anims(app, lvl);
 }

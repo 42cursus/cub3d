@@ -12,19 +12,19 @@
 
 #include "cub3d.h"
 
-void	phantoon_phase1(t_info *app, t_object *obj,
-			int frames, t_vect norm_diff)
+void	phantoon_phase1(t_info *app, t_obj *obj,
+						int frames, t_vect norm_diff)
 {
 	rotate_vect_inplace(&obj->dir, M_PI_4 / 20);
 	if (frames % 10 == 0)
 		spawn_enemy_projectile(app, obj, scale_vect(
 				rotate_vect(norm_diff, rand_range(-0.2, 0.2)),
 				0.1 / app->fr_scale), P_PHANTOON);
-	move_obj_bounce(app, obj, app->map);
+	move_obj_bounce(app, obj, app->lvl);
 }
 
-void	phantoon_phase2(t_info *app, t_object *obj,
-			int frames, t_vect norm_diff)
+void	phantoon_phase2(t_info *app, t_obj *obj,
+						int frames, t_vect norm_diff)
 {
 	if (frames == 0)
 	{
@@ -39,23 +39,23 @@ void	phantoon_phase2(t_info *app, t_object *obj,
 					rotate_vect(norm_diff, rand_range(-0.3, 0.3)),
 					0.1 / app->fr_scale), P_PHANTOON);
 	}
-	move_obj_bounce(app, obj, app->map);
+	move_obj_bounce(app, obj, app->lvl);
 }
 
-void	phantoon_phase3(t_info *app, t_object *obj, t_vect norm_diff)
+void	phantoon_phase3(t_info *app, t_obj *obj, t_vect norm_diff)
 {
 	obj->dir = norm_diff;
 	obj->speed = 0.09;
-	move_entity(&obj->pos, app->map,
+	move_entity(&obj->pos, app->lvl,
 		scale_vect(obj->dir, obj->speed / app->fr_scale));
 }
 
-void	phantoon_ai(t_info *app, t_object *obj)
+void	phantoon_ai(t_info *app, t_obj *obj)
 {
 	int		frames;
 	t_vect	norm_diff;
 
-	if (app->map->boss_active == 0 || app->player->dead == 1)
+	if (app->lvl->boss_active == 0 || app->player->dead == 1)
 		return ;
 	norm_diff = normalise_vect(subtract_vect(app->player->pos, obj->pos));
 	frames = ((app->fr_last / 20000) % 100);

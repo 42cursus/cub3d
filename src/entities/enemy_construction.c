@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	init_zoomer(t_object *enemy, t_info *app)
+void	init_zoomer(t_obj *enemy, t_info *app)
 {
 	enemy->health = 20;
 	enemy->speed = 0.03;
@@ -22,7 +22,7 @@ void	init_zoomer(t_object *enemy, t_info *app)
 	enemy->anim.frames = 6;
 }
 
-void	init_atomic(t_object *enemy, t_info *app)
+void	init_atomic(t_obj *enemy, t_info *app)
 {
 	enemy->health = 50;
 	enemy->speed = 0.04;
@@ -31,7 +31,7 @@ void	init_atomic(t_object *enemy, t_info *app)
 	enemy->anim.frames = 6;
 }
 
-void	init_reo(t_object *enemy, t_info *app)
+void	init_reo(t_obj *enemy, t_info *app)
 {
 	enemy->health = 30;
 	enemy->speed = 0.04;
@@ -40,7 +40,7 @@ void	init_reo(t_object *enemy, t_info *app)
 	enemy->anim.frames = 2;
 }
 
-void	init_holtz(t_object *enemy, t_info *app)
+void	init_holtz(t_obj *enemy, t_info *app)
 {
 	enemy->health = 80;
 	enemy->speed = 0.04;
@@ -49,7 +49,7 @@ void	init_holtz(t_object *enemy, t_info *app)
 	enemy->anim.frames = 6;
 }
 
-void	init_phantoon(t_object *enemy, t_info *app)
+void	init_phantoon(t_obj *enemy, t_info *app)
 {
 	enemy->health = 500;
 	enemy->speed = 0.04;

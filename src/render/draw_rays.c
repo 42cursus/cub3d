@@ -173,13 +173,13 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	pos.y = 0;
 	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
 	{
-		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
+		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			ray->tex = get_close_door_tex(anim, app);
 	}
 	else if (ray->face >= DOOR_N_OPEN)
 	{
-		anim = &app->map->anims[ray->maptile.y][ray->maptile.x];
+		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
 		if (anim->active == 1)
 			ray->tex = get_open_door_tex(anim, app);
 	}

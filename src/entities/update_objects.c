@@ -12,17 +12,17 @@
 
 #include "cub3d.h"
 
-void	update_logo_pieces(t_info *app, t_player *player, t_lvl *map);
+void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl);
 
-void	update_enemies(t_info *app, t_player *player, t_lvl *map)
+void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*obj;
+	t_obj	*obj;
 
-	current = map->enemies;
+	current = lvl->enemies;
 	while (current != NULL)
 	{
-		obj = (t_object *)current->data;
+		obj = (t_obj *)current->data;
 		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
@@ -31,15 +31,15 @@ void	update_enemies(t_info *app, t_player *player, t_lvl *map)
 	}
 }
 
-void	update_projectiles(t_info *app, t_player *player, t_lvl *map)
+void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*obj;
+	t_obj	*obj;
 
-	current = map->projectiles;
+	current = lvl->projectiles;
 	while (current != NULL)
 	{
-		obj = (t_object *)current->data;
+		obj = (t_obj *)current->data;
 		if (obj->type == O_PROJ && handle_obj_projectile(app, obj, &current))
 			continue ;
 		else if (obj->type == O_EPROJ
@@ -51,15 +51,15 @@ void	update_projectiles(t_info *app, t_player *player, t_lvl *map)
 	}
 }
 
-void	update_items(t_info *app, t_player *player, t_lvl *map)
+void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*obj;
+	t_obj	*obj;
 
-	current = map->items;
+	current = lvl->items;
 	while (current != NULL)
 	{
-		obj = (t_object *)current->data;
+		obj = (t_obj *)current->data;
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
 			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
@@ -68,15 +68,15 @@ void	update_items(t_info *app, t_player *player, t_lvl *map)
 	}
 }
 
-void	update_triggers(t_info *app, t_player *player, t_lvl *map)
+void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*obj;
+	t_obj	*obj;
 
-	current = map->triggers;
+	current = lvl->triggers;
 	while (current != NULL)
 	{
-		obj = (t_object *)current->data;
+		obj = (t_obj *)current->data;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
 		if (obj->type == O_TELE)
@@ -87,11 +87,11 @@ void	update_triggers(t_info *app, t_player *player, t_lvl *map)
 	}
 }
 
-void	update_objects(t_info *app, t_player *player, t_lvl *map)
+void	update_objects(t_info *app, t_player *player, t_lvl *lvl)
 {
-	update_enemies(app, player, map);
-	update_projectiles(app, player, map);
-	update_items(app, player, map);
-	update_triggers(app, player, map);
-	update_logo_pieces(app, player, map);
+	update_enemies(app, player, lvl);
+	update_projectiles(app, player, lvl);
+	update_items(app, player, lvl);
+	update_triggers(app, player, lvl);
+	update_logo_pieces(app, player, lvl);
 }

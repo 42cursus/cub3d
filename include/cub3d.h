@@ -140,6 +140,7 @@ typedef enum e_subtype
 	T_BOSS,
 	P_PHANTOON,
 	P_HOLTZ,
+	SUBT_MAX
 }	t_subtype;
 
 enum e_idx
@@ -198,8 +199,6 @@ typedef struct s_ivect
 	int	y;
 }	t_ivect;
 
-typedef const struct s_vect t_civect;
-
 typedef struct s_texture
 {
 	u_int	*data;
@@ -220,7 +219,7 @@ typedef struct s_animation
 	int			active;
 	int			loop;
 	size_t		timestart;
-	t_tex	*tex;
+	t_tex		*tex;
 	size_t		duration;
 	int			frames;
 }	t_anim;
@@ -244,8 +243,6 @@ typedef struct s_vecf
 		t_vect	v;
 	};
 }	t_vecf;
-
-typedef const struct s_vect t_cvect;
 
 typedef struct s_tstep
 {
@@ -394,7 +391,7 @@ typedef struct s_object
 	t_tex		*texture;
 	t_anim		anim;
 	t_anim		anim2;
-}	t_object;
+}	t_obj;
 
 typedef struct s_ray
 {
@@ -433,6 +430,8 @@ typedef struct s_dda
 //	[DOOR_TEX] = {},
 //
 //};
+
+typedef struct s_info t_info;
 
 typedef enum e_menustate
 {
@@ -496,41 +495,42 @@ typedef enum e_textures
 	NUM_TEXTURES
 }	t_enum_tex;
 
-typedef	struct s_data
+typedef	struct s_lvl
 {
-	struct s_info	*app;
+	t_info		*app;
 	t_tex		n_tex;
 	t_tex		s_tex;
 	t_tex		e_tex;
 	t_tex		w_tex;
 	t_tex		floor_tex;
 	t_tex		ceil_tex;
-	Mix_Chunk		*music;
-	int				outside;
-	t_img			*minimap_xs;
-	t_img			*minimap_xl;
-	t_img			*help;
-	t_img			*overlay;
-	t_vect			map_scale_factor;
-	t_point			mmap_origin;
-	int				f_col;
-	int				c_col;
-	char			**map;
-	t_anim			**anims;
-	t_list			*enemies;
-	t_list			*items;
-	t_list			*triggers;
-	t_list			*projectiles;
-	t_list			*logo;
-	t_list			*enemy_pos;
-	t_object		*boss_obj;
-	bool			boss_active;
-	t_vect			starting_pos;
-	t_vect			starting_dir;
-	int				height;
-	int				width;
-	char			*sublvls[4];
-	t_img			*texs[NUM_TEXTURES];
+	Mix_Chunk	*music;
+	int			outside;
+	t_img		*minimap_xs;
+	t_img		*minimap_xl;
+	t_img		*help;
+	t_img		*overlay;
+	t_vect		map_scale_factor;
+	t_point		mmap_origin;
+	int			f_col;
+	int			c_col;
+	char		**map;
+	t_anim		**anims;
+	t_list		*enemies;
+	t_list		*items;
+	t_list		*doors;
+	t_list		*triggers;
+	t_list		*projectiles;
+	t_list		*logo;
+	t_list		*enemy_pos;
+	t_obj		*boss_obj;
+	bool		boss_active;
+	t_vect		starting_pos;
+	t_vect		starting_dir;
+	int			height;
+	int			width;
+	char		*sublvls[4];
+	t_img		*texs[NUM_TEXTURES];
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -616,54 +616,54 @@ typedef struct s_typing
 	FT_Face		faces[fnt_MAX];
 }	t_typing;
 
-typedef struct s_info
+struct s_info
 {
-	t_xvar		*mlx;
-	t_typing	typ;
-	t_win_list	*win;
-	double		zoom;
-	char 		*title;
-	t_img		*canvas;
-	t_img		*overlay;
-	t_img		*pointer;
-	t_img		*skybox;
-	t_img		*bg;
-	t_img		*stillshot;
-	int			clip_x_origin;
-	int			clip_y_origin;
-	int			endianness;
-	t_aud		audio;
-	t_shtex		*shtex;
-	t_lvl		*map;
-	char		**map_ids;
-	int			no_maps;
-	t_player	*player;
-	bool		keys[16];
-	bool		mouse[16];
-	t_state		state;
-	t_ret_code	rc;
-	t_menustate	menu_state;
-	int 		current_level;
-	int 		current_sublevel;
-	int			fov_deg;
-	int			ads;
-	int			old_fov;
-	double		fov_rad_half;
-	double		fov_opp_len;
-	size_t		fr_rate;
-	size_t		fr_delay;
-	double		fr_scale;
-	size_t		fr_last;
-	size_t		fr_time;
-	size_t		fr_count;
-	t_list		*lvl_cache;
-	int			filter;
-	int			fullscreen;
-	t_timer		timer;
-	t_dummy		*dummy;
-	int			sensitivity;
-	int 		hint_shown;
-}	t_info;
+	t_xvar *mlx;
+	t_typing typ;
+	t_win_list *win;
+	double zoom;
+	char *title;
+	t_img *canvas;
+	t_img *overlay;
+	t_img *pointer;
+	t_img *skybox;
+	t_img *bg;
+	t_img *stillshot;
+	int clip_x_origin;
+	int clip_y_origin;
+	int endianness;
+	t_aud audio;
+	t_shtex *shtex;
+	t_lvl *lvl;
+	char **map_ids;
+	int no_maps;
+	t_player *player;
+	bool keys[16];
+	bool mouse[16];
+	t_state state;
+	t_ret_code rc;
+	t_menustate menu_state;
+	int current_level;
+	int current_sublevel;
+	int fov_deg;
+	int ads;
+	int old_fov;
+	double fov_rad_half;
+	double fov_opp_len;
+	size_t fr_rate;
+	size_t fr_delay;
+	double fr_scale;
+	size_t fr_last;
+	size_t fr_time;
+	size_t fr_count;
+	t_list *lvl_cache;
+	int filter;
+	int fullscreen;
+	t_timer timer;
+	t_dummy *dummy;
+	int sensitivity;
+	int hint_shown;
+};
 
 typedef struct s_colour
 {
@@ -721,20 +721,6 @@ typedef enum e_bit
 	bit_bright,
 }	t_bitno;
 
-#pragma pack(push, 1)
-typedef struct s_map_tile
-{
-	bool	left : 1;
-	bool	top : 1;
-	bool	right : 1;
-	bool	bottom : 1;
-	bool	t_left : 1;
-	bool	t_right : 1;
-	bool	b_left : 1;
-	bool	b_right : 1;
-}	__attribute__((packed)) t_map_tile;
-#pragma pack(pop)
-
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
@@ -749,7 +735,7 @@ int		mouse_press_play(unsigned int button, int x, int y, void *param);
 int		mouse_move_play(int x, int y, void *param);
 
 t_lvl	*init_map(void);
-void	free_map(t_lvl *map);
+void	free_map(t_lvl *lvl);
 int		collect_map(t_list	*file, t_lvl *data);
 int		map_is_valid(t_lvl *data);
 int		parse_cub(t_info *app, char *filename);
@@ -759,18 +745,19 @@ void	load_shtex(t_info *app);
 
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
-void		refresh_map(t_info *app, t_lvl *map);
+void		refresh_map(t_info *app, t_lvl *lvl);
 void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
-void		move_obj_bounce(t_info *app, t_object *obj, t_lvl *data);
+void		move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	prev_weapon(t_player *player);
 
-void	spawn_projectile(t_info *app, t_player *player, t_lvl *map, t_pr_type subtype);
-void	spawn_enemy_projectile(t_info *app, t_object *enemy, t_vect dir, int subtype);
-t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
-void	spawn_item(t_info *app, t_vect pos, int subtype);
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_pr_type subtype);
+void	spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir, int subtype);
+t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
+void	spawn_item(t_info *app, t_vect pos, t_subtype subtype);
+void	spawn_door(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture);
@@ -779,7 +766,7 @@ void	init_logo_pieces(t_info *app, t_vect pos);
 void	developer_console(t_info *app, t_player *player);
 void	subtract_health(t_info *app, t_player *player, int damage);
 void	add_health(t_player *player, int health);
-void	damage_enemy(t_info *app, t_object *enemy, int damage);
+void	damage_enemy(t_info *app, t_obj *enemy, int damage);
 void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
 int		check_tile_open(char tile, t_lvl *lvl);
@@ -791,20 +778,20 @@ t_vect	get_horizontal_int(double y, double gradient, double c);
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
 void	add_in_front(t_ray *ray, int face, t_tex *texture);
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
-t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
+t_ray	*check_obj_collision(t_obj *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
-void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray);
+void	calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
 
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
 t_ivect scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
-t_vect	rotv(t_vect vect, double angle);
+t_vect	rotv(double x, double y, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
-t_vect	add_vect(const t_vect v1, t_vect v2);
-t_vect	addi_vect(const t_vect v1, t_ivect v2);
-t_ivect add_ivect(const t_ivect v1, const t_ivect v2);
+t_vect	add_vect(t_vect v1, t_vect v2);
+t_vect	addi_vect(t_vect v1, t_ivect v2);
+t_ivect add_ivect(t_ivect v1, t_ivect v2);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
 double	vector_magnitude(t_vect vect);
@@ -815,14 +802,14 @@ double	get_hyp_len(double len1, double len2);
 void	*fast_memcpy_test(int *dst, const int *src, size_t count);
 void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
-void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player);
+void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player);
 t_ray	*get_pooled_ray(int flag);
 t_poolnode	*add_poolnode(t_poolnode *head);
 void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
 void	reset_pool(t_poolnode *head, t_poolnode **current);
 int		count_poolnodes(t_poolnode *head);
-t_ray	ray_dda(t_info *app, t_lvl *map, t_player *player, double angle);
-t_ray	ray_dda_refactor(t_info *app, t_lvl *map, t_player *player, double angle);
+t_ray	ray_dda(t_info *app, t_lvl *lvl, t_player *player, double angle);
+t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl, t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
@@ -831,12 +818,12 @@ int		dim_colour(u_int col, double fact);
 
 t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
 t_tex	scale_texture(t_tex *tex, int scale);
-t_img	*img_dup(t_info *app, t_img *const src);
-void	pix_dup(t_img *const src, t_img *const dst);
+t_img	*img_dup(t_info *app, t_img *src);
+void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
-void	place_tex_to_image_scale(t_img *const img, t_tex *tex, t_ivect pos, double scalar);
+void	place_tex_to_image_scale(t_img *img, t_tex *tex, t_ivect pos, double scalar);
 void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
@@ -892,9 +879,8 @@ int	render_credits(void *param);
 
 void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
-void	draw_sky(t_info *const app);
-void 	draw_sky_alt(t_info *const app);
-void	fill_ceiling(t_info *app, t_lvl *map, t_player *player);
+void 	draw_sky_alt(t_info *app);
+void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
 
 void	menu_select_current(t_info *app);
@@ -918,36 +904,36 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 int	bilinear_filter(double x, double y, const t_tex *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
-void	start_obj_death(t_object *obj, t_info *app);
+void	start_obj_death(t_obj *obj, t_info *app);
 t_list	*delete_object(t_list **obj_list, t_list *obj_node);
-t_object	*check_obj_proximity(t_vect pos, t_lvl *map);
-int	point_oob_global(t_vect pos, t_lvl *map);
-void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
+t_obj	*check_obj_proximity(t_vect pos, t_lvl *lvl);
+int	point_oob_global(t_vect pos, t_lvl *lvl);
+void	select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
 t_tex	*handle_animation(t_info *app, t_anim anim);
 t_anim	**create_anim_arr(int x, int y);
-void	init_anims(t_info *app, t_lvl *map);
-void	reset_anims(t_info *app, t_lvl *map);
-int	count_collectables(t_lvl *map);
-int	handle_obj_projectile(t_info *app, t_object *obj, t_list **current);
-int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current);
-void	spawn_drops(t_info *app, t_object *obj, int no);
-void	phantoon_ai(t_info *app, t_object *obj);
-void	reo_ai(t_info *app, t_object *enemy);
-void	atomic_ai(t_info *app, t_object *enemy);
-void	holtz_ai(t_info *app, t_object *enemy, t_player *player);
-void	zoomer_ai(t_info *app, t_object *enemy);
-int	handle_obj_entity(t_info *app, t_object *obj, t_list **current);
-int	handle_trigger(t_info *app, t_object *obj, t_list **current);
-void	handle_tele(t_info *app, t_object *tele);
-int	handle_obj_item(t_info *app, t_object *obj, t_list **current);
-void	update_objects(t_info *app, t_player *player, t_lvl *map);
+void	init_anims(t_info *app, t_lvl *lvl);
+void	reset_anims(t_info *app, t_lvl *lvl);
+int	count_collectables(t_lvl *lvl);
+int	handle_obj_projectile(t_info *app, t_obj *obj, t_list **current);
+int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current);
+void	spawn_drops(t_info *app, t_obj *obj, int no);
+void	phantoon_ai(t_info *app, t_obj *obj);
+void	reo_ai(t_info *app, t_obj *enemy);
+void	atomic_ai(t_info *app, t_obj *enemy);
+void	holtz_ai(t_info *app, t_obj *enemy, t_player *player);
+void	zoomer_ai(t_info *app, t_obj *enemy);
+int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
+int	handle_trigger(t_info *app, t_obj *obj, t_list **current);
+void	handle_tele(t_info *app, t_obj *tele);
+int	handle_obj_item(t_info *app, t_obj *obj, t_list **current);
+void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
-int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
+int		check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 //u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
-void	toggle_fullscreen(t_info *const app);
+void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
 void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);

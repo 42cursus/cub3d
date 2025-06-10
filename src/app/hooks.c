@@ -61,11 +61,11 @@ void toggle_fullscreen(t_info *const app)
 
 void replace_frame(t_info *app)
 {
-	cast_all_rays_alt(app, app->map, app->player);
+	cast_all_rays_alt(app, app->lvl, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->player, 1);
-	if (app->map->outside != 1)
+	if (app->lvl->outside != 1)
 		fill_floor(app, app->player, 0);
 	draw_rays(app, app->canvas);
 }
@@ -122,7 +122,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 
 	app->mouse[button] = true;
 	if (button == 1)
-		spawn_projectile(app, app->player, app->map, app->player->equipped);
+		spawn_projectile(app, app->player, app->lvl, app->player->equipped);
 	else if (button == 2)
 	{
 		if (!app->ads)
@@ -393,7 +393,7 @@ int key_press_play(KeySym key, void *param)
 		else if (key == XK_e)
 			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
-			spawn_projectile(app, player, app->map, player->equipped); // DEBUGGING. TODO: fixme
+			spawn_projectile(app, player, app->lvl, player->equipped); // DEBUGGING. TODO: fixme
 		else if (key == XK_k)
 			subtract_health(app, player, 10);
 		else if (key == XK_j)

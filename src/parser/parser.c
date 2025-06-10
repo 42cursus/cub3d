@@ -133,14 +133,17 @@ t_enpos	*new_enpos(t_vect pos, int type)
 	return (new);
 }
 
-void	spawn_map_objects(t_info *app, t_lvl *lvl)
+__attribute__((optnone))
+void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 {
-	char			**map;
-	char			el;
-	t_ivect			it;
-	const t_vecf	rv = { .x = 0, .y = 1, .addi = addi_vect, .rot = rotv};
-	const t_vecf	hl = { .x = 0.5, .y = 0.5, .addi = addi_vect, .rot = rotv};
+	t_list			*enpos;
+	t_subtype		subtype;
+	const t_vect	pos = addi_vect((t_vect){0.5, 0.5}, it);
+	const t_vect	dir = rotv(0.0, -1, rand_range(-M_PI, M_PI));
 	const t_subtype	lt[CHAR_MAX] = {
+		['2'] = 1,
+		['3'] = 2,
+		['4'] = 3,
 		['m'] = I_MISSILE,
 		['t'] = I_TROPHY,
 		['b'] = T_BOSS,
@@ -153,6 +156,37 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 		['H'] = E_HOLTZ,
 	};
 
+	subtype = lt[(u_char) el];
+	if (ft_strchr("mest", el))
+		spawn_item(app, pos, subtype);
+	else if (ft_strchr("234b", el))
+		if (lvl->sublvls[el - '2'] != NULL)
+			spawn_teleporter(app, pos, subtype);
+		else
+			spawn_trigger(app, pos, subtype);
+	else
+	{
+		enpos = ft_lstnew(new_enpos(pos, subtype));
+		if (ft_strchr("ZAR", el))
+		{
+			spawn_enemy(app, pos, dir, subtype);
+			ft_lstadd_back(&lvl->enemy_pos, enpos);
+		}
+		else if (el == 'P' || el == 'H')
+		{
+			lvl->boss_obj = spawn_enemy(app, pos, (t_vect){0, -1}, subtype);
+			ft_lstadd_back(&lvl->enemy_pos, enpos);
+		}
+	}
+}
+
+__attribute__((optnone))
+void	spawn_map_objects(t_info *app, t_lvl *lvl)
+{
+	char	**map;
+	char	el;
+	t_ivect	it;
+
 	map = lvl->map;
 	it.y = -1;
 	while (++it.y < lvl->height)
@@ -161,68 +195,60 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 		while (++it.x < lvl->width)
 		{
 			el = map[it.y][it.x];
-			if (ft_strchr("mestZAHRPb234", el))
+			if (ft_strchr("ODLM", el))
+				spawn_door(app, (t_vect) {it.x, it.y}, 0);
+			else if (ft_strchr("mestZAHRPb234", el))
 			{
-				if (ft_strchr("mest", el))
-					spawn_item(app, hl.addi(hl.v, it), lt[(u_char)el]);
-				else if (el == 'b')
-					spawn_trigger(app, hl.addi(hl.v, it), lt[(u_char)el]);
-				else if (ft_strchr("ZAR", el))
-				{
-					spawn_enemy(app, hl.addi(hl.v, it), rv.rot(rv.v, rand_range(-M_PI, M_PI)), lt[(u_char)el]);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(new_enpos(hl.addi(hl.v, it), lt[(u_char) el])));
-//					if (enemy->subtype == E_PHANTOON ||enemy->subtype == E_HOLTZ )
-				}
-				else if (el == 'P' || el == 'H')
-				{
-					lvl->boss_obj = spawn_enemy(app, hl.addi(hl.v, it), rv.v, lt[(u_char) el]);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(new_enpos(hl.addi(hl.v, it), lt[(u_char) el])));
-				}
-				else if ((el >= '2' && el <= '4') && lvl->sublvls[el - '2'])
-					spawn_teleporter(app, hl.addi(hl.v, it), el - '1');
+				do_spawn_thing(app, lvl, el, it);
 				map[it.y][it.x] = '0';
 			}
 		}
 	}
 }
 
-void	respawn_enemies(t_info *app, t_lvl *map)
+void	respawn_enemies(t_info *app, t_lvl *lvl)
 {
-	t_list		*cur_node;
+	t_list	*cur_node;
 	t_enpos	*cur_pos;
+	t_vect	dir;
+	t_vect	def = (t_vect) {0, 1};
 
-	ft_lstclear(&map->enemies, free);
-	cur_node = map->enemy_pos;
+	ft_lstclear(&lvl->enemies, free);
+	cur_node = lvl->enemy_pos;
 	while (cur_node != NULL)
 	{
 		cur_pos = (t_enpos *)cur_node->data;
+
 		if (cur_pos->type != E_PHANTOON)
-			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 1.0}, rand_range(-M_PI, M_PI)), cur_pos->type);
-		else if (map->boss_obj != NULL)
-			map->boss_obj = spawn_enemy(app, cur_pos->pos, (t_vect){0, 1}, E_PHANTOON);
+		{
+			dir = rotate_vect(def, rand_range(-M_PI, M_PI));
+			spawn_enemy(app, cur_pos->pos, dir, cur_pos->type);
+		}
+		else if (lvl->boss_obj != NULL)
+			lvl->boss_obj = spawn_enemy(app, cur_pos->pos, def, E_PHANTOON);
 		cur_node = cur_node->next;
 	}
 }
 
-void	remove_drops(t_lvl *map)
+void	remove_drops(t_lvl *lvl)
 {
 	t_list	*current;
 	t_list	*temp;
 
-	current = map->items;
+	current = lvl->items;
 	if (current == NULL)
 		return ;
-	while (((t_object *)current->content)->subtype >= I_AMMO_M && ((t_object *)current->content)->subtype <= I_HEALTH)
+	while (((t_obj *)current->content)->subtype >= I_AMMO_M && ((t_obj *)current->content)->subtype <= I_HEALTH)
 	{
-		map->items = current->next;
+		lvl->items = current->next;
 		ft_lstdelone(current, free);
-		current = map->items;
+		current = lvl->items;
 		if (current == NULL)
 			return ;
 	}
 	while (current->next != NULL)
 	{
-		if (((t_object *)current->next->content)->subtype >= I_AMMO_M && ((t_object *)current->next->content)->subtype <= I_HEALTH)
+		if (((t_obj *)current->next->content)->subtype >= I_AMMO_M && ((t_obj *)current->next->content)->subtype <= I_HEALTH)
 		{
 			temp = current->next->next;
 			ft_lstdelone(current->next, free);
@@ -233,39 +259,39 @@ void	remove_drops(t_lvl *map)
 	}
 }
 
-void	reset_doors(t_lvl *map)
+void	reset_doors(t_lvl *lvl)
 {
 	int	i;
 	int	j;
 
 	i = -1;
-	while (++i < map->height)
+	while (++i < lvl->height)
 	{
 		j = -1;
-		while (++j < map->width)
+		while (++j < lvl->width)
 		{
-			if (map->map[i][j] == 'O')
-				map->map[i][j] = 'D';
+			if (lvl->map[i][j] == 'O')
+				lvl->map[i][j] = 'D';
 		}
 	}
 }
 
-void	refresh_map(t_info *app, t_lvl *map)
+void	refresh_map(t_info *app, t_lvl *lvl)
 {
-	respawn_enemies(app, map);
-	ft_lstclear(&map->projectiles, free);
-	remove_drops(map);
-	reset_doors(map);
-	reset_anims(app, map);
+	respawn_enemies(app, lvl);
+	ft_lstclear(&lvl->projectiles, free);
+	remove_drops(lvl);
+	reset_doors(lvl);
+	reset_anims(app, lvl);
 }
 
-int	count_collectables(t_lvl *map)
+int	count_collectables(t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*cur_obj;
+	t_obj	*cur_obj;
 	int			count;
 
-	current = map->items;
+	current = lvl->items;
 	count = 0;
 	while (current != NULL)
 	{
@@ -368,7 +394,7 @@ int	parse_cub(t_info *app, char *filename)
 	t_lvl	*lvl;
 
 	fd = open(filename, O_RDONLY);
-	lvl = app->map;
+	lvl = app->lvl;
 	lvl->app = app;
 	lvl->sublvls[0] = ft_strdup(filename);
 	file = read_cub(fd);
@@ -403,32 +429,33 @@ int	parse_cub(t_info *app, char *filename)
 	lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	init_anims(app, lvl);
 	close(fd);
-	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->map));
+	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->lvl));
 	return (0);
 }
 
-void	free_map(t_lvl *data)
+void	free_map(t_lvl *lvl)
 {
-	free(data->n_tex.data);
-	free(data->s_tex.data);
-	free(data->e_tex.data);
-	free(data->w_tex.data);
-	free(data->floor_tex.data);
-	free(data->ceil_tex.data);
-	free(data->sublvls[0]);
-	free(data->sublvls[1]);
-	free(data->sublvls[2]);
-	free(data->sublvls[3]);
-	free_split(data->map);
-	free_split((char **)data->anims);
-	ft_lstclear(&data->enemies, free);
-	ft_lstclear(&data->items, free);
-	ft_lstclear(&data->triggers, free);
-	ft_lstclear(&data->projectiles, free);
-	ft_lstclear(&data->logo, free);
-	ft_lstclear(&data->enemy_pos, free);
-	Mix_FreeChunk(data->music);
-	free(data);
+	free(lvl->n_tex.data);
+	free(lvl->s_tex.data);
+	free(lvl->e_tex.data);
+	free(lvl->w_tex.data);
+	free(lvl->floor_tex.data);
+	free(lvl->ceil_tex.data);
+	free(lvl->sublvls[0]);
+	free(lvl->sublvls[1]);
+	free(lvl->sublvls[2]);
+	free(lvl->sublvls[3]);
+	free_split(lvl->map);
+	free_split((char **)lvl->anims);
+	ft_lstclear(&lvl->enemies, free);
+	ft_lstclear(&lvl->items, free);
+	ft_lstclear(&lvl->triggers, free);
+	ft_lstclear(&lvl->doors, free);
+	ft_lstclear(&lvl->projectiles, free);
+	ft_lstclear(&lvl->logo, free);
+	ft_lstclear(&lvl->enemy_pos, free);
+	Mix_FreeChunk(lvl->music);
+	free(lvl);
 }
 
 t_lvl *get_cached_lvl(t_info *app, char *name)

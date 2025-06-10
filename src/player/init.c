@@ -15,17 +15,16 @@
 t_player	*init_player(t_info *app)
 {
 	t_player	*player;
-	t_lvl		*map;
+	t_lvl *const lvl = app->lvl;
 
-	map = app->map;
 	player = ft_calloc(1, sizeof(*player));
-	player->pos = map->starting_pos;
+	player->pos = lvl->starting_pos;
 	player->health = 99;
 	player->max_health = 99;
 	player->equipped = pr_BEAM;
 	player->ammo[pr_BEAM] = -1;
 	player->max_ammo[pr_BEAM] = -1;
-	player->dir = map->starting_dir;
+	player->dir = lvl->starting_dir;
 	player->angle = atan2(player->dir.y, player->dir.x);
 	calculate_offsets(app, player);
 	return (player);
@@ -33,9 +32,8 @@ t_player	*init_player(t_info *app)
 
 void	refresh_player(t_info *app, t_player *player)
 {
-	t_lvl		*map;
+	t_lvl *const lvl = app->lvl;
 
-	map = app->map;
-	player->pos = map->starting_pos;
-	player->dir = map->starting_dir;
+	player->pos = lvl->starting_pos;
+	player->dir = lvl->starting_dir;
 }

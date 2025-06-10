@@ -12,8 +12,8 @@
 
 #include "cub3d.h"
 
-void	init_pooled_ray(t_ray *ray, t_object *obj,
-			t_player *player, t_vect intcpt);
+void	init_pooled_ray(t_ray *ray, t_obj *obj,
+						t_player *player, t_vect intcpt);
 
 static inline __attribute__((always_inline))
 double	vector_distance2(t_vect v1, t_vect v2)
@@ -55,7 +55,7 @@ void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray)
 	while (current != NULL)
 	{
 		order_obj_ray(
-			check_obj_collision((t_object *)current->data, ray, player),
+			check_obj_collision((t_obj *)current->data, ray, player),
 			ray);
 		current = current->next;
 	}
@@ -79,7 +79,7 @@ t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 }
 
 __attribute__((optnone))
-t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
+t_ray	*check_obj_collision(t_obj *object, t_ray *ray, t_player *player)
 {
 	t_ray	*out;
 	t_vect	intcpt;

@@ -13,10 +13,10 @@
 #include "cub3d.h"
 
 static inline __attribute__((always_inline))
-int	point_oob(t_vect pos, t_lvl *map)
+int	point_oob(t_vect pos, t_lvl *lvl)
 {
-	return ((pos.x < 0 || pos.x > map->width)
-		|| (pos.y < 0 || pos.y > map->height));
+	return ((pos.x < 0 || pos.x > lvl->width)
+		|| (pos.y < 0 || pos.y > lvl->height));
 }
 
 static inline __attribute__((always_inline, unused))
@@ -67,7 +67,7 @@ void	move_entity(t_vect *pos, t_lvl *lvl, t_vect dir)
 	}
 }
 
-void	move_obj_bounce(t_info *app, t_object *obj, t_lvl *data)
+void	move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data)
 {
 	t_vect	new_pos;
 	char	**map;
@@ -77,7 +77,7 @@ void	move_obj_bounce(t_info *app, t_object *obj, t_lvl *data)
 			scale_vect(obj->dir, obj->speed / app->fr_scale));
 	map = data->map;
 	tile = map[(int)new_pos.y][(int)new_pos.x];
-	if (point_oob(new_pos, app->map) || !check_tile_open(tile, app->map))
+	if (point_oob(new_pos, app->lvl) || !check_tile_open(tile, app->lvl))
 		rotate_vect_inplace(&obj->dir, rand_range(-M_PI, M_PI));
 	else
 		obj->pos = new_pos;

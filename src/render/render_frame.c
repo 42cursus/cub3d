@@ -14,9 +14,9 @@
 #include <sys/time.h>
 #include <sysexits.h>
 
-int	point_oob_global(t_vect pos, t_lvl *map)
+int	point_oob_global(t_vect pos, t_lvl *lvl)
 {
-	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+	return ((pos.x < 0 || pos.x > lvl->width) || (pos.y < 0 || pos.y > lvl->height));
 }
 
 double	rand_range(double lower, double upper)
@@ -60,7 +60,7 @@ int	render_win(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	update_objects(app, app->player, app->map);
+	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
@@ -83,7 +83,7 @@ int	render_lose(void *param)
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
-	update_objects(app, app->player, app->map);
+	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
 	draw_menu_items(app);
@@ -154,22 +154,22 @@ int	render_play(void *param)
 	t_info *const	app = param;
 
 	if (app->keys[idx_XK_w])
-		move_entity(&app->player->pos, app->map,
+		move_entity(&app->player->pos, app->lvl,
 					scale_vect(app->player->dir, 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_s])
-		move_entity(&app->player->pos, app->map,
+		move_entity(&app->player->pos, app->lvl,
 					scale_vect(rotate_vect(app->player->dir, M_PI), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_a])
-		move_entity(&app->player->pos, app->map,
+		move_entity(&app->player->pos, app->lvl,
 					scale_vect(rotate_vect(app->player->dir, M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_d])
-		move_entity(&app->player->pos, app->map,
+		move_entity(&app->player->pos, app->lvl,
 					scale_vect(rotate_vect(app->player->dir, -M_PI_2), 0.1 / app->fr_scale));
 	if (app->keys[idx_XK_Right] && !app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 1, 12);
 	if (app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 0, 12);
-	update_objects(app, app->player, app->map);
+	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -189,7 +189,7 @@ int	render_intro(void *param)
 	size_t			diff;
 	t_info *const	app = param;
 
-	update_objects(app, app->player, app->map);
+	update_objects(app, app->player, app->lvl);
 	if (app->player->dead)
 	{
 		diff = get_time_ms() - app->timer.cur_lvl_start;
@@ -198,7 +198,7 @@ int	render_intro(void *param)
 		if (diff > 2500)
 			app->mlx->end_loop = 1;
 	}
-	cast_all_rays_alt(app, app->map, app->player);
+	cast_all_rays_alt(app, app->lvl, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	draw_rays(app, app->canvas);

@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	holtz_ai(t_info *app, t_object *enemy, t_player *player)
+void	holtz_ai(t_info *app, t_obj *enemy, t_player *player)
 {
 	int		frames;
 	t_vect	norm_diff;
@@ -29,5 +29,5 @@ void	holtz_ai(t_info *app, t_object *enemy, t_player *player)
 			scale_vect(norm_diff, 0.2 / app->fr_scale), P_HOLTZ);
 		Mix_PlayChannel(ch_enemies, app->audio.chunks[snd_player_damage], 0);
 	}
-	move_obj_bounce(app, enemy, app->map);
+	move_obj_bounce(app, enemy, app->lvl);
 }

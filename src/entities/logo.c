@@ -14,13 +14,12 @@
 
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture)
 {
-	t_object	*logo_piece;
-	t_lvl		*map;
+	t_obj		*logo_piece;
+	t_lvl *const	lvl = app->lvl;
 
 	dir = rotate_vect(dir, rand_range(-M_PI_2, M_PI_2));
 	// dir = rotate_vect(dir, rand_range(-M_PI_4 * 1.5, M_PI_4 * 1.5));
 	dir = scale_vect(dir, 0.013);
-	map = app->map;
 	logo_piece = ft_calloc(1, sizeof(*logo_piece));
 	logo_piece->end_pos = pos;
 	logo_piece->pos = subtract_vect(pos, scale_vect(dir, 150));
@@ -28,10 +27,10 @@ void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture)
 	logo_piece->texture = texture;
 	logo_piece->dir = dir;
 	printf("\e[34mpiece\e[m:\t%2ld\t\e[34mdir\e[m:\t\e[31m% f\e[m, \e[32m% f\e[m\n", texture - app->shtex->logo_tex, dir.x, dir.y);
-	ft_lstadd_back(&map->logo, ft_lstnew(logo_piece));
+	ft_lstadd_back(&lvl->logo, ft_lstnew(logo_piece));
 }
 
-int	handle_obj_logo(t_info *app, t_object *obj)
+int	handle_obj_logo(t_info *app, t_obj *obj)
 {
 	if (vector_distance(obj->pos, obj->end_pos) > 0.001)
 	{
@@ -43,17 +42,17 @@ int	handle_obj_logo(t_info *app, t_object *obj)
 	(void)app;
 }
 
-void	update_logo_pieces(t_info *app, t_player *player, t_lvl *map)
+void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*obj;
+	t_obj	*obj;
 	int			stopped;
 
-	current = map->logo;
+	current = lvl->logo;
 	stopped = 0;
 	while (current != NULL)
 	{
-		obj = (t_object *)current->data;
+		obj = (t_obj *)current->data;
 		stopped += handle_obj_logo(app, obj);
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);

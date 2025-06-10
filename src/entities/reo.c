@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	reo_ai(t_info *app, t_object *enemy)
+void	reo_ai(t_info *app, t_obj *enemy)
 {
 	int		frames;
 	t_vect	norm_diff;
@@ -30,7 +30,7 @@ void	reo_ai(t_info *app, t_object *enemy)
 		enemy->speed = 0.04;
 		if (frames % 25 == 0)
 			rotate_vect_inplace(&enemy->dir, rand_range(-M_PI, M_PI));
-		move_obj_bounce(app, enemy, app->map);
+		move_obj_bounce(app, enemy, app->lvl);
 	}
 	else
 	{
@@ -38,7 +38,7 @@ void	reo_ai(t_info *app, t_object *enemy)
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
 		enemy->dir = norm_diff;
 		enemy->speed = 0.1;
-		move_entity(&enemy->pos, app->map,
+		move_entity(&enemy->pos, app->lvl,
 			scale_vect(enemy->dir, enemy->speed / app->fr_scale));
 	}
 }

@@ -50,17 +50,19 @@ int	exit_win(t_info *const	app)
 	exit(cleanup(app));
 }
 
-void	destroy_map(t_lvl *map)
+void	destroy_map(t_lvl *lvl)
 {
-	mlx_destroy_image(map->app->mlx, map->minimap_xs);
-	mlx_destroy_image(map->app->mlx, map->minimap_xl);
-	mlx_destroy_image(map->app->mlx, map->help);
-	mlx_destroy_image(map->app->mlx, map->overlay);
-	if (map->texs[T_CEILING])
-		mlx_destroy_image(map->app->mlx, map->texs[T_CEILING]);
-	if (map->texs[T_FLOOR])
-		mlx_destroy_image(map->app->mlx, map->texs[T_FLOOR]);
-	free_map(map);
+	t_info *const	app = lvl->app;
+
+	mlx_destroy_image(app->mlx, lvl->minimap_xs);
+	mlx_destroy_image(app->mlx, lvl->minimap_xl);
+	mlx_destroy_image(app->mlx, lvl->help);
+	mlx_destroy_image(app->mlx, lvl->overlay);
+	if (lvl->texs[T_CEILING])
+		mlx_destroy_image(app->mlx, lvl->texs[T_CEILING]);
+	if (lvl->texs[T_FLOOR])
+		mlx_destroy_image(app->mlx, lvl->texs[T_FLOOR]);
+	free_map(lvl);
 }
 
 void	cleanup_maps(t_info *app)
@@ -167,8 +169,8 @@ t_ret_code do_state_load(void *param)
 {
 	t_info *const app = param;
 
-	if (app->map->music)
-		Mix_PlayChannel(ch_music, app->map->music, -1);
+	if (app->lvl->music)
+		Mix_PlayChannel(ch_music, app->lvl->music, -1);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) "./resources/textures/skybox.xpm");
 
@@ -346,10 +348,10 @@ void do_initial_to_intro(void *param)
 	t_info *const app = param;
 
 	app->fr_count = 0;
-	app->map = init_map();
+	app->lvl = init_map();
 	if (parse_cub(app, (char *)"./maps/logo_test.cub"))
 	{
-		free_map(app->map);
+		free_map(app->lvl);
 		app->rc = fail;
 		return ;
 	}
@@ -400,15 +402,15 @@ void do_mmenu_to_load(void *param)
 	t_info *const app = param;
 
 	app->fr_count = 0;
-	app->map = init_map();
+	app->lvl = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
-		free_map(app->map);
+		free_map(app->lvl);
 		app->rc = fail;
 		return ;
 	}
 	app->player = init_player(app);
-	app->player->total_pickups += count_collectables(app->map);
+	app->player->total_pickups += count_collectables(app->lvl);
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
 	app->timer.total_ms = 0;
@@ -545,27 +547,27 @@ void	do_play_to_load(void *param)
 	char			*next_lvl;
 
 	app->timer.stop_time = get_time_ms();
-	next_lvl = ft_strdup(app->map->sublvls[app->current_sublevel]);
+	next_lvl = ft_strdup(app->lvl->sublvls[app->current_sublevel]);
 	// cleanup_map(app);
 	// if (get_cached_lvl(app, app->map->sublvls[0]) == NULL)
 	// 	ft_lstadd_back(&app->lvlcache, ft_lstnew(app->map));
 	app->fr_count = 0;
-	app->map->starting_pos = app->player->tele_pos;
-	move_entity(&app->map->starting_pos, app->map, subtract_vect(app->player->pos, app->player->tele_pos));
-	app->map->starting_dir = rotate_vect(app->player->dir, M_PI);
-	refresh_map(app, app->map);
-	app->map = get_cached_lvl(app, next_lvl);
-	if (app->map == NULL)
+	app->lvl->starting_pos = app->player->tele_pos;
+	move_entity(&app->lvl->starting_pos, app->lvl, subtract_vect(app->player->pos, app->player->tele_pos));
+	app->lvl->starting_dir = rotate_vect(app->player->dir, M_PI);
+	refresh_map(app, app->lvl);
+	app->lvl = get_cached_lvl(app, next_lvl);
+	if (app->lvl == NULL)
 	{
-		app->map = init_map();
+		app->lvl = init_map();
 		if (parse_cub(app, next_lvl))
 		{
-			free_map(app->map);
+			free_map(app->lvl);
 			free(next_lvl);
 			app->rc = fail;
 			return ;
 		}
-		app->player->total_pickups += count_collectables(app->map);
+		app->player->total_pickups += count_collectables(app->lvl);
 	}
 	free(next_lvl);
 	// app->player = init_player(app);
@@ -764,10 +766,10 @@ void do_win_to_load(void *param)
 
 	cleanup_maps(app);
 	app->fr_count = 0;
-	app->map = init_map();
+	app->lvl = init_map();
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
-		free_map(app->map);
+		free_map(app->lvl);
 		app->rc = fail;
 		return ;
 	}
@@ -793,11 +795,11 @@ void do_lose_to_load(void *param)
 
 	cleanup_maps(app);
 	free(app->player);
-	app->map = init_map();
+	app->lvl = init_map();
 	app->fr_count = 0;
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
-		free_map(app->map);
+		free_map(app->lvl);
 		app->rc = fail;
 		return ;
 	}

@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	zoomer_ai(t_info *app, t_object *enemy)
+void	zoomer_ai(t_info *app, t_obj *enemy)
 {
-	move_obj_bounce(app, enemy, app->map);
+	move_obj_bounce(app, enemy, app->lvl);
 }

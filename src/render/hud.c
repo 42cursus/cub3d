@@ -119,7 +119,7 @@ __attribute__((optnone))
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
-	t_object		*curr_obj;
+	t_obj		*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
 	t_tex *const 	tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
 
@@ -147,7 +147,7 @@ __attribute__((optnone))
 void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list		*current;
-	t_object	*curr_obj;
+	t_obj	*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
 	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
@@ -175,7 +175,7 @@ __attribute__((optnone))
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list		*current;
-	t_object	*curr_obj;
+	t_obj	*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
 	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
@@ -202,7 +202,7 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 {
 	t_list			*current;
-	t_object		*curr_obj;
+	t_obj		*curr_obj;
 	t_ivect3		pos_scalar;
 	t_info *const	app = lvl->app;
 
@@ -331,7 +331,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	t_ivect		it;
 	int			idx;
 	t_tex		tile;
-	t_lvl		*const lvl = app->map;
+	t_lvl		*const lvl = app->lvl;
 
 	img = mlx_new_image(app->mlx, lvl->width * scale,
 			lvl->height * scale);
@@ -365,7 +365,7 @@ t_img	*build_minimap(t_info *app, int scale)
 void	place_startup_overlay(t_info *app)
 {
 	t_point			p1;
-	t_lvl *const	lvl = app->map;
+	t_lvl *const	lvl = app->lvl;
 	t_img *const	overlay = lvl->overlay;
 	t_img *const	canvas = app->canvas;
 	int				hint_shown = app->hint_shown;
@@ -386,7 +386,7 @@ void	place_startup_overlay(t_info *app)
 void	place_help(t_info *app)
 {
 	t_point			p1;
-	t_lvl *const	lvl = app->map;
+	t_lvl *const	lvl = app->lvl;
 	t_img *const	help = lvl->help;
 	t_img *const	canvas = app->canvas;
 
@@ -420,7 +420,7 @@ t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 
 void	place_mmap(t_info *app)
 {
-	t_lvl *const	lvl = app->map;
+	t_lvl *const	lvl = app->lvl;
 	t_img *const	canvas = app->canvas;
 	t_player *const	player = app->player;
 	t_point			p1;
@@ -778,7 +778,7 @@ void	place_boss_health(t_info *app)
 
 	start.y = WIN_HEIGHT * 0.95;
 	start.x = WIN_WIDTH / 4;
-	end_x = start.x + ((WIN_WIDTH / 2) * (app->map->boss_obj->health / 500.0));
+	end_x = start.x + ((WIN_WIDTH / 2) * (app->lvl->boss_obj->health / 500.0));
 	it.y = start.y - 1;
 	while (++it.y < start.y + 14)
 	{
@@ -829,7 +829,7 @@ void	draw_hud(t_info *app)
 	place_energy(app, app->player);
 	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)
-	if (app->map->boss_active)
+	if (app->lvl->boss_active)
 		place_boss_health(app);
 	place_fps(app);
 	if (app->timer.active == 1)

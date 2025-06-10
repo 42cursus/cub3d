@@ -12,10 +12,10 @@
 
 #include "cub3d.h"
 
-void	spawn_enemy_projectile(t_info *app, t_object *enemy,
-			t_vect dir, int subtype)
+void	spawn_enemy_projectile(t_info *app, t_obj *enemy,
+							   t_vect dir, int subtype)
 {
-	t_object	*projectile;
+	t_obj	*projectile;
 
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->type = O_EPROJ;
@@ -38,10 +38,10 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy,
 		projectile->anim.tex = app->shtex->proj_green_tex;
 		projectile->anim2.tex = app->shtex->proj_green_tex;
 	}
-	ft_lstadd_back(&app->map->projectiles, ft_lstnew(projectile));
+	ft_lstadd_back(&app->lvl->projectiles, ft_lstnew(projectile));
 }
 
-int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
+int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current)
 {
 	t_vect	new_pos;
 
@@ -50,7 +50,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 		obj->texture = handle_animation(app, obj->anim2);
 		if (obj->texture == NULL)
 		{
-			*current = delete_object(&app->map->projectiles, *current);
+			*current = delete_object(&app->lvl->projectiles, *current);
 			return (1);
 		}
 		return (0);
@@ -63,7 +63,7 @@ int	handle_enemy_projectile(t_info *app, t_object *obj, t_list **current)
 		return (start_obj_death(obj, app), 0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
-	if (ft_strchr("1LDM", app->map->map[(int)new_pos.y][(int)new_pos.x]))
+	if (ft_strchr("1LDM", app->lvl->map[(int)new_pos.y][(int)new_pos.x]))
 		return (start_obj_death(obj, app), 0);
 	obj->pos = new_pos;
 	return (0);

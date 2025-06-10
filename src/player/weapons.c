@@ -45,7 +45,7 @@ void	add_ammo(t_player *player, int type)
 	player->ammo[type] = new_ammo;
 }
 
-void	damage_enemy(t_info *app, t_object *enemy, int damage)
+void	damage_enemy(t_info *app, t_obj *enemy, int damage)
 {
 	enemy->health -= damage;
 	enemy->attacking = 1;
@@ -58,8 +58,8 @@ void	damage_enemy(t_info *app, t_object *enemy, int damage)
 		enemy->anim2.active = 1;
 		if (enemy->subtype == E_PHANTOON)
 		{
-			app->map->boss_active = 0;
-			Mix_PlayChannel(ch_music, app->map->music, -1);
+			app->lvl->boss_active = 0;
+			Mix_PlayChannel(ch_music, app->lvl->music, -1);
 			toggle_boss_doors(app);
 		}
 	}
