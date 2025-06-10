@@ -346,10 +346,8 @@ t_img	*build_minimap(t_info *app, int scale)
 		while (++it.x < lvl->width)
 		{
 			idx = -1;
-			if (row[it.x] == '0')
+			if (ft_strchr("0ODMBL", row[it.x]))
 				idx = get_tile_idx(lvl->map, i, it.x);
-			else if (ft_strchr("DMBL", row[it.x]))
-				idx = 15;
 			if (idx >= 0)
 			{
 				tile = get_tile(idx);
