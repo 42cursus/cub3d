@@ -256,7 +256,7 @@ t_tex	get_tile(int idx)
 	u_int32_t		*row;
 	static t_tex	tiles[256] = {0x0};
 
-	tex = &tiles[0];
+	tex = &tiles[15];
 	if (idx >= 0 && idx < 0xFF)
 	{
 		if (tiles[idx].data)

@@ -12,11 +12,13 @@
 
 #include "cub3d.h"
 
-void	spawn_trigger(t_info *app, t_vect pos, int subtype)
+void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype)
 {
-	t_obj		*trigger;
+	t_obj			*trigger;
 	t_lvl *const	lvl = app->lvl;
 
+	if (subtype > 0 && subtype < 5)
+		spawn_teleporter(app, pos, subtype);
 	trigger = ft_calloc(1, sizeof(*trigger));
 	trigger->pos = pos;
 	trigger->type = O_TRIGGER;
@@ -27,16 +29,19 @@ void	spawn_trigger(t_info *app, t_vect pos, int subtype)
 
 void	spawn_teleporter(t_info *app, t_vect pos, int level)
 {
-	t_obj		*tele;
+	t_obj			*tele;
 	t_lvl *const	lvl = app->lvl;
 
-	tele = ft_calloc(1, sizeof(*tele));
-	tele->pos = pos;
-	tele->type = O_TELE;
-	tele->dead = 1;
-	tele->subtype = level;
-	tele->texture = &app->shtex->tele;
-	ft_lstadd_back(&lvl->triggers, ft_lstnew(tele));
+	if (lvl->sublvls[level - 1] != NULL)
+	{
+		tele = ft_calloc(1, sizeof(*tele));
+		tele->pos = pos;
+		tele->type = O_TELE;
+		tele->dead = 1;
+		tele->subtype = level;
+		tele->texture = &app->shtex->tele;
+		ft_lstadd_back(&lvl->triggers, ft_lstnew(tele));
+	}
 }
 
 int	handle_trigger(t_info *app, t_obj *obj, t_list **current)

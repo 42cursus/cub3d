@@ -160,10 +160,7 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 	if (ft_strchr("mest", el))
 		spawn_item(app, pos, subtype);
 	else if (ft_strchr("234b", el))
-		if (lvl->sublvls[el - '2'] != NULL)
-			spawn_teleporter(app, pos, subtype);
-		else
-			spawn_trigger(app, pos, subtype);
+		spawn_trigger(app, pos, subtype);
 	else
 	{
 		enpos = ft_lstnew(new_enpos(pos, subtype));
@@ -416,11 +413,7 @@ int	parse_cub(t_info *app, char *filename)
 	if (!all_fields_parsed(lvl))
 		return (printf("Error: not all fields provided\n"), 1);
 	spawn_map_objects(app, lvl);
-
-//	raise(SIGTSTP);
-
-	int small_mmap_scale = 8;
-	lvl->minimap_xs = build_minimap(app, small_mmap_scale);
+	lvl->minimap_xs = build_minimap(app, SMALL_MMAP_SCALE);
 
 	draw_large_minimap(lvl);
 	draw_help(lvl);

@@ -709,6 +709,7 @@ typedef struct s_colour
 #define MAP_BOT_LEFT	0b01000000
 #define MAP_BOT_RIGHT	0b10000000
 
+#define SMALL_MMAP_SCALE 8
 typedef enum e_bit
 {
 	bit_left = 0,
@@ -758,7 +759,7 @@ void	spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir, int subtype);
 t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_door(t_info *app, t_vect pos, int subtype);
-void	spawn_trigger(t_info *app, t_vect pos, int subtype);
+void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture);
 void	init_logo_pieces(t_info *app, t_vect pos);
