@@ -248,7 +248,7 @@ uint32_t	get_tile_pix(int x, int y, int idx)
 	return (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
 }
 
-static inline __attribute__((optnone, used))
+inline __attribute__((always_inline, used))
 t_tex	get_tile(int idx)
 {
 	t_ivect			it;
@@ -279,22 +279,12 @@ t_tex	get_tile(int idx)
 	return (*tex);
 }
 
-typedef enum e_bit
-{
-	bit_left = 0,
-	bit_top,
-	bit_right,
-	bit_bottom,
-	bit_tleft,
-	bit_tright,
-	bit_bleft,
-	bit_bright,
-}	t_bitno;
-
 static inline __attribute__((always_inline, unused))
 int	get_tile_idx_alt(char **map, int i, int j)
 {
-	static const	t_ivect neighbors[CHAR_BIT] = {
+	t_ivect 				iv;
+	t_ivect					nb;
+	static const t_ivect	neighbors[CHAR_BIT] = {
 		[bit_left] = { 0, -1},
 		[bit_top] = { -1,  0},
 		[bit_right] = { 0,  1},
@@ -304,8 +294,6 @@ int	get_tile_idx_alt(char **map, int i, int j)
 		[bit_bleft] = { 1, -1},
 		[bit_bright] = { 1,  1}
 	};
-	t_ivect 		iv;
-	t_ivect			nb;
 
 	iv.x = 0;
 	iv.y = -1;

@@ -82,8 +82,7 @@ void	load_misc_graphics(t_info *app)
 	extern const char	*teleporter_xpm[];
 	extern const char	*scope_xpm[];
 	extern const char	*credits_xpm[];
-	extern const char	*MAPPLAYER_xpm[];
-	extern const char	*MAP1111_xpm[];
+	static u_int		player[] = (u_int[]) {[0 ... 4] = MLX_PALE_GRAY};
 	extern const char	*small_font_xpm[];
 
 	tex = &app->shtex->title;
@@ -98,8 +97,6 @@ void	load_misc_graphics(t_info *app)
 	tex->data = img_to_tex_static_row_major(app, credits_xpm, &tex->w, &tex->h);
 	tex = &app->shtex->alphabet;
 	tex->data = img_to_tex_static_row_major(app, small_font_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->playertile;
-	tex->data = img_to_tex_static_row_major(app, MAPPLAYER_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->square;
-	tex->data = img_to_tex_static_row_major(app, MAP1111_xpm, &tex->w, &tex->h);
+	app->shtex->playertile = (t_tex){.data = player, .w = 2, .h = 2};
+	app->shtex->square = get_tile(15);
 }

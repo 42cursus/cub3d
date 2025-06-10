@@ -192,8 +192,6 @@ FILES   = arm_cannon_big.xpm \
 			title_card.xpm \
 			trophy0.xpm \
 			trophy1.xpm \
-			wall.xpm \
-	        mmap/MAP1111.xpm \
-	        mmap/MAPPLAYER.xpm
+			wall.xpm
 
 TEXTURES    += $(FILES:%.xpm=$(dir $(lastword $(MAKEFILE_LIST)))%.xpm)

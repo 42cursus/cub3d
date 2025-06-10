@@ -28,7 +28,6 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->proj_green_tex, 4);
 	free_tex_arr_arr(app->shtex->dmg_tex, 8);
 	free_tex_arr_arr(app->shtex->logo_tex, 14);
-	free(app->shtex->playertile.data);
 	free(app->shtex->square.data);
 	free(app->shtex);
 }

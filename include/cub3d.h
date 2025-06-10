@@ -696,6 +696,17 @@ typedef struct s_colour
 #define MAP_BOT_LEFT	0b01000000
 #define MAP_BOT_RIGHT	0b10000000
 
+typedef enum e_bit
+{
+	bit_left = 0,
+	bit_top,
+	bit_right,
+	bit_bottom,
+	bit_tleft,
+	bit_tright,
+	bit_bleft,
+	bit_bright,
+}	t_bitno;
 
 #pragma pack(push, 1)
 typedef struct s_map_tile
@@ -829,6 +840,7 @@ void	free_shtex(t_info *app);
 void	free_shsnd(t_info *app);
 void	free_fonts(t_info *app);
 t_img	*build_minimap(t_info *app, int scale);
+t_tex	get_tile(int idx);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
