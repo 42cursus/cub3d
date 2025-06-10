@@ -34,8 +34,7 @@ void	setup_projectile(t_object *projectile, t_info *app,
 	}
 }
 
-void	spawn_projectile(t_info *app, t_player *player,
-						 t_lvl *map, t_pr_type subtype)
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *map, t_pr_type subtype)
 {
 	t_object		*projectile;
 	t_aud *const	aud = &app->audio;

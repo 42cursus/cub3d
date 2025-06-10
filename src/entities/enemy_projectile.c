@@ -21,21 +21,21 @@ void	spawn_enemy_projectile(t_info *app, t_object *enemy,
 	projectile->type = O_EPROJ;
 	projectile->pos = enemy->pos;
 	projectile->dir = dir;
-	projectile->subtype = subtype;
+	projectile->subtype = subtype; //FIXME: `int` subtype vs `t_pr_type` vs `t_subtype`
 	projectile->anim2.frames = 4;
 	projectile->anim2.duration = 320000;
 	if (subtype == P_PHANTOON)
 	{
-		projectile->anim.tex = &app->shtex->phantoon_proj[0];
-		projectile->anim.frames = 3;
 		projectile->anim.loop = 1;
+		projectile->anim.frames = 3;
 		projectile->anim.duration = 240000;
+		projectile->anim.tex = &app->shtex->phantoon_proj[0];
 		projectile->anim2.tex = &app->shtex->phantoon_proj[2];
 	}
 	else if (subtype == P_HOLTZ)
 	{
-		projectile->anim.tex = app->shtex->proj_green_tex;
 		projectile->anim.frames = 1;
+		projectile->anim.tex = app->shtex->proj_green_tex;
 		projectile->anim2.tex = app->shtex->proj_green_tex;
 	}
 	ft_lstadd_back(&app->map->projectiles, ft_lstnew(projectile));

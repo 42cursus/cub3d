@@ -50,6 +50,16 @@ void	rotate_vect_inplace(t_vect *vect, double angle)
 	vect->y = temp_y;
 }
 
+t_vect	rotv(t_vect vect, double angle)
+{
+	t_vect out;
+
+	out = vect;
+	rotate_vect_inplace(&out, angle);
+	return (out);
+}
+
+
 t_vect	rotate_vect(t_vect vect, double angle)
 {
 	t_vect out;
@@ -59,7 +69,7 @@ t_vect	rotate_vect(t_vect vect, double angle)
 	return (out);
 }
 
-t_vect	add_vect(t_vect v1, t_vect v2)
+t_vect	add_vect(const t_vect v1, t_vect v2)
 {
 	t_vect out;
 
@@ -68,9 +78,9 @@ t_vect	add_vect(t_vect v1, t_vect v2)
 	return (out);
 }
 
-t_ivect	add_ivect(t_ivect v1, t_ivect v2)
+t_vect	addi_vect(const t_vect v1, t_ivect v2)
 {
-	t_ivect out;
+	t_vect out;
 
 	out.x = v1.x + v2.x;
 	out.y = v1.y + v2.y;

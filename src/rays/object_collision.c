@@ -78,6 +78,7 @@ t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 	return (intersect);
 }
 
+__attribute__((optnone))
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player)
 {
 	t_ray	*out;

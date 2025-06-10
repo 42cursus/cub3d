@@ -123,22 +123,35 @@ int	all_fields_parsed(t_lvl *lvl)
 	return (1);
 }
 
-t_enemypos	*construct_enemypos(double x, double y, int type)
+t_enpos	*new_enpos(t_vect pos, int type)
 {
-	t_enemypos	*new;
+	t_enpos	*new;
 
-	new = ft_calloc(1, sizeof(*new));
-	new->pos.x = x;
-	new->pos.y = y;
+	new = ft_calloc(1, sizeof(*new)); //FIXME: malloc check?
+	new->pos = pos;
 	new->type = type;
 	return (new);
 }
 
 void	spawn_map_objects(t_info *app, t_lvl *lvl)
 {
-	char	**map;
-	char	el;
-	t_ivect	it;
+	char			**map;
+	char			el;
+	t_ivect			it;
+	const t_vecf	rv = { .x = 0, .y = 1, .addi = addi_vect, .rot = rotv};
+	const t_vecf	hl = { .x = 0.5, .y = 0.5, .addi = addi_vect, .rot = rotv};
+	const t_subtype	lt[CHAR_MAX] = {
+		['m'] = I_MISSILE,
+		['t'] = I_TROPHY,
+		['b'] = T_BOSS,
+		['s'] = I_SUPER,
+		['e'] = I_ETANK,
+		['Z'] = E_ZOOMER,
+		['A'] = E_ATOMIC,
+		['R'] = E_REO,
+		['P'] = E_PHANTOON,
+		['H'] = E_HOLTZ,
+	};
 
 	map = lvl->map;
 	it.y = -1;
@@ -147,50 +160,26 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 		it.x = -1;
 		while (++it.x < lvl->width)
 		{
-
 			el = map[it.y][it.x];
 			if (ft_strchr("mestZAHRPb234", el))
 			{
-				if (el == 'm')
-					spawn_item(app, (t_vect){it.x + 0.5, it.y + 0.5}, I_MISSILE);
-				else if (el == 't')
-					spawn_item(app, (t_vect){it.x + 0.5, it.y + 0.5}, I_TROPHY);
+				if (ft_strchr("mest", el))
+					spawn_item(app, hl.addi(hl.v, it), lt[(u_char)el]);
 				else if (el == 'b')
-					spawn_trigger(app, (t_vect){it.x + 0.5, it.y + 0.5}, T_BOSS);
-				else if (el == 's')
-					spawn_item(app, (t_vect){it.x + 0.5, it.y + 0.5}, I_SUPER);
-				else if (el == 'e')
-					spawn_item(app, (t_vect){it.x + 0.5, it.y + 0.5}, I_ETANK);
-				else if (el == 'Z')
+					spawn_trigger(app, hl.addi(hl.v, it), lt[(u_char)el]);
+				else if (ft_strchr("ZAR", el))
 				{
-					spawn_enemy(app, (t_vect){it.x + 0.5, it.y + 0.5}, rotate_vect((t_vect){0.0, 1}, rand_range(-M_PI, M_PI)), E_ZOOMER);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(it.x + 0.5, it.y + 0.5, E_ZOOMER)));
+					spawn_enemy(app, hl.addi(hl.v, it), rv.rot(rv.v, rand_range(-M_PI, M_PI)), lt[(u_char)el]);
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(new_enpos(hl.addi(hl.v, it), lt[(u_char) el])));
+//					if (enemy->subtype == E_PHANTOON ||enemy->subtype == E_HOLTZ )
 				}
-				else if (el == 'A')
+				else if (el == 'P' || el == 'H')
 				{
-					spawn_enemy(app, (t_vect){it.x + 0.5, it.y + 0.5}, rotate_vect((t_vect){0.0, 1}, rand_range(-M_PI, M_PI)), E_ATOMIC);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(it.x + 0.5, it.y + 0.5, E_ATOMIC)));
+					lvl->boss_obj = spawn_enemy(app, hl.addi(hl.v, it), rv.v, lt[(u_char) el]);
+					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(new_enpos(hl.addi(hl.v, it), lt[(u_char) el])));
 				}
-				else if (el == 'R')
-				{
-					spawn_enemy(app, (t_vect){it.x + 0.5, it.y + 0.5}, rotate_vect((t_vect){0, 1}, rand_range(-M_PI, M_PI)), E_REO);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(it.x + 0.5, it.y + 0.5, E_REO)));
-				}
-				else if (el == 'P')
-				{
-					lvl->boss_obj = spawn_enemy(app, (t_vect){it.x + 0.5, it.y + 0.5}, (t_vect){0, 0}, E_PHANTOON);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(it.x + 0.5, it.y + 0.5, E_PHANTOON)));
-				}
-				else if (el == 'H')
-				{
-					lvl->boss_obj = spawn_enemy(app, (t_vect){it.x + 0.5, it.y + 0.5}, (t_vect){0, 1}, E_HOLTZ);
-					ft_lstadd_back(&lvl->enemy_pos, ft_lstnew(construct_enemypos(it.x + 0.5, it.y + 0.5, E_HOLTZ)));
-				}
-				else if (el >= '2' && el <= '4')
-				{
-					if (lvl->sublvls[el - '2'] != NULL)
-						spawn_teleporter(app, (t_vect){it.x + 0.5, it.y + 0.5}, el - '1');
-				}
+				else if ((el >= '2' && el <= '4') && lvl->sublvls[el - '2'])
+					spawn_teleporter(app, hl.addi(hl.v, it), el - '1');
 				map[it.y][it.x] = '0';
 			}
 		}
@@ -200,13 +189,13 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 void	respawn_enemies(t_info *app, t_lvl *map)
 {
 	t_list		*cur_node;
-	t_enemypos	*cur_pos;
+	t_enpos	*cur_pos;
 
 	ft_lstclear(&map->enemies, free);
 	cur_node = map->enemy_pos;
 	while (cur_node != NULL)
 	{
-		cur_pos = (t_enemypos *)cur_node->data;
+		cur_pos = (t_enpos *)cur_node->data;
 		if (cur_pos->type != E_PHANTOON)
 			spawn_enemy(app, cur_pos->pos, rotate_vect((t_vect){0.0, 1.0}, rand_range(-M_PI, M_PI)), cur_pos->type);
 		else if (map->boss_obj != NULL)

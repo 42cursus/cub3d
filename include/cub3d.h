@@ -210,7 +210,6 @@ typedef struct s_texture
 		};
 		t_ivect	xy;
 	};
-
 	int			sl;
 }	t_tex;
 
@@ -231,6 +230,20 @@ typedef struct s_vect
 	double	x;
 	double	y;
 }	t_vect;
+
+typedef struct s_vecf
+{
+	union {
+		struct {
+			double	x;
+			double	y;
+			struct s_vect (*addi)(const t_vect self, t_ivect to_add);
+			struct s_vect (*rot)(const t_vect self, double angle);
+			struct s_vect (*add)(const t_vect self, t_vect to_add);
+		};
+		t_vect	v;
+	};
+}	t_vecf;
 
 typedef const struct s_vect t_cvect;
 
@@ -350,11 +363,11 @@ typedef struct s_chvec3
 	char	z;
 }	t_chvec3;
 
-typedef struct s_enemypos
+typedef struct s_enemy
 {
 	int		type;
 	t_vect	pos;
-}	t_enemypos;
+}	t_enpos;
 
 typedef enum e_projectile
 {
@@ -366,7 +379,7 @@ typedef enum e_projectile
 
 typedef struct s_object
 {
-	int			type;
+	t_etype		type;
 	int			subtype;
 	int			dead;
 	int			attacking;
@@ -378,7 +391,7 @@ typedef struct s_object
 	t_vect		dir;
 	double		speed;
 	t_vect		p2;
-	t_tex	*texture;
+	t_tex		*texture;
 	t_anim		anim;
 	t_anim		anim2;
 }	t_object;
@@ -787,9 +800,11 @@ char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
 t_ivect scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
+t_vect	rotv(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
-t_vect	add_vect(t_vect v1, t_vect v2);
-t_ivect add_ivect(t_ivect v1, t_ivect v2);
+t_vect	add_vect(const t_vect v1, t_vect v2);
+t_vect	addi_vect(const t_vect v1, t_ivect v2);
+t_ivect add_ivect(const t_ivect v1, const t_ivect v2);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
 double	vector_magnitude(t_vect vect);
