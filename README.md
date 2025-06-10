@@ -47,7 +47,7 @@ then load it at runtime like this
 ```c
 void foo(void)
 {
-	t_texture			*tex;
+	t_tex			*tex;
 	extern const char	*title_card_xpm[];
 
 	tex->data = img_to_tex_static_row_major(app, title_card_xpm, &tex->x, &tex->y);

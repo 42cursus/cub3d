@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-t_texture	*handle_animation(t_info *app, t_anim anim)
+t_tex	*handle_animation(t_info *app, t_anim anim)
 {
 	const int	frame_len = anim.duration / anim.frames;
 	const int	timediff = app->fr_last - anim.timestart;
@@ -34,10 +34,10 @@ t_texture	*handle_animation(t_info *app, t_anim anim)
 	}
 }
 
-t_texture	*get_open_door_tex(t_anim *anim, t_info *app)
+t_tex	*get_open_door_tex(t_anim *anim, t_info *app)
 {
-	size_t		frames;
-	t_texture	*tex;
+	size_t	frames;
+	t_tex	*tex;
 
 	frames = (app->fr_last - anim->timestart) / 20000;
 	if (frames > 19)
@@ -51,11 +51,11 @@ t_texture	*get_open_door_tex(t_anim *anim, t_info *app)
 	return (tex);
 }
 
-t_texture	*get_close_door_tex(t_anim *anim, t_info *app)
+t_tex	*get_close_door_tex(t_anim *anim, t_info *app)
 {
-	size_t		frames;
-	t_texture	*door_tex;
-	t_texture	*tex;
+	size_t	frames;
+	t_tex	*door_tex;
+	t_tex	*tex;
 
 	frames = (app->fr_last - anim->timestart) / 20000;
 	door_tex = app->shtex->door_tex;
@@ -73,9 +73,9 @@ t_texture	*get_close_door_tex(t_anim *anim, t_info *app)
 
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app)
 {
-	t_texture	*tex;
-	double		angle;
-	int			index;
+	t_tex	*tex;
+	double	angle;
+	int		index;
 
 	if (obj->subtype == pr_BEAM)
 	{

@@ -45,8 +45,8 @@ void	set_starting_dir(t_lvl *map, char dir)
 
 int	parse_texture(t_lvl *data, char *str, int identifier, t_info *app)
 {
-	t_texture	*tex_addr;
-	t_img		tmp;
+	t_tex	*tex_addr;
+	t_img	tmp;
 
 	if (identifier == NORTH)
 		tex_addr = &data->n_tex;

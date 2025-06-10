@@ -12,17 +12,6 @@
 
 #include "cub3d.h"
 
-// static inline __attribute__((always_inline, unused))
-// void	my_put_pixel_mask(t_img *img, int x, int y, unsigned int colour)
-// {
-// 	u_int32_t	*dst_pixel;
-// 	u_int32_t	mask;
-//
-// 	dst_pixel = &(*(u_int32_t (*)[img->height][img->width])img->data)[y][x];
-// 	mask = -(colour != MLX_TRANSPARENT);
-// 	*dst_pixel = (colour & mask) | (*dst_pixel & ~mask);
-// }
-
 static inline __attribute__((always_inline))
 t_var3	adjust_values(t_ivect draw_pos, t_lvars line, t_lvect *var)
 {
@@ -47,7 +36,7 @@ void	slice_draw_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars line)
 	t_mcol		mc;
 	t_lvect		var;
 	u_int32_t	*dst_px;
-	t_texture	*texture = ray->tex;
+	t_tex		*texture = ray->tex;
 	u_int32_t	*const tex_data = texture->data + ((int)ray->pos * texture->w);
 
 	var.x = ((long)texture->h << FIXED_SHIFT) / line.height;
@@ -64,7 +53,7 @@ void	slice_draw_fixed(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars line)
 	}
 }
 
-static inline __attribute__((always_inline))
+static inline __attribute__((always_inline, unused))
 void	slice_draw_fixed_old(t_ivect draw_pos, t_ray *ray, t_img *canvas,
 							 t_lvars line)
 {
@@ -119,6 +108,7 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
 		draw_pos.y++;
 	}
 }
+
 /**
  * 	typedef struct s_cdata
  * 	{
@@ -175,11 +165,9 @@ void	slice_drawing_sse41(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
 
 void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 {
-	t_anim				*anim;
-	t_ivect				pos;
-	t_lvars				line;
-	static t_sldraw_f __attribute__((used)) fns[2] = {&slice_draw_fixed_old,
-													  &slice_drawing_float };
+	t_anim	*anim;
+	t_ivect	pos;
+	t_lvars	line;
 
 	pos.x = x;
 	pos.y = 0;
@@ -197,12 +185,6 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 	}
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
-//	if (lvars.lheight > WIN_HEIGHT)
-//		slice_drawing(pos, ray, canvas, line);
-//	else
-//		slice_draw_fixed(pos, ray, canvas, line);
-//	fns[line.height > WIN_HEIGHT](pos, ray, canvas, line);
-//	slice_draw_fixed_old(pos, ray, canvas, line);
 	slice_drawing_sse41(pos, ray, canvas, line);
 	if (ray->in_front != NULL)
 		draw_slice(x, ray->in_front, app, canvas);

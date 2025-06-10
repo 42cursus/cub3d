@@ -14,9 +14,9 @@
 
 void	load_atomic_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
 
 	tex = app->shtex->atomic_tex;
 	i = -1;
@@ -29,9 +29,9 @@ void	load_atomic_tex(t_info *app)
 
 void	load_holtz_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
 
 	tex = app->shtex->holtz_tex;
 	i = -1;
@@ -40,17 +40,15 @@ void	load_holtz_tex(t_info *app)
 		ft_snprintf(buf, 50, "./resources/textures/holtz%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 	}
-	tex[4].data = img_to_tex(
-		app, (char *) "./resources/textures/holtz2.xpm", &tex[4].w, &tex[4].h);
-	tex[5].data = img_to_tex(
-		app, (char *) "./resources/textures/holtz1.xpm", &tex[5].w, &tex[5].h);
+	tex[4].data = img_to_tex(app, (char *) "./resources/textures/holtz2.xpm", &tex[4].w, &tex[4].h);
+	tex[5].data = img_to_tex(app, (char *) "./resources/textures/holtz1.xpm", &tex[5].w, &tex[5].h);
 }
 
 void	load_reo_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
 
 	i = 0;
 	tex = app->shtex->reo_tex;
@@ -70,10 +68,10 @@ void	load_reo_tex(t_info *app)
 
 void	load_phantoon_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
-	int			ids[10];
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
+	int		ids[10];
 
 	ft_memset(ids, 0, 10 * sizeof(int));
 	ids[1] = 1;
@@ -82,21 +80,20 @@ void	load_phantoon_tex(t_info *app)
 	ids[6] = 3;
 	ids[7] = 4;
 	ids[8] = 3;
-	i = 0;
 	tex = app->shtex->phantoon;
-	while (i < 10)
+	i = -1;
+	while (++i < 10)
 	{
 		ft_snprintf(buf, 50, "./resources/textures/phantoon%c.xpm", ids[i] + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
-		i++;
 	}
 }
 
 void	load_zoomer_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
 
 	tex = app->shtex->crawler_tex;
 	i = -1;

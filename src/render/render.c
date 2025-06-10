@@ -65,13 +65,13 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	return (mlx_destroy_image(app->mlx, image), out);
 }
 
-t_texture	scale_texture(t_texture *tex, int scale)
+t_tex	scale_texture(t_tex *tex, int scale)
 {
-	t_vect		steps;
-	t_ivect		it;
-	t_vect		pos;
-	t_texture	new;
-	t_cdata		cd;
+	t_vect	steps;
+	t_ivect	it;
+	t_vect	pos;
+	t_tex	new;
+	t_cdata	cd;
 
 	new.w = tex->w * scale / 8;
 	new.h = tex->h * scale / 8;
@@ -92,7 +92,6 @@ t_texture	scale_texture(t_texture *tex, int scale)
 		}
 		pos.y += steps.y;
 	}
-	free(tex->data);
 	return (new);
 }
 
@@ -237,30 +236,6 @@ u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *
 	mlx_destroy_image(app->mlx, img);
 	return (data);
 }
-
-// int	bilinear_filter(double x, double y, const t_texarr *tex)
-// {
-// 	int		x_lower;
-// 	int		x_upper;
-// 	int		y_lower;
-// 	int		y_upper;
-// 	double	frac_x;
-// 	double	frac_y;
-//
-// 	x_lower = (int)x;
-// 	y_lower = (int)y;
-// 	x_upper = x_lower + 1;
-// 	y_upper = y_lower + 1;
-// 	frac_x = fmod(x, 1);
-// 	frac_y = fmod(y, 1);
-// 	if (x_upper == tex->x)
-// 		x_upper = 0;
-// 	if (y_upper == tex->y)
-// 		return (interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
-// 	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
-// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
-// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
-// }
 
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
 {

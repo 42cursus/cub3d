@@ -20,41 +20,42 @@ int	point_oob(t_vect pos, t_lvl *map)
 }
 
 static inline __attribute__((always_inline, unused))
-void	update_x_y(t_lvl *data, t_cvect3 tiles, t_vect new_pos, t_vect *pos)
+void	update_x_y(t_lvl *lvl, t_chvec3 tiles, t_vect new_pos, t_vect *pos)
 {
-	if (check_tile_open(tiles.x, data))
+	if (check_tile_open(tiles.x, lvl))
 		pos->x = new_pos.x;
-	if (check_tile_open(tiles.y, data))
+	if (check_tile_open(tiles.y, lvl))
 		pos->y = new_pos.y;
 }
 
-int	check_tile_open(char tile, t_lvl *map)
+int	check_tile_open(char tile, t_lvl *lvl)
 {
 	if (tile == 'O' || tile == '0')
 		return (1);
-	else if (tile == 'B' && map->boss_active == 0)
+	else if (tile == 'B' && lvl->boss_active == 0)
 		return (1);
 	return (0);
 }
 
-void	move_entity(t_vect *pos, t_lvl *data, t_vect dir)
+void	move_entity(t_vect *pos, t_lvl *lvl, t_vect dir)
 {
 	t_vect		new_pos;
-	t_cvect3	tiles;
+	t_chvec3	tiles;
 	char		**map;
 
-	map = data->map;
+	map = lvl->map;
 	new_pos = add_vect(*pos, dir);
-	if (point_oob(new_pos, data))
+	if (point_oob(new_pos, lvl))
 		return ;
-	tiles = (t_cvect3){map[(int)pos->y][(int)new_pos.x],
-		map[(int)new_pos.y][(int)pos->x],
-		map[(int)new_pos.y][(int)new_pos.x]};
-	if (check_tile_open(tiles.z, data))
-		update_x_y(data, tiles, new_pos, pos);
+	tiles.x = map[(int)pos->y][(int)new_pos.x];
+	tiles.y = map[(int)new_pos.y][(int)pos->x];
+	tiles.z = map[(int)new_pos.y][(int)new_pos.x];
+	if (check_tile_open(tiles.z, lvl))
+		update_x_y(lvl, tiles, new_pos, pos);
 	else
 	{
-		if (check_tile_open(tiles.x, data) && check_tile_open(tiles.y, data))
+		if (check_tile_open(tiles.x, lvl)
+			&& check_tile_open(tiles.y, lvl))
 		{
 			if (get_max_direction(dir) == 'x')
 				pos->x = new_pos.x;
@@ -62,7 +63,7 @@ void	move_entity(t_vect *pos, t_lvl *data, t_vect dir)
 				pos->y = new_pos.y;
 		}
 		else
-			update_x_y(data, tiles, new_pos, pos);
+			update_x_y(lvl, tiles, new_pos, pos);
 	}
 }
 

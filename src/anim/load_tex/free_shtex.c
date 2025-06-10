@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 
-void	free_tex_arr_arr(t_texture *tex, int n)
+void	free_tex_arr_arr(t_tex *tex, int n)
 {
 	while (n--)
 		free(tex[n].data);

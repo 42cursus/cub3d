@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_texture *texture)
+void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture)
 {
 	t_object	*logo_piece;
 	t_lvl		*map;

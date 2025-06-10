@@ -56,7 +56,7 @@ void	init_pooled_ray(t_ray *ray, t_object *obj,
 		ray->distance = 0.00001;
 }
 
-void	add_in_front(t_ray *ray, int face, t_texture *texture)
+void	add_in_front(t_ray *ray, int face, t_tex *texture)
 {
 	t_ray	*in_front;
 	t_ray	*new;
@@ -84,7 +84,7 @@ void	calc_object_collisions(t_lvl *map, t_player *player, t_ray *ray)
 
 void	cast_all_rays_alt(t_info *app, t_lvl *map, t_player *player)
 {
-	int		i;
+	int	i;
 
 	get_pooled_ray(1);
 	i = -1;

@@ -14,7 +14,7 @@
 #include "cub3d.h"
 
 static inline __attribute__((always_inline, unused))
-int	linear_filter_credits(t_vect idx, const t_texture *tex)
+int	linear_filter_credits(t_vect idx, const t_tex *tex)
 {
 	const double	frac = fmod(idx.x, 1.0);
 
@@ -57,7 +57,7 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 }
 
 static inline __attribute__((always_inline, unused))
-int bilinear_credits(t_vect idx, const t_texture *tex)
+int bilinear_credits(t_vect idx, const t_tex *tex)
 {
 	const int x = (int)idx.x;
 	const int y = (int)idx.y;
@@ -118,7 +118,7 @@ int bilinear_credits(t_vect idx, const t_texture *tex)
 }
 
 static inline __attribute__((always_inline, unused))
-int	bilinear_filter_old(double x, double y, const t_texture *tex)
+int	bilinear_filter_old(double x, double y, const t_tex *tex)
 {
 	int		x_lower;
 	int		x_upper;
@@ -164,13 +164,13 @@ t_colour	dim_colour_alpha(t_colour src, double fact)
 
 void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
-	const t_texture		*tex = &app->shtex->credits;
-	int					i;
-	double				step_x;
-	double				curr_x;
-	t_vect				idx;
-	t_vect				lim = {-0.48,  0.48}; // Relative to 1 block on the map
-	u_int *const		p_row = (u_int *) app->overlay->data + app->overlay->width * row;
+	const t_tex		*tex = &app->shtex->credits;
+	int				i;
+	double			step_x;
+	double			curr_x;
+	t_vect			idx;
+	t_vect			lim = {-0.48,  0.48}; // Relative to 1 block on the map
+	u_int *const	p_row = (u_int *)app->overlay->data + app->overlay->width * row;
 
 	step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
 	curr_x = l_pos.x;

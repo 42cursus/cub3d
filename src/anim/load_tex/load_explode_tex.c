@@ -14,9 +14,10 @@
 
 void	load_explode_tex(t_info *app)
 {
-	int			i;
-	char		buf[50];
-	t_texture	*tex;
+	int		i;
+	int		idx;
+	char	buf[50];
+	t_tex	*tex;
 
 	tex = app->shtex->explode_tex;
 	i = -1;
@@ -28,15 +29,15 @@ void	load_explode_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
+		idx = i + 6;
 		ft_snprintf(buf, 50, "./resources/textures/explode_mid%c.xpm", i + '0');
-		tex[i + 6].data = img_to_tex(app, buf, &tex[i + 6].w,
-									 &tex[i + 6].h);
+		tex[idx].data = img_to_tex(app, buf, &tex[idx].w, &tex[idx].h);
 	}
 	i = -1;
 	while (++i < 5)
 	{
+		idx = i + 12;
 		ft_snprintf(buf, 50, "./resources/textures/explode_miss_big%c.xpm", i + '0');
-		tex[i + 12].data = img_to_tex(app, buf, &tex[i + 12].w,
-									  &tex[i + 12].h);
+		tex[idx].data = img_to_tex(app, buf, &tex[idx].w, &tex[idx].h);
 	}
 }

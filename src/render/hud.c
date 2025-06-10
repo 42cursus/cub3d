@@ -12,35 +12,6 @@
 
 #include "cub3d.h"
 
-void	load_map_textures(t_info *app, t_img *tiles[])
-{
-	int		i;
-	char	buf[50];
-	int		x;
-	int		y;
-
-	i = -1;
-	while (++i < 16)
-	{
-		ft_snprintf(buf, 40, "./resources/textures/mmap/MAP%c%c%c%c.xpm",
-			  // ((i & 16) >> 4) + '0',
-			  ((i & 8) >> 3) + '0',
-			  ((i & 4) >> 2) + '0',
-			  ((i & 2) >> 1) + '0',
-			  (i & 1) + '0');
-		tiles[i] = mlx_xpm_file_to_image(app->mlx, (char *)buf, &x, &y);
-	}
-}
-
-void	free_map_textures(t_info *app, t_img *tiles[])
-{
-	int	i;
-
-	i = -1;
-	while (++i < 16)
-		mlx_destroy_image(app->mlx, tiles[i]);
-}
-
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 {
 	t_ivect	it;
@@ -68,7 +39,7 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
 	t_img *const	cnvs = app->canvas;
-	t_texture const	alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet;
 	t_ivect			it;
 	int const 		x = (c - ' ') * CHAR_WIDTH;
 	u_int			*src_row;
@@ -95,12 +66,12 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
 	t_img *const	cnvs = app->canvas;
-	t_texture const	alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet;
 	t_ivect			it;
 	int const		x = (c - ' ') * CHAR_WIDTH;
-	u_int	*src_row;
-	u_int	*dst_row;
-	t_mcol		mc;
+	u_int			*src_row;
+	u_int			*dst_row;
+	t_mcol			mc;
 
 	if (!ft_isprint(c) || p.z < 1)
 		return ;
@@ -147,14 +118,14 @@ void	apply_alpha(t_img *img, u_char alpha)
 __attribute__((optnone))
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
-	t_list		*current;
-	t_object	*curr_obj;
+	t_list			*current;
+	t_object		*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
-	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
+	t_tex *const 	tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
 
 	t_img 	*mmap = lvl->minimap_xl;
 	t_point			p3;
-	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
 	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
@@ -178,11 +149,11 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	t_list		*current;
 	t_object	*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
-	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
+	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
 	t_img 	*mmap = lvl->minimap_xl;
 	t_point			p3;
-	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
 	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
@@ -206,11 +177,11 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 	t_list		*current;
 	t_object	*curr_obj;
 	t_img *const	cnvs = lvl->app->canvas;
-	t_texture *const tile = &(t_texture){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
+	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
 	t_img 	*mmap = lvl->minimap_xl;
 	t_point			p3;
-	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_WIDTH);
+	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
 	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
@@ -236,23 +207,20 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	t_info *const	app = lvl->app;
 
 	current = lvl->triggers;
-	pos_scalar.z = scale / MMAP_TILE_WIDTH;
+	pos_scalar.z = scale / MMAP_TILE_W;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
 		if (curr_obj->type == O_TELE)
 		{
-			pos_scalar.x = (int)curr_obj->pos.x * MMAP_TILE_WIDTH;
-			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * MMAP_TILE_HEIGHT + 1;
-			pos_scalar.xy = scale_ivect(pos_scalar.xy,  scale / MMAP_TILE_WIDTH);
+			pos_scalar.x = (int)curr_obj->pos.x * MMAP_TILE_W;
+			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * MMAP_TILE_H + 1;
+			pos_scalar.xy = scale_ivect(pos_scalar.xy, scale / MMAP_TILE_W);
 			place_char_img('t', img, app, pos_scalar);
 		}
 		current = current->next;
 	}
 }
-
-#define TILE_W 8
-#define TILE_H 8
 
 static inline __attribute__((always_inline, unused))
 uint32_t	get_tile_pix(int x, int y, int idx)
@@ -262,46 +230,95 @@ uint32_t	get_tile_pix(int x, int y, int idx)
 	/* Direct neighbors */
 	if (idx & MAP_LEFT && x == 0)
 		is_edge = 1;
-	if (idx & MAP_RIGHT && x == TILE_W - 1)
+	if (idx & MAP_RIGHT && x == MMAP_TILE_W - 1)
 		is_edge = 1;
 	if (idx & MAP_BOTTOM && y == 0)
 		is_edge = 1;
-	if (idx & MAP_TOP && y == TILE_H - 1)
+	if (idx & MAP_TOP && y == MMAP_TILE_H - 1)
 		is_edge = 1;
 	/* Diagonal neighbors */
 	if ((idx & MAP_BOT_LEFT) && x == 0 && y == 0)
 		is_edge = 1;
-	if ((idx & MAP_BOT_RIGHT) && x == TILE_W - 1 && y == 0)
+	if ((idx & MAP_BOT_RIGHT) && x == MMAP_TILE_W - 1 && y == 0)
 		is_edge = 1;
-	if ((idx & MAP_TOP_LEFT) && x == 0 && y == TILE_H - 1)
+	if ((idx & MAP_TOP_LEFT) && x == 0 && y == MMAP_TILE_H - 1)
 		is_edge = 1;
-	if ((idx & MAP_TOP_RIGHT) && x == TILE_W - 1 && y == TILE_H - 1)
+	if ((idx & MAP_TOP_RIGHT) && x == MMAP_TILE_W - 1 && y == MMAP_TILE_H - 1)
 		is_edge = 1;
 	return (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
 }
 
-t_texture	get_tile(int idx)
+static inline __attribute__((optnone, used))
+t_tex	get_tile(int idx)
 {
-	t_ivect		it;
-	t_texture	tex;
-	u_int32_t	*row;
+	t_ivect			it;
+	t_tex			*tex;
+	u_int32_t		*row;
+	static t_tex	tiles[256] = {0x0};
 
-	tex = (t_texture){.w = TILE_W, .h = TILE_H, .sl = TILE_W * sizeof(int)};
-	tex.data = malloc(sizeof(u_int32_t) * TILE_W * TILE_H);
-	if (tex.data != NULL)
+	tex = &tiles[0];
+	if (idx >= 0 && idx < 0xFF)
 	{
-		it.y = -1;
-		while (++it.y < TILE_H)
+		if (tiles[idx].data)
+			return tiles[idx];
+		tex = &tiles[idx];
+		*tex = (t_tex){.w = MMAP_TILE_W, .h = MMAP_TILE_H, .sl = MMAP_TILE_W * sizeof(int)};
+		tex->data = malloc(sizeof(u_int) * MMAP_TILE_W * MMAP_TILE_H);
+		if (tex->data != NULL)
 		{
-			row = tex.data + it.y * TILE_W;
-			it.x = -1;
-			while (++it.x < TILE_W)
-				row[it.x] = get_tile_pix(it.x, it.y, idx);
+			it.y = -1;
+			while (++it.y < MMAP_TILE_H)
+			{
+				row = tex->data + it.y * MMAP_TILE_W;
+				it.x = -1;
+				while (++it.x < MMAP_TILE_W)
+					row[it.x] = get_tile_pix(it.x, it.y, idx);
+			}
 		}
 	}
-	return (tex);
+	return (*tex);
 }
 
+typedef enum e_bit
+{
+	bit_left = 0,
+	bit_top,
+	bit_right,
+	bit_bottom,
+	bit_tleft,
+	bit_tright,
+	bit_bleft,
+	bit_bright,
+}	t_bitno;
+
+static inline __attribute__((always_inline, unused))
+int	get_tile_idx_alt(char **map, int i, int j)
+{
+	static const	t_ivect neighbors[CHAR_BIT] = {
+		[bit_left] = { 0, -1},
+		[bit_top] = { -1,  0},
+		[bit_right] = { 0,  1},
+		[bit_bottom] = { 1,  0},
+		[bit_tleft] = { -1, -1},
+		[bit_tright] = { -1,  1},
+		[bit_bleft] = { 1, -1},
+		[bit_bright] = { 1,  1}
+	};
+	t_ivect 		iv;
+	t_ivect			nb;
+
+	iv.x = 0;
+	iv.y = -1;
+	while (++iv.y < CHAR_BIT)
+	{
+		nb = neighbors[iv.y];
+		if (map[j + nb.y][i + nb.x] - '0' != 0)
+			iv.x |= (1 << iv.y);
+	}
+	return (iv.x);
+}
+
+static inline __attribute__((always_inline, unused))
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
@@ -320,13 +337,12 @@ int	get_tile_idx(char **map, int i, int j)
 	return (index);
 }
 
-__attribute__((optnone))
 t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img		*img;
 	t_ivect		it;
 	int			idx;
-	t_texture	tile;
+	t_tex		tile;
 	t_lvl		*const lvl = app->map;
 
 	img = mlx_new_image(app->mlx, lvl->width * scale,
@@ -350,8 +366,7 @@ t_img	*build_minimap(t_info *app, int scale)
 			{
 				tile = get_tile(idx);
 				tile = scale_texture(&tile, scale);
-				place_tex_to_image_scale(img, &tile,
-					scale_ivect(it, scale), 1);
+				place_tex_to_image_scale(img, &tile, scale_ivect(it, scale), 1);
 				free(tile.data);
 			}
 		}
@@ -401,12 +416,12 @@ static inline __attribute__((always_inline, unused))
 t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 						const t_player *obj)
 {
-	t_img 	*mmap = lvl->minimap_xl;
+	t_img 			*mmap = lvl->minimap_xl;
 	t_point			p3;
-	t_vect const	msf = lvl->map_scale_factor;
+	const t_vect	msf = lvl->map_scale_factor;
 
-	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_WIDTH * msf.x;
-	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_HEIGHT * msf.y;
+	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_W * msf.x;
+	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_H * msf.y;
 
 	p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
 	p3.y = dy + offset.y + lvl->mmap_origin.y;
@@ -414,7 +429,7 @@ t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 	p3.x -= pointer->width / 2;
 	p3.y -= pointer->height / 2;
 
-	return p3;
+	return (p3);
 }
 
 void	place_mmap(t_info *app)
@@ -425,10 +440,10 @@ void	place_mmap(t_info *app)
 	t_point			p1;
 	t_point			p2;
 
-	t_texture *texture = &app->shtex->square;
+	t_tex	*square = &app->shtex->square;
 	t_img 	*minimap;
 
-	if (app->keys[get_key_index(XK_Shift_L)] || app->keys[get_key_index(XK_m)])
+	if (app->keys[get_key_index(XK_Shift_L)])
 	{
 		t_img	*pointer = app->pointer;
 		minimap = lvl->minimap_xl;
@@ -446,18 +461,17 @@ void	place_mmap(t_info *app)
 	else
 	{
 		minimap = lvl->minimap_xs;
-		texture = &app->shtex->square;
 		p1.x = WIN_WIDTH - minimap->width;
 		p1.y = 0;
 
-		p2.x = (floor(app->player->pos.x) - lvl->width) * MMAP_TILE_WIDTH + 4 + WIN_WIDTH;
-		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * MMAP_TILE_WIDTH + 4;
+		p2.x = (floor(app->player->pos.x) - lvl->width) * MMAP_TILE_W + 4 + WIN_WIDTH;
+		p2.y = (lvl->height - floor(app->player->pos.y) - 1) * MMAP_TILE_W + 4;
 
-		p2.x -= texture->w / 2;
-		p2.y -= texture->h / 2;
+		p2.x -= square->w / 2;
+		p2.y -= square->h / 2;
 
 		place_tile_on_image32_alpha(canvas, minimap, p1);
-		put_texture(app, texture, p2.x, p2.y);
+		put_texture(app, square, p2.x, p2.y);
 	}
 }
 
@@ -484,7 +498,7 @@ void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 	}
 }
 
-void	put_texture(t_info *app, t_texture *tex, int x, int y)
+void	put_texture(t_info *app, t_tex *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;
 	u_int32_t		*src_row;
@@ -507,21 +521,21 @@ void	put_texture(t_info *app, t_texture *tex, int x, int y)
 	}
 }
 
-void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, double scalar)
+void	place_tex_to_image_scale(t_img *const img, t_tex *tex, t_ivect pos, double scalar)
 {
-	t_ivect			it;
-	double			step;
-	u_int32_t		*src_row;
-	u_int32_t		*dst_row;
-	t_mcol			mc;
-	t_ivect			limit = scale_ivect((t_ivect){tex->w, tex->h}, scalar);
+	t_ivect	it;
+	double	step;
+	u_int	*src_row;
+	u_int	*dst_row;
+	t_mcol	mc;
+	t_ivect	limit = scale_ivect(tex->xy, scalar);
 
 	step = 1.0 / scalar;
 	it.y = -1;
 	while (++it.y < limit.y)
 	{
 		src_row = tex->data + (int)(it.y * step) * tex->w;
-		dst_row = (u_int32_t *) img->data + ((it.y + pos.y) * img->width) + pos.x;
+		dst_row = (u_int *) img->data + ((it.y + pos.y) * img->width) + pos.x;
 		it.x = -1;
 		while (++it.x < limit.x)
 		{
@@ -541,7 +555,7 @@ void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, dou
  */
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 {
-	t_texture const	alph = app->shtex->alphabet;
+	t_tex const	alph = app->shtex->alphabet;
 	t_ivect			it;
 	int				start_x;
 	u_int			*src_row;
@@ -569,23 +583,20 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 
 void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 {
-	int	i;
-	int	pos_x;
-	int	pos_y;
+	int				i;
+	const t_ivect	spos = pos;
 
 	i = 0;
-	pos_x = pos.x;
-	pos_y = pos.y;
 	while (str[i])
 	{
-		place_char(str[i], app, (t_ivect){pos_x, pos_y}, scalar);
+		place_char(str[i], app, pos, scalar);
 		if (str[i++] == '\n')
 		{
-			pos_y += 8 * scalar;
-			pos_x = pos.x;
+			pos.y += 8 * scalar;
+			pos.x = spos.x;
 			continue ;
 		}
-		pos_x += 8 * scalar;
+		pos.x += 8 * scalar;
 	}
 }
 
@@ -621,27 +632,25 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 
 void	place_menu(const char **strings, t_ivect pos, int scalar, t_info *app)
 {
-	int	start_y;
-	int	start_x;
-	int	y;
-	int	i;
+	t_ivect	start;
+	t_ivect	iy;
 
-	start_y = pos.y - ((((app->menu_state.no_items * 2) - 1) * 8 * scalar) / 2);
-	y = start_y;
-	i = 0;
-	while (i < app->menu_state.no_items)
+	start.y = pos.y - ((((app->menu_state.no_items * 2) - 1) * 8 * scalar) / 2);
+	iy.y = start.y;
+	iy.x = 0;
+	while (iy.x < app->menu_state.no_items)
 	{
-		place_str_centred((char *)strings[i++], app, (t_ivect){pos.x, y}, scalar);
-		y += scalar * 16;
+		place_str_centred((char *)strings[iy.x++], app, (t_ivect){pos.x, iy.y}, scalar);
+		iy.y += scalar * 16;
 	}
-	start_x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
-	y = start_y + (app->menu_state.selected * 16 * scalar) - 24;
-	put_texture(app, &app->shtex->trophy_tex[0], start_x, y);
+	start.x = pos.x - ((ft_strlen(strings[app->menu_state.selected]) * 8 * scalar) / 2) - 64;
+	iy.y = start.y + (app->menu_state.selected * 16 * scalar) - 24;
+	put_texture(app, &app->shtex->trophy_tex[0], start.x, iy.y);
 }
 
 void	place_weapon(t_info *app)
 {
-	t_texture	*tex;
+	t_tex	*tex;
 
 	if (app->player->hud.active == 1)
 	{
@@ -677,15 +686,14 @@ void	place_energy_backup(t_info *app, t_player *player)
 	{
 		if (i > 6)
 			start = (t_ivect) {-96, 16};
-		put_texture(app, &app->shtex->energy_tex[2], start.x + i * 16, start.y);
-		i++;
+		put_texture(app, &app->shtex->energy_tex[2], start.x + i++ * 16, start.y);
 	}
 }
 
 void	place_energy(t_info *app, t_player *player)
 {
-	int			health;
-	char		buf[3];
+	int		health;
+	char	buf[3];
 
 	put_texture(app, &app->shtex->energy_tex[0], 16, 48);
 	health = player->health % 100;
@@ -698,8 +706,8 @@ void	place_energy(t_info *app, t_player *player)
 
 void	place_ammo(t_info *app, t_player *player)
 {
-	char		buf[4];
-	t_texture	*tex;
+	char	buf[4];
+	t_tex	*tex;
 	
 	buf[3] = 0;
 	if (player->max_ammo[pr_MISSILE] != 0)
@@ -743,7 +751,7 @@ void	place_fps(t_info *app)
 
 void	place_scope(t_info *app)
 {
-	t_texture *scope;
+	t_tex *scope;
 
 	scope = &app->shtex->scope;
 	put_texture(app, scope, WIN_WIDTH / 2 - scope->w / 2,
@@ -752,11 +760,11 @@ void	place_scope(t_info *app)
 
 void	place_dmg(t_info *app, t_player *player)
 {
-	t_texture	*tex;
-	double		angle;
-	int			dir;
-	t_vect		offset;
-	t_ivect		coords;
+	t_tex	*tex;
+	double	angle;
+	int		dir;
+	t_vect	offset;
+	t_ivect	coords;
 
 	angle = vector_angle(player->dir, player->dmg_dir);
 	dir = (int)((angle + M_PI_4 / 2) / M_PI_4 + 8) % 8;
@@ -766,39 +774,37 @@ void	place_dmg(t_info *app, t_player *player)
 	// else if (dir )
 	offset = scale_vect((t_vect){0, -1}, WIN_HEIGHT / 4.0);
 	offset = rotate_vect(offset, (-dir) * M_PI_4);
-	coords = (t_ivect){offset.x, offset.y};
-	coords.x -= (tex->w / 2);
-	coords.y -= (tex->h / 2);
-	coords.x += WIN_WIDTH / 2;
-	coords.y += WIN_HEIGHT / 2;
+	coords.x = offset.x - (tex->w / 2) + WIN_WIDTH / 2;
+	coords.y = offset.y - (tex->h / 2) + WIN_HEIGHT / 2;
 	// printf("dmg_dir: %d offset: (%d, %d)\n", player->dmg_dir, coords.x, coords.y);
 	put_texture(app, tex, coords.x, coords.y);
 }
 
 void	place_boss_health(t_info *app)
 {
-	int	start_x;
-	int	start_y;
-	int	end_x;
-	int	i;
-	int	j;
+	t_ivect			it;
+	t_ivect			start;
+	int				end_x;
+	u_int			*row;
+	t_img *const	cnvs = app->canvas;
+	t_tex *const	bbar = app->shtex->boss_bar;
 
-	start_y = WIN_HEIGHT * 0.95;
-	start_x = WIN_WIDTH / 4;
-	end_x = start_x + ((WIN_WIDTH / 2) * (app->map->boss_obj->health / 500.0));
 
-	u_int (*const pixels_bg)[app->canvas->height][app->canvas->width] = (void *)app->canvas->data;
-	i = start_y - 1;
-	while (++i < start_y + 14)
+	start.y = WIN_HEIGHT * 0.95;
+	start.x = WIN_WIDTH / 4;
+	end_x = start.x + ((WIN_WIDTH / 2) * (app->map->boss_obj->health / 500.0));
+	it.y = start.y - 1;
+	while (++it.y < start.y + 14)
 	{
-		j = start_x - 1;
-		while (++j <= end_x)
-			(*pixels_bg)[i][j] = 0xff0000;
+
+		row = (u_int *)cnvs->data + it.y * cnvs->width;
+		it.x = start.x - 1;
+		while (++it.x <= end_x)
+			row[it.x] = MLX_RED;
 	}
-	put_texture(app, &app->shtex->boss_bar[0], start_x - 16, start_y - 1);
-	put_texture(app, &app->shtex->boss_bar[1], start_x + (WIN_WIDTH / 2),
-				start_y - 1);
-	place_str((char *)"Phantoon", app, (t_ivect){start_x, start_y - 24}, 2);
+	put_texture(app, &bbar[0], start.x - 16, start.y - 1);
+	put_texture(app, &bbar[1], start.x + (WIN_WIDTH / 2), start.y - 1);
+	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2);
 }
 
 void	format_time(char *buf, int len, size_t time)
@@ -844,7 +850,4 @@ void	draw_hud(t_info *app)
 		place_timer(app, app->timer.total_ms + (get_time_ms() - app->timer.cur_lvl_start), (t_ivect){32, WIN_HEIGHT - 32}, 2);
 	if (app->fr_last - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
-//	mlx_put_image_to_window(app->mlx, app->root, app->shtex->playertile,
-//						 floor(app->player->pos.x) * 8 + 3 + WIN_WIDTH - app->map->width * 8,
-//						 (app->map->height - floor(app->player->pos.y) - 1) * 8 + 3);
 }

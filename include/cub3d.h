@@ -51,7 +51,7 @@
 # endif //CUB3D_H
 
 # ifndef SKIP_INTRO
-#  define SKIP_INTRO 120
+#  define SKIP_INTRO 0
 # endif
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
@@ -192,13 +192,27 @@ enum e_channel
 	ch_MAX = MIX_CHANNELS
 };
 
+typedef struct s_ivect
+{
+	int	x;
+	int	y;
+}	t_ivect;
+
+typedef const struct s_vect t_civect;
+
 typedef struct s_texture
 {
-	u_int32_t	*data;
-	int			w;
-	int			h;
+	u_int	*data;
+	union {
+		struct {
+			int			w;
+			int			h;
+		};
+		t_ivect	xy;
+	};
+
 	int			sl;
-}	t_texture;
+}	t_tex;
 
 typedef const struct s_texture t_ctex;
 
@@ -207,7 +221,7 @@ typedef struct s_animation
 	int			active;
 	int			loop;
 	size_t		timestart;
-	t_texture	*tex;
+	t_tex	*tex;
 	size_t		duration;
 	int			frames;
 }	t_anim;
@@ -218,17 +232,13 @@ typedef struct s_vect
 	double	y;
 }	t_vect;
 
+typedef const struct s_vect t_cvect;
+
 typedef struct s_tstep
 {
 	double	step;
 	double	tex_y;
 }	t_tstep;
-
-typedef struct s_ivect
-{
-	int	x;
-	int	y;
-}	t_ivect;
 
 typedef struct s_cdata
 {
@@ -244,8 +254,8 @@ typedef struct s_dmask
 
 typedef struct s_mcol
 {
-	u_int32_t	colour;
-	u_int32_t	mask;
+	u_int	colour;
+	u_int	mask;
 	double		frac;
 }	t_mcol;
 
@@ -327,18 +337,18 @@ typedef struct s_ring_segment
 	t_arc	in;
 }	t_ring_segment;
 
-typedef struct s_cvect
+typedef struct s_chvec
 {
 	char	x;
 	char	y;
-}	t_cvect;
+}	t_chvec;
 
-typedef struct s_cvect3
+typedef struct s_chvec3
 {
 	char	x;
 	char	y;
 	char	z;
-}	t_cvect3;
+}	t_chvec3;
 
 typedef struct s_enemypos
 {
@@ -368,7 +378,7 @@ typedef struct s_object
 	t_vect		dir;
 	double		speed;
 	t_vect		p2;
-	t_texture	*texture;
+	t_tex	*texture;
 	t_anim		anim;
 	t_anim		anim2;
 }	t_object;
@@ -379,7 +389,7 @@ typedef struct s_ray
 	t_ivect			maptile;
 	int				face;
 	int				damaged;
-	t_texture		*tex;
+	t_tex		*tex;
 	double			pos;
 	double			distance;
 	struct s_ray	*in_front;
@@ -393,7 +403,7 @@ typedef struct s_dda
 	t_ivect		step;
 	t_ivect		norm;
 	int			faces[2];
-	t_texture	*textures[2];
+	t_tex	*textures[2];
 	double		gradient;
 	double		c;
 }	t_dda;
@@ -431,39 +441,39 @@ typedef struct s_menustate
 
 typedef struct s_shtex
 {
-	t_texture	door_tex[7];
-	t_texture	door_super_tex[7];
-	t_texture	door_missile_tex[7];
-	t_texture	door_boss_tex[7];
-	t_texture	cannon_tex[2];
-	t_texture	crawler_tex[6];
-	t_texture	atomic_tex[6];
-	t_texture	holtz_tex[6];
-	t_texture	reo_tex[4];
-	t_texture	proj_tex[10];
-	t_texture	proj_green_tex[4];
-	t_texture	explode_tex[17];
-	t_texture	energy_tex[3];
-	t_texture	etank_tex[2];
-	t_texture	missile_tex[12];
-	t_texture	super_tex[12];
-	t_texture	health_pu[4];
-	t_texture	missile_ammo[2];
-	t_texture	super_ammo[2];
-	t_texture	trophy_tex[2];
-	t_texture	phantoon[10];
-	t_texture	phantoon_proj[6];
-	t_texture	logo_tex[14];
-	t_texture	dmg_tex[8];
-	t_texture	title;
-	t_texture	scope;
-	t_texture	alphabet;
-	t_texture	tele;
-	t_texture	credits;
-	t_texture	boss_bar[2];
-	t_texture	empty;
-	t_texture	playertile;
-	t_texture	square;
+	t_tex	door_tex[7];
+	t_tex	door_super_tex[7];
+	t_tex	door_missile_tex[7];
+	t_tex	door_boss_tex[7];
+	t_tex	cannon_tex[2];
+	t_tex	crawler_tex[6];
+	t_tex	atomic_tex[6];
+	t_tex	holtz_tex[6];
+	t_tex	reo_tex[4];
+	t_tex	proj_tex[10];
+	t_tex	proj_green_tex[4];
+	t_tex	explode_tex[17];
+	t_tex	energy_tex[3];
+	t_tex	etank_tex[2];
+	t_tex	missile_tex[12];
+	t_tex	super_tex[12];
+	t_tex	health_pu[4];
+	t_tex	missile_ammo[2];
+	t_tex	super_ammo[2];
+	t_tex	trophy_tex[2];
+	t_tex	phantoon[10];
+	t_tex	phantoon_proj[6];
+	t_tex	logo_tex[14];
+	t_tex	dmg_tex[8];
+	t_tex	title;
+	t_tex	scope;
+	t_tex	alphabet;
+	t_tex	tele;
+	t_tex	credits;
+	t_tex	boss_bar[2];
+	t_tex	empty;
+	t_tex	playertile;
+	t_tex	square;
 }	t_shtex;
 
 typedef enum e_textures
@@ -476,12 +486,12 @@ typedef enum e_textures
 typedef	struct s_data
 {
 	struct s_info	*app;
-	t_texture		n_tex;
-	t_texture		s_tex;
-	t_texture		e_tex;
-	t_texture		w_tex;
-	t_texture		floor_tex;
-	t_texture		ceil_tex;
+	t_tex		n_tex;
+	t_tex		s_tex;
+	t_tex		e_tex;
+	t_tex		w_tex;
+	t_tex		floor_tex;
+	t_tex		ceil_tex;
 	Mix_Chunk		*music;
 	int				outside;
 	t_img			*minimap_xs;
@@ -646,7 +656,7 @@ typedef struct s_colour
 {
 	union
 	{
-		u_int32_t raw;
+		u_int raw;
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 		struct
 		{
@@ -670,12 +680,10 @@ typedef struct s_colour
 	};
 }	t_colour;
 
-typedef void (*t_sldraw_f)(t_ivect, t_ray *, t_img *, t_lvars);
-
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 # define CHAR_WIDTH 8
-# define MMAP_TILE_WIDTH 8
-# define MMAP_TILE_HEIGHT 8
+# define MMAP_TILE_W 8
+# define MMAP_TILE_H 8
 
 #define C3D_FORBIDDEN_CHAR -1
 
@@ -728,7 +736,7 @@ void	load_shtex(t_info *app);
 t_player	*init_player(t_info *app);
 void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_lvl *map);
-void		move_entity(t_vect *pos, t_lvl *map, t_vect dir);
+void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
 void		move_obj_bounce(t_info *app, t_object *obj, t_lvl *data);
 void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
@@ -741,7 +749,7 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, int subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
-void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_texture *texture);
+void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture);
 void	init_logo_pieces(t_info *app, t_vect pos);
 
 void	developer_console(t_info *app, t_player *player);
@@ -750,14 +758,14 @@ void	add_health(t_player *player, int health);
 void	damage_enemy(t_info *app, t_object *enemy, int damage);
 void	add_ammo(t_player *player, int type);
 void	toggle_boss_doors(t_info *app);
-int		check_tile_open(char tile, t_lvl *map);
+int		check_tile_open(char tile, t_lvl *lvl);
 
 double	get_gradient_angle(double angle);
 double	get_y_intercept(t_vect pos, double gradient);
 t_vect	get_vertical_int(double x, double gradient, double c);
 t_vect	get_horizontal_int(double y, double gradient, double c);
 double	get_cam_distance(t_vect pos, double angle, t_vect intcpt);
-void	add_in_front(t_ray *ray, int face, t_texture *texture);
+void	add_in_front(t_ray *ray, int face, t_tex *texture);
 t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2);
 t_ray	*check_obj_collision(t_object *object, t_ray *ray, t_player *player);
 void	order_obj_ray(t_ray *obj, t_ray *ray);
@@ -770,6 +778,7 @@ t_ivect scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
+t_ivect add_ivect(t_ivect v1, t_ivect v2);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
 double	vector_magnitude(t_vect vect);
@@ -795,23 +804,21 @@ void	replace_sky(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
 t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
-t_texture	scale_texture(t_texture *tex, int scale);
+t_tex	scale_texture(t_tex *tex, int scale);
 t_img	*img_dup(t_info *app, t_img *const src);
 void	pix_dup(t_img *const src, t_img *const dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
-void	put_texture(t_info *app, t_texture *tex, int x, int y);
-void	place_tex_to_image_scale(t_img *const img, t_texture *tex, t_ivect pos, double scalar);
-void	place_str(char *str, t_info *app, t_ivect pos, int scalar);
+void	put_texture(t_info *app, t_tex *tex, int x, int y);
+void	place_tex_to_image_scale(t_img *const img, t_tex *tex, t_ivect pos, double scalar);
+void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
-void	load_map_textures(t_info *app,  t_img *tiles[]);
-void	free_map_textures(t_info *app, t_img *tiles[]);
-u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h);
-u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
-u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
-u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
+u_int *img_to_tex(t_info *app, char *filename, int *w, int *h);
+u_int *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
+u_int *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
+u_int *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app, t_img *canvas);
@@ -881,7 +888,7 @@ void	set_sound_volume(t_info *app, int volume);
 void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 
-int	bilinear_filter(double x, double y, const t_texture *tex);
+int	bilinear_filter(double x, double y, const t_tex *tex);
 // int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
 void	start_obj_death(t_object *obj, t_info *app);
@@ -889,7 +896,7 @@ t_list	*delete_object(t_list **obj_list, t_list *obj_node);
 t_object	*check_obj_proximity(t_vect pos, t_lvl *map);
 int	point_oob_global(t_vect pos, t_lvl *map);
 void	select_projectile_tex(t_object *obj, t_player *player, t_info *app);
-t_texture	*handle_animation(t_info *app, t_anim anim);
+t_tex	*handle_animation(t_info *app, t_anim anim);
 t_anim	**create_anim_arr(int x, int y);
 void	init_anims(t_info *app, t_lvl *map);
 void	reset_anims(t_info *app, t_lvl *map);
@@ -911,8 +918,8 @@ void	update_objects(t_info *app, t_player *player, t_lvl *map);
 int		check_line_of_sight(t_info *app, t_object *obj, t_player *player);
 //u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
-t_texture	*get_open_door_tex(t_anim *anim, t_info *app);
-t_texture	*get_close_door_tex(t_anim *anim, t_info *app);
+t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
+t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
 void	toggle_fullscreen(t_info *const app);
 int		get_key_index(KeySym key);
 

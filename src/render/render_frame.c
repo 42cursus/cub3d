@@ -54,9 +54,9 @@ void	fill_with_colour(t_img *img, int f_col, int c_col)
 
 int	render_win(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
-	t_texture *const	tex = &app->shtex->title;
+	size_t			time;
+	t_info *const	app = param;
+	t_tex *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
@@ -77,9 +77,9 @@ int	render_win(void *param)
 
 int	render_lose(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
-	t_texture *const	tex = &app->shtex->title;
+	size_t			time;
+	t_info *const	app = param;
+	t_tex *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
@@ -99,8 +99,8 @@ int	render_lose(void *param)
 
 int	render_load(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
+	size_t			time;
+	t_info *const	app = param;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
@@ -150,8 +150,8 @@ int	render_load(void *param)
 
 int	render_play(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
+	size_t			time;
+	t_info *const	app = param;
 
 	if (app->keys[idx_XK_w])
 		move_entity(&app->player->pos, app->map,
@@ -185,9 +185,9 @@ int	render_play(void *param)
 
 int	render_intro(void *param)
 {
-	size_t				time;
-	size_t				diff;
-	t_info *const		app = param;
+	size_t			time;
+	size_t			diff;
+	t_info *const	app = param;
 
 	update_objects(app, app->player, app->map);
 	if (app->player->dead)
@@ -216,10 +216,10 @@ int	render_intro(void *param)
 
 int	render_mmenu(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
-	t_img *const		bg = app->bg;
-	t_texture *const	tex = &app->shtex->title;
+	size_t			time;
+	t_info *const	app = param;
+	t_img *const	bg = app->bg;
+	t_tex *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data,
 					 (int *)bg->data,  bg->size_line * bg->height);
@@ -238,10 +238,10 @@ int	render_mmenu(void *param)
 
 int	render_pmenu(void *param)
 {
-	size_t				time;
-	t_info *const		app = param;
-	t_img *const		sshot = app->stillshot;
-	t_texture *const	tex = &app->shtex->title;
+	size_t			time;
+	t_info *const	app = param;
+	t_img *const	sshot = app->stillshot;
+	t_tex *const	tex = &app->shtex->title;
 
 	fast_memcpy_test((int *)app->canvas->data, (int *)sshot->data,
 					 sshot->size_line * sshot->height);
