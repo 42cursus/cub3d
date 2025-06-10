@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/04/15 13:16:56 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/04 21:41:28 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,13 +61,11 @@ void toggle_fullscreen(t_info *const app)
 
 void replace_frame(t_info *app)
 {
-	// fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	// fill_floor(app, app->map, app->player);
-	cast_all_rays_alt(app, app->map, app->player);
+	cast_all_rays_alt(app, app->lvl, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
 					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->player, 1);
-	if (app->map->outside != 1)
+	if (app->lvl->outside != 1)
 		fill_floor(app, app->player, 0);
 	draw_rays(app, app->canvas);
 }
@@ -124,7 +122,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 
 	app->mouse[button] = true;
 	if (button == 1)
-		spawn_projectile(app, app->player, app->map, app->player->equipped);
+		spawn_projectile(app, app->player, app->lvl, app->player->equipped);
 	else if (button == 2)
 	{
 		if (!app->ads)
@@ -139,7 +137,7 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 			set_fov(app, app->old_fov);
 		}
 		calculate_offsets(app, app->player);
-		replace_sky(app, (char *) "./textures/skybox.xpm");
+		replace_sky(app, (char *) "./resources/textures/skybox.xpm");
 		draw_sky_alt(app);
 	}
 	else if (button == 3)
@@ -168,6 +166,8 @@ int get_key_index(KeySym key)
 		XK_Right,
 		XK_Down,
 		XK_Shift_L,
+		XK_h,
+		XK_m,
 	};
 
 	i = 0;
@@ -184,13 +184,45 @@ int get_key_index(KeySym key)
 	return ret;
 }
 
+int key_press_intro(KeySym key, void *param)
+{
+	t_info *const	app = param;
+
+	if (key == XK_Up || key == XK_Down)
+		app->keys[get_key_index(key)] = true;
+	else if (key == XK_F11)
+	{
+		app->fullscreen = !app->fullscreen;
+		toggle_fullscreen(app);
+	}
+	else
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+	}
+	return (0);
+}
+
+int key_release_intro(KeySym key, void *param)
+{
+	t_info *const	app = param;
+	const int		idx = get_key_index(key);
+
+	if (idx != -1)
+		app->keys[idx] = false;
+	return (0);
+}
+
 int key_press_credits(KeySym key, void *param)
 {
 	t_info *const app = param;
 
-	int idx = get_key_index(key);
-	if (idx == idx_XK_Up || idx == idx_XK_Down)
-		app->keys[idx] = true;
+	if (key == XK_Up || key == XK_Down)
+		app->keys[get_key_index(key)] = true;
+	else if  (key == XK_Alt_L)
+	{
+		;
+	}
 	else
 	{
 		app->rc = ok;
@@ -201,9 +233,9 @@ int key_press_credits(KeySym key, void *param)
 
 int key_release_credits(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	const int		idx = get_key_index(key);
 
-	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
@@ -337,10 +369,14 @@ int key_press_play(KeySym key, void *param)
 	{
 		if (key == XK_1)
 		{
+			player->equipped = 0;
+		}
+		else if (key == XK_2)
+		{
 			if (player->ammo[1])
 				player->equipped = 1;
 		}
-		else if (key == XK_2)
+		else if (key == XK_3)
 		{
 			if (player->ammo[2])
 				player->equipped = 2;
@@ -357,8 +393,8 @@ int key_press_play(KeySym key, void *param)
 		else if (key == XK_e)
 			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
-			spawn_projectile(app, player, app->map, player->equipped); // DEBUGGING. TODO: fixme
-		else if (key == XK_h)
+			spawn_projectile(app, player, app->lvl, player->equipped); // DEBUGGING. TODO: fixme
+		else if (key == XK_k)
 			subtract_health(app, player, 10);
 		else if (key == XK_j)
 			add_health(player, 10);

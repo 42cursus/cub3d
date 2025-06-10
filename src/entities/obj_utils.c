@@ -34,21 +34,21 @@ t_list	*delete_object(t_list **obj_list, t_list *obj_node)
 	return (next);
 }
 
-void	start_obj_death(t_object *obj, t_info *app)
+void	start_obj_death(t_obj *obj, t_info *app)
 {
 	obj->anim2.active = 1;
 	obj->anim2.timestart = app->fr_last;
 }
 
-t_object	*check_obj_proximity(t_vect pos, t_lvl *map)
+t_obj	*check_obj_proximity(t_vect pos, t_lvl *lvl)
 {
 	t_list		*current;
-	t_object	*cur_obj;
+	t_obj	*cur_obj;
 
-	current = map->enemies;
+	current = lvl->enemies;
 	while (current != NULL)
 	{
-		cur_obj = (t_object *)current->data;
+		cur_obj = (t_obj *)current->data;
 		if (cur_obj->dead != 1)
 		{
 			if (vector_distance(pos, cur_obj->pos) < 0.3)
@@ -59,7 +59,7 @@ t_object	*check_obj_proximity(t_vect pos, t_lvl *map)
 	return (NULL);
 }
 
-int	check_line_of_sight(t_info *app, t_object *obj, t_player *player)
+int	check_line_of_sight(t_info *app, t_obj *obj, t_player *player)
 {
 	const t_vect	diff = subtract_vect(obj->pos, player->pos);
 	const double	angle = atan2(diff.y, diff.x) - player->angle;
@@ -67,7 +67,7 @@ int	check_line_of_sight(t_info *app, t_object *obj, t_player *player)
 	t_ray			*child;
 	t_vect			dists;
 
-	ray = ray_dda(app, app->map, player, angle);
+	ray = ray_dda(app, app->lvl, player, angle);
 	dists.x = vector_distance(player->pos, ray.intcpt);
 	dists.y = vector_distance(player->pos, obj->pos);
 	if (dists.y > dists.x)
@@ -82,13 +82,13 @@ int	check_line_of_sight(t_info *app, t_object *obj, t_player *player)
 	return (1);
 }
 
-void	spawn_drops(t_info *app, t_object *obj, int no)
+void	spawn_drops(t_info *app, t_obj *obj, int no)
 {
-	double		seed;
-	t_vect		pos;
-	t_player	*player;
+	double			seed;
+	t_vect			pos;
+	t_vect			dir;
+	t_player *const	player = app->player;
 
-	player = app->player;
 	if (player->ammo[pr_SUPER] == player->max_ammo[pr_SUPER]
 		&& player->ammo[pr_MISSILE] == player->max_ammo[pr_MISSILE]
 		&& player->health == player->max_health)
@@ -96,8 +96,9 @@ void	spawn_drops(t_info *app, t_object *obj, int no)
 	while (no-- > 0)
 	{
 		pos = obj->pos;
-		move_entity(&pos, app->map,
-			(t_vect){rand_range(-0.5, 0.5), rand_range(-0.5, 0.5)});
+		dir.x = rand_range(-0.5, 0.5);
+		dir.y = rand_range(-0.5, 0.5);
+		move_entity(&pos, app->lvl,dir);
 		seed = rand_range(0.0, 1.0);
 		if (seed < 0.2 && player->ammo[pr_SUPER] != player->max_ammo[pr_SUPER])
 			spawn_item(app, pos, I_AMMO_S);

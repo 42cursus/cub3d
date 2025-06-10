@@ -32,6 +32,8 @@ int	valid_identifier(char *str)
 		return (LVL_B);
 	if (ft_strncmp(str, "LVL_C", 6) == 0)
 		return (LVL_C);
+	if (ft_strncmp(str, "MU", 3) == 0)
+		return (MU);
 	return (NONE);
 }
 

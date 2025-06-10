@@ -12,15 +12,15 @@
 
 #include "cub3d.h"
 
-void	init_zoomer(t_object *enemy, t_info *app);
-void	init_atomic(t_object *enemy, t_info *app);
-void	init_reo(t_object *enemy, t_info *app);
-void	init_holtz(t_object *enemy, t_info *app);
-void	init_phantoon(t_object *enemy, t_info *app);
+void	init_zoomer(t_obj *enemy, t_info *app);
+void	init_atomic(t_obj *enemy, t_info *app);
+void	init_reo(t_obj *enemy, t_info *app);
+void	init_holtz(t_obj *enemy, t_info *app);
+void	init_phantoon(t_obj *enemy, t_info *app);
 
-t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
+t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 {
-	t_object	*enemy;
+	t_obj	*enemy;
 
 	enemy = ft_calloc(1, sizeof(*enemy));
 	enemy->pos = pos;
@@ -43,11 +43,11 @@ t_object	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->anim.active = 1;
 	enemy->anim.timestart = app->fr_last;
 	enemy->anim.loop = 1;
-	ft_lstadd_back(&app->map->enemies, ft_lstnew(enemy));
+	ft_lstadd_back(&app->lvl->enemies, ft_lstnew(enemy));
 	return (enemy);
 }
 
-int	handle_enemy_death(t_info *app, t_object *obj, t_list **current)
+int	handle_enemy_death(t_info *app, t_obj *obj, t_list **current)
 {
 	if (obj->dead == 1)
 	{
@@ -57,13 +57,13 @@ int	handle_enemy_death(t_info *app, t_object *obj, t_list **current)
 			if (obj->subtype == E_PHANTOON)
 			{
 				spawn_drops(app, obj, 15);
-				app->map->boss_obj = NULL;
+				app->lvl->boss_obj = NULL;
 			}
 			else if (obj->subtype == E_HOLTZ)
 				spawn_drops(app, obj, 3);
 			else
 				spawn_drops(app, obj, 1);
-			*current = delete_object(&app->map->enemies, *current);
+			*current = delete_object(&app->lvl->enemies, *current);
 			return (1);
 		}
 		return (0);
@@ -71,7 +71,7 @@ int	handle_enemy_death(t_info *app, t_object *obj, t_list **current)
 	return (-1);
 }
 
-void	handle_enemy_ai(t_info *app, t_object *obj)
+void	handle_enemy_ai(t_info *app, t_obj *obj)
 {
 	if (obj->subtype == E_ZOOMER)
 		zoomer_ai(app, obj);
@@ -85,7 +85,7 @@ void	handle_enemy_ai(t_info *app, t_object *obj)
 		holtz_ai(app, obj, app->player);
 }
 
-int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
+int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current)
 {
 	int	retval;
 
@@ -103,7 +103,7 @@ int	handle_obj_entity(t_info *app, t_object *obj, t_list **current)
 			subtract_health(app, app->player, 80);
 			damage_enemy(app, obj, 100);
 		}
-		move_entity(&app->player->pos, app->map,
+		move_entity(&app->player->pos, app->lvl,
 			scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
 		app->player->dmg_dir = (subtract_vect(obj->pos, app->player->pos));
 	}

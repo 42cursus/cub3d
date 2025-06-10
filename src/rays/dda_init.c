@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 static inline __attribute__((always_inline))
-void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
+void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_lvl *lvl)
 {
 	if (dda->dir.x < 0)
 	{
@@ -21,7 +21,7 @@ void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 		dda->norm.x = 1;
 		dda->side_dist.x = (player->pos.x - ray->intcpt.x) * dda->delta_dist.x;
 		dda->faces[0] = EAST;
-		dda->textures[0] = &map->e_tex;
+		dda->textures[0] = &lvl->e_tex;
 	}
 	else
 	{
@@ -30,12 +30,12 @@ void	setup_dda_x(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 		dda->side_dist.x = (ray->intcpt.x + 1.0 - player->pos.x)
 			* dda->delta_dist.x;
 		dda->faces[0] = WEST;
-		dda->textures[0] = &map->w_tex;
+		dda->textures[0] = &lvl->w_tex;
 	}
 }
 
 static inline __attribute__((always_inline))
-void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
+void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_lvl *lvl)
 {
 	if (dda->dir.y < 0)
 	{
@@ -43,7 +43,7 @@ void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 		dda->norm.y = 1;
 		dda->side_dist.y = (player->pos.y - ray->intcpt.y) * dda->delta_dist.y;
 		dda->faces[1] = NORTH;
-		dda->textures[1] = &map->n_tex;
+		dda->textures[1] = &lvl->n_tex;
 	}
 	else
 	{
@@ -52,7 +52,7 @@ void	setup_dda_y(t_dda *dda, t_ray *ray, t_player *player, t_lvl *map)
 		dda->side_dist.y = (ray->intcpt.y + 1.0 - player->pos.y)
 			* dda->delta_dist.y;
 		dda->faces[1] = SOUTH;
-		dda->textures[1] = &map->s_tex;
+		dda->textures[1] = &lvl->s_tex;
 	}
 }
 
@@ -75,6 +75,6 @@ void	init_dda(t_dda *dda, t_info *app, t_ray *ray, double angle)
 	dda->gradient = get_gradient_angle(player->angle + angle);
 	dda->c = get_y_intercept(player->pos, dda->gradient);
 	ray->in_front = NULL;
-	setup_dda_x(dda, ray, player, app->map);
-	setup_dda_y(dda, ray, player, app->map);
+	setup_dda_x(dda, ray, player, app->lvl);
+	setup_dda_y(dda, ray, player, app->lvl);
 }

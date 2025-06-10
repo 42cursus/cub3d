@@ -86,21 +86,24 @@ void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 	}
 }
 
-
-//typedef struct s_arc
-//{
-//	t_point	center;
-//	int		r;
-//	double	a_start;
-//	double	a_end;
-//}	t_arc;
-//
-//typedef struct s_ring_segment
-//{
-//	t_arc	out;
-//	t_arc	in;
-//}	t_ring_segment;
-
+/**
+ * 	typedef struct s_arc
+ * 	{
+ * 		t_point	center;
+ * 		int		r;
+ * 		double	a_start;
+ * 		double	a_end;
+ * 	}	t_arc;
+ *
+ * 	typedef struct s_ring_segment
+ * 	{
+ * 		t_arc	out;
+ * 		t_arc	in;
+ * 	}	t_ring_segment;
+ * @param img
+ * @param seg
+ * @param color
+ */
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 {
 	t_ivect	i;
@@ -116,7 +119,6 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 	while (++i.y <= seg.out.r)
 	{
 		cc.y = seg.in.center.y + i.y;
-
 		i.x = -seg.out.r - 1;
 		while (++i.x <= seg.out.r)
 		{
@@ -136,7 +138,6 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 			da.y += (da.y < 0) * (2 * M_PI);
 			a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
 			a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
-
 			alpha = 1.0; // Linear radial edge AA
 			if (dist < seg.in.r)
 				alpha = dist - (seg.in.r - 1.0);
@@ -156,8 +157,8 @@ void	draw_nav(t_info *app)
 	const t_point	center = {.x = ptr->width / 2, .y = ptr->height / 2};
 	t_arc *const	outer = &(t_arc){
 		.r = 25,
-		.a_start = normalize_angle(-app->player->angle - 2 * M_1_PI),
-		.a_end = normalize_angle(-app->player->angle + M_1_PI),
+		.a_start = normalize_angle(-app->player->angle - M_2_PI),
+		.a_end = normalize_angle(-app->player->angle +  M_2_PI),
 		.center = center
 	};
 

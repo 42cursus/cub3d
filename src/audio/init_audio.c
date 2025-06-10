@@ -12,6 +12,22 @@
 
 #include "cub3d.h"
 
+static int load_sounds(t_aud *const aud)
+{
+	int			i;
+	Mix_Chunk	*chunk;
+
+	i = -1;
+	while (++i < snd_MAX)
+	{
+		chunk = Mix_LoadWAV(aud->files[i]);
+		if (!chunk)
+			return (EXIT_FAILURE);
+		aud->chunks[i] = chunk;
+	}
+	return (EXIT_SUCCESS);
+}
+
 int	init_audio(t_info *const app)
 {
 	int 	err;
@@ -24,7 +40,7 @@ int	init_audio(t_info *const app)
 		exit((cleanup(app), EXIT_FAILURE));
 	}
 
-	err = Mix_OpenAudio(aud->frequency, aud->format, aud->no_channels, aud->chunk_size);
+	err = Mix_OpenAudio(aud->frequency, aud->format, aud->nchannels, aud->chunk_size);
 	if (err < 0)
 	{
 		ft_dprintf(STDERR_FILENO, "Mix_OpenAudio error: %s\n", Mix_GetError());
@@ -32,6 +48,7 @@ int	init_audio(t_info *const app)
 	}
 
 	load_sounds(aud);
-//	Mix_PlayChannel(-1, aud->chunks[snd_boss_die], 0);
+	// Mix_Volume(ch_music, 64);
+	// Mix_VolumeChunk(aud->chunks[snd_rocket], 32);
 	return (err);
 }

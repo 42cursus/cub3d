@@ -13,7 +13,6 @@
 #include "cub3d.h"
 
 int		is_map_line(char *line);
-void	set_starting_dir(t_lvl *map, char dir);
 void	normalise_map(t_lvl *data);
 int		str_cmp_whitespace(void *data, void *ref);
 
@@ -44,19 +43,25 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 	return (1);
 }
 
-int	check_start_pos(t_lvl *data, size_t i, size_t j, int *start_found)
+int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 {
-	char	tile;
+	char			tile;
+	t_vect const	lut[UCHAR_MAX] = {
+		['N'] = {0, 1},
+		['S'] = {0, -1},
+		['E'] = {1, 0},
+		['W'] = {-1, 0},
+	};
 
-	tile = (data->map)[i][j];
+	tile = (lvl->map)[i][j];
 	if (ft_strchr("NESW", tile))
 	{
 		if (*start_found)
 			return (printf("Error: starting pos defined multiple times\n"), 0);
-		data->starting_pos.x = (double)j + 0.5;
-		data->starting_pos.y = (double)i + 0.5;
-		set_starting_dir(data, (data->map)[i][j]);
-		(data->map)[i][j] = '0';
+		lvl->starting_pos.x = (double)j + 0.5;
+		lvl->starting_pos.y = (double)i + 0.5;
+		lvl->starting_dir = lut[(u_char)(lvl->map)[i][j]];
+		(lvl->map)[i][j] = '0';
 		*start_found = 1;
 	}
 	return (1);
@@ -105,13 +110,15 @@ int	validate_map_tiles(t_lvl *data, char **map)
 int	map_is_terminating(char **map)
 {
 	size_t	i;
+	char	*line;
 
 	i = 0;
-	while (map[i])
+	line = map[i];
+	while (line)
 	{
-		if (!is_map_line(map[i]) && str_cmp_whitespace(map[i], NULL) != 0)
+		if (!is_map_line(line) && str_cmp_whitespace(line, NULL) != 0)
 			return (0);
-		i++;
+		line = map[i++];
 	}
 	return (1);
 }
@@ -119,7 +126,12 @@ int	map_is_terminating(char **map)
 int	map_is_valid(t_lvl *data)
 {
 	if (!map_is_terminating(data->map))
-		return (printf("Error: map not defined last\n"), 0);
+	{
+		if (errno == C3D_FORBIDDEN_CHAR)
+			ft_dprintf(STDERR_FILENO, "Error: forbidden character on the map\n");
+		ft_dprintf(STDERR_FILENO, "Error: map should be defined as the final section in the .cub file. No content should follow it.\n");
+		return (0);
+	}
 	normalise_map(data);
 	if (!validate_map_tiles(data, data->map))
 		return (0);

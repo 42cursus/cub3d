@@ -52,14 +52,14 @@ int	convert_col(char *str)
 	return (free_split(split), col);
 }
 
-int	parse_colour(t_lvl *map, char *str, int identifier)
+int	parse_colour(t_lvl *lvl, char *str, int identifier)
 {
 	int	*coladdr;
 
 	if (identifier == FLOOR)
-		coladdr = &map->f_col;
+		coladdr = &lvl->f_col;
 	else
-		coladdr = &map->c_col;
+		coladdr = &lvl->c_col;
 	if (*coladdr != -1)
 		return (printf("Error: colour defined multiple times\n"), 1);
 	*coladdr = convert_col(str);

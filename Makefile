@@ -12,6 +12,11 @@
 
 NAME			:= cub3d
 
+UNAME_S			= $(shell uname -s)
+UNAME_M			= $(shell uname -m)
+UNAME_R			= $(shell uname -r)
+DOMAIN			= $(shell hostname -d)
+
 LIBFT_DIR		= ./lib/ft
 LIBX_DIR		= ./lib/mlx
 BUILD_DIR		= build
@@ -20,18 +25,31 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= clang
-INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2
-OPTIMIZE_FLAGS	:= -O3
+INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
+OPTIMIZE_FLAGS	:= -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer -march=native -fno-stack-protector #-fno-stack-protector-all
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
-					-pg \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+#					-pg \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS)
+
+SDL_MIX_LIB			:= -lSDL2_mixer
+
+ifeq ($(UNAME_M),x86_64)
+	ifeq ($(DOMAIN), 42london.com)
+		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
+	endif
+	ifeq ($(UNAME_R), 5.15.0-139-generic)
+#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+	else
+		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
+	endif
+endif
 
 
 LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
@@ -40,17 +58,17 @@ LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
-					-l:libSDL2_mixer-2.0.so.0.2.2 -lSDL2 \
+					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app audio player render rays entities animations
+SUB_DIRS		= parser utils app audio player render rays entities anim fonts
 CUB_SRCS		:=
 TEXTURES		:=
 
 include $(SUB_DIRS:%=$(SRC_DIR)/%/Makefile.mk)
-include textures/Makefile.mk
+include resources/textures/Makefile.mk
 
 SRCS			:= src/main.c
 SRCS			+= $(CUB_SRCS)

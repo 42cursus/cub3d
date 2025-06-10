@@ -22,7 +22,7 @@ void	rotate_player(t_info *app, t_player *player,
 		rotate_vect_inplace(&player->dir,
 			-M_PI_4 / (sensitivity * app->fr_scale));
 	app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
-	if (app->map->outside)
+	if (app->lvl->outside)
 		draw_sky_alt(app);
 	draw_nav(app);
 }
@@ -34,12 +34,18 @@ void	handle_open_door(t_info *app, t_ray *crosshair)
 
 	if (crosshair->distance < 1.0)
 	{
-		doortile = &app->map->map[crosshair->maptile.y][crosshair->maptile.x];
-		anim = &app->map->anims[crosshair->maptile.y][crosshair->maptile.x];
+		doortile = &app->lvl->map[crosshair->maptile.y][crosshair->maptile.x];
+		anim = &app->lvl->anims[crosshair->maptile.y][crosshair->maptile.x];
 		if (*doortile == 'D')
+		{
 			*doortile = 'O';
+			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
+		}
 		else if (*doortile == 'O')
+		{
 			*doortile = 'D';
+			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_close], 0);
+		}
 		else
 			return ;
 		anim->active = 1;

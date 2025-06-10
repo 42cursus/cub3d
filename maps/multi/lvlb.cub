@@ -1,10 +1,12 @@
-NO textures/norfair_wall1.xpm
-SO textures/norfair_wall1.xpm
-WE textures/norfair_wall2.xpm
-EA textures/norfair_wall2.xpm
+NO resources/textures/norfair_wall1.xpm
+SO resources/textures/norfair_wall1.xpm
+WE resources/textures/norfair_wall2.xpm
+EA resources/textures/norfair_wall2.xpm
 
-F textures/floor_norfair.xpm
+F resources/textures/floor_norfair.xpm
 C 0x64,0x9d,0xfa
+
+MU resources/sound/lava_music.wav
 
 LVL_A start.cub
 

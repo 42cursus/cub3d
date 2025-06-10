@@ -41,29 +41,58 @@ t_img	*img_dup(t_info *app, t_img *const src)
 t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 {
 	t_vect	steps;
-	t_ivect	iter;
+	t_ivect	it;
 	t_vect	pos;
 	t_img	*out;
 
 	u_int (*const pixels)[image->height][image->width] = (void *)image->data;
 	out = mlx_new_image(app->mlx, new_x, new_y);
 	u_int (*const scaled_pix)[out->height][out->width] = (void *)out->data;
-	steps = (t_vect){(double)image->width / new_x,
-		(double)image->height / new_y};
-	iter.y = -1;
+	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
+	it.y = -1;
 	pos.y = 0;
-	while (++iter.y < new_y)
+	while (++it.y < new_y)
 	{
-		iter.x = -1;
+		it.x = -1;
 		pos.x = 0;
-		while (++iter.x < new_x)
+		while (++it.x < new_x)
 		{
-			(*scaled_pix)[iter.y][iter.x] = (*pixels)[(int)pos.y][(int)pos.x];
+			(*scaled_pix)[it.y][it.x] = (*pixels)[(int)pos.y][(int)pos.x];
 			pos.x += steps.x;
 		}
 		pos.y += steps.y;
 	}
 	return (mlx_destroy_image(app->mlx, image), out);
+}
+
+t_tex	scale_texture(t_tex *tex, int scale)
+{
+	t_vect	steps;
+	t_ivect	it;
+	t_vect	pos;
+	t_tex	new;
+	t_cdata	cd;
+
+	new.w = tex->w * scale / 8;
+	new.h = tex->h * scale / 8;
+	new.data = malloc(new.w * new.h * sizeof(int));
+	steps = (t_vect){(double)tex->w / new.w, (double)tex->h / new.h};
+	it.y = -1;
+	pos.y = 0;
+	while (++it.y < new.h)
+	{
+		it.x = -1;
+		pos.x = 0;
+		cd.src = (int *)tex->data + (int)pos.y *  tex->w;
+		cd.dst = (int *)new.data + new.w * it.y;
+		while (++it.x < new.w)
+		{
+			cd.dst[it.x] = cd.src[(int)pos.x];
+			pos.x += steps.x;
+		}
+		pos.y += steps.y;
+	}
+	return (new);
 }
 
 void	replace_image(t_info *app, t_img **img, char *tex_file)
@@ -76,7 +105,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	if (tex_file)
 	{
 		new = mlx_xpm_file_to_image(app->mlx,
-				tex_file, &tmp.width, &tmp.height);
+									tex_file, &tmp.width, &tmp.height);
 		if (!new)
 		{
 			ft_printf("Error opening file: \"%s\"\n", tex_file);
@@ -85,7 +114,10 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
 	}
 	else
+	{
 		new = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+		fill_with_colour(new, XPM_TRANSPARENT, XPM_TRANSPARENT);
+	}
 	*img = new;
 }
 
@@ -204,30 +236,6 @@ u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *
 	mlx_destroy_image(app->mlx, img);
 	return (data);
 }
-
-// int	bilinear_filter(double x, double y, const t_texarr *tex)
-// {
-// 	int		x_lower;
-// 	int		x_upper;
-// 	int		y_lower;
-// 	int		y_upper;
-// 	double	frac_x;
-// 	double	frac_y;
-//
-// 	x_lower = (int)x;
-// 	y_lower = (int)y;
-// 	x_upper = x_lower + 1;
-// 	y_upper = y_lower + 1;
-// 	frac_x = fmod(x, 1);
-// 	frac_y = fmod(y, 1);
-// 	if (x_upper == tex->x)
-// 		x_upper = 0;
-// 	if (y_upper == tex->y)
-// 		return (interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x));
-// 	int	interp_x1 = interpolate_colour(tex->img[y_lower][x_lower], tex->img[y_lower][x_upper], frac_x);
-// 	int	interp_x2 = interpolate_colour(tex->img[y_upper][x_lower], tex->img[y_upper][x_upper], frac_x);
-// 	return (interpolate_colour(interp_x1, interp_x2, frac_y));
-// }
 
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
 {

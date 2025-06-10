@@ -37,13 +37,13 @@ int	get_tex_index_float(double pos, int dim)
  * Checks if the position pos is outside the boundaries of the map
  * oob stands for "out of bounds"
  * @param pos
- * @param map
+ * @param lvl
  * @return
  */
 static inline __attribute__((always_inline, unused))
-int	point_oob(t_vect pos, t_lvl *map)
+int	point_oob(t_vect pos, t_lvl *lvl)
 {
-	return ((pos.x < 0 || pos.x > map->width) || (pos.y < 0 || pos.y > map->height));
+	return ((pos.x < 0 || pos.x > lvl->width) || (pos.y < 0 || pos.y > lvl->height));
 }
 
 static inline __attribute__((always_inline))
@@ -94,7 +94,7 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	u_int	*dst;
 	int		row;
 	double	depth;
-	t_img *const tex = (t_img *[]){app->map->texs[T_CEILING], app->map->texs[T_FLOOR]}[is_floor];
+	t_img *const tex = (t_img *[]){app->lvl->texs[T_CEILING], app->lvl->texs[T_FLOOR]}[is_floor];
 
 	row = -1;
 	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);

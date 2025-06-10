@@ -18,7 +18,7 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 
 	if (player->dead == 1)
 		return ;
-	if (app->fr_last - player->dmg_time < 250000)
+	if (app->fr_last - player->dmg_time < 350000)
 		return ;
 	new_health = player->health - damage;
 	if (new_health < 0)
@@ -28,6 +28,7 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 		app->rc = fail;
 		app->mlx->end_loop = 1;
 	}
+	Mix_PlayChannel(ch_player, app->audio.chunks[snd_player_damage], 0);
 	player->health = new_health;
 	player->dmg_time = app->fr_last;
 }

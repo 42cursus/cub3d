@@ -11,7 +11,6 @@
 # **************************************************************************** #
 
 FILES   = free_shsnd.c\
-			init_audio.c \
-			load_sounds.c
+			init_audio.c
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

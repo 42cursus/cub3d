@@ -1,10 +1,12 @@
-NO textures/metroid1.xpm
-SO textures/metroid1.xpm
-WE textures/metroid2.xpm
-EA textures/metroid2.xpm
+NO resources/textures/metroid1.xpm
+SO resources/textures/metroid1.xpm
+WE resources/textures/metroid2.xpm
+EA resources/textures/metroid2.xpm
 
-F textures/floor5.xpm
-C textures/floor.xpm
+F resources/textures/floor5.xpm
+C resources/textures/floor.xpm
+
+MU resources/sound/inside_music.wav
 
 LVL_A start.cub
 

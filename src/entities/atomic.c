@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	atomic_ai(t_info *app, t_object *enemy)
+void	atomic_ai(t_info *app, t_obj *enemy)
 {
 	t_vect	norm_diff;
 
@@ -21,12 +21,12 @@ void	atomic_ai(t_info *app, t_object *enemy)
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
 		enemy->dir = norm_diff;
 		enemy->speed = 0.08;
-		move_entity(&enemy->pos, app->map,
+		move_entity(&enemy->pos, app->lvl,
 			scale_vect(enemy->dir, enemy->speed / app->fr_scale));
 	}
 	else
 	{
 		enemy->speed = 0.04;
-		move_obj_bounce(app, enemy, app->map);
+		move_obj_bounce(app, enemy, app->lvl);
 	}
 }
