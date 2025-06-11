@@ -146,27 +146,32 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 __attribute__((optnone))
 void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
-	t_list		*current;
-	t_obj	*curr_obj;
-	t_img *const	cnvs = lvl->app->canvas;
-	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
 
-	t_img 	*mmap = lvl->minimap_xl;
+	t_list			*current;
+	t_obj			*curr_obj;
+	t_tex *const	tile = &(t_tex){.w = 6, .h = 5};
+	t_img *const	cnvs = lvl->app->canvas;
+	static u_int	data[CHAR_MAX][36] = {
+		['D'] = {[0 ... 35] = MLX_BLUE},
+		['O'] = {[0 ... 35] = MLX_PALE_GRAY},
+		['L'] = {[0 ... 35] = MLX_GREEN},
+		['M'] = {[0 ... 35] = MLX_PINK},
+	};
+	t_img 			*mmap = lvl->minimap_xl;
 	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
 	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
-	current = lvl->enemies;
+	current = lvl->doors;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
-		if (curr_obj->type == O_ENTITY)
-		{
-			p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
-			p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
-			place_tex_to_image_scale(cnvs, tile, p3, scalar);
-		}
+		char ch = *(char *)(curr_obj->texture);
+		tile->data = data[(u_char)ch];
+		p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
+		p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
+		place_tex_to_image_scale(cnvs, tile, p3, scalar);
 		current = current->next;
 	}
 }
@@ -443,6 +448,7 @@ void	place_mmap(t_info *app)
 
 		place_items_minimap(lvl, p1, 2);
 		place_enemies_minimap(lvl, p1, 2);
+		place_doors_minimap(lvl, p1, 2);
 	}
 	else
 	{
@@ -507,7 +513,7 @@ void	put_texture(t_info *app, t_tex *tex, int x, int y)
 	}
 }
 
-void	place_tex_to_image_scale(t_img *const img, t_tex *tex, t_ivect pos, double scalar)
+void	place_tex_to_image_scale(t_img *const img, const t_tex *tex, t_ivect pos, double scalar)
 {
 	t_ivect	it;
 	double	step;

@@ -78,7 +78,6 @@
 # define MLX_TANG_YELLOW 0x00ffcc00
 # define MLX_PINK 0x00d6428e
 # define MLX_PALE_GRAY 0xf8f8f8
-# define MLX_TRANSPARENT 0x00000042
 # define XPM_TRANSPARENT 0xff000000
 
 # define LARGE_MMAP_SCALE 16
@@ -120,7 +119,9 @@ typedef	enum e_etype
 	O_EPROJ = 3,
 	O_TRIGGER = 4,
 	O_TELE = 5,
+	O_DOOR = 6,
 	O_LOGO,
+	O_MAX
 }	t_etype;
 
 typedef enum e_subtype
@@ -413,23 +414,20 @@ typedef struct s_dda
 	t_ivect		step;
 	t_ivect		norm;
 	int			faces[2];
-	t_tex	*textures[2];
+	t_tex		*textures[2];
 	double		gradient;
 	double		c;
 }	t_dda;
 
-//
-//typedef enum e_textures
-//{
-//	DOOR_TEX = 0,
-//
-//}	t_etext;
-//
-//
-//t_texarr textures[] = {
-//	[DOOR_TEX] = {},
-//
-//};
+
+typedef enum e_doors
+{
+	D_OPEN = 0,
+	D_BLUE,
+	D_PINK,
+	D_GREEN,
+	D_MAX,
+}	t_edoor;
 
 typedef struct s_info t_info;
 
@@ -824,7 +822,7 @@ void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
-void	place_tex_to_image_scale(t_img *img, t_tex *tex, t_ivect pos, double scalar);
+void	place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos, double scalar);
 void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
