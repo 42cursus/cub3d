@@ -154,12 +154,7 @@ void	draw_menu_items(t_info *app)
 {
 	t_menustate	*menu_state;
 	int			i;
-	char		buf[40];
-	char		buf2[40];
-	char		buf3[40];
-	char		buf4[40];
-	char		buf5[40];
-	char		buf6[40];
+	char		bufs[6][40];
 	t_ivect		pos;
 
 	menu_state = &app->menu_state;
@@ -188,8 +183,8 @@ void	draw_menu_items(t_info *app)
 		{
 			place_str_centred((char *)	"Your time was:", app, (t_ivect){WIN_WIDTH / 2, 420}, 3);
 			place_timer(app, app->timer.total_ms, (t_ivect){WIN_WIDTH / 2 - (24  * 4), 460}, 3);
-			ft_snprintf(buf, 40, "collected: %d%%", (app->player->pickups_collected * 100) / app->player->total_pickups);
-			place_str_centred(buf, app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+			ft_snprintf(bufs[0], 40, "collected: %d%%", (app->player->pickups_collected * 100) / app->player->total_pickups);
+			place_str_centred(bufs[0], app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
 			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 100}, 3, app);
 		}
 		else
@@ -206,16 +201,16 @@ void	draw_menu_items(t_info *app)
 	}
 	if (menu_state->state == OPTIONS)
 	{
-		ft_snprintf(buf, 40, "fov  %d", app->fov_deg);
-		ft_snprintf(buf2, 40, "fps cap  %d", (int)app->fr_rate);
-		ft_snprintf(buf4, 40, "sensitivity  %d", app->sensitivity);
+		ft_snprintf(bufs[0], 40, "fov  %d", app->fov_deg);
+		ft_snprintf(bufs[1], 40, "fps cap  %d", (int)app->fr_rate);
+		ft_snprintf(bufs[3], 40, "sensitivity  %d", app->sensitivity);
 		if (app->timer.active == 1)
-			ft_snprintf(buf3, 40, "time trial  on");
+			ft_snprintf(bufs[2], 40, "time trial  on");
 		else
-			ft_snprintf(buf3, 40, "time trial  off");
-		ft_snprintf(buf5, 40, "sound vol  %d", app->audio.snd_volume);
-		ft_snprintf(buf6, 40, "music vol  %d", app->audio.mus_volume);
-		place_menu((const char *[]){buf, buf2, buf4, buf5, buf6, buf3, "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+			ft_snprintf(bufs[2], 40, "time trial  off");
+		ft_snprintf(bufs[4], 40, "sound vol  %d", app->audio.snd_volume);
+		ft_snprintf(bufs[5], 40, "music vol  %d", app->audio.mus_volume);
+		place_menu((const char *[]){bufs[0], bufs[1], bufs[3], bufs[4], bufs[5], bufs[2], "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 
