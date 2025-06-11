@@ -82,6 +82,8 @@
 
 # define LARGE_MMAP_SCALE 16
 
+# define TEX_DIR "./resources/textures"
+
 enum e_dir
 {
 	LEFT = 0,
@@ -202,7 +204,7 @@ typedef struct s_ivect
 
 typedef struct s_texture
 {
-	u_int	*data;
+	u_int		*data;
 	union {
 		struct {
 			int			w;
@@ -210,7 +212,8 @@ typedef struct s_texture
 		};
 		t_ivect	xy;
 	};
-	int			sl;
+	u_char		nelem;
+	size_t		sl;
 }	t_tex;
 
 typedef const struct s_texture t_ctex;
@@ -449,6 +452,12 @@ typedef struct s_menustate
 	int			no_items;
 }	t_menustate;
 
+typedef enum e_shtex
+{
+	tex_DOOR = 0,
+	tex_MAX
+}	t_etex;
+
 typedef struct s_shtex
 {
 	t_tex	door_tex[7];
@@ -484,6 +493,7 @@ typedef struct s_shtex
 	t_tex	empty;
 	t_tex	playertile;
 	t_tex	square;
+	t_tex	textures[tex_MAX];
 }	t_shtex;
 
 typedef enum e_textures
@@ -827,10 +837,11 @@ void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
-u_int *img_to_tex(t_info *app, char *filename, int *w, int *h);
-u_int *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
-u_int *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
-u_int *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
+u_int	*img_to_tex(t_info *app, char *filename, int *w, int *h);
+int		load_tex(t_info *app, t_tex *tex, char *filename);
+u_int	*img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
+u_int	*img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
+u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app, t_img *canvas);

@@ -22,7 +22,7 @@ void	menu_change_option(t_info *app, int dir)
 		if (menu_state->selected == 0)
 		{
 			set_fov(app, app->fov_deg + (5 * dir));
-			replace_sky(app, (char *) "./resources/textures/skybox.xpm");
+			replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
 			if (menu_state->prev != MAIN)
 			{
 				calculate_offsets(app, app->player);

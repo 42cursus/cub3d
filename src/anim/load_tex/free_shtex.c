@@ -45,6 +45,7 @@ void	free_shtex(t_info *app)
 	free_tex_arr_arr(app->shtex->missile_ammo, 2);
 	free_tex_arr_arr(app->shtex->boss_bar, 2);
 	free_tex_arr_arr(app->shtex->door_tex, 7);
+	free(app->shtex->textures[tex_DOOR].data);
 	free_tex_arr_arr(app->shtex->cannon_tex, 2);
 	free_tex_arr_arr(app->shtex->reo_tex, 4);
 	free_tex_arr_arr(app->shtex->crawler_tex, 6);

@@ -22,7 +22,7 @@ void	load_atomic_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/atomic%c.xpm", i + '0');
+		ft_snprintf(buf, 50, TEX_DIR"/atomic%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 	}
 }
@@ -37,11 +37,11 @@ void	load_holtz_tex(t_info *app)
 	i = -1;
 	while (++i < 4)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/holtz%c.xpm", i + '0');
+		ft_snprintf(buf, 50, TEX_DIR"/holtz%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 	}
-	tex[4].data = img_to_tex(app, (char *) "./resources/textures/holtz2.xpm", &tex[4].w, &tex[4].h);
-	tex[5].data = img_to_tex(app, (char *) "./resources/textures/holtz1.xpm", &tex[5].w, &tex[5].h);
+	tex[4].data = img_to_tex(app, (char *) TEX_DIR"/holtz2.xpm", &tex[4].w, &tex[4].h);
+	tex[5].data = img_to_tex(app, (char *) TEX_DIR"/holtz1.xpm", &tex[5].w, &tex[5].h);
 }
 
 void	load_reo_tex(t_info *app)
@@ -54,13 +54,13 @@ void	load_reo_tex(t_info *app)
 	tex = app->shtex->reo_tex;
 	while (i < 2)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/reo_%c.xpm", i + '0');
+		ft_snprintf(buf, 50, TEX_DIR"/reo_%c.xpm", i + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 		i++;
 	}
 	while (i < 4)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/reo_attack_%c.xpm", i - 2 + '0');
+		ft_snprintf(buf, 50, TEX_DIR"/reo_attack_%c.xpm", i - 2 + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 		i++;
 	}
@@ -84,7 +84,7 @@ void	load_phantoon_tex(t_info *app)
 	i = -1;
 	while (++i < 10)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/phantoon%c.xpm", ids[i] + '0');
+		ft_snprintf(buf, 50, TEX_DIR"/phantoon%c.xpm", ids[i] + '0');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 	}
 }
@@ -99,7 +99,7 @@ void	load_zoomer_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, "./resources/textures/crawler%c.xpm", i + '1');
+		ft_snprintf(buf, 50, TEX_DIR"/crawler%c.xpm", i + '1');
 		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
 	}
 }

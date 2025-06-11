@@ -151,6 +151,47 @@ u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
 	mlx_destroy_image(app->mlx, img);
 	return flat;
 }
+/**
+ * 	Transpose: store in column-major for fast vertical access
+ * @param app
+ * @param filename
+ * @param w
+ * @param h
+ * @return
+ */
+__attribute__((optnone))
+int load_tex(t_info *app, t_tex *tex, char *filename)
+{
+	t_point	i;
+	t_cdata cd;
+	t_ivect xy;
+	t_img	*img = mlx_xpm_file_to_image(app->mlx, filename, &xy.x, &xy.y);
+
+	if (img == NULL)
+	{
+		// check for ERRNO;
+		return (-1);
+	}
+
+	if (!tex->nelem)
+		tex->sl = xy.x * xy.y;
+
+	tex->data = ft_reallocarray(tex->data, tex->nelem, tex->nelem + 1, tex->sl * sizeof(u_int));
+	//TODO: check for errors
+
+	cd.src = (int *)img->data;
+	cd.dst = (int *)(tex->data + tex->nelem * tex->sl / sizeof(u_int));
+	i.y = -1;
+	while (++i.y < xy.y)
+	{
+		i.x = -1;
+		while (++i.x < xy.x)
+			cd.dst[i.x * xy.y + i.y] = cd.src[i.y * xy.x + i.x];
+	}
+	tex->nelem++;
+	mlx_destroy_image(app->mlx, img);
+	return (0);
+}
 
 u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h)
 {
