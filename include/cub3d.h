@@ -48,11 +48,11 @@
 // # define WIN_HEIGHT 900
 // # define WIN_WIDTH 1792
 // # define WIN_HEIGHT 1008
-# endif //CUB3D_H
+# endif //WIN_WIDTH
 
 # ifndef SKIP_INTRO
 #  define SKIP_INTRO 0
-# endif
+# endif //SKIP_INTRO
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
 # define GO_TO_FULLSCREEN_ON_LOAD 1
@@ -629,7 +629,6 @@ struct s_info
 	t_xvar *mlx;
 	t_typing typ;
 	t_win_list *win;
-	double zoom;
 	char *title;
 	t_img *canvas;
 	t_img *overlay;
@@ -637,8 +636,7 @@ struct s_info
 	t_img *skybox;
 	t_img *bg;
 	t_img *stillshot;
-	int clip_x_origin;
-	int clip_y_origin;
+	t_ivect origin;
 	int endianness;
 	t_aud audio;
 	t_shtex *shtex;
@@ -666,11 +664,11 @@ struct s_info
 	size_t fr_count;
 	t_list *lvl_cache;
 	int filter;
-	int fullscreen;
+	char fullscreen;
 	t_timer timer;
 	t_dummy *dummy;
 	int sensitivity;
-	int hint_shown;
+	char hint_shown;
 };
 
 typedef struct s_colour
