@@ -75,7 +75,6 @@ t_ret_code do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 
-	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 
 	set_audio(app);

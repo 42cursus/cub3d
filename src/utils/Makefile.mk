@@ -10,9 +10,8 @@
 #                                                                              #
 # **************************************************************************** #
 
-FILES   = check_endianness.c \
+FILES   = vector.c \
 			place_tile_on_image32_alpha.c \
-			vector.c \
 			time.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
