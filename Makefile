@@ -30,7 +30,7 @@ OPTIMIZE_FLAGS	:= -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointe
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-ffast-math \
 					-mprefer-vector-width=256 \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-pg \
 #					-D FRAMERATE=60 \
 
@@ -59,7 +59,7 @@ LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 
 SRC_DIR			= src
 
