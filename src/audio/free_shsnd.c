@@ -18,7 +18,7 @@ void	free_shsnd(t_info *const app)
 	int 			i;
 
 	i = -1;
-	while (++i < snd_MAX)
+	while (++i < SND_MAX)
 		 Mix_FreeChunk(aud->chunks[i]);
 	Mix_CloseAudio();
 	SDL_Quit();

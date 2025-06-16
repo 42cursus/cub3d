@@ -21,9 +21,9 @@
 # include "fsm.h"
 
 # include <SDL2/SDL.h>
-# include "SDL_mixer.h" //# include <SDL2/SDL_mixer.h>
+# include "SDL_mixer.h" // <SDL2/SDL_mixer.h>
 # include <ft2build.h>
-# include FT_FREETYPE_H
+# include <freetype/freetype.h>
 # ifdef ft_snprintf
 #  undef ft_snprintf
 # endif
@@ -113,7 +113,7 @@ enum
 	MU,
 };
 
-typedef	enum e_etype
+typedef enum e_etype
 {
 	O_PROJ = 0,
 	O_ENTITY = 1,
@@ -180,7 +180,7 @@ enum e_snd
 	snd_music_boss,
 	snd_player_damage,
 	snd_win_music,
-	snd_MAX
+	SND_MAX
 };
 
 enum e_channel
@@ -205,8 +205,10 @@ typedef struct s_ivect
 typedef struct s_texture
 {
 	u_int		*data;
-	union {
-		struct {
+	union
+	{
+		struct
+		{
 			int			w;
 			int			h;
 		};
@@ -216,7 +218,7 @@ typedef struct s_texture
 	size_t		sl;
 }	t_tex;
 
-typedef const struct s_texture t_ctex;
+typedef const struct s_texture	t_ctex;
 
 typedef struct s_animation
 {
@@ -236,13 +238,15 @@ typedef struct s_vect
 
 typedef struct s_vecf
 {
-	union {
-		struct {
-			double	x;
-			double	y;
-			struct s_vect (*addi)(const t_vect self, t_ivect to_add);
-			struct s_vect (*rot)(const t_vect self, double angle);
-			struct s_vect (*add)(const t_vect self, t_vect to_add);
+	union
+	{
+		struct
+		{
+			double			x;
+			double			y;
+			struct s_vect	(*addi)(const t_vect self, t_ivect to_add);
+			struct s_vect	(*rot)(const t_vect self, double angle);
+			struct s_vect	(*add)(const t_vect self, t_vect to_add);
 		};
 		t_vect	v;
 	};
@@ -270,7 +274,7 @@ typedef struct s_mcol
 {
 	u_int	colour;
 	u_int	mask;
-	double		frac;
+	double	frac;
 }	t_mcol;
 
 typedef struct s_m128i
@@ -279,9 +283,10 @@ typedef struct s_m128i
 	__m128i	dst_vec;
 	__m128i	mask;
 	__m128i	blend;
-	struct {
-		int colour;
-		u_int overlay;
+	struct
+	{
+		int		colour;
+		u_int	overlay;
 	};
 }	t_m128i;
 
@@ -305,37 +310,41 @@ typedef struct s_lvect
 	long	y;
 }	t_lvect;
 
-typedef	struct s_lvars
+typedef struct s_lvars
 {
-	int height;
+	int	height;
 	int	top;
 }	t_lvars;
 
 /**
- * https://www.reddit.com/r/C_Programming/comments/p4rpkm/confused_about_unions_with_multiple_structs/
- * https://stackoverflow.com/questions/20752149/union-of-structs-with-common-first-member
+ * Confused about unions with multiple structs:
+ * 	https://www.reddit.com/r/C_Programming/comments/p4rpkm/
+ * Union of structs with common first member:
+ * 	https://stackoverflow.com/questions/20752149/
  * https://gcc.gnu.org/onlinedocs/gcc/Cast-to-Union.html
  */
 typedef struct s_ivect3
 {
-	union {
-		struct {
-			int x;
-			int y;
+	union
+	{
+		struct
+		{
+			int	x;
+			int	y;
 		};
-		t_ivect xy;
+		t_ivect	xy;
 	};
 	int	z;
 }	t_ivect3;
 
 typedef struct s_var3
 {
-	int row;
-	int screen_y;
+	int	row;
+	int	screen_y;
 	int	max_rows;
 }	t_var3;
 
-typedef struct s_ivect	t_point;
+typedef struct s_ivect			t_point;
 
 typedef struct s_arc
 {
@@ -403,7 +412,7 @@ typedef struct s_ray
 	t_ivect			maptile;
 	int				face;
 	int				damaged;
-	t_tex		*tex;
+	t_tex			*tex;
 	double			pos;
 	double			distance;
 	struct s_ray	*in_front;
@@ -422,7 +431,6 @@ typedef struct s_dda
 	double		c;
 }	t_dda;
 
-
 typedef enum e_doors
 {
 	D_OPEN = 0,
@@ -432,7 +440,7 @@ typedef enum e_doors
 	D_MAX,
 }	t_edoor;
 
-typedef struct s_info t_info;
+typedef struct s_info			t_info;
 
 typedef enum e_menustate
 {
@@ -455,7 +463,7 @@ typedef struct s_menustate
 typedef enum e_shtex
 {
 	tex_DOOR = 0,
-	tex_MAX
+	TEX_MAX
 }	t_etex;
 
 typedef struct s_shtex
@@ -493,7 +501,7 @@ typedef struct s_shtex
 	t_tex	empty;
 	t_tex	playertile;
 	t_tex	square;
-	t_tex	textures[tex_MAX];
+	t_tex	textures[TEX_MAX];
 }	t_shtex;
 
 typedef enum e_textures
@@ -503,7 +511,7 @@ typedef enum e_textures
 	NUM_TEXTURES
 }	t_enum_tex;
 
-typedef	struct s_lvl
+typedef struct s_lvl
 {
 	t_info		*app;
 	t_tex		n_tex;
@@ -588,12 +596,12 @@ typedef struct s_dummy
 	double	speed;
 }	t_dummy;
 
-
 /**
  * frequency: DSP frequency -- samples per second
  * format: Audio data format. MIX_DEFAULT_FORMAT == AUDIO_S16LSB
  * nchannels: Number of channels: 1 mono, 2 stereo
- * chunk_size: Audio buffer size in sample FRAMES (total samples divided by channel count)
+ * chunk_size: Audio buffer size in sample FRAMES
+ * (total samples divided by channel count)
  *
  * For more: see `struct SDL_AudioSpec`
  */
@@ -605,23 +613,23 @@ typedef struct s_aud
 	int			chunk_size;
 	int			snd_volume;
 	int			mus_volume;
-	const char 	*files[snd_MAX];
-	Mix_Chunk	*chunks[snd_MAX];
+	const char	*files[SND_MAX];
+	Mix_Chunk	*chunks[SND_MAX];
 }	t_aud;
 
 enum e_type
 {
 	fnt_main = 0,
 	fnt_SansMono,
-	fnt_MAX
+	FNT_MAX
 };
 
 typedef struct s_typing
 {
 	FT_Library	ft;
-	int 		default_size;
-	const char 	*files[fnt_MAX];
-	FT_Face		faces[fnt_MAX];
+	int			default_size;
+	const char	*files[FNT_MAX];
+	FT_Face		faces[FNT_MAX];
 }	t_typing;
 
 struct s_info
@@ -670,12 +678,14 @@ struct s_info
 	char		hint_shown;
 };
 
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+
 typedef struct s_colour
 {
 	union
 	{
-		u_int raw;
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+		u_int	raw;
+
 		struct
 		{
 			u_char	b;
@@ -683,38 +693,47 @@ typedef struct s_colour
 			u_char	r;
 			u_char	a;
 		};
-#elif __BYTE_ORDER == __BIG_ENDIAN
+	};
+}	t_colour;
+# elif __BYTE_ORDER == __BIG_ENDIAN
 
-				struct
+typedef struct s_colour
+{
+	union
+	{
+		u_int	raw;
+		struct
 		{
 			u_char	a;
 			u_char	r;
 			u_char	g;
 			u_char	b;
 		};
-#else
-# error "Unsupported byte order"
-#endif
 	};
 }	t_colour;
+
+# else
+#  error "Unsupported byte order"
+# endif
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 # define CHAR_WIDTH 8
 # define MMAP_TILE_W 8
 # define MMAP_TILE_H 8
 
-#define C3D_FORBIDDEN_CHAR -1
+# define C3D_FORBIDDEN_CHAR -1
 
-#define MAP_LEFT		0b00000001
-#define MAP_TOP			0b00000010
-#define MAP_RIGHT		0b00000100
-#define MAP_BOTTOM		0b00001000
-#define MAP_TOP_LEFT	0b00010000
-#define MAP_TOP_RIGHT	0b00100000
-#define MAP_BOT_LEFT	0b01000000
-#define MAP_BOT_RIGHT	0b10000000
+# define MAP_LEFT		0b00000001
+# define MAP_TOP		0b00000010
+# define MAP_RIGHT		0b00000100
+# define MAP_BOTTOM		0b00001000
+# define MAP_TOP_LEFT	0b00010000
+# define MAP_TOP_RIGHT	0b00100000
+# define MAP_BOT_LEFT	0b01000000
+# define MAP_BOT_RIGHT	0b10000000
 
-#define SMALL_MMAP_SCALE 8
+# define SMALL_MMAP_SCALE 8
+
 typedef enum e_bit
 {
 	bit_left = 0,
@@ -753,13 +772,16 @@ void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_lvl *lvl);
 void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
 void		move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data);
-void		rotate_player(t_info *app, t_player *player, int direction, double sensitivity);
+void		rotate_player(t_info *app, t_player *player, int direction,
+			double sensitivity);
 void	handle_open_door(t_info *app, t_ray *ray);
 void	next_weapon(t_player *player);
 void	prev_weapon(t_player *player);
 
-void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_pr_type subtype);
-void	spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir, int subtype);
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl,
+			t_pr_type subtype);
+void	spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir,
+			int subtype);
 t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void	spawn_item(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_door(t_info *app, t_vect pos, int subtype);
@@ -790,13 +812,13 @@ void	calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
 t_vect	vect(double x, double y);
 char	get_max_direction(t_vect vect);
 t_vect	scale_vect(t_vect vect, double scalar);
-t_ivect scale_ivect(t_ivect vect, int scalar);
+t_ivect	scale_ivect(t_ivect vect, int scalar);
 t_vect	rotate_vect(t_vect vect, double angle);
 t_vect	rotv(double x, double y, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
 t_vect	addi_vect(t_vect v1, t_ivect v2);
-t_ivect add_ivect(t_ivect v1, t_ivect v2);
+t_ivect	add_ivect(t_ivect v1, t_ivect v2);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
 double	vector_magnitude(t_vect vect);
@@ -814,7 +836,8 @@ void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
 void	reset_pool(t_poolnode *head, t_poolnode **current);
 int		count_poolnodes(t_poolnode *head);
 t_ray	ray_dda(t_info *app, t_lvl *lvl, t_player *player, double angle);
-t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl, t_player *player, double angle);
+t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl,
+			t_player *player, double angle);
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
@@ -828,7 +851,8 @@ void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
-void	place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos, double scalar);
+void	place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
+			double scalar);
 void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
