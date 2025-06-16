@@ -121,12 +121,13 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
-t_tex img_to_tex(t_info *app, char *filename)
+t_tex img_to_tex(t_info *app, const char *filename)
 {
-	t_point	it;
-	t_tex	new;
-	t_cdata		cd;
-	t_img	*img = mlx_xpm_file_to_image(app->mlx, filename, &new.w, &new.h);
+	t_point			it;
+	t_tex			new;
+	t_cdata			cd;
+	t_img *const	img = mlx_xpm_file_to_image(app->mlx,
+							(char *)filename, &new.w, &new.h);
 
 	new.data = NULL;
 	if (img != NULL)
@@ -148,61 +149,24 @@ t_tex img_to_tex(t_info *app, char *filename)
 	return (new);
 }
 
-/**
- * 	Transpose: store in column-major for fast vertical access
- * @param app
- * @param filename
- * @param w
- * @param h
- * @return
- */
-int load_tex(t_info *app, t_tex *tex, char *filename)
+t_tex img_to_tex_row_major(t_info *app, const char *filename)
 {
-	t_point	i;
-	t_cdata cd;
-	t_ivect xy;
-	t_img	*img = mlx_xpm_file_to_image(app->mlx, filename, &xy.x, &xy.y);
+	t_tex	new;
+	t_img	*img = mlx_xpm_file_to_image(app->mlx,
+					(char *)filename, &new.w, &new.h);
 
-	if (img == NULL)
+	new.data = NULL;
+	new.data = NULL;
+	if (img != NULL)
 	{
-		// check for ERRNO;
-		return (-1);
+		new.data = malloc(img->height * img->size_line);
+		if (!new.data)
+			return (mlx_destroy_image(app->mlx, img), new);
+		fast_memcpy_test((int *)new.data, (int *)img->data,
+			img->height * img->size_line);
+		mlx_destroy_image(app->mlx, img);
 	}
-
-	if (!tex->nelem)
-		tex->sl = xy.x * xy.y;
-
-	tex->data = ft_reallocarray(tex->data, tex->nelem, tex->nelem + 1, tex->sl * sizeof(u_int));
-	//TODO: check for errors
-
-	cd.src = (int *)img->data;
-	cd.dst = (int *)(tex->data + tex->nelem * tex->sl / sizeof(u_int));
-	i.y = -1;
-	while (++i.y < xy.y)
-	{
-		i.x = -1;
-		while (++i.x < xy.x)
-			cd.dst[i.x * xy.y + i.y] = cd.src[i.y * xy.x + i.x];
-	}
-	tex->nelem++;
-	mlx_destroy_image(app->mlx, img);
-	return (0);
-}
-
-u_int32_t *img_to_tex_row_major(t_info *app, char *filename, int *w, int *h)
-{
-	t_img		*img;
-	u_int32_t	*data;
-
-	img = mlx_xpm_file_to_image(app->mlx, (char *)filename, w, h);
-	if (!img)
-		return (NULL);
-	data = (u_int32_t *)malloc(img->height * img->size_line);
-	if (!data)
-		return (NULL);
-	fast_memcpy_test((int *)data, (int *)img->data, img->height * img->size_line);
-	mlx_destroy_image(app->mlx, img);
-	return (data);
+	return (new);
 }
 
 char	*mlx_static_line(char **xpm_data, int *pos, int size)

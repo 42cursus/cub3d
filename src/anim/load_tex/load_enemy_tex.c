@@ -40,8 +40,8 @@ void	load_holtz_tex(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/holtz%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
-	tex[4] = img_to_tex(app, (char *) TEX_DIR"/holtz2.xpm");
-	tex[5] = img_to_tex(app, (char *) TEX_DIR"/holtz1.xpm");
+	tex[4] = img_to_tex(app, TEX_DIR"/holtz2.xpm");
+	tex[5] = img_to_tex(app, TEX_DIR"/holtz1.xpm");
 }
 
 void	load_reo_tex(t_info *app)

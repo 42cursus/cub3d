@@ -16,29 +16,29 @@ void	load_energy_tex(t_info *app)
 {
 	t_tex *const	tex = app->shtex->energy_tex;
 
-	tex[0].data = img_to_tex_row_major(app, (char *) TEX_DIR"/energy.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex_row_major(app, (char *) TEX_DIR"/energy_bu_full.xpm", &tex[1].w, &tex[1].h);
-	tex[2].data = img_to_tex_row_major(app, (char *) TEX_DIR"/energy_bu_empty.xpm", &tex[2].w, &tex[2].h);
+	tex[0] = img_to_tex_row_major(app, TEX_DIR"/energy.xpm");
+	tex[1] = img_to_tex_row_major(app, TEX_DIR"/energy_bu_full.xpm");
+	tex[2] = img_to_tex_row_major(app, TEX_DIR"/energy_bu_empty.xpm");
 }
 
 void	load_logo_tex(t_info *app)
 {
 	t_tex *const	tex = app->shtex->logo_tex;
 
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/logo_4-1.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/logo_4-2.xpm");
-	tex[2] = img_to_tex(app, (char *) TEX_DIR"/logo_4-3.xpm");
-	tex[3] = img_to_tex(app, (char *) TEX_DIR"/logo_2a-1.xpm");
-	tex[4] = img_to_tex(app, (char *) TEX_DIR"/logo_2a-2.xpm");
-	tex[5] = img_to_tex(app, (char *) TEX_DIR"/logo_2b-1.xpm");
-	tex[6] = img_to_tex(app, (char *) TEX_DIR"/logo_2b-2.xpm");
-	tex[7] = img_to_tex(app, (char *) TEX_DIR"/logo_pipe.xpm");
-	tex[8] = img_to_tex(app, (char *) TEX_DIR"/logo_l.xpm");
-	tex[9] = img_to_tex(app, (char *) TEX_DIR"/logo_o1.xpm");
-	tex[10] = img_to_tex(app, (char *) TEX_DIR"/logo_n1.xpm");
-	tex[11] = img_to_tex(app, (char *) TEX_DIR"/logo_d.xpm");
-	tex[12] = img_to_tex(app, (char *) TEX_DIR"/logo_o2.xpm");
-	tex[13] = img_to_tex(app, (char *) TEX_DIR"/logo_n2.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/logo_4-1.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/logo_4-2.xpm");
+	tex[2] = img_to_tex(app, TEX_DIR"/logo_4-3.xpm");
+	tex[3] = img_to_tex(app, TEX_DIR"/logo_2a-1.xpm");
+	tex[4] = img_to_tex(app, TEX_DIR"/logo_2a-2.xpm");
+	tex[5] = img_to_tex(app, TEX_DIR"/logo_2b-1.xpm");
+	tex[6] = img_to_tex(app, TEX_DIR"/logo_2b-2.xpm");
+	tex[7] = img_to_tex(app, TEX_DIR"/logo_pipe.xpm");
+	tex[8] = img_to_tex(app, TEX_DIR"/logo_l.xpm");
+	tex[9] = img_to_tex(app, TEX_DIR"/logo_o1.xpm");
+	tex[10] = img_to_tex(app, TEX_DIR"/logo_n1.xpm");
+	tex[11] = img_to_tex(app, TEX_DIR"/logo_d.xpm");
+	tex[12] = img_to_tex(app, TEX_DIR"/logo_o2.xpm");
+	tex[13] = img_to_tex(app, TEX_DIR"/logo_n2.xpm");
 }
 
 void	load_dmg_tex(t_info *app)
@@ -52,7 +52,7 @@ void	load_dmg_tex(t_info *app)
 	while (++i < 8)
 	{
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/dmg%c.xpm", i + '0');
-		tex[i].data = img_to_tex_row_major(app, buf, &tex[i].w, &tex[i].h);
+		tex[i] = img_to_tex_row_major(app,  buf);
 	}
 }
 
@@ -61,8 +61,8 @@ void	load_cannon_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->cannon_tex;
-	tex[0].data = img_to_tex_row_major(app, (char *) TEX_DIR"/arm_cannon_big.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex_row_major(app, (char *) TEX_DIR"/arm_cannon_big_firing.xpm", &tex[1].w, &tex[1].h);
+	tex[0] = img_to_tex_row_major(app, TEX_DIR"/arm_cannon_big.xpm");
+	tex[1] = img_to_tex_row_major(app, TEX_DIR"/arm_cannon_big_firing.xpm");
 }
 
 void	load_boss_bar_tex(t_info *app)
@@ -70,8 +70,8 @@ void	load_boss_bar_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->boss_bar;
-	tex[0].data = img_to_tex_row_major(app, (char *) TEX_DIR"/boss_bar_left.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex_row_major(app, (char *) TEX_DIR"/boss_bar_right.xpm", &tex[1].w, &tex[1].h);
+	tex[0] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_left.xpm");
+	tex[1] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_right.xpm");
 }
 
 void	load_misc_graphics(t_info *app)

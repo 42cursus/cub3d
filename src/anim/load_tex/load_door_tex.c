@@ -20,8 +20,8 @@ void	load_door_tex(t_info *app)
 
 	tex = app->shtex->door_tex;
 
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/metroid_door3.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_open.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/metroid_door3.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/metroid_door_open.xpm");
 	i = 1;
 	while (++i < 7)
 	{
@@ -43,8 +43,8 @@ void	load_boss_door_tex(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/metroid_door_boss_anim%c.xpm", i + 1 + '0');
 		tex[i + 2] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_boss.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_open.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/metroid_door_boss.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/metroid_door_open.xpm");
 }
 
 void	load_super_door_tex(t_info *app)
@@ -60,8 +60,8 @@ void	load_super_door_tex(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/metroid_door_super_anim%c.xpm", i + '1');
 		tex[i + 2] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_super.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_open.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/metroid_door_super.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/metroid_door_open.xpm");
 }
 
 void	load_missile_door_tex(t_info *app)
@@ -77,6 +77,6 @@ void	load_missile_door_tex(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/metroid_door_missile_anim%c.xpm", i + 1 + '0');
 		tex[i + 2] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_missile.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/metroid_door_open.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/metroid_door_missile.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/metroid_door_open.xpm");
 }

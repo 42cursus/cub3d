@@ -40,7 +40,7 @@ void	load_proj_tex(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/proj%c.xpm", i - 1 + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/projectile2.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/projectile2.xpm");
 	tex = app->shtex->proj_tex;
 	i = 4;
 	while (++i < 10)
@@ -78,10 +78,10 @@ void	load_missile_textures(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/missile%c.xpm", i + '0');
 		tex[i + 4] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/missile_pu0.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/missile_pu1.xpm");
-	tex[2].data = img_to_tex_row_major(app, (char *) TEX_DIR"/missile_off.xpm", &tex[2].w, &tex[2].h);
-	tex[3].data = img_to_tex_row_major(app, (char *) TEX_DIR"/missile_on.xpm", &tex[3].w, &tex[3].h);
+	tex[0] = img_to_tex(app, TEX_DIR"/missile_pu0.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/missile_pu1.xpm");
+	tex[2] = img_to_tex_row_major(app, TEX_DIR"/missile_off.xpm");
+	tex[3] = img_to_tex_row_major(app, TEX_DIR"/missile_on.xpm");
 }
 
 void	load_super_textures(t_info *app)
@@ -97,8 +97,8 @@ void	load_super_textures(t_info *app)
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/super%c.xpm", i + '0');
 		tex[i + 4] = img_to_tex(app, buf);
 	}
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/super_missile_pu1.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/super_missile_pu0.xpm");
-	tex[2].data = img_to_tex_row_major(app, (char *) TEX_DIR"/super_missile_off.xpm", &tex[2].w, &tex[2].h);
-	tex[3].data = img_to_tex_row_major(app, (char *) TEX_DIR"/super_missile_on.xpm", &tex[3].w, &tex[3].h);
+	tex[0] = img_to_tex(app, TEX_DIR"/super_missile_pu1.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/super_missile_pu0.xpm");
+	tex[2] = img_to_tex_row_major(app, TEX_DIR"/super_missile_off.xpm");
+	tex[3] = img_to_tex_row_major(app, TEX_DIR"/super_missile_on.xpm");
 }

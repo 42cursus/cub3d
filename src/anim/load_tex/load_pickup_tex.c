@@ -54,8 +54,8 @@ void	load_etank_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->etank_tex;
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/etank0.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/etank1.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/etank0.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/etank1.xpm");
 }
 
 void	load_trophy_tex(t_info *app)
@@ -63,6 +63,6 @@ void	load_trophy_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->trophy_tex;
-	tex[0] = img_to_tex(app, (char *) TEX_DIR"/trophy0.xpm");
-	tex[1] = img_to_tex(app, (char *) TEX_DIR"/trophy1.xpm");
+	tex[0] = img_to_tex(app, TEX_DIR"/trophy0.xpm");
+	tex[1] = img_to_tex(app, TEX_DIR"/trophy1.xpm");
 }
