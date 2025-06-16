@@ -82,8 +82,6 @@ void	select_projectile_tex(t_obj *obj, t_player *player, t_info *app)
 		obj->texture = &app->shtex->proj_tex[0];
 		return ;
 	}
-	if (obj->subtype == pr_BEAM)
-		obj->texture = &app->shtex->proj_tex[0];
 	if (obj->subtype == pr_SUPER)
 		tex = app->shtex->super_tex + 4;
 	else

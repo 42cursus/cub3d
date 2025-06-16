@@ -22,7 +22,7 @@ void	load_atomic_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/atomic%c.xpm", i + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/atomic/atomic%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 }
@@ -37,11 +37,11 @@ void	load_holtz_tex(t_info *app)
 	i = -1;
 	while (++i < 4)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/holtz%c.xpm", i + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/holtz/holtz%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
-	tex[4] = img_to_tex(app, TEX_DIR"/holtz2.xpm");
-	tex[5] = img_to_tex(app, TEX_DIR"/holtz1.xpm");
+	tex[4] = img_to_tex(app, TEX_DIR"/holtz/holtz2.xpm");
+	tex[5] = img_to_tex(app, TEX_DIR"/holtz/holtz1.xpm");
 }
 
 void	load_reo_tex(t_info *app)
@@ -54,12 +54,12 @@ void	load_reo_tex(t_info *app)
 	i = -1;
 	while (++i < 2)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/reo_%c.xpm", i + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/reo/reo_%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 	while (i < 4)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/reo_attack_%c.xpm", i - 2 + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/reo/reo_attack_%c.xpm", i - 2 + '0');
 		tex[i] = img_to_tex(app, buf);
 		i++;
 	}
@@ -76,7 +76,7 @@ void	load_phantoon_tex(t_info *app)
 	i = -1;
 	while (++i < 10)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/phantoon%c.xpm", ids[i] + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/phantoon/phantoon%c.xpm", ids[i] + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 }
@@ -91,7 +91,7 @@ void	load_zoomer_tex(t_info *app)
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/crawler%c.xpm", i + '1');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/crawler/crawler%c.xpm", i + '1');
 		tex[i] = img_to_tex(app, buf);
 	}
 }

@@ -64,7 +64,7 @@
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
 
-# define BUFF_SIZE 50
+# define BUFF_SIZE 70
 # define MLX_WHITE 0x00ffffff
 # define MLX_LIME 0x0000ff55
 # define MLX_DARK_SLATE_GREY 0x2f4f4f

@@ -12,21 +12,9 @@
 
 FILES   = arm_cannon_big.xpm \
 			arm_cannon_big_firing.xpm \
-			atomic0.xpm \
-			atomic1.xpm \
-			atomic2.xpm \
-			atomic3.xpm \
-			atomic4.xpm \
-			atomic5.xpm \
 			boss_bar_left.xpm \
 			boss_bar_right.xpm \
 			cloud.xpm \
-			crawler1.xpm \
-			crawler2.xpm \
-			crawler3.xpm \
-			crawler4.xpm \
-			crawler5.xpm \
-			crawler6.xpm \
 			credits.xpm \
 			credits_lorem.xpm \
 			dmg0.xpm \
@@ -87,40 +75,9 @@ FILES   = arm_cannon_big.xpm \
 			health_pu1.xpm \
 			health_pu2.xpm \
 			health_pu3.xpm \
-			holtz0.xpm \
-			holtz1.xpm \
-			holtz2.xpm \
-			holtz3.xpm \
 			map_pointer.xpm \
 			metroid1.xpm \
 			metroid2.xpm \
-			metroid_door.xpm \
-			metroid_door2.xpm \
-			metroid_door3.xpm \
-			metroid_door_anim1.xpm \
-			metroid_door_anim2.xpm \
-			metroid_door_anim3.xpm \
-			metroid_door_anim4.xpm \
-			metroid_door_anim5.xpm \
-			metroid_door_boss.xpm \
-			metroid_door_boss_anim1.xpm \
-			metroid_door_boss_anim2.xpm \
-			metroid_door_boss_anim3.xpm \
-			metroid_door_boss_anim4.xpm \
-			metroid_door_boss_anim5.xpm \
-			metroid_door_missile.xpm \
-			metroid_door_missile_anim1.xpm \
-			metroid_door_missile_anim2.xpm \
-			metroid_door_missile_anim3.xpm \
-			metroid_door_missile_anim4.xpm \
-			metroid_door_missile_anim5.xpm \
-			metroid_door_open.xpm \
-			metroid_door_super.xpm \
-			metroid_door_super_anim1.xpm \
-			metroid_door_super_anim2.xpm \
-			metroid_door_super_anim3.xpm \
-			metroid_door_super_anim4.xpm \
-			metroid_door_super_anim5.xpm \
 			missile0.xpm \
 			missile1.xpm \
 			missile2.xpm \
@@ -139,11 +96,6 @@ FILES   = arm_cannon_big.xpm \
 			norfair_wall1.xpm \
 			norfair_wall2.xpm \
 			outside_floor.xpm \
-			phantoon0.xpm \
-			phantoon1.xpm \
-			phantoon2.xpm \
-			phantoon3.xpm \
-			phantoon4.xpm \
 			phantoon_eye0.xpm \
 			phantoon_eye1.xpm \
 			phantoon_eye2.xpm \
@@ -164,10 +116,6 @@ FILES   = arm_cannon_big.xpm \
 			proj_super3.xpm \
 			proj_super4.xpm \
 			projectile2.xpm \
-			reo_0.xpm \
-			reo_1.xpm \
-			reo_attack_0.xpm \
-			reo_attack_1.xpm \
 			ruins.xpm \
 			scope.xpm \
 			skybox.xpm \

@@ -146,6 +146,8 @@ t_tex img_to_tex(t_info *app, const char *filename)
 		}
 		mlx_destroy_image(app->mlx, img);
 	}
+	else
+		ft_dprintf(STDERR_FILENO, "File not found: \"%s\"\n", filename);
 	return (new);
 }
 
