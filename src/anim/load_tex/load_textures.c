@@ -37,6 +37,7 @@ void	load_missile_textures(t_info *app);
 void	load_etank_tex(t_info *app);
 void	load_super_textures(t_info *app);
 void	load_cannon_tex(t_info *app);
+void 	load_rock_tex(t_info *app);
 void	load_shtex_extra(t_info *app);
 
 void	load_shtex(t_info *app)
@@ -75,4 +76,5 @@ void	load_shtex_extra(t_info *app)
 	load_proj_green_tex(app);
 	load_proj_tex(app);
 	load_dmg_tex(app);
+	load_rock_tex(app);
 }

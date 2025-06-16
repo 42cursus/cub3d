@@ -388,6 +388,13 @@ typedef enum e_projectile
 	pr_MAX
 }	t_pr_type;
 
+typedef struct s_rock
+{
+	t_ivect	pos;
+	double	speed;
+	t_tex	*tex;
+}	t_rock;
+
 typedef struct s_object
 {
 	t_etype		type;
@@ -499,6 +506,7 @@ typedef struct s_shtex
 	t_tex	tele;
 	t_tex	credits;
 	t_tex	boss_bar[2];
+	t_tex	rocks[7];
 	t_tex	empty;
 	t_tex	playertile;
 	t_tex	square;
@@ -595,6 +603,7 @@ typedef struct s_dummy
 	double	credits_offsets[WIN_HEIGHT];
 	t_img	credits;
 	double	speed;
+	t_list	*rocks;
 }	t_dummy;
 
 /**
@@ -967,5 +976,6 @@ void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
 void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
+void	spawn_rock(t_info *app, t_ivect pos, t_tex *tex, double speed);
 
 #endif //CUB3D_H

@@ -194,6 +194,32 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	}
 }
 
+void	update_rocks(t_info *app, t_dummy *dummy)
+{
+	t_rock	*rock;
+	t_list	*current;
+
+	current = dummy->rocks;
+	while (current != NULL)
+	{
+		rock = current->data;
+		place_tex_to_image_scale(app->canvas, rock->tex, rock->pos, 3);
+		rock->pos.x += rock->speed;
+		current = current->next;
+	}
+}
+
+void	spawn_rock(t_info *app, t_ivect pos, t_tex *tex, double speed)
+{
+	t_rock	*rock;
+	
+	rock = ft_calloc(1, sizeof(*rock));
+	rock->pos = pos;
+	rock->speed = speed;
+	rock->tex = tex;
+	ft_lstadd_back(&app->dummy->rocks, ft_lstnew(rock));
+}
+
 void	draw_credits(t_info *app, t_dummy *dummy)
 {
 	t_vect	l_dir;
@@ -205,6 +231,7 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 	row = 0;
 	l_dir = rotate_vect(dummy->dir, app->fov_rad_half);
 	r_dir = rotate_vect(dummy->dir, -app->fov_rad_half);
+	update_rocks(app, dummy);
 	while (++row < WIN_HEIGHT)
 	{
 		l_pos = add_vect(dummy->pos, scale_vect(l_dir, dummy->credits_offsets[row - 1]));

@@ -102,3 +102,24 @@ void	load_super_textures(t_info *app)
 	tex[2] = img_to_tex_row_major(app, TEX_DIR"/super_missile_off.xpm");
 	tex[3] = img_to_tex_row_major(app, TEX_DIR"/super_missile_on.xpm");
 }
+
+void load_rock_tex(t_info *app)
+{
+	int		i;
+	char	buf[50];
+	t_tex	*tex;
+
+	tex = app->shtex->rocks;
+	i = -1;
+	while (++i < 2)
+	{
+		ft_snprintf(buf, 50, TEX_DIR"/rock_large%c.xpm", i + '0');
+		tex[i] = img_to_tex_row_major(app, buf);
+	}
+	i = -1;
+	while (++i < 5)
+	{
+		ft_snprintf(buf, 50, TEX_DIR"/rock_small%c.xpm", i + '0');
+		tex[i + 2] = img_to_tex_row_major(app, buf);
+	}
+}
