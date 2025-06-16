@@ -425,8 +425,8 @@ void	do_mmenu_to_credits(void *param)
 	t_dummy			*dummy;
 
 	fill_with_colour(app->bg, 0x000000, 0x000000);
-	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
-	draw_sky(app);
+	// replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
+	// draw_sky(app);
 
 	dummy = ft_calloc(1, sizeof(*dummy));
 	dummy->dir = (t_vect){0.0, 1.0};
