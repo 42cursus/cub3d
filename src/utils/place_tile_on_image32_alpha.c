@@ -21,7 +21,7 @@
  */
 // Blend src and dst using per-channel alpha
 //static inline __attribute__((always_inline, used))
-__attribute__((optnone, unused))
+__attribute__((unused))
 static __m128i	blend_4pixels_old(__m128i src, __m128i dst)
 {
 	__m128i zero = _mm_setzero_si128();
@@ -148,7 +148,7 @@ t_vec4	extract_normalized_alpha(t_vec4 s)
  * @param s
  * @return
  */
-static inline __attribute__((optnone, used))
+static inline __attribute__((always_inline, used))
 t_vec4	extract_opacity_from_inverted_alpha_old(t_vec4 s)
 {
 	t_vec4			opacity;
@@ -255,6 +255,7 @@ void	blend_4pixels(u_int32_t *src, u_int32_t *dst)
 	_mm_storeu_si128((__m128i *)dst, repack_floats_to_bytes(blended));
 }
 
+inline __attribute__((always_inline, used))
 void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 {
 	t_point	it;

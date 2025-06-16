@@ -46,7 +46,7 @@ int	parse_texture(t_lvl *lvl, char *str, int identifier, t_info *app)
 		return (1);
 	if (tex_addr->data != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
-	tex_addr->data = img_to_tex(app, str, &tex_addr->w, &tex_addr->h);
+	*tex_addr = img_to_tex(app, str);
 	return (0);
 }
 
@@ -133,7 +133,6 @@ t_enpos	*new_enpos(t_vect pos, int type)
 	return (new);
 }
 
-__attribute__((optnone))
 void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 {
 	t_list			*enpos;
@@ -177,7 +176,6 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 	}
 }
 
-__attribute__((optnone))
 void	spawn_map_objects(t_info *app, t_lvl *lvl)
 {
 	char	**map;
@@ -300,7 +298,6 @@ int	count_collectables(t_lvl *lvl)
 	return (count);
 }
 
-__attribute__((optnone))
 void draw_help(t_lvl *lvl)
 {
 	t_info *const	app = lvl->app;

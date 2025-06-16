@@ -15,37 +15,37 @@
 void	load_health_pu_tex(t_info *app)
 {
 	int		i;
-	char	buf[50];
+	char	buf[BUFF_SIZE];
 	t_tex	*tex;
 
 	tex = app->shtex->health_pu;
 	i = -1;
 	while (++i < 4)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/health_pu%c.xpm", i + '0');
-		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/health_pu%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
 	}
 }
 
 void	load_ammo_tex(t_info *app)
 {
 	int		i;
-	char	buf[50];
+	char	buf[BUFF_SIZE];
 	t_tex	*tex;
 
 	i = -1;
 	tex = app->shtex->missile_ammo;
 	while (++i < 2)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/missile_ammo%c.xpm", i + '0');
-		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/missile_ammo%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
 	}
 	tex = app->shtex->super_ammo;
 	i = -1;
 	while (++i < 2)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/super_ammo%c.xpm", i + '0');
-		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/super_ammo%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
 	}
 }
 
@@ -54,8 +54,8 @@ void	load_etank_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->etank_tex;
-	tex[0].data = img_to_tex(app, (char *) TEX_DIR"/etank0.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex(app, (char *) TEX_DIR"/etank1.xpm", &tex[1].w, &tex[1].h);
+	tex[0] = img_to_tex(app, (char *) TEX_DIR"/etank0.xpm");
+	tex[1] = img_to_tex(app, (char *) TEX_DIR"/etank1.xpm");
 }
 
 void	load_trophy_tex(t_info *app)
@@ -63,6 +63,6 @@ void	load_trophy_tex(t_info *app)
 	t_tex	*tex;
 
 	tex = app->shtex->trophy_tex;
-	tex[0].data = img_to_tex(app, (char *) TEX_DIR"/trophy0.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex(app, (char *) TEX_DIR"/trophy1.xpm", &tex[1].w, &tex[1].h);
+	tex[0] = img_to_tex(app, (char *) TEX_DIR"/trophy0.xpm");
+	tex[1] = img_to_tex(app, (char *) TEX_DIR"/trophy1.xpm");
 }

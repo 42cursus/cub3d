@@ -121,36 +121,33 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
-/**
- * 	Transpose: store in column-major for fast vertical access
- * @param app
- * @param filename
- * @param w
- * @param h
- * @return
- */
-u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
+t_tex img_to_tex(t_info *app, char *filename)
 {
-	t_point		i;
-	t_img		*img = mlx_xpm_file_to_image(app->mlx, filename, w, h);
-	if (!img)
-		return NULL;
+	t_point	it;
+	t_tex	new;
+	t_cdata		cd;
+	t_img	*img = mlx_xpm_file_to_image(app->mlx, filename, &new.w, &new.h);
 
-	u_int32_t *flat = malloc(*w * *h * sizeof(u_int32_t));
-	if (!flat) return NULL;
-
-	u_int32_t *src = (u_int32_t *)img->data;
-
-	i.y = -1;
-	while (++i.y < *h)
+	new.data = NULL;
+	if (img != NULL)
 	{
-		i.x = -1;
-		while (++i.x < *w)
-			flat[i.x * (*h) + i.y] = src[i.y * *w + i.x];
+		new.data = malloc(new.w * new.h * sizeof(int));
+		if (!new.data)
+			return (mlx_destroy_image(app->mlx, img), new);
+		it.y = -1;
+		while (++it.y < new.h)
+		{
+			cd.dst = (int *)new.data + it.y;
+			cd.src = (int *)img->data + it.y * new.w;
+			it.x = -1;
+			while (++it.x < new.w)
+				cd.dst[it.x * new.h] = cd.src[it.x];
+		}
+		mlx_destroy_image(app->mlx, img);
 	}
-	mlx_destroy_image(app->mlx, img);
-	return flat;
+	return (new);
 }
+
 /**
  * 	Transpose: store in column-major for fast vertical access
  * @param app
@@ -159,7 +156,6 @@ u_int32_t *img_to_tex(t_info *app, char *filename, int *w, int *h)
  * @param h
  * @return
  */
-__attribute__((optnone))
 int load_tex(t_info *app, t_tex *tex, char *filename)
 {
 	t_point	i;

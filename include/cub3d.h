@@ -64,6 +64,7 @@
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
 
+# define BUFF_SIZE 50
 # define MLX_WHITE 0x00ffffff
 # define MLX_LIME 0x0000ff55
 # define MLX_DARK_SLATE_GREY 0x2f4f4f
@@ -857,7 +858,7 @@ void	place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
-u_int	*img_to_tex(t_info *app, char *filename, int *w, int *h);
+t_tex	img_to_tex(t_info *app, char *filename);
 int		load_tex(t_info *app, t_tex *tex, char *filename);
 u_int	*img_to_tex_row_major(t_info *app, char *filename, int *w, int *h);
 u_int	*img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);

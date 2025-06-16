@@ -115,7 +115,6 @@ void	apply_alpha(t_img *img, u_char alpha)
 	}
 }
 
-__attribute__((optnone))
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
@@ -143,7 +142,6 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-__attribute__((optnone))
 void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 
@@ -176,7 +174,6 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-__attribute__((optnone))
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list		*current;

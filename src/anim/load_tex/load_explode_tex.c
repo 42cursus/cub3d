@@ -16,28 +16,28 @@ void	load_explode_tex(t_info *app)
 {
 	int		i;
 	int		idx;
-	char	buf[50];
+	char	buf[BUFF_SIZE];
 	t_tex	*tex;
 
 	tex = app->shtex->explode_tex;
 	i = -1;
 	while (++i < 6)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/explode%c.xpm", i + '0');
-		tex[i].data = img_to_tex(app, buf, &tex[i].w, &tex[i].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/explode%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
 	}
 	i = -1;
 	while (++i < 6)
 	{
 		idx = i + 6;
-		ft_snprintf(buf, 50, TEX_DIR"/explode_mid%c.xpm", i + '0');
-		tex[idx].data = img_to_tex(app, buf, &tex[idx].w, &tex[idx].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/explode_mid%c.xpm", i + '0');
+		tex[idx] = img_to_tex(app, buf);
 	}
 	i = -1;
 	while (++i < 5)
 	{
 		idx = i + 12;
-		ft_snprintf(buf, 50, TEX_DIR"/explode_miss_big%c.xpm", i + '0');
-		tex[idx].data = img_to_tex(app, buf, &tex[idx].w, &tex[idx].h);
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/explode_miss_big%c.xpm", i + '0');
+		tex[idx] = img_to_tex(app, buf);
 	}
 }

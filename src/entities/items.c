@@ -38,7 +38,6 @@ void	setup_item_tex(t_info *app, t_obj *item, t_subtype subtype)
 	}
 }
 
-__attribute__((optnone))
 void	spawn_door(t_info *app, t_vect pos, int subtype)
 {
 	t_obj			*door;

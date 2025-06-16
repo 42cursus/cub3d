@@ -25,33 +25,33 @@ void	load_logo_tex(t_info *app)
 {
 	t_tex *const	tex = app->shtex->logo_tex;
 
-	tex[0].data = img_to_tex(app, (char *) TEX_DIR"/logo_4-1.xpm", &tex[0].w, &tex[0].h);
-	tex[1].data = img_to_tex(app, (char *) TEX_DIR"/logo_4-2.xpm", &tex[1].w, &tex[1].h);
-	tex[2].data = img_to_tex(app, (char *) TEX_DIR"/logo_4-3.xpm", &tex[2].w, &tex[2].h);
-	tex[3].data = img_to_tex(app, (char *) TEX_DIR"/logo_2a-1.xpm", &tex[3].w, &tex[3].h);
-	tex[4].data = img_to_tex(app, (char *) TEX_DIR"/logo_2a-2.xpm", &tex[4].w, &tex[4].h);
-	tex[5].data = img_to_tex(app, (char *) TEX_DIR"/logo_2b-1.xpm", &tex[5].w, &tex[5].h);
-	tex[6].data = img_to_tex(app, (char *) TEX_DIR"/logo_2b-2.xpm", &tex[6].w, &tex[6].h);
-	tex[7].data = img_to_tex(app, (char *) TEX_DIR"/logo_pipe.xpm", &tex[7].w, &tex[7].h);
-	tex[8].data = img_to_tex(app, (char *) TEX_DIR"/logo_l.xpm", &tex[8].w, &tex[8].h);
-	tex[9].data = img_to_tex(app, (char *) TEX_DIR"/logo_o1.xpm", &tex[9].w, &tex[9].h);
-	tex[10].data = img_to_tex(app, (char *) TEX_DIR"/logo_n1.xpm", &tex[10].w, &tex[10].h);
-	tex[11].data = img_to_tex(app, (char *) TEX_DIR"/logo_d.xpm", &tex[11].w, &tex[11].h);
-	tex[12].data = img_to_tex(app, (char *) TEX_DIR"/logo_o2.xpm", &tex[12].w, &tex[12].h);
-	tex[13].data = img_to_tex(app, (char *) TEX_DIR"/logo_n2.xpm", &tex[13].w, &tex[13].h);
+	tex[0] = img_to_tex(app, (char *) TEX_DIR"/logo_4-1.xpm");
+	tex[1] = img_to_tex(app, (char *) TEX_DIR"/logo_4-2.xpm");
+	tex[2] = img_to_tex(app, (char *) TEX_DIR"/logo_4-3.xpm");
+	tex[3] = img_to_tex(app, (char *) TEX_DIR"/logo_2a-1.xpm");
+	tex[4] = img_to_tex(app, (char *) TEX_DIR"/logo_2a-2.xpm");
+	tex[5] = img_to_tex(app, (char *) TEX_DIR"/logo_2b-1.xpm");
+	tex[6] = img_to_tex(app, (char *) TEX_DIR"/logo_2b-2.xpm");
+	tex[7] = img_to_tex(app, (char *) TEX_DIR"/logo_pipe.xpm");
+	tex[8] = img_to_tex(app, (char *) TEX_DIR"/logo_l.xpm");
+	tex[9] = img_to_tex(app, (char *) TEX_DIR"/logo_o1.xpm");
+	tex[10] = img_to_tex(app, (char *) TEX_DIR"/logo_n1.xpm");
+	tex[11] = img_to_tex(app, (char *) TEX_DIR"/logo_d.xpm");
+	tex[12] = img_to_tex(app, (char *) TEX_DIR"/logo_o2.xpm");
+	tex[13] = img_to_tex(app, (char *) TEX_DIR"/logo_n2.xpm");
 }
 
 void	load_dmg_tex(t_info *app)
 {
 	int		i;
-	char	buf[50];
+	char	buf[BUFF_SIZE];
 	t_tex	*tex;
 
 	tex = app->shtex->dmg_tex;
 	i = -1;
 	while (++i < 8)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/dmg%c.xpm", i + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/dmg%c.xpm", i + '0');
 		tex[i].data = img_to_tex_row_major(app, buf, &tex[i].w, &tex[i].h);
 	}
 }
