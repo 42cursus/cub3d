@@ -434,6 +434,12 @@ void	do_mmenu_to_credits(void *param)
 	dummy->speed = 0.002;
 
 	app->dummy = dummy;
+	spawn_rock(app, (t_ivect){WIN_WIDTH / 4 * 3, WIN_HEIGHT / 10 * 2}, &app->shtex->rocks[5], -1);
+	spawn_rock(app, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 10 * 3}, &app->shtex->rocks[4], -2);
+	spawn_rock(app, (t_ivect){200, WIN_HEIGHT / 10 * 6}, &app->shtex->rocks[2], 2);
+	spawn_rock(app, (t_ivect){WIN_WIDTH - 200, WIN_HEIGHT / 10 * 4}, &app->shtex->rocks[3], -2);
+	spawn_rock(app, (t_ivect){0, WIN_HEIGHT / 2}, &app->shtex->rocks[0], 4);
+	spawn_rock(app, (t_ivect){WIN_WIDTH - 100, WIN_HEIGHT / 4 * 3}, &app->shtex->rocks[1], -5);
 	app->mlx->end_loop = 0;
 	mlx_loop_hook(app->mlx, &render_credits, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
