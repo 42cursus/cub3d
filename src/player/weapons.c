@@ -36,10 +36,10 @@ void	add_ammo(t_player *player, int type)
 {
 	int	new_ammo;
 
-	if (type == pr_MISSILE)
-		new_ammo = player->ammo[pr_MISSILE] + 5;
+	if (type == P_MISSILE)
+		new_ammo = player->ammo[P_MISSILE] + 5;
 	else
-		new_ammo = player->ammo[pr_SUPER] + 1;
+		new_ammo = player->ammo[P_SUPER] + 1;
 	if (new_ammo > player->max_ammo[type])
 		new_ammo = player->max_ammo[type];
 	player->ammo[type] = new_ammo;

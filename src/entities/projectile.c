@@ -15,7 +15,7 @@
 void	setup_projectile(t_obj *projectile, t_info *app,
 						 t_player *player, int subtype)
 {
-	if (subtype == pr_BEAM)
+	if (subtype == P_BEAM)
 	{
 		projectile->dir = scale_vect(player->dir, 0.5 / app->fr_scale);
 		projectile->anim2.tex = &app->shtex->proj_tex[1];
@@ -25,18 +25,19 @@ void	setup_projectile(t_obj *projectile, t_info *app,
 	{
 		player->ammo[subtype] -= 1;
 		if (player->ammo[subtype] == 0)
-			player->equipped = pr_BEAM;
+			player->equipped = P_BEAM;
 		projectile->dir = scale_vect(player->dir, 0.2 / app->fr_scale);
 		projectile->anim2.tex = &app->shtex->proj_tex[5];
 		projectile->anim2.frames = 5;
-		if (subtype == pr_MISSILE)
+		if (subtype == P_MISSILE)
 			projectile->anim2.tex = &app->shtex->explode_tex[12];
 	}
 }
 
-void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_pr_type subtype)
+void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_subtype subtype)
 {
-	t_obj		*projectile;
+	t_obj			*projectile;
+	enum e_snd		snd;
 	t_aud *const	aud = &app->audio;
 
 	player->hud.active = 1;
@@ -50,14 +51,8 @@ void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_pr_type subty
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
 	ft_lstadd_back(&lvl->projectiles, ft_lstnew(projectile));
-
-	if (subtype == pr_BEAM)
-	{
-		// Mix_PlayChannel(-1, aud->chunks[snd_door], 0);
-		Mix_PlayChannel(ch_weapons, aud->chunks[snd_gun], 0);
-	}
-	else
-		Mix_PlayChannel(ch_weapons, aud->chunks[snd_rocket], 0);
+	({if (subtype == P_BEAM) snd = snd_gun; else snd = snd_rocket;});
+	Mix_PlayChannel(ch_weapons, aud->chunks[snd], 0);
 }
 
 int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
@@ -78,11 +73,11 @@ int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 	if (closest != NULL)
 	{
 		start_obj_death(obj, app);
-		if (obj->subtype == pr_BEAM)
+		if (obj->subtype == P_BEAM)
 			damage_enemy(app, closest, 10);
-		else if (obj->subtype == pr_SUPER)
+		else if (obj->subtype == P_SUPER)
 			damage_enemy(app, closest, 50);
-		else if (obj->subtype == pr_MISSILE)
+		else if (obj->subtype == P_MISSILE)
 			damage_enemy(app, closest, 30);
 		return (0);
 	}
@@ -101,7 +96,7 @@ void	handle_door_projectile(t_info *app, t_obj *obj,
 	}
 	else if (*tile == 'L')
 	{
-		if (obj->subtype == pr_SUPER)
+		if (obj->subtype == P_SUPER)
 		{
 			*tile = 'O';
 			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
@@ -111,7 +106,7 @@ void	handle_door_projectile(t_info *app, t_obj *obj,
 	}
 	else if (*tile == 'M')
 	{
-		if (obj->subtype != pr_BEAM)
+		if (obj->subtype != P_BEAM)
 		{
 			*tile = 'O';
 			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);

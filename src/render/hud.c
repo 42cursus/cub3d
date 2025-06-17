@@ -699,22 +699,22 @@ void	place_ammo(t_info *app, t_player *player)
 	t_tex	*tex;
 	
 	buf[3] = 0;
-	if (player->max_ammo[pr_MISSILE] != 0)
+	if (player->max_ammo[P_MISSILE] != 0)
 	{
-		buf[0] = player->ammo[pr_MISSILE] / 100 + '0';
-		buf[1] = (player->ammo[pr_MISSILE] / 10) % 10 + '0';
-		buf[2] = player->ammo[pr_MISSILE] % 10 + '0';
+		buf[0] = player->ammo[P_MISSILE] / 100 + '0';
+		buf[1] = (player->ammo[P_MISSILE] / 10) % 10 + '0';
+		buf[2] = player->ammo[P_MISSILE] % 10 + '0';
 		place_str(buf, app, (t_ivect){160, 48}, 2);
-		tex = &app->shtex->missile_tex[2 + (player->equipped == pr_MISSILE)];
+		tex = &app->shtex->missile_tex[2 + (player->equipped == P_MISSILE)];
 		put_texture(app, tex, 160, 16);
 	}
-	if (player->max_ammo[pr_SUPER] != 0)
+	if (player->max_ammo[P_SUPER] != 0)
 	{
-		buf[0] = player->ammo[pr_SUPER] / 10 + '0';
-		buf[1] = player->ammo[pr_SUPER] % 10 + '0';
+		buf[0] = player->ammo[P_SUPER] / 10 + '0';
+		buf[1] = player->ammo[P_SUPER] % 10 + '0';
 		buf[2] = 0;
 		place_str(buf, app, (t_ivect){224, 48}, 2);
-		tex = &app->shtex->super_tex[2 + (player->equipped == pr_SUPER)];
+		tex = &app->shtex->super_tex[2 + (player->equipped == P_SUPER)];
 		put_texture(app, tex, 224, 16);
 	}
 }

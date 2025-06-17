@@ -26,16 +26,20 @@ RMFLAGS			= -r
 
 CC				:= clang
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
-OPTIMIZE_FLAGS	:= -O3 -ffast-math -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer -march=native -fno-stack-protector -fcf-protection=none #-fno-stack-protector-all
+OPTIMIZE_FLAGS	:= -O3 -ffast-math \
+						-fstrict-aliasing -fno-strict-overflow \
+						-fomit-frame-pointer -march=native \
+						-fcf-protection=none \
+						-fno-stack-protector #-fno-stack-protector-all
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-mprefer-vector-width=256 \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-pg \
 #					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS)
+					$(INCLUDE_FLAGS) -fno-builtin-snprintf
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 
@@ -55,9 +59,9 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
-					-ltextures -lmlx -lft -lX11 -lXext -lm \
+					-ltextures -lmlx -lft -lX11 -lXext -lm -ldl\
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 #					-pg \
 
 SRC_DIR			= src
@@ -108,7 +112,7 @@ $(LIBTEX): $(TEX_OBJ)
 
 ## libft
 $(LIBFT_LIB):
-		+$(MAKE) -C $(LIBFT_DIR)
+		+$(MAKE) -C $(LIBFT_DIR) # BUILD_WITH_ASAN=1
 
 $(LIBX_DIR)/Makefile.gen:
 		+$(MAKE) -C $(LIBX_DIR)

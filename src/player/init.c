@@ -21,9 +21,9 @@ t_player	*init_player(t_info *app)
 	player->pos = lvl->starting_pos;
 	player->health = 99;
 	player->max_health = 99;
-	player->equipped = pr_BEAM;
-	player->ammo[pr_BEAM] = -1;
-	player->max_ammo[pr_BEAM] = -1;
+	player->equipped = P_BEAM;
+	player->ammo[P_BEAM] = -1;
+	player->max_ammo[P_BEAM] = -1;
 	player->dir = lvl->starting_dir;
 	player->angle = atan2(player->dir.y, player->dir.x);
 	calculate_offsets(app, player);

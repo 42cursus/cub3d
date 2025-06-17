@@ -59,5 +59,6 @@ void	free_shtex(t_info *app)
 	free_tex_arr_arr(app->shtex->door_super_tex, 7);
 	free_tex_arr_arr(app->shtex->door_missile_tex, 7);
 	free_tex_arr_arr(app->shtex->door_boss_tex, 7);
+	free_tex_arr_arr(app->shtex->rocks, 7);
 	free_shtex_extra(app);
 }

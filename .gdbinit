@@ -19,6 +19,7 @@ directory ~/staging/glibc-2.31
 directory ~/staging/glibc-2.31/elf
 directory ~/staging/glibc-2.31/nptl
 directory ~/staging/glibc-2.31/dlfcn
+directory ~/staging/glibc-2.31/libio
 directory ~/staging/glibc-2.31/misc
 directory ~/staging/glibc-2.31/csu
 directory ~/staging/glibc-2.31/ctype

@@ -116,10 +116,10 @@ void load_rock_tex(t_info *app)
 		ft_snprintf(buf, 50, TEX_DIR"/rock_large%c.xpm", i + '0');
 		tex[i] = img_to_tex_row_major(app, buf);
 	}
-	i = -1;
-	while (++i < 5)
+	i = 1;
+	while (++i < 7)
 	{
-		ft_snprintf(buf, 50, TEX_DIR"/rock_small%c.xpm", i + '0');
-		tex[i + 2] = img_to_tex_row_major(app, buf);
+		ft_snprintf(buf, 50, TEX_DIR"/rock_small%c.xpm", i + '/');
+		tex[i] = img_to_tex_row_major(app, buf);
 	}
 }

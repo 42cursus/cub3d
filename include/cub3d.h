@@ -36,6 +36,9 @@
 # ifdef ft_memcpy
 #  undef ft_memcpy
 # endif
+# ifdef ft_strstr
+#  undef ft_strstr
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
@@ -64,7 +67,7 @@
 // #define FR_SCALE (FRAMERATE / 50.0)
 // #define FRAMETIME (1000000 / FRAMERATE)
 
-# define BUFF_SIZE 70
+# define BUFF_SIZE 128
 # define MLX_WHITE 0x00ffffff
 # define MLX_LIME 0x0000ff55
 # define MLX_DARK_SLATE_GREY 0x2f4f4f
@@ -129,6 +132,11 @@ typedef enum e_etype
 
 typedef enum e_subtype
 {
+	P_BEAM = 0,
+	P_MISSILE,
+	P_SUPER,
+	P_PHANTOON,
+	P_HOLTZ,
 	E_ZOOMER,
 	E_ATOMIC,
 	E_REO,
@@ -142,8 +150,6 @@ typedef enum e_subtype
 	I_HEALTH,
 	I_TROPHY,
 	T_BOSS,
-	P_PHANTOON,
-	P_HOLTZ,
 	SUBT_MAX
 }	t_subtype;
 
@@ -380,14 +386,6 @@ typedef struct s_enemy
 	t_vect	pos;
 }	t_enpos;
 
-typedef enum e_projectile
-{
-	pr_BEAM = 0,
-	pr_MISSILE,
-	pr_SUPER,
-	pr_MAX
-}	t_pr_type;
-
 typedef struct s_rock
 {
 	t_ivect	pos;
@@ -398,7 +396,7 @@ typedef struct s_rock
 typedef struct s_object
 {
 	t_etype		type;
-	int			subtype;
+	t_subtype	subtype;
 	int			dead;
 	int			attacking;
 	int			health;
@@ -789,7 +787,7 @@ void	next_weapon(t_player *player);
 void	prev_weapon(t_player *player);
 
 void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl,
-			t_pr_type subtype);
+						 t_subtype subtype);
 void	spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir,
 			int subtype);
 t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
