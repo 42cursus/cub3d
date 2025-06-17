@@ -434,12 +434,16 @@ void	do_mmenu_to_credits(void *param)
 	dummy->speed = 0.002;
 
 	app->dummy = dummy;
-	spawn_rock(app, (t_ivect){WIN_WIDTH / 4 * 3, WIN_HEIGHT / 10 * 2}, &app->shtex->rocks[5], -1);
-	spawn_rock(app, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 10 * 3}, &app->shtex->rocks[4], -2);
-	spawn_rock(app, (t_ivect){200, WIN_HEIGHT / 10 * 6}, &app->shtex->rocks[2], 2);
-	spawn_rock(app, (t_ivect){WIN_WIDTH - 200, WIN_HEIGHT / 10 * 4}, &app->shtex->rocks[3], -2);
-	spawn_rock(app, (t_ivect){0, WIN_HEIGHT / 2}, &app->shtex->rocks[0], 4);
-	spawn_rock(app, (t_ivect){WIN_WIDTH - 100, WIN_HEIGHT / 4 * 3}, &app->shtex->rocks[1], -5);
+	// spawn_rock(app, (t_vect){WIN_WIDTH / 4 * 3, WIN_HEIGHT / 10 * 2}, &app->shtex->rocks[5], -1);
+	// spawn_rock(app, (t_vect){WIN_WIDTH / 2, WIN_HEIGHT / 10 * 3}, &app->shtex->rocks[4], -2);
+	// spawn_rock(app, (t_vect){200, WIN_HEIGHT / 10 * 6}, &app->shtex->rocks[2], 2);
+	// spawn_rock(app, (t_vect){WIN_WIDTH - 200, WIN_HEIGHT / 10 * 4}, &app->shtex->rocks[3], -2);
+	// spawn_rock(app, (t_vect){0, WIN_HEIGHT / 2}, &app->shtex->rocks[0], 4);
+	// spawn_rock(app, (t_vect){WIN_WIDTH - 100, WIN_HEIGHT / 4 * 3}, &app->shtex->rocks[1], -5);
+	for (int i = 0; i < 12; i++)
+		// spawn_random_rock(app, i / 2.0);
+		spawn_random_rock(app, 0);
+	// ft_list_sort(&dummy->rocks, cmp_rock_speed);
 	app->mlx->end_loop = 0;
 	mlx_loop_hook(app->mlx, &render_credits, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_credits, app);
@@ -470,7 +474,7 @@ void	do_credits_to_mmenu(void *param)
 {
 	t_info *const app = param;
 
-	free(app->dummy);
+	ft_lstclear(&app->dummy->rocks, free);
 	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);

@@ -389,8 +389,9 @@ typedef enum e_projectile
 
 typedef struct s_rock
 {
-	t_ivect	pos;
+	t_vect	pos;
 	double	speed;
+	int		scale;
 	t_tex	*tex;
 }	t_rock;
 
@@ -828,6 +829,7 @@ void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
 t_vect	addi_vect(t_vect v1, t_ivect v2);
 t_ivect	add_ivect(t_ivect v1, t_ivect v2);
+t_ivect	round_vect(t_vect vect);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
 double	vector_magnitude(t_vect vect);
@@ -976,6 +978,8 @@ void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
 void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
-void	spawn_rock(t_info *app, t_ivect pos, t_tex *tex, double speed);
+void	spawn_rock(t_info *app, t_vect pos, t_tex *tex, double speed);
+void	spawn_random_rock(t_info *app, double speed);
+int		cmp_rock_speed(void *data1, void *data2);
 
 #endif //CUB3D_H
