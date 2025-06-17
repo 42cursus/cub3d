@@ -86,7 +86,6 @@ void	spawn_drops(t_info *app, t_obj *obj, int no)
 {
 	double			seed;
 	t_vect			pos;
-	t_vect			dir;
 	t_player *const	player = app->player;
 
 	if (player->ammo[P_SUPER] == player->max_ammo[P_SUPER]
