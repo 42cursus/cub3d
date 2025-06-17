@@ -42,7 +42,7 @@ void	start_obj_death(t_obj *obj, t_info *app)
 
 t_obj	*check_obj_proximity(t_vect pos, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*cur_obj;
 
 	current = lvl->enemies;
@@ -96,9 +96,8 @@ void	spawn_drops(t_info *app, t_obj *obj, int no)
 	while (no-- > 0)
 	{
 		pos = obj->pos;
-		dir.x = rand_range(-0.5, 0.5);
-		dir.y = rand_range(-0.5, 0.5);
-		move_entity(&pos, app->lvl,dir);
+		move_entity(&pos, app->lvl, (t_vect){rand_range(-0.5, 0.5),
+			rand_range(-0.5, 0.5)});
 		seed = rand_range(0.0, 1.0);
 		if (seed < 0.2 && player->ammo[P_SUPER] != player->max_ammo[P_SUPER])
 			spawn_item(app, pos, I_AMMO_S);

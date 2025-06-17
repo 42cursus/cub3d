@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 void	setup_projectile(t_obj *projectile, t_info *app,
-						 t_player *player, int subtype)
+							t_player *player, int subtype)
 {
 	if (subtype == P_BEAM)
 	{
@@ -34,10 +34,11 @@ void	setup_projectile(t_obj *projectile, t_info *app,
 	}
 }
 
-void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_subtype subtype)
+void	spawn_projectile(t_info *app, t_player *player,
+							t_lvl *lvl, t_subtype subtype)
 {
 	t_obj			*projectile;
-	enum e_snd		snd;
+	t_snd			snd;
 	t_aud *const	aud = &app->audio;
 
 	player->hud.active = 1;
@@ -51,7 +52,7 @@ void	spawn_projectile(t_info *app, t_player *player, t_lvl *lvl, t_subtype subty
 	projectile->type = O_PROJ;
 	projectile->anim.active = 0;
 	ft_lstadd_back(&lvl->projectiles, ft_lstnew(projectile));
-	({if (subtype == P_BEAM) snd = snd_gun; else snd = snd_rocket;});
+	snd = ({if (subtype == P_BEAM) snd = snd_gun; else snd = snd_rocket; snd;});
 	Mix_PlayChannel(ch_weapons, aud->chunks[snd], 0);
 }
 
@@ -84,8 +85,8 @@ int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 	return (-1);
 }
 
-void	handle_door_projectile(t_info *app, t_obj *obj,
-							   char *tile, t_anim *anim)
+void	handle_door_projectile(t_info *app, t_obj *obj, char *tile,
+								t_anim *anim)
 {
 	if (*tile == 'D')
 	{
@@ -94,25 +95,19 @@ void	handle_door_projectile(t_info *app, t_obj *obj,
 		anim->active = 1;
 		anim->timestart = app->fr_last;
 	}
-	else if (*tile == 'L')
+	else if (*tile == 'L' && obj->subtype == P_SUPER)
 	{
-		if (obj->subtype == P_SUPER)
-		{
-			*tile = 'O';
-			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
-			anim->active = 1;
-			anim->timestart = app->fr_last;
-		}
+		*tile = 'O';
+		Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
+		anim->active = 1;
+		anim->timestart = app->fr_last;
 	}
-	else if (*tile == 'M')
+	else if (*tile == 'M' && obj->subtype != P_BEAM)
 	{
-		if (obj->subtype != P_BEAM)
-		{
-			*tile = 'O';
-			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
-			anim->active = 1;
-			anim->timestart = app->fr_last;
-		}
+		*tile = 'O';
+		Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
+		anim->active = 1;
+		anim->timestart = app->fr_last;
 	}
 }
 

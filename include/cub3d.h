@@ -167,7 +167,7 @@ enum e_idx
 	idx_XK_Down,
 };
 
-enum e_snd
+typedef enum e_snd
 {
 	snd_door = 0,
 	snd_gun,
@@ -188,7 +188,7 @@ enum e_snd
 	snd_player_damage,
 	snd_win_music,
 	SND_MAX
-};
+}	t_snd;
 
 enum e_channel
 {

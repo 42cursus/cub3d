@@ -16,7 +16,7 @@
 #include <math.h>
 #include <sysexits.h>
 
-void mlx_allow_resize_win(Display *display, Window win)
+void	mlx_allow_resize_win(Display *display, Window win)
 {
 	XSizeHints	hints;
 	long		supplied;
@@ -32,38 +32,36 @@ void mlx_allow_resize_win(Display *display, Window win)
 	}
 }
 
-void toggle_fullscreen(t_info *const app)
+void	toggle_fullscreen(t_info *const app)
 {
-	Display *dpy = app->mlx->display;
-	Window win = app->win->window;
+	XEvent			xev;
+	Atom			wm_fullscreen;
+	Display *const	dpy = app->mlx->display;
 
-	Atom wm_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
-
+	xev = (XEvent){0};
+	wm_fullscreen = XInternAtom(dpy, "_NET_WM_STATE_FULLSCREEN", False);
 	mlx_allow_resize_win(app->mlx->display, app->win->window);
-	XEvent xev = {0};
 	xev.type = ClientMessage;
-	xev.xclient.window = win;
+	xev.xclient.window = app->win->window;
 	xev.xclient.message_type = XInternAtom(dpy, "_NET_WM_STATE", False);
 	xev.xclient.format = 32;
-	xev.xclient.data.l[0] = (long[]){0, 1}[app->fullscreen]; // 1 = add fullscreen, 0 = remove fullscreen
+	xev.xclient.data.l[0] = (long []){0, 1}[app->fullscreen];
 	xev.xclient.data.l[1] = wm_fullscreen;
 	xev.xclient.data.l[2] = 0;
 	xev.xclient.data.l[3] = 1;
 	xev.xclient.data.l[4] = 0;
-
 	XSendEvent(dpy, app->mlx->root, False,
-			   SubstructureNotifyMask | SubstructureRedirectMask,
-			   &xev);
+		SubstructureNotifyMask | SubstructureRedirectMask, &xev);
 	if (!app->fullscreen)
 		mlx_int_anti_resize_win(app->mlx, app->win->window,
-								WIN_WIDTH, WIN_HEIGHT);
+			WIN_WIDTH, WIN_HEIGHT);
 }
 
-void replace_frame(t_info *app)
+void	replace_frame(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);
 	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
-					 WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+		WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->player, 1);
 	if (app->lvl->outside != 1)
 		fill_floor(app, app->player, 0);
@@ -75,50 +73,47 @@ void replace_frame(t_info *app)
  * https://tronche.com/gui/x/xlib/events/exposure/expose.html
  * https://tronche.com/gui/x/xlib/window/attributes/#XSetWindowAttributes
  */
-int expose_win(void *param)
+int	expose_win(void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	mlx_clear_window(app->mlx, app->win);
 	on_expose(app);
 	return (EXIT_SUCCESS);
 }
 
-
-int mouse_move_play(int x, int y, void *param)
+int	mouse_move_play(int x, int y, void *param)
 {
-	t_info *const app = param;
-
-	int dx = x - WIN_WIDTH / 2;
+	t_info *const	app = param;
+	int const		dx = x - WIN_WIDTH / 2;
+	int const		dy = y - WIN_HEIGHT / 2;
+	double const	sense = app->sensitivity;
+	double			xx;
 
 	if (dx != 0)
 	{
-		rotate_player(app, app->player, dx > 0,
-					  fabs((300.0 + (80 * (10 - app->sensitivity)) * pow(1.1, 10 - app->sensitivity)) / (dx * app->fr_scale)));
-					  // fabs(5000 / (dx * app->fr_scale * app->sensitivity)));
-		// Reset pointer to center
+		xx = 300.0 + (80 * (10 - sense)) * pow(1.1, 10 - sense);
+		xx = fabs(xx / (dx * app->fr_scale));
+		rotate_player(app, app->player, dx > 0, xx);
 		mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		XFlush(app->mlx->display);
 	}
-
 	return (0);
-	int dy = y - WIN_HEIGHT / 2;
 	(void) dy;
 }
 
-int mouse_release_play(unsigned int button, int x, int y, void *param)
+int	mouse_release_play(unsigned int button, int x, int y, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	app->mouse[button] = false;
-
 	return (0);
 	((void) x, (void) y);
 }
 
-int mouse_press_play(unsigned int button, int x, int y, void *param)
+int	mouse_press_play(unsigned int button, int x, int y, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	app->mouse[button] = true;
 	if (button == 1)
@@ -150,11 +145,11 @@ int mouse_press_play(unsigned int button, int x, int y, void *param)
 	((void) x, (void) y);
 }
 
-int get_key_index(KeySym key)
+int	get_key_index(KeySym key)
 {
-	size_t i;
-	int ret;
-	const KeySym arr[] = {
+	size_t			i;
+	int				ret;
+	const KeySym	arr[] = {
 		XK_a,
 		XK_d,
 		XK_e,
@@ -177,14 +172,14 @@ int get_key_index(KeySym key)
 		if (key == arr[i])
 		{
 			ret = (int) i;
-			break;
+			break ;
 		}
 		i++;
 	}
-	return ret;
+	return (ret);
 }
 
-int key_press_intro(KeySym key, void *param)
+int	key_press_intro(KeySym key, void *param)
 {
 	t_info *const	app = param;
 
@@ -203,7 +198,7 @@ int key_press_intro(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_intro(KeySym key, void *param)
+int	key_release_intro(KeySym key, void *param)
 {
 	t_info *const	app = param;
 	const int		idx = get_key_index(key);
@@ -213,16 +208,14 @@ int key_release_intro(KeySym key, void *param)
 	return (0);
 }
 
-int key_press_credits(KeySym key, void *param)
+int	key_press_credits(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	if (key == XK_Up || key == XK_Down)
 		app->keys[get_key_index(key)] = true;
-	else if  (key == XK_Alt_L)
-	{
+	else if (key == XK_Alt_L)
 		;
-	}
 	else
 	{
 		app->rc = ok;
@@ -231,7 +224,7 @@ int key_press_credits(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_credits(KeySym key, void *param)
+int	key_release_credits(KeySym key, void *param)
 {
 	t_info *const	app = param;
 	const int		idx = get_key_index(key);
@@ -241,9 +234,9 @@ int key_release_credits(KeySym key, void *param)
 	return (0);
 }
 
-int key_press_mmenu(KeySym key, void *param)
+int	key_press_mmenu(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	if (key == XK_F11)
 	{
@@ -270,19 +263,20 @@ int key_press_mmenu(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_mmenu(KeySym key, void *param)
+int	key_release_mmenu(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	int const		idx = get_key_index(key);
 
-	int idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
 }
 
-int key_press_pmenu(KeySym key, void *param)
+int	key_press_pmenu(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+
 	if (key == XK_5)
 	{
 		app->mlx->end_loop = 1;
@@ -296,17 +290,18 @@ int key_press_pmenu(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_pmenu(KeySym key, void *param)
+int	key_release_pmenu(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+
 	return (0);
 	(void) app;
 	(void) key;
 }
 
-int key_press_lose(KeySym key, void *param)
+int	key_press_lose(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	if (key == XK_5 || key == XK_Escape)
 	{
@@ -321,17 +316,18 @@ int key_press_lose(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_lose(KeySym key, void *param)
+int	key_release_lose(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+
 	return (0);
 	(void) app;
 	(void) key;
 }
 
-int key_press_win(KeySym key, void *param)
+int	key_press_win(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	if (key == XK_5 || key == XK_Escape)
 	{
@@ -346,19 +342,20 @@ int key_press_win(KeySym key, void *param)
 	return (0);
 }
 
-int key_release_win(KeySym key, void *param)
+int	key_release_win(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	return (0);
 	(void) app;
 	(void) key;
 }
 
-int key_press_play(KeySym key, void *param)
+int	key_press_play(KeySym key, void *param)
 {
 	t_info *const	app = param;
 	t_player *const	player = app->player;
+	int				idx;
 
 	if (key == XK_5 || key == XK_Escape)
 	{
@@ -368,19 +365,11 @@ int key_press_play(KeySym key, void *param)
 	else
 	{
 		if (key == XK_1)
-		{
 			player->equipped = 0;
-		}
-		else if (key == XK_2)
-		{
-			if (player->ammo[1])
-				player->equipped = 1;
-		}
-		else if (key == XK_3)
-		{
-			if (player->ammo[2])
-				player->equipped = 2;
-		}
+		else if (key == XK_2 && player->ammo[1])
+			player->equipped = 1;
+		else if (key == XK_3 && player->ammo[2])
+			player->equipped = 2;
 		else if (key == XK_F11)
 		{
 			app->fullscreen = !app->fullscreen;
@@ -388,7 +377,7 @@ int key_press_play(KeySym key, void *param)
 			toggle_fullscreen(app);
 			if (!app->fullscreen)
 				mlx_int_anti_resize_win(app->mlx, app->win->window,
-										WIN_WIDTH, WIN_HEIGHT);
+					WIN_WIDTH, WIN_HEIGHT);
 		}
 		else if (key == XK_e)
 			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
@@ -406,18 +395,19 @@ int key_press_play(KeySym key, void *param)
 			player->vert_offset -= 10;
 		else if (key == XK_f)
 			app->filter = !app->filter;
-		int idx = get_key_index(key);
+		idx = get_key_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;
 	}
 	return (0);
 }
 
-int key_release_play(KeySym key, void *param)
+int	key_release_play(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+	int				idx;
 
-	int idx = get_key_index(key);
+	idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
