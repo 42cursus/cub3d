@@ -39,6 +39,9 @@
 # ifdef ft_strstr
 #  undef ft_strstr
 # endif
+# ifdef ft_strcmp
+#  undef ft_strcmp
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720

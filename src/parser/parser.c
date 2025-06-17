@@ -411,11 +411,9 @@ int	parse_cub(t_info *app, char *filename)
 		return (printf("Error: not all fields provided\n"), 1);
 	spawn_map_objects(app, lvl);
 	lvl->minimap_xs = build_minimap(app, SMALL_MMAP_SCALE);
-
 	draw_large_minimap(lvl);
 	draw_help(lvl);
 	draw_startup_overlay(lvl);
-
 	lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	init_anims(app, lvl);
 	close(fd);
