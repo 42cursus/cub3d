@@ -51,6 +51,15 @@ void	rotate_vect_inplace(t_vect *vect, double angle)
 	vect->y = temp_y;
 }
 
+t_ivect	round_vect(t_vect vect)
+{
+	t_ivect	out;
+
+	out.x = vect.x;
+	out.y = vect.y;
+	return (out);
+}
+
 t_vect	rotv(double x, double y, double angle)
 {
 	t_vect	out;
