@@ -15,63 +15,46 @@
 #include <math.h>
 #include "fsm.h"
 
+/* transitions from end state aren't needed */
 t_transition	*get_state_transitions(size_t *size)
 {
-	/* transitions from end state aren't needed */
-	static t_transition state_transitions[] = {
-		{STATE_INITIAL, ok,     STATE_MMENU},
-		{STATE_INITIAL, fail,   STATE_END},
-		{STATE_INITIAL, extra,   STATE_INTRO},
-		{STATE_INTRO, ok,     STATE_MMENU},
-		{STATE_INTRO, fail,   STATE_END},
-		{STATE_MMENU,   ok,     STATE_LOAD},
-		{STATE_MMENU,   repeat, STATE_CREDITS},
-		{STATE_MMENU,   fail,   STATE_END},
-		{STATE_CREDITS,   ok,   STATE_MMENU},
-		{STATE_LOAD,    ok,     STATE_PLAY},
-		{STATE_LOAD,    fail,   STATE_MMENU},
-		{STATE_PLAY,    ok,     STATE_WIN},
-		{STATE_PLAY,    fail,   STATE_LOSE},
-		{STATE_PLAY,    repeat, STATE_PMENU},
-		{STATE_PLAY,    extra,  STATE_LOAD},
-		{STATE_PMENU,   ok,     STATE_PLAY},
-		{STATE_PMENU,   repeat, STATE_MMENU},
-		{STATE_PMENU,   fail,   STATE_END},
-		{STATE_LOSE,    ok,     STATE_LOAD},
-		{STATE_LOSE,    repeat, STATE_MMENU},
-		{STATE_LOSE,    fail,   STATE_END},
-		{STATE_WIN,     ok,     STATE_LOAD},
-		{STATE_WIN,     fail,   STATE_END},
-		{STATE_WIN,     repeat, STATE_MMENU},
-		{STATE_WIN,     extra, STATE_CREDITS},
+	static t_transition	transitions[] = {
+	{STATE_INITIAL, ok, STATE_MMENU}, {STATE_INITIAL, fail, STATE_END},
+	{STATE_INITIAL, extra, STATE_INTRO}, {STATE_INTRO, ok, STATE_MMENU},
+	{STATE_INTRO, fail, STATE_END}, {STATE_MMENU, ok, STATE_LOAD},
+	{STATE_MMENU, repeat, STATE_CREDITS}, {STATE_MMENU, fail, STATE_END},
+	{STATE_CREDITS, ok, STATE_MMENU}, {STATE_LOAD, ok, STATE_PLAY},
+	{STATE_LOAD, fail, STATE_MMENU}, {STATE_PLAY, ok, STATE_WIN},
+	{STATE_PLAY, fail, STATE_LOSE}, {STATE_PLAY, repeat, STATE_PMENU},
+	{STATE_PLAY, extra, STATE_LOAD}, {STATE_PMENU, ok, STATE_PLAY},
+	{STATE_PMENU, repeat, STATE_MMENU}, {STATE_PMENU, fail, STATE_END},
+	{STATE_LOSE, ok, STATE_LOAD}, {STATE_LOSE, repeat, STATE_MMENU},
+	{STATE_LOSE, fail, STATE_END}, {STATE_WIN, ok, STATE_LOAD},
+	{STATE_WIN, fail, STATE_END}, {STATE_WIN, repeat, STATE_MMENU},
+	{STATE_WIN, extra, STATE_CREDITS},
 	};
-	static size_t state_transitions_size = sizeof(state_transitions) / sizeof(state_transitions[0]);
-	*size =  state_transitions_size;
-	return (state_transitions);
+	static size_t		transitions_size = SDL_TABLESIZE(transitions);
+
+	*size = transitions_size;
+	return (transitions);
 }
 
 t_state	run_state(t_info *app, int argc, char **argv)
 {
-	state_func_t		*state_fun;
 	t_transition_func	*transition_func;
 	t_transition		transition;
 	t_ret_code			rc;
-	size_t				i;
-	size_t				state_transitions_size;
-	t_transition *const state_transitions = get_state_transitions(&state_transitions_size);
+	size_t				size;
+	t_transition *const	transitions = get_state_transitions(&size);
 
 	if (app->state == STATE_INITIAL)
 		rc = do_state_initial(app, argc, argv);
 	else
-	{
-		state_fun = state_table[app->state];
-		rc = state_fun(app);
-	}
-	i = 0;
+		rc = state_table[app->state](app);
 	transition.dst_state = app->state;
-	while (i < state_transitions_size)
+	while (size--)
 	{
-		transition = state_transitions[i++];
+		transition = transitions[size];
 		if (transition.src_state == app->state && transition.ret_code == rc)
 			break ;
 	}
@@ -121,7 +104,7 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	int				i;
 	const char		*str;
 	char			*end;
-	int				ends_with_slash;
+	int				has_slash;
 
 	app->mlx = mlx_init();
 	set_audio(app);
@@ -141,8 +124,8 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	while (++i < argc)
 	{
 		end = ft_strchrnul(argv[i], '\0');
-		ends_with_slash = (end != argv[i] && end[-1] == '/');
-		str = ({if (ends_with_slash) str = "start.cub"; else str = ""; str;});
+		has_slash = (end != argv[i] && end[-1] == '/');
+		str = ({if (has_slash == true) str = "start.cub"; else str = ""; str;});
 		app->map_ids[i - 1] = ft_strjoin(argv[i], str);
 	}
 	app->no_maps = argc - 1;

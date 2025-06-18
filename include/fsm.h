@@ -108,7 +108,7 @@ static state_func_t *const state_table[NUM_STATES] = {
 	[STATE_PMENU] = do_state_pmenu,
 	[STATE_LOSE] = do_state_lose,
 	[STATE_WIN] = do_state_win,
-	NULL
+	[NUM_STATES - 1] = NULL
 };
 
 #endif //FSM_H
