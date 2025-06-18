@@ -70,10 +70,21 @@ void	cleanup_maps(t_info *app)
 	get_pooled_ray(1);
 }
 
+/**
+ * GNU C statement expression:
+ * 	https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
+ * @param param
+ * @param argc
+ * @param argv
+ * @return
+ */
 t_ret_code	do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 	int				i;
+	const char		*str;
+	char			*end;
+	int				ends_with_slash;
 
 	app->mlx = mlx_init();
 	set_audio(app);
@@ -92,12 +103,10 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	i = 0;
 	while (++i < argc)
 	{
-		char *string;
-		if (argv[i][ft_strlen(argv[i]) - 1] == '/')
-			string = ft_strjoin(argv[i], "start.cub");
-		else
-			string = ft_strdup(argv[i]);
-		app->map_ids[i - 1] = string;
+		end = ft_strchrnul(argv[i], '\0');
+		ends_with_slash = (end != argv[i] && end[-1] == '/');
+		str = ({if (ends_with_slash) str = "start.cub"; else str = ""; str;});
+		app->map_ids[i - 1] = ft_strjoin(argv[i], str);
 	}
 	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
