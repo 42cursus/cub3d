@@ -258,7 +258,7 @@ int	key_press_mmenu(KeySym key, void *param)
 		menu_change_option(app, -1);
 	else if (key == XK_Right)
 		menu_change_option(app, 1);
-	else if (key == XK_space | key == XK_Return)
+	else if ((key == XK_space) | (key == XK_Return))
 		menu_select_current(app);
 	return (0);
 }

@@ -46,35 +46,6 @@ typedef struct s_transition
 typedef t_ret_code state_func_t(void *param);
 typedef void t_transition_func(void *param);
 
-/* transitions from end state aren't needed */
-static t_transition state_transitions[] = {
-	{STATE_INITIAL, ok,     STATE_MMENU},
-	{STATE_INITIAL, fail,   STATE_END},
-	{STATE_INITIAL, extra,   STATE_INTRO},
-	{STATE_INTRO, ok,     STATE_MMENU},
-	{STATE_INTRO, fail,   STATE_END},
-	{STATE_MMENU,   ok,     STATE_LOAD},
-	{STATE_MMENU,   repeat, STATE_CREDITS},
-	{STATE_MMENU,   fail,   STATE_END},
-	{STATE_CREDITS,   ok,   STATE_MMENU},
-	{STATE_LOAD,    ok,     STATE_PLAY},
-	{STATE_LOAD,    fail,   STATE_MMENU},
-	{STATE_PLAY,    ok,     STATE_WIN},
-	{STATE_PLAY,    fail,   STATE_LOSE},
-	{STATE_PLAY,    repeat, STATE_PMENU},
-	{STATE_PLAY,    extra,  STATE_LOAD},
-	{STATE_PMENU,   ok,     STATE_PLAY},
-	{STATE_PMENU,   repeat, STATE_MMENU},
-	{STATE_PMENU,   fail,   STATE_END},
-	{STATE_LOSE,    ok,     STATE_LOAD},
-	{STATE_LOSE,    repeat, STATE_MMENU},
-	{STATE_LOSE,    fail,   STATE_END},
-	{STATE_WIN,     ok,     STATE_LOAD},
-	{STATE_WIN,     fail,   STATE_END},
-	{STATE_WIN,     repeat, STATE_MMENU},
-	{STATE_WIN,     extra, STATE_CREDITS},
-};
-
 void do_initial_to_mmenu(void *param);
 void do_initial_to_end(void *param);
 void do_initial_to_intro(void *param);

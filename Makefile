@@ -25,12 +25,17 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= clang
+#CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
 OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 						-fstrict-aliasing -fno-strict-overflow \
 						-fomit-frame-pointer -march=native \
 						-fcf-protection=none \
-						-fno-stack-protector #-fno-stack-protector-all
+						-fno-stack-protector # -flto -fno-stack-protector-all
+#						-mllvm -inline-threshold=900
+#DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
+#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
+
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-mprefer-vector-width=256 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
@@ -39,7 +44,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) -fno-builtin-snprintf
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 
@@ -54,15 +59,18 @@ ifeq ($(UNAME_M),x86_64)
 	endif
 endif
 
-LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
+LIBFT			=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
-LIBS			:= $(LIBFT) $(LIBX)
+LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
-					-ltextures -lmlx -lft -lX11 -lXext -lm -ldl\
+					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+#					-flto \
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-pg \
+#					-fdump-tree-cfg \
+#					https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 
 SRC_DIR			= src
 
@@ -93,7 +101,7 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(LIBTEX)
+$(NAME): $(LIBS) $(OBJS)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
@@ -111,7 +119,7 @@ $(LIBTEX): $(TEX_OBJ)
 		@$(AR) rcsP $@ $(TEX_OBJ)
 
 ## libft
-$(LIBFT_LIB):
+$(LIBFT) libft:
 		+$(MAKE) -C $(LIBFT_DIR) # BUILD_WITH_ASAN=1
 
 $(LIBX_DIR)/Makefile.gen:
@@ -119,7 +127,7 @@ $(LIBX_DIR)/Makefile.gen:
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
 
 ## mlx
-$(LIBX): $(LIBX_DIR)/Makefile.gen
+$(LIBX) libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
 		@echo "LIBX BUILD COMPLETE!"
 

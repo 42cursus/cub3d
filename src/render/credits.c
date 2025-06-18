@@ -57,7 +57,7 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 	return (col1);
 }
 
-static inline __attribute__((always_inline, unused, visibility("hidden")))
+inline __attribute__((always_inline, unused, visibility("hidden")))
 int bilinear_credits(t_vect idx, const t_tex *tex)
 {
 	const int x = (int)idx.x;
