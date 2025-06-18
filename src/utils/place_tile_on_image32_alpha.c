@@ -245,13 +245,13 @@ __m128i	repack_floats_to_bytes(t_vec4 blended)
 static inline __attribute__((always_inline, used))
 void	blend_4pixels(u_int32_t *src, u_int32_t *dst)
 {
-	__m128i _src = _mm_loadu_si128((__m128i *) src);
-	__m128i _dst = _mm_loadu_si128((__m128i *) dst);
-	
-	t_vec4 fs = unpack_rgba_bytes_to_floats(_src);
-	t_vec4 fd = unpack_rgba_bytes_to_floats(_dst);
-	t_vec4 opacity = extract_opacity_from_inverted_alpha(fs);
-	t_vec4 blended = blend_pixels(fs, fd, opacity);
+	const __m128i	_src = _mm_loadu_si128((__m128i *) src);
+	const __m128i	_dst = _mm_loadu_si128((__m128i *) dst);
+	const t_vec4	fs = unpack_rgba_bytes_to_floats(_src);
+	const t_vec4	fd = unpack_rgba_bytes_to_floats(_dst);
+	const t_vec4	opacity = extract_opacity_from_inverted_alpha(fs);
+	const t_vec4	blended = blend_pixels(fs, fd, opacity);
+
 	_mm_storeu_si128((__m128i *)dst, repack_floats_to_bytes(blended));
 }
 

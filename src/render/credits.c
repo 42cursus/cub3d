@@ -14,8 +14,36 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
+/**
+ * https://en.wikipedia.org/wiki/Linear_interpolation
+ * @param a
+ * @param b
+ * @param t
+ * @return
+ */
+static inline __attribute((always_inline))
+t_colour lerp_biased(t_colour a, t_colour b, double t)
+{
+	t_colour result;
+
+	// Choose RGB from more opaque color (lower alpha)
+	if (a.a < b.a)
+		result = a;
+	else
+		result = b;
+
+/*
+	// Interpolate alpha linearly
+	result.a = (unsigned char)((a.a - b.a) * (1 - t) + b.a); // =>  a.a * (1 - t) + b.a * t);
+	result.a = (unsigned char)((b.a - a.a) * t + a.a); // =>  b.a * t - a.a * t + a.a = > b.a * frac_x + a.a * (1 - frac_x);
+*/
+
+	result.a = (unsigned char)((1.0 - t) * a.a + t * b.a);
+	return result;
+}
+
 static inline __attribute__((always_inline, unused))
-int	linear_filter_credits(t_vect idx, const t_tex *tex)
+t_colour	linear_filter(t_vect idx, const t_tex *tex)
 {
 	const double	frac = fmod(idx.x, 1.0);
 
@@ -24,19 +52,8 @@ int	linear_filter_credits(t_vect idx, const t_tex *tex)
 	t_colour left = *(t_colour *)&tex->data[x];
 	t_colour right = *(t_colour *)&tex->data[x + 1];
 
-	t_colour out;
-
-	if (left.a > right.a)
-	{
-		right.a = (unsigned char) ((left.a - right.a) * (1 - frac)) + right.a;
-		out = right;
-	}
-	else
-	{
-		left.a = (unsigned char) ((right.a - left.a) * frac) + left.a;
-		out = left;
-	}
-	return out.raw;
+	t_colour out = lerp_biased(left, right, frac);
+	return (out);
 }
 
 
@@ -58,8 +75,10 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 }
 
 inline __attribute__((always_inline, unused, visibility("hidden")))
-int bilinear_credits(t_vect idx, const t_tex *tex)
+t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 {
+	t_colour	out;
+
 	const int x = (int)idx.x;
 	const int y = (int)idx.y;
 
@@ -73,10 +92,10 @@ int bilinear_credits(t_vect idx, const t_tex *tex)
 	const int x2 = x + 1;
 
 	// Load the 2x2 texels
-	const t_colour colour_a = *(t_colour *)&tex->data[row1 + x1];
-	const t_colour colour_b = *(t_colour *)&tex->data[row1 + x2];
-	const t_colour colour_c = *(t_colour *)&tex->data[row2 + x1];
-	const t_colour colour_d = *(t_colour *)&tex->data[row2 + x2];
+	const t_colour colour_a = {.raw = tex->data[row1 + x1]};
+	const t_colour colour_b = {.raw = tex->data[row1 + x2]};
+	const t_colour colour_c = {.raw = tex->data[row2 + x1]};
+	const t_colour colour_d = {.raw = tex->data[row2 + x2]};
 
 	t_colour top;
 	if (colour_a.a > colour_b.a)
@@ -102,12 +121,11 @@ int bilinear_credits(t_vect idx, const t_tex *tex)
 		bottom.a = (unsigned char) ((colour_d.a - colour_c.a) * frac_x + colour_c.a);
 	}
 
-	t_colour out;
+
 	if (top.a > bottom.a)
 	{
 		out = bottom;
-		out.a = (unsigned char) ((top.a - bottom.a) * (1.0 - frac_y) +
-								 bottom.a);
+		out.a = (unsigned char) ((top.a - bottom.a) * (1.0 - frac_y) + bottom.a);
 	}
 	else
 	{
@@ -115,7 +133,7 @@ int bilinear_credits(t_vect idx, const t_tex *tex)
 		out.a = (unsigned char) ((bottom.a - top.a) * frac_y + top.a);
 	}
 
-	return out.raw;
+	return out;
 }
 
 static inline __attribute__((always_inline, unused))
@@ -170,6 +188,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 	double			step_x;
 	double			curr_x;
 	t_vect			idx;
+	double			dist = app->dummy->credits_offsets[row - 1];
 	t_vect			lim = {-0.48,  0.48}; // Relative to 1 block on the map
 	u_int *const	p_row = (u_int *)app->overlay->data + app->overlay->width * row;
 
@@ -184,12 +203,7 @@ void	draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 		if (curr_x > lim.x && curr_x < lim.y)
 		{
 			idx.x = (0.5 + curr_x) * tex->w;
-//			t_colour *colour = (void *)&(int [1]){ bilinear_filter_old(idx, tex)};
-			t_colour *colour = (void *)&(int [1]){bilinear_credits(idx, tex)};
-//			t_colour *colour = (void *)&(int [1]){linear_filter_credits(idx, tex)};
-			double dist = app->dummy->credits_offsets[row - 1];
-			p_row[i] = dim_colour_alpha(*colour, (dist - 1.5) * 6).raw;
-//			p_row[i] = colour->raw;
+			p_row[i] = dim_colour_alpha(bilinear_filter(idx, tex), (dist - 1.5) * 6).raw;
 		}
 		curr_x += step_x;
 	}

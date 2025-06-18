@@ -295,8 +295,8 @@ typedef struct s_mcol
 
 typedef struct s_m128i
 {
-	__m128i	tex_vec;
-	__m128i	dst_vec;
+	__m128i	src;
+	__m128i	dst;
 	__m128i	mask;
 	__m128i	blend;
 	struct
@@ -948,9 +948,6 @@ void	set_music_volume(t_info *app, int volume);
 void	set_sound_volume(t_info *app, int volume);
 void	calculate_offsets(t_info *app, t_player *player);
 void	calculate_credits_offset(t_info *app, t_dummy *dummy);
-
-int	bilinear_filter(double x, double y, const t_tex *tex);
-// int	linear_filter_credits(double x, int y, const t_texarr *tex);
 
 void	start_obj_death(t_obj *obj, t_info *app);
 t_list	*delete_object(t_list **obj_list, t_list *obj_node);

@@ -38,8 +38,8 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 					-mprefer-vector-width=256 \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-pg \
+#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
@@ -66,9 +66,9 @@ LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
+#					-pg \
 #					-flto \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
-#					-pg \
 #					-fdump-tree-cfg \
 #					https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 

@@ -21,11 +21,9 @@ int	point_oob_global(t_vect pos, t_lvl *lvl)
 
 double	rand_range(double lower, double upper)
 {
-	double	output;
-	double	diff;
+	const double	diff = upper - lower;
+	const double	output = (rand() / (RAND_MAX / diff)) + lower;
 
-	diff = upper - lower;
-	output = (rand() / (RAND_MAX / diff)) + lower;
 	return (output);
 }
 
