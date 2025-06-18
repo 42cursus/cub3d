@@ -89,13 +89,15 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	printf("framerate: %ld frametime: %ld fr_scale: %f\n",
 		app->fr_rate, app->fr_delay, app->fr_scale);
 	app->map_ids = ft_calloc(argc, sizeof(char *));
-	i = -1;
+	i = 0;
 	while (++i < argc)
 	{
-		if (argv[i][ft_strlen(argv[i + 1]) - 1] == '/')
-			app->map_ids[i] = ft_strjoin(argv[i], "start.cub");
+		char *string;
+		if (argv[i][ft_strlen(argv[i]) - 1] == '/')
+			string = ft_strjoin(argv[i], "start.cub");
 		else
-			app->map_ids[i] = ft_strdup(argv[i]);
+			string = ft_strdup(argv[i]);
+		app->map_ids[i - 1] = string;
 	}
 	app->no_maps = argc - 1;
 	if (app->mlx == NULL)

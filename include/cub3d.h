@@ -42,6 +42,12 @@
 # ifdef ft_strcmp
 #  undef ft_strcmp
 # endif
+# ifdef ft_strlen
+#  undef ft_strlen
+# endif
+# ifdef ft_strdup
+#  undef ft_strdup
+# endif
 
 # if !defined(WIN_WIDTH) || !defined(WIN_HEIGHT)
 //# define WIN_WIDTH 720
