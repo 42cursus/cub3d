@@ -94,15 +94,12 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
  * @param line
  */
 static inline __attribute__((always_inline))
-void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
+void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 {
 	t_iter			it;
 	t_tstep			ts;
 	t_m128i			mc;
 	t_cdata			cd;
-
-	line.top = WIN_HEIGHT / 2 - line.height / 2;
-	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 
 	it.i = (-(line.top < 0) & -line.top) - 1;
 	it.j = line.end - line.top;
@@ -112,7 +109,8 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
 
 	ts.tex_y = ts.step * it.i;
 	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
-	cd.dst = (int *)cnvs.data + (line.top + it.i) + cnvs.w * x;
+//	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
+	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
 
 	while (++it.i < it.j)
 	{
@@ -126,11 +124,12 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 
 		cd.dst++;
+//		cd.dst += cnvs->w;
 		ts.tex_y += ts.step;
 	}
 }
 
-void	draw_slice(int x, t_ray *ray, t_info *app, t_tex canvas)
+void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
 	t_anim	*anim;
 	t_lvars	line;
@@ -148,21 +147,87 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex canvas)
 			ray->tex = get_open_door_tex(anim, app);
 	}
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
+	line.top = WIN_HEIGHT / 2 - line.height / 2;
+	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 	slice_drawing_sse41(x, ray, canvas, line);
+}
+
+static inline void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
+{
+	// Step 1: unpack 32-bit values into 64-bit lanes
+	const t_vec8 v1 = {
+		_mm256_unpacklo_epi32(in[0], in[1]),
+		_mm256_unpackhi_epi32(in[0], in[1]),
+		_mm256_unpacklo_epi32(in[2], in[3]),
+		_mm256_unpackhi_epi32(in[2], in[3]),
+		_mm256_unpacklo_epi32(in[4], in[5]),
+		_mm256_unpackhi_epi32(in[4], in[5]),
+		_mm256_unpacklo_epi32(in[6], in[7]),
+		_mm256_unpackhi_epi32(in[6], in[7])
+	};
+
+	// Step 2: combine 64-bit chunks
+	const t_vec8 v2 = {
+		_mm256_unpacklo_epi64(v1.t0, v1.t2),
+		_mm256_unpackhi_epi64(v1.t0, v1.t2),
+		_mm256_unpacklo_epi64(v1.t1, v1.t3),
+		_mm256_unpackhi_epi64(v1.t1, v1.t3),
+		_mm256_unpacklo_epi64(v1.t4, v1.t6),
+		_mm256_unpackhi_epi64(v1.t4, v1.t6),
+		_mm256_unpacklo_epi64(v1.t5, v1.t7),
+		_mm256_unpackhi_epi64(v1.t5, v1.t7),
+	};
+
+	// Step 3: final blend across 128-bit lanes
+	out[0] = _mm256_permute2x128_si256(v2.t0, v2.t4, 0x20);
+	out[1] = _mm256_permute2x128_si256(v2.t1, v2.t5, 0x20);
+	out[2] = _mm256_permute2x128_si256(v2.t2, v2.t6, 0x20);
+	out[3] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x20);
+	out[4] = _mm256_permute2x128_si256(v2.t0, v2.t4, 0x31);
+	out[5] = _mm256_permute2x128_si256(v2.t1, v2.t5, 0x31);
+	out[6] = _mm256_permute2x128_si256(v2.t2, v2.t6, 0x31);
+	out[7] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x31);
+}
+
+void transpose_canvas_avx2(u_int *dst, u_int *src, int width, int height)
+{
+	int		y;
+	int		x;
+	int		i;
+	__m256i	in[8];
+	__m256i	out[8];
+
+	y = 0;
+	while (y < height)
+	{
+		x = 0;
+		while (x < width)
+		{
+			i = -1;
+			while (++i < 8) // Load 8 columns of 8 pixels (column-major input)
+				in[i] = _mm256_loadu_si256((__m256i *)(src + (x + i) * height + y));
+			transpose8x8_u32_avx2(out, in);
+			i = -1;
+			while (++i < 8) // Store 8 rows of 8 pixels (row-major output)
+				_mm256_storeu_si256((__m256i *)(dst + (y + i) * width + x), out[i]);
+			x += 8;
+		}
+		y += 8;
+	}
 }
 
 void	draw_rays(t_info *app)
 {
+	int				i;
 	t_ray			*rays;
 	t_ray			*current_ray;
 	t_img *const	canvas = app->canvas;
+
+
 	static u_int	data[WIN_WIDTH * WIN_HEIGHT];
 	static u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
 	const t_tex		img = {.data = data, .h = WIN_HEIGHT, .w = WIN_WIDTH};
 	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
-	int				i;
-	t_ivect			it;
-
 
 	i = -1;
 	while (++i < WIN_WIDTH * WIN_HEIGHT)
@@ -175,23 +240,27 @@ void	draw_rays(t_info *app)
 		current_ray = &rays[i];
 		while (current_ray)
 		{
-			draw_slice(i, current_ray, app, trans);
+			draw_slice(i, current_ray, app, (t_tex *)&trans);
 			current_ray = current_ray->in_front;
 		}
 	}
 
-	t_cdata			cd;
+//  // Naive approach
+//	t_cdata			cd;
+//	t_ivect			it;
+//
+//	it.y = -1;
+//	while (++it.y < img.h)
+//	{
+//		cd.dst = (int *)img.data + it.y * img.w;
+//		cd.src = (int *)trans.data + it.y;
+//
+//		it.x = -1;
+//		while (++it.x < img.w)
+//			cd.dst[it.x] = cd.src[it.x * img.h];
+//	}
 
-	it.y = -1;
-	while (++it.y < img.h)
-	{
-		cd.dst = (int *)img.data + it.y * img.w;
-		cd.src = (int *)trans.data + it.y;
-
-		it.x = -1;
-		while (++it.x < img.w)
-			cd.dst[it.x] = cd.src[it.x * img.h];
-	}
+	transpose_canvas_avx2(img.data, trans.data, WIN_WIDTH, WIN_HEIGHT);
 
 	place_tile_on_image32_alpha(canvas, (t_tex *)&img, (t_point){0, 0});
 }

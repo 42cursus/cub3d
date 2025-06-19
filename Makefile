@@ -28,16 +28,21 @@ CC				:= clang
 #CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
 OPTIMIZE_FLAGS	:= -O3 -ffast-math \
+						-mprefer-vector-width=256 \
+						-ftree-vectorize \
+						-mllvm --enable-lto-internalization \
 						-fstrict-aliasing -fno-strict-overflow \
 						-fomit-frame-pointer -march=native \
 						-fcf-protection=none \
+						-funroll-loops \
+						-freroll-loops \
+						-fvectorize \
 						-fno-stack-protector # -flto -fno-stack-protector-all
 #						-mllvm -inline-threshold=900
 #DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
-#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
+#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					-mprefer-vector-width=256 \
 #					-pg \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-D FRAMERATE=60 \

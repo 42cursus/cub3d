@@ -28,6 +28,7 @@ set(FT_CFLAGS
         -march=native
         -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer
         -mprefer-vector-width=256
+        -ftree-vectorize
         -Wformat
         -Werror=format-security
 #        -Wstrict-prototypes

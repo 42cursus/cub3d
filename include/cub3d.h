@@ -308,6 +308,18 @@ typedef struct s_vec4
 	__m128	r3;
 }	t_vec4;
 
+typedef struct s_vec8
+{
+	__m256i	t0;
+	__m256i	t1;
+	__m256i	t2;
+	__m256i	t3;
+	__m256i	t4;
+	__m256i	t5;
+	__m256i	t6;
+	__m256i	t7;
+}	t_vec8;
+
 typedef struct s_imask
 {
 	int		i;

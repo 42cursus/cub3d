@@ -10,6 +10,10 @@
 #                                                                              #
 # **************************************************************************** #
 
+#layout reg
+set disassemble-next-line on
+set print static-members off
+set print pretty on
 set height unlimited
 set pagination off
 set confirm off
