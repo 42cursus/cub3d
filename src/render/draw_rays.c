@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <sys/param.h>
 #include "cub3d.h"
 
 static inline __attribute__((always_inline, unused))
@@ -93,36 +94,43 @@ void	slice_drawing_float(t_ivect draw_pos, t_ray *ray, t_img *canvas, t_lvars li
  * @param line
  */
 static inline __attribute__((always_inline))
-void	slice_drawing_sse41(t_ivect pos, t_ray *ray, t_img *cnvs, t_lvars line)
+void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
 {
-	const t_dmask	dm = {line.top + pos.y, (line.top + pos.y) >> 31};
 	t_iter			it;
 	t_tstep			ts;
 	t_m128i			mc;
 	t_cdata			cd;
 
+	line.top = WIN_HEIGHT / 2 - line.height / 2;
+	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
+
+	it.i = (-(line.top < 0) & -line.top) - 1;
+	it.j = line.end - line.top;
+
 	mc.overlay = -(ray->damaged) & MLX_RED;
-	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
-	it.i = ((~dm.mask) & (pos.y - 1)) | (dm.mask & (-dm.diff));
-	it.j = dm.diff & ~dm.mask;
 	ts.step = (double)ray->tex->h / line.height;
-	ts.tex_y = ts.step * it.i * (dm.diff < 0);
-	cd.dst = (int *)cnvs->data + it.j * cnvs->width + pos.x;
-	while (++it.i < line.height && it.j < WIN_HEIGHT)
+
+	ts.tex_y = ts.step * it.i;
+	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
+	cd.dst = (int *)cnvs.data + (line.top + it.i) * cnvs.w + x;
+
+	while (++it.i < it.j)
 	{
 		mc.colour = cd.src[(int)ts.tex_y];
 		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
+
 		mc.dst = _mm_set1_epi32(*cd.dst);
+
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
-		cd.dst += cnvs->width;
+
+		cd.dst += cnvs.w;
 		ts.tex_y += ts.step;
-		it.j = line.top + it.i;
 	}
 }
 
-void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
+void	draw_slice(int x, t_ray *ray, t_info *app, t_tex canvas)
 {
 	t_anim	*anim;
 	t_lvars	line;
@@ -140,27 +148,32 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_img *canvas)
 			ray->tex = get_open_door_tex(anim, app);
 	}
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
-	line.top = WIN_HEIGHT / 2 - line.height / 2;
-	slice_drawing_sse41((t_ivect const) {x, 0}, ray, canvas, line);
+	slice_drawing_sse41(x, ray, canvas, line);
 }
 
-void	draw_rays(t_info *app, t_img *canvas)
+void	draw_rays(t_info *app)
 {
-	t_player	*player;
-	t_ray		*rays;
-	t_ray		*current_ray;
-	int			i;
+	t_ray			*rays;
+	t_ray			*current_ray;
+	t_img *const	canvas = app->canvas;
+	static u_int	data[WIN_WIDTH * WIN_HEIGHT];
+	const t_tex		img = {.data = data, .h = WIN_HEIGHT, .w = WIN_WIDTH};
+	int				i;
 
-	player = app->player;
-	rays = player->rays;
+	i = -1;
+	while (++i < WIN_WIDTH * WIN_HEIGHT)
+		data[i] = XPM_TRANSPARENT;
+
+	rays = app->player->rays;
 	i = -1;
 	while (++i < WIN_WIDTH)
 	{
 		current_ray = &rays[i];
 		while (current_ray)
 		{
-			draw_slice(i, current_ray, app, canvas);
+			draw_slice(i, current_ray, app, img);
 			current_ray = current_ray->in_front;
 		}
 	}
+	place_tile_on_image32_alpha(canvas, (t_tex *)&img, (t_point){0, 0});
 }

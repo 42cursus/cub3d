@@ -280,12 +280,6 @@ typedef struct s_cdata
 	int	*dst;
 }	t_cdata;
 
-typedef struct s_dmask
-{
-	int	diff;
-	int	mask;
-}	t_dmask;
-
 typedef struct s_mcol
 {
 	u_int	colour;
@@ -330,6 +324,7 @@ typedef struct s_lvars
 {
 	int	height;
 	int	top;
+	int	end;
 }	t_lvars;
 
 /**
@@ -766,7 +761,8 @@ typedef enum e_bit
 
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
-void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
+void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p);
+void	place_tile_on_image32_alpha(t_img *image, t_tex *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
@@ -882,7 +878,7 @@ u_int	*img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, i
 u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
-void	draw_rays(t_info *app, t_img *canvas);
+void	draw_rays(t_info *app);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);

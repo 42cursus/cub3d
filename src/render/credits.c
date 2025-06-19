@@ -300,5 +300,5 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 		r_pos = add_vect(dummy->pos, scale_vect(r_dir, dummy->credits_offsets[row - 1]));
 		draw_credits_row(app, l_pos, r_pos, row);
 	}
-	place_tile_on_image32_alpha(app->canvas, app->overlay, (t_point){0,0});
+	place_img_on_image32_alpha(app->canvas, app->overlay, (t_point) {0, 0});
 }

@@ -256,7 +256,7 @@ void	blend_4pixels(u_int32_t *src, u_int32_t *dst)
 }
 
 inline __attribute__((always_inline, used))
-void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
+void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 {
 	t_point	it;
 	t_point	offset;
@@ -272,6 +272,33 @@ void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 	while (++it.y < limit.y)
 	{
 		src_row = (u_int32_t *) tile->data + it.y * tile->width;
+		dst_row = (u_int32_t *) image->data + (it.y + p.y) * image->width + p.x;
+		it.x = offset.x;
+		while (it.x + 3 < limit.x)
+		{
+			blend_4pixels(src_row + it.x, dst_row + it.x);
+			it.x += 4;
+		}
+	}
+}
+
+inline __attribute__((always_inline, used))
+void	place_tile_on_image32_alpha(t_img *image, t_tex *tile, t_point p)
+{
+	t_point	it;
+	t_point	offset;
+	t_point	limit;
+	u_int	*src_row;
+	u_int	*dst_row;
+
+	offset.x = (int[]){0, -p.x}[p.x < 0];
+	offset.y = (int[]){0, -p.y}[p.y < 0];
+	limit.x = MIN(tile->w, image->width - p.x);
+	limit.y = MIN(tile->h, image->height - p.y);
+	it.y = offset.y - 1;
+	while (++it.y < limit.y)
+	{
+		src_row = (u_int32_t *) tile->data + it.y * tile->w;
 		dst_row = (u_int32_t *) image->data + (it.y + p.y) * image->width + p.x;
 		it.x = offset.x;
 		while (it.x + 3 < limit.x)
