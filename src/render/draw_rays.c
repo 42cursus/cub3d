@@ -52,7 +52,16 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		mc.mask = _mm_andnot_si128(mc.mask, _mm_set1_epi32(-1));
 		mc.src = _mm_or_si128(mc.src, mc.overlay128);
 		mc.dst = _mm_loadu_si128((__m128i *)cd.dst);
-		mc.blend = _mm_or_si128(_mm_and_si128(mc.mask, mc.src), _mm_andnot_si128(mc.mask, mc.dst));
+
+		mc.mask = _mm_cmpeq_epi32(mc.mask, _mm_set1_epi32(-1));
+		mc.mask = _mm_packs_epi32(mc.mask, mc.mask);
+		mc.mask = _mm_packs_epi16(mc.mask, mc.mask);
+		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
+
+//		mc.blend = _mm_or_si128(
+//			_mm_and_si128(mc.mask, mc.src),
+//			_mm_andnot_si128(mc.mask, mc.dst)
+//		);
 		_mm_storeu_si128((__m128i *)cd.dst, mc.blend);
 
 		cd.dst += 4;
