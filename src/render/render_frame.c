@@ -176,8 +176,8 @@ int	render_play(void *param)
 	app->fr_last = time;
 	app->fr_scale = 20000.0/app->fr_time;
 	app->fr_count++;
-	on_expose(app);
 	draw_hud(app);
+	on_expose(app);
 	return (0);
 }
 

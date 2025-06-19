@@ -664,6 +664,7 @@ struct s_info
 	t_win_list	*win;
 	char		*title;
 	t_img		*canvas;
+	t_img		*canvas_r;
 	t_img		*overlay;
 	t_img		*pointer;
 	t_img		*skybox;

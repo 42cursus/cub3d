@@ -230,9 +230,9 @@ t_vec4	blend_pixels(t_vec4 src, t_vec4 dst, t_vec4 alpha) {
 	diff.r3 = _mm_sub_ps(dst.r3, src.r3);
 
 	out.r0 = _mm_add_ps(src.r0, _mm_mul_ps(diff.r0, opacity.r0));
-	out.r1 = _mm_add_ps(src.r1, _mm_mul_ps(diff.r1, opacity.r0));
-	out.r2 = _mm_add_ps(src.r2, _mm_mul_ps(diff.r2, opacity.r0));
-	out.r3 = _mm_add_ps(src.r3, _mm_mul_ps(diff.r3, opacity.r0));
+	out.r1 = _mm_add_ps(src.r1, _mm_mul_ps(diff.r1, opacity.r1));
+	out.r2 = _mm_add_ps(src.r2, _mm_mul_ps(diff.r2, opacity.r2));
+	out.r3 = _mm_add_ps(src.r3, _mm_mul_ps(diff.r3, opacity.r3));
 	return out;
 }
 

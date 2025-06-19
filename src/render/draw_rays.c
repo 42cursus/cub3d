@@ -101,7 +101,7 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	t_m128i			mc;
 	t_cdata			cd;
 
-	it.i = (-(line.top < 0) & -line.top) - 1;
+	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
 
 	mc.overlay = -(ray->damaged) & MLX_RED;
@@ -112,11 +112,10 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 //	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
 	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
 
-	while (++it.i < it.j)
+	while (it.i < it.j)
 	{
 		mc.colour = cd.src[(int)ts.tex_y];
 		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
-
 		mc.dst = _mm_set1_epi32(*cd.dst);
 
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
@@ -124,6 +123,7 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 
 		cd.dst++;
+		it.i++;
 //		cd.dst += cnvs->w;
 		ts.tex_y += ts.step;
 	}
@@ -224,14 +224,16 @@ void	draw_rays(t_info *app)
 	t_img *const	canvas = app->canvas;
 
 
-	static u_int	data[WIN_WIDTH * WIN_HEIGHT];
-	static u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
-	const t_tex		img = {.data = data, .h = WIN_HEIGHT, .w = WIN_WIDTH};
+//	static u_int	data[WIN_WIDTH * WIN_HEIGHT];
+	u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
+//	const t_tex		img = {.data = data, .h = WIN_HEIGHT, .w = WIN_WIDTH};
 	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
 
-	i = -1;
-	while (++i < WIN_WIDTH * WIN_HEIGHT)
-		trans_data[i] = XPM_TRANSPARENT;
+//	i = -1;
+//	while (++i < WIN_WIDTH * WIN_HEIGHT)
+//		trans_data[i] = XPM_TRANSPARENT;
+
+	transpose_canvas_avx2(trans.data, (u_int *) canvas->data, WIN_HEIGHT, WIN_WIDTH);
 
 	rays = app->player->rays;
 	i = -1;
@@ -260,7 +262,7 @@ void	draw_rays(t_info *app)
 //			cd.dst[it.x] = cd.src[it.x * img.h];
 //	}
 
-	transpose_canvas_avx2(img.data, trans.data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_canvas_avx2((u_int *) canvas->data, trans.data, WIN_WIDTH, WIN_HEIGHT);
 
-	place_tile_on_image32_alpha(canvas, (t_tex *)&img, (t_point){0, 0});
+//	place_tile_on_image32_alpha(canvas, (t_tex *)&img, (t_point){0, 0});
 }

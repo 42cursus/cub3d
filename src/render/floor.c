@@ -94,6 +94,7 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	u_int	*dst;
 	int		row;
 	double	depth;
+//	t_img *const tex = app->lvl->texs[(t_enum_tex[]){T_CEILING, T_FLOOR}[is_floor]];
 	t_img *const tex = (t_img *[]){app->lvl->texs[T_CEILING], app->lvl->texs[T_FLOOR]}[is_floor];
 
 	row = -1;
