@@ -65,7 +65,7 @@ void	replace_frame(t_info *app)
 	fill_floor(app, app->player, 1);
 	if (app->lvl->outside != 1)
 		fill_floor(app, app->player, 0);
-	draw_rays(app, app->canvas);
+	draw_rays(app);
 }
 
 /**

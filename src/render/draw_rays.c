@@ -112,7 +112,7 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
 
 	ts.tex_y = ts.step * it.i;
 	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
-	cd.dst = (int *)cnvs.data + (line.top + it.i) * cnvs.w + x;
+	cd.dst = (int *)cnvs.data + (line.top + it.i) + cnvs.w * x;
 
 	while (++it.i < it.j)
 	{
@@ -125,7 +125,7 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex cnvs, t_lvars line)
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 
-		cd.dst += cnvs.w;
+		cd.dst++;
 		ts.tex_y += ts.step;
 	}
 }
@@ -157,12 +157,16 @@ void	draw_rays(t_info *app)
 	t_ray			*current_ray;
 	t_img *const	canvas = app->canvas;
 	static u_int	data[WIN_WIDTH * WIN_HEIGHT];
+	static u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
 	const t_tex		img = {.data = data, .h = WIN_HEIGHT, .w = WIN_WIDTH};
+	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
 	int				i;
+	t_ivect			it;
+
 
 	i = -1;
 	while (++i < WIN_WIDTH * WIN_HEIGHT)
-		data[i] = XPM_TRANSPARENT;
+		trans_data[i] = XPM_TRANSPARENT;
 
 	rays = app->player->rays;
 	i = -1;
@@ -171,9 +175,23 @@ void	draw_rays(t_info *app)
 		current_ray = &rays[i];
 		while (current_ray)
 		{
-			draw_slice(i, current_ray, app, img);
+			draw_slice(i, current_ray, app, trans);
 			current_ray = current_ray->in_front;
 		}
 	}
+
+	t_cdata			cd;
+
+	it.y = -1;
+	while (++it.y < img.h)
+	{
+		cd.dst = (int *)img.data + it.y * img.w;
+		cd.src = (int *)trans.data + it.y;
+
+		it.x = -1;
+		while (++it.x < img.w)
+			cd.dst[it.x] = cd.src[it.x * img.h];
+	}
+
 	place_tile_on_image32_alpha(canvas, (t_tex *)&img, (t_point){0, 0});
 }

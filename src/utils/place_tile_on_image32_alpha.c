@@ -215,12 +215,24 @@ t_vec4	extract_opacity_from_inverted_alpha(t_vec4 s)
 static inline __attribute__((always_inline, used))
 t_vec4	blend_pixels(t_vec4 src, t_vec4 dst, t_vec4 alpha) {
 	t_vec4	out;
+	t_vec4	diff;
+	t_vec4	opacity;
 	__m128	one = _mm_set1_ps(1.0f);
 
-	out.r0 = _mm_add_ps(src.r0, _mm_mul_ps(_mm_sub_ps(dst.r0, src.r0), _mm_sub_ps(one, alpha.r0)));
-	out.r1 = _mm_add_ps(src.r1, _mm_mul_ps(_mm_sub_ps(dst.r1, src.r1), _mm_sub_ps(one, alpha.r1)));
-	out.r2 = _mm_add_ps(src.r2, _mm_mul_ps(_mm_sub_ps(dst.r2, src.r2), _mm_sub_ps(one, alpha.r2)));
-	out.r3 = _mm_add_ps(src.r3, _mm_mul_ps(_mm_sub_ps(dst.r3, src.r3), _mm_sub_ps(one, alpha.r3)));
+	opacity.r0 = _mm_sub_ps(one, alpha.r0);
+	opacity.r1 = _mm_sub_ps(one, alpha.r1);
+	opacity.r2 = _mm_sub_ps(one, alpha.r2);
+	opacity.r3 = _mm_sub_ps(one, alpha.r3);
+
+	diff.r0 = _mm_sub_ps(dst.r0, src.r0);
+	diff.r1 = _mm_sub_ps(dst.r1, src.r1);
+	diff.r2 = _mm_sub_ps(dst.r2, src.r2);
+	diff.r3 = _mm_sub_ps(dst.r3, src.r3);
+
+	out.r0 = _mm_add_ps(src.r0, _mm_mul_ps(diff.r0, opacity.r0));
+	out.r1 = _mm_add_ps(src.r1, _mm_mul_ps(diff.r1, opacity.r0));
+	out.r2 = _mm_add_ps(src.r2, _mm_mul_ps(diff.r2, opacity.r0));
+	out.r3 = _mm_add_ps(src.r3, _mm_mul_ps(diff.r3, opacity.r0));
 	return out;
 }
 
