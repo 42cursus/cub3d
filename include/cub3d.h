@@ -293,6 +293,8 @@ typedef struct s_m128i
 	__m128i	dst;
 	__m128i	mask;
 	__m128i	blend;
+	__m128i	overlay128;
+	__m128i	transparent;
 	struct
 	{
 		int		colour;
@@ -359,6 +361,14 @@ typedef struct s_ivect3
 	};
 	int	z;
 }	t_ivect3;
+
+typedef struct s_ivect4
+{
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+}	t_ivect4;
 
 typedef struct s_var3
 {
