@@ -302,6 +302,16 @@ typedef struct s_m128i
 	};
 }	t_m128i;
 
+typedef struct s_m256i
+{
+	__m256i	src;
+	__m256i	dst;
+	__m256i	mask;
+	__m256i	blend;
+	__m256i	overlay256;
+	__m256i	transparent;
+}	t_m256i;
+
 typedef struct s_vec4
 {
 	__m128	r0;
@@ -369,6 +379,18 @@ typedef struct s_ivect4
 	int t2;
 	int t3;
 }	t_ivect4;
+
+typedef struct s_ivect8
+{
+	int t0;
+	int t1;
+	int t2;
+	int t3;
+	int t4;
+	int t5;
+	int t6;
+	int t7;
+}	t_ivect8;
 
 typedef struct s_var3
 {

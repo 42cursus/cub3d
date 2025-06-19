@@ -13,7 +13,81 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
-static inline
+static inline __attribute__((always_inline, unused))
+void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
+{
+	t_iter		it;
+	t_tstep		ts;
+	t_cdata		cd;
+	t_m256i		mc;
+	t_ivect8	ycoord; // for calculating texel Y coordinates
+	int			offset = (int)ray->pos * ray->tex->h;
+
+	it.i = (-(line.top < 0) & -line.top);
+	it.j = line.end - line.top;
+
+	ts.step = (double)ray->tex->h / line.height;
+	ts.tex_y = ts.step * it.i;
+
+	cd.src = (int *)ray->tex->data;
+	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
+
+	mc.overlay256 = _mm256_set1_epi32(-(ray->damaged) & MLX_RED);
+	mc.transparent = _mm256_set1_epi32(XPM_TRANSPARENT);
+
+	while (it.i + 7 < it.j)
+	{
+		ycoord.t0 = (int)(ts.tex_y + ts.step * 0);
+		ycoord.t1 = (int)(ts.tex_y + ts.step * 1);
+		ycoord.t2 = (int)(ts.tex_y + ts.step * 2);
+		ycoord.t3 = (int)(ts.tex_y + ts.step * 3);
+		ycoord.t4 = (int)(ts.tex_y + ts.step * 4);
+		ycoord.t5 = (int)(ts.tex_y + ts.step * 5);
+		ycoord.t6 = (int)(ts.tex_y + ts.step * 6);
+		ycoord.t7 = (int)(ts.tex_y + ts.step * 7);
+
+		mc.src = _mm256_setr_epi32(
+			cd.src[ycoord.t0 + offset],
+			cd.src[ycoord.t1 + offset],
+			cd.src[ycoord.t2 + offset],
+			cd.src[ycoord.t3 + offset],
+			cd.src[ycoord.t4 + offset],
+			cd.src[ycoord.t5 + offset],
+			cd.src[ycoord.t6 + offset],
+			cd.src[ycoord.t7 + offset]
+		);
+
+		mc.mask = _mm256_cmpeq_epi32(mc.src, mc.transparent);
+		mc.mask = _mm256_andnot_si256(mc.mask, _mm256_set1_epi32(-1));
+
+		mc.src = _mm256_or_si256(mc.src, mc.overlay256);
+		mc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
+
+		mc.blend = _mm256_or_si256(
+			_mm256_and_si256(mc.mask, mc.src),
+			_mm256_andnot_si256(mc.mask, mc.dst)
+		);
+
+		_mm256_storeu_si256((__m256i *)cd.dst, mc.blend);
+
+		cd.dst += 8;
+		ts.tex_y += ts.step * 8;
+		it.i += 8;
+	}
+
+	while (it.i < it.j)
+	{
+		int tex_y = (int)ts.tex_y;
+		int color = cd.src[tex_y + offset];
+		if (color != (int)XPM_TRANSPARENT)
+			*cd.dst = color | (-(ray->damaged) & MLX_RED);
+		cd.dst++;
+		ts.tex_y += ts.step;
+		it.i++;
+	}
+}
+
+static inline __attribute__((always_inline, unused))
 void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 {
 	t_iter			it;
@@ -53,15 +127,10 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		mc.src = _mm_or_si128(mc.src, mc.overlay128);
 		mc.dst = _mm_loadu_si128((__m128i *)cd.dst);
 
-		mc.mask = _mm_cmpeq_epi32(mc.mask, _mm_set1_epi32(-1));
-		mc.mask = _mm_packs_epi32(mc.mask, mc.mask);
-		mc.mask = _mm_packs_epi16(mc.mask, mc.mask);
-		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-
-//		mc.blend = _mm_or_si128(
-//			_mm_and_si128(mc.mask, mc.src),
-//			_mm_andnot_si128(mc.mask, mc.dst)
-//		);
+		mc.blend = _mm_or_si128(
+			_mm_and_si128(mc.mask, mc.src),
+			_mm_andnot_si128(mc.mask, mc.dst)
+		);
 		_mm_storeu_si128((__m128i *)cd.dst, mc.blend);
 
 		cd.dst += 4;
@@ -144,7 +213,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 //	slice_drawing_sse41(x, ray, canvas, line);
-	slice_drawing_sse41x4(x, ray, canvas, line);
+//	slice_drawing_sse41x4(x, ray, canvas, line);
+	slice_drawing_avx2x8(x, ray, canvas, line);
 }
 
 static inline void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
