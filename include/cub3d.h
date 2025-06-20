@@ -700,7 +700,9 @@ struct s_info
 	t_img		*overlay;
 	t_img		*pointer;
 	t_img		*skybox;
+	t_img		*skybox_r;
 	t_img		*bg;
+	t_img		*bg_r;
 	t_img		*stillshot;
 	t_ivect		origin;
 	t_aud		audio;
@@ -812,6 +814,8 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_frame(t_info *app);
+void	replace_frame_transposed(t_info *app);
+void	transpose_canvas_avx2(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -886,8 +890,8 @@ t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
 double	get_hyp_len(double len1, double len2);
-void	*fast_memcpy_test(int *dst, const int *src, size_t count);
-void	memcpy_sse2(void *dst_void, const void *src_void, size_t size);
+void	*memcpy_avx2(void *dst, const void *src, size_t count);
+void	*memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player);
 t_ray	*get_pooled_ray(int flag);
@@ -901,7 +905,9 @@ t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl,
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
+void	replace_image_r(t_info *app, t_img **img, char *tex_file);
 void	replace_sky(t_info *app, char *tex_file);
+void	replace_sky_r(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);
 
 t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
@@ -909,6 +915,7 @@ t_tex	scale_texture(t_tex *tex, int scale);
 t_img	*img_dup(t_info *app, t_img *src);
 void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
+void	fill_with_colour_r(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
 void	place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
@@ -969,8 +976,10 @@ int	render_credits(void *param);
 void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
 void 	draw_sky_alt(t_info *app);
+void 	draw_sky_transposed(t_info *const app);
 void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
+void	fill_floor_transposed(t_info *app, t_player *player, int is_floor);
 
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);

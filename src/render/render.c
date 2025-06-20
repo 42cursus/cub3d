@@ -18,7 +18,8 @@ void	pix_dup(t_img *const src, t_img *const dst)
 {
 	if (src->height != dst->height || src->size_line != dst->size_line)
 		return ;
-	fast_memcpy_test((int *)dst->data, (const int *)src->data, src->height * src->size_line);
+	memcpy_avx2((int *) dst->data, (const int *) src->data,
+				src->height * src->size_line);
 }
 
 t_img	*img_dup(t_info *app, t_img *const src)
@@ -121,6 +122,34 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	*img = new;
 }
 
+void	replace_image_r(t_info *app, t_img **img, char *tex_file)
+{
+	t_img	*new;
+	t_img	tmp;
+
+	if (*img != NULL)
+		mlx_destroy_image(app->mlx, *img);
+	if (tex_file)
+	{
+		new = mlx_xpm_file_to_image(app->mlx,
+									tex_file, &tmp.width, &tmp.height);
+		if (!new)
+		{
+			ft_printf("Error opening file: \"%s\"\n", tex_file);
+			exit((cleanup(app), EXIT_FAILURE));
+		}
+		new = scale_image(app, new, WIN_WIDTH, WIN_HEIGHT);
+
+	}
+	else
+	{
+		new = mlx_new_image(app->mlx, WIN_HEIGHT, WIN_WIDTH);
+		fill_with_colour(new, XPM_TRANSPARENT, XPM_TRANSPARENT);
+	}
+	*img = new;
+}
+
+
 t_tex img_to_tex(t_info *app, const char *filename)
 {
 	t_point			it;
@@ -164,8 +193,8 @@ t_tex img_to_tex_row_major(t_info *app, const char *filename)
 		new.data = malloc(img->height * img->size_line);
 		if (!new.data)
 			return (mlx_destroy_image(app->mlx, img), new);
-		fast_memcpy_test((int *)new.data, (int *)img->data,
-			img->height * img->size_line);
+		memcpy_avx2((int *) new.data, (int *) img->data,
+					img->height * img->size_line);
 		mlx_destroy_image(app->mlx, img);
 	}
 	return (new);
@@ -235,7 +264,7 @@ u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *
 	data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!data)
 		return (NULL);
-	fast_memcpy_test((int *)data, (int *)img->data, img->height * img->size_line);
+	memcpy_avx2((int *) data, (int *) img->data, img->height * img->size_line);
 	mlx_destroy_image(app->mlx, img);
 	return (data);
 }

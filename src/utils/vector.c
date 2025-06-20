@@ -172,48 +172,63 @@ double	get_hyp_len(double len1, double len2)
 #include <immintrin.h>
 #include <stdint.h>
 
-void memcpy_avx2_nt(void *dst, const void *src, size_t count)
+/**
+ * 	memcpy_avx2()
+ * 	copies chunks of 8 integers using avx2 instructions
+ *
+ * @var stride = 32; // 256-bit = 32 bytes
+ * @var prefetch_distance = 256; // ahead by 256 bytes
+ * @param dst
+ * @param src
+ * @param count
+ * @return dst
+ */
+void *memcpy_avx2(void *dst, const void *src, size_t count)
 {
 	size_t			i = 0;
-	const size_t	stride = 32; // 256-bit = 32 bytes
-	const size_t	prefetch_distance = 256; // ahead by 256 bytes
-
-	// Process 8 integers (256 bits) at a time
-	if (((uintptr_t) src % 32 == 0) && ((uintptr_t) dst % 32 == 0))
-	{
-		while (i + stride - 1 < count) // Use non-temporal store
-		{
+	__m256i			chunk;
+	const size_t	stride = 32;
+//	const size_t	prefetch_distance = 256;
+//
+//	// Process 8 integers (256 bits) at a time
+//	if (((uintptr_t) src % 32 == 0) && ((uintptr_t) dst % 32 == 0))
+//	{
+//		while (i + stride - 1 < count) // Use non-temporal store
+//		{
 //			if (i + prefetch_distance < count)
-			_mm_prefetch((const char *) (src + i + prefetch_distance), _MM_HINT_T0);
-			__m256i chunk = _mm256_load_si256((const __m256i *) (src + i));
-			_mm256_stream_si256((__m256i *) (dst + i), chunk);
-			i += stride;
-		}
-		_mm_sfence();        // Ensure the stores are globally visible
-	}
-	else  // Fallback to unaligned AVX2
-	{
+//				_mm_prefetch((const char *) (src + i + prefetch_distance), _MM_HINT_T0);
+//			chunk = _mm256_load_si256((const __m256i *) (src + i));
+//			_mm256_stream_si256((__m256i *) (dst + i), chunk);
+//			i += stride;
+//		}
+//		_mm_sfence(); // Ensure writes complete before proceeding aka the stores are globally visible
+//	}
+//	else  // Fallback to unaligned AVX2
+//	{
 		while (i + stride - 1 < count)
 		{
-			__m256i chunk = _mm256_loadu_si256((const __m256i *) (src + i));
+
+			chunk = _mm256_loadu_si256((const __m256i *) (src + i));
 			_mm256_storeu_si256((__m256i *) (dst + i), chunk);
 			i += stride;
 		}
-	}
-
+//	}
+	uint8_t *out = (uint8_t *) dst;
+	const uint8_t *in = (const uint8_t *) src;
 	i--;
 	while (++i < count)
-		((uint8_t *)dst)[i] = ((const uint8_t *)src)[i];
+		out[i] = in[i];
+	return (dst);
 }
 
-void memcpy_sse2(void *dst_void, const void *src_void, size_t size)
+void *memcpy_sse2(void *dst_void, const void *src_void, size_t size)
 {
+	size_t			i;
+	const size_t	stride = 16;
 	uint8_t			*dst = (uint8_t *)dst_void;
 	const uint8_t	*src = (const uint8_t *)src_void;
 
-	size_t			i = 0;
-	const size_t	stride = 16;
-
+	i = 0;
 	while (i + stride - 1 < size)
 	{
 		__m128i chunk = _mm_loadu_si128((const __m128i *)(src + i));
@@ -222,16 +237,17 @@ void memcpy_sse2(void *dst_void, const void *src_void, size_t size)
 	}
 	i--;
 	while (++i < size)
-		((uint8_t *)dst)[i] = ((const uint8_t *)src)[i];
-}
-
-void *fast_memcpy_test(int *dst, const int *src, size_t size)
-{
-	if (__builtin_cpu_supports("avx2"))
-		memcpy_avx2_nt(dst, src, size);
-	else if (__builtin_cpu_supports("sse2"))
-		memcpy_sse2(dst, src, size);
-	else
-		ft_memcpy(dst, src, size);
+		dst[i] = src[i];
 	return (dst);
 }
+
+//void *fast_memcpy_test(void *dst, const void *src, size_t size)
+//{
+//	if (__builtin_cpu_supports("avx2"))
+//		memcpy_avx2_nt(dst, src, size);
+//	else if (__builtin_cpu_supports("sse2"))
+//		memcpy_sse2(dst, src, size);
+//	else
+//		ft_memcpy(dst, src, size);
+//	return (dst);
+//}

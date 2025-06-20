@@ -29,6 +29,23 @@ void	replace_sky(t_info *app, char *tex_file)
 	*img = new;
 }
 
+void	replace_sky_r(t_info *app, char *tex_file)
+{
+	t_img	**img;
+	t_img	*new;
+	t_img	tmp;
+	int		new_x;
+
+	img = &app->skybox_r;
+	if (*img != NULL)
+		mlx_destroy_image(app->mlx, *img);
+	new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
+	new_x = WIN_WIDTH * 360.0 / app->fov_deg;
+	new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
+	new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
+	*img = new;
+}
+
 static inline __attribute__((always_inline))
 void	copy_sky_full(t_img *const sky, t_img const *bg, t_ivect boundary)
 {
@@ -65,6 +82,24 @@ void	copy_sky_split(t_img *const sky, t_img const *bg, t_ivect boundary)
 	}
 }
 
+void	draw_sky_transposed(t_info *const app)
+{
+	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
+	t_img *const	sky = app->skybox_r;
+	t_img *const	bg = app->bg_r;
+	int				offset;
+	t_ivect			boundary;
+
+	app->player->angle = angle;
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
+
+	boundary.x = (0 - offset + sky->width) % sky->width;
+	boundary.y = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
+	void (*apply)(t_img *const, const t_img *, t_ivect);
+	apply = boundary.y > boundary.x ? copy_sky_full : copy_sky_split;
+	apply(sky, bg, boundary);
+}
+
 void	draw_sky_alt(t_info *const app)
 {
 	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
@@ -75,6 +110,7 @@ void	draw_sky_alt(t_info *const app)
 
 	app->player->angle = angle;
 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
+
 	boundary.x = (0 - offset + sky->width) % sky->width;
 	boundary.y = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
 	if (boundary.y > boundary.x)

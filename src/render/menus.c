@@ -28,7 +28,9 @@ void	menu_change_option(t_info *app, int dir)
 				calculate_offsets(app, app->player);
 				draw_sky_alt(app);
 				replace_frame(app);
-				fast_memcpy_test((int *)app->stillshot->data, (int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+				memcpy_avx2((int *) app->stillshot->data,
+							(int *) app->canvas->data,
+							WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 			}
 		}
 		if (menu_state->selected == 1)

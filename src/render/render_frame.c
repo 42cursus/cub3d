@@ -27,6 +27,30 @@ double	rand_range(double lower, double upper)
 	return (output);
 }
 
+void	fill_with_colour_r(t_img *img, int f_col, int c_col)
+{
+	const int	mid = img->height / 2;
+	int			i;
+	int			j;
+
+	u_int (*pixels)[img->height][img->width] = (void *)img->data;
+
+	i = -1;
+	while (++i <= mid)
+	{
+		j = -1;
+		while (++j < img->width)
+			(*pixels)[i][j] = c_col;
+	}
+	i--;
+	while (++i < img->height)
+	{
+		j = -1;
+		while (++j < img->width)
+			(*pixels)[i][j] = f_col;
+	}
+}
+
 void	fill_with_colour(t_img *img, int f_col, int c_col)
 {
 	const int	mid = img->height / 2;
@@ -56,8 +80,8 @@ int	render_win(void *param)
 	t_info *const	app = param;
 	t_tex *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 
@@ -79,8 +103,8 @@ int	render_lose(void *param)
 	t_info *const	app = param;
 	t_tex *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	// free_ray_children(&app->player->rays[WIN_WIDTH / 2]);
+	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
@@ -99,11 +123,14 @@ int	render_load(void *param)
 {
 	size_t			time;
 	t_info *const	app = param;
+	const t_ivect	pos = (t_ivect) {WIN_WIDTH / 2, 400};
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)app->bg->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	place_str_centred((char *)	"LOADING", app, (t_ivect){WIN_WIDTH / 2, 400}, 2);
-	// while (get_time_us() - app->last_frame < app->fr_delay)
-	// 	usleep(100);
+	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+
+	place_str_centred((char *)	"LOADING", app, pos, 2);
+	while (get_time_us() - app->fr_last < app->fr_delay)
+		usleep(50);
 	time = get_time_us();
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
@@ -168,7 +195,12 @@ int	render_play(void *param)
 	if (app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
-	replace_frame(app);
+
+	replace_frame_transposed(app);
+
+	transpose_canvas_avx2((int *) app->canvas->data,
+						  (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
@@ -197,9 +229,12 @@ int	render_intro(void *param)
 			app->mlx->end_loop = 1;
 	}
 	cast_all_rays_alt(app, app->lvl, app->player);
-	fast_memcpy_test((int *) app->canvas->data, (int *) app->bg->data,
-					 WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
+				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	draw_rays(app);
+
+	transpose_canvas_avx2((int *) app->canvas->data,
+						  (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	place_fps(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -219,8 +254,8 @@ int	render_mmenu(void *param)
 	t_img *const	bg = app->bg;
 	t_tex *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data,
-					 (int *)bg->data,  bg->size_line * bg->height);
+	memcpy_avx2((int *) app->canvas->data,
+				(int *) bg->data, bg->size_line * bg->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 
@@ -241,8 +276,8 @@ int	render_pmenu(void *param)
 	t_img *const	sshot = app->stillshot;
 	t_tex *const	tex = &app->shtex->title;
 
-	fast_memcpy_test((int *)app->canvas->data, (int *)sshot->data,
-					 sshot->size_line * sshot->height);
+	memcpy_avx2((int *) app->canvas->data, (int *) sshot->data,
+				sshot->size_line * sshot->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -272,8 +307,8 @@ int	render_credits(void *param)
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
-	fast_memcpy_test((int *)app->canvas->data,
-					 (int *)bg->data,  bg->size_line * bg->height);
+	memcpy_avx2((int *) app->canvas->data,
+				(int *) bg->data, bg->size_line * bg->height);
 	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
 	draw_credits(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)

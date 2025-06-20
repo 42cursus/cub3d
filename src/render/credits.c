@@ -99,15 +99,10 @@ t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 
 	t_colour top;
 	if (colour_a.a > colour_b.a)
-	{
 		top = colour_b;
-		top.a = (unsigned char) ((colour_a.a - colour_b.a) * (1.0 - frac_x) + colour_b.a);
-	}
 	else
-	{
 		top = colour_a;
-		top.a = (unsigned char) ((colour_b.a - colour_a.a) * frac_x + colour_a.a);
-	}
+	top.a = (unsigned char) ((colour_b.a - colour_a.a) * frac_x + colour_a.a);
 
 	t_colour bottom;
 	if (colour_c.a > colour_d.a)

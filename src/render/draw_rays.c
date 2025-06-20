@@ -13,7 +13,25 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
-static inline
+/**
+ * epi32 - packed elements of 32-bit signed integers
+ * `e` is not "integer" per se, it implies integer in the context of Intel
+ *
+ * epi8	Packed 8-bit signed integers
+ * epu8	Packed 8-bit unsigned integers
+ * epi16	Packed 16-bit signed integers
+ * ps	Packed single-precision floats
+ * pd	Packed double-precision floats
+ *
+ * storeu - store unaligned
+ *
+ * https://www.cs.virginia.edu/~cr4bd/3330/S2023/simdref.html
+ * @param x
+ * @param ray
+ * @param cnvs
+ * @param line
+ */
+static inline __attribute__((always_inline, unused))
 void	slice_drawing_avx2x8_strided(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 {
 	t_iter		it;
@@ -320,73 +338,8 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 //	slice_drawing_sse41(x, ray, canvas, line);
 //	slice_drawing_sse41x4(x, ray, canvas, line);
-//	slice_drawing_avx2x8(x, ray, canvas, line);
-	slice_drawing_avx2x8_strided(x, ray, canvas, line);
-}
-
-static inline
-void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
-{
-	// Step 1: unpack 32-bit values into 64-bit lanes
-	const t_vec8 v1 = {
-		_mm256_unpacklo_epi32(in[0], in[1]),
-		_mm256_unpackhi_epi32(in[0], in[1]),
-		_mm256_unpacklo_epi32(in[2], in[3]),
-		_mm256_unpackhi_epi32(in[2], in[3]),
-		_mm256_unpacklo_epi32(in[4], in[5]),
-		_mm256_unpackhi_epi32(in[4], in[5]),
-		_mm256_unpacklo_epi32(in[6], in[7]),
-		_mm256_unpackhi_epi32(in[6], in[7])
-	};
-
-	// Step 2: combine 64-bit chunks
-	const t_vec8 v2 = {
-		_mm256_unpacklo_epi64(v1.t0, v1.t2),
-		_mm256_unpackhi_epi64(v1.t0, v1.t2),
-		_mm256_unpacklo_epi64(v1.t1, v1.t3),
-		_mm256_unpackhi_epi64(v1.t1, v1.t3),
-		_mm256_unpacklo_epi64(v1.t4, v1.t6),
-		_mm256_unpackhi_epi64(v1.t4, v1.t6),
-		_mm256_unpacklo_epi64(v1.t5, v1.t7),
-		_mm256_unpackhi_epi64(v1.t5, v1.t7),
-	};
-
-	// Step 3: final blend across 128-bit lanes
-	out[0] = _mm256_permute2x128_si256(v2.t0, v2.t4, 0x20);
-	out[1] = _mm256_permute2x128_si256(v2.t1, v2.t5, 0x20);
-	out[2] = _mm256_permute2x128_si256(v2.t2, v2.t6, 0x20);
-	out[3] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x20);
-	out[4] = _mm256_permute2x128_si256(v2.t0, v2.t4, 0x31);
-	out[5] = _mm256_permute2x128_si256(v2.t1, v2.t5, 0x31);
-	out[6] = _mm256_permute2x128_si256(v2.t2, v2.t6, 0x31);
-	out[7] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x31);
-}
-
-void transpose_canvas_avx2(u_int *dst, u_int *src, int width, int height)
-{
-	int		y;
-	int		x;
-	int		i;
-	__m256i	in[8];
-	__m256i	out[8];
-
-	y = 0;
-	while (y < height)
-	{
-		x = 0;
-		while (x < width)
-		{
-			i = -1;
-			while (++i < 8) // Load 8 columns of 8 pixels (column-major input)
-				in[i] = _mm256_loadu_si256((__m256i *)(src + (x + i) * height + y));
-			transpose8x8_u32_avx2(out, in);
-			i = -1;
-			while (++i < 8) // Store 8 rows of 8 pixels (row-major output)
-				_mm256_storeu_si256((__m256i *)(dst + (y + i) * width + x), out[i]);
-			x += 8;
-		}
-		y += 8;
-	}
+	slice_drawing_avx2x8(x, ray, canvas, line);
+//	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
 
 void	draw_rays(t_info *app)
@@ -394,13 +347,9 @@ void	draw_rays(t_info *app)
 	int				i;
 	t_ray			*rays;
 	t_ray			*current_ray;
-	t_img *const	canvas = app->canvas;
+	t_img *const	canvas = app->canvas_r;
 
-//	u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
-//	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
-	const t_tex		trans = {.data = (u_int *) canvas->data, .w = WIN_WIDTH, .h = WIN_HEIGHT};
-
-//	transpose_canvas_avx2(trans.data, (u_int *) canvas->data, WIN_HEIGHT, WIN_WIDTH);
+	const t_tex		trans = {.data = (u_int *) canvas->data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
 
 	rays = app->player->rays;
 	i = -1;
@@ -413,6 +362,4 @@ void	draw_rays(t_info *app)
 			current_ray = current_ray->in_front;
 		}
 	}
-
-//	transpose_canvas_avx2((u_int *) canvas->data, trans.data, WIN_WIDTH, WIN_HEIGHT);
 }

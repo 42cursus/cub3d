@@ -138,9 +138,11 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	app->fr_time = 5000;
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+	app->canvas_r = mlx_new_image(app->mlx, WIN_HEIGHT, WIN_WIDTH);
 	app->overlay = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
 	replace_image(app, &app->bg, NULL);
+	replace_image(app, &app->bg_r, NULL);
 	replace_image(app, &app->overlay, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
@@ -191,7 +193,9 @@ t_ret_code	do_state_play(void *param)
 	t_info *const	app = param;
 
 	mlx_mouse_hide(app->mlx, app->win);
-	draw_sky_alt(app);
+//	draw_sky_alt(app);
+	replace_sky_r(app, (char *)TEX_DIR"/skybox1.xpm");
+	draw_sky_transposed(app);
 	draw_nav(app);
 	calculate_offsets(app, app->player);
 	app->fr_last = get_time_us();
@@ -480,6 +484,8 @@ void	do_load_to_play(void *param)
 	t_info *const	app = param;
 
 	replace_image(app, &app->bg, NULL);
+	replace_image_r(app, &app->bg_r, NULL);
+	replace_image(app, &app->bg_r, NULL);
 	mlx_loop_hook(app->mlx, &render_play, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask,
@@ -524,8 +530,8 @@ void	do_play_to_pmenu(void *param)
 	app->timer.stop_time = get_time_ms();
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	replace_frame(app);
-	fast_memcpy_test((int *)app->stillshot->data,
-		(int *)app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	memcpy_avx2((int *) app->stillshot->data,
+				(int *) app->canvas->data, WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
 		(void *) &key_press_mmenu, app);
