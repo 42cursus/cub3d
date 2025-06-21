@@ -35,12 +35,12 @@ int	parse_texture(t_lvl *lvl, char *str, int identifier, t_info *app)
 	else if (identifier == FLOOR)
 	{
 		tex_addr = &lvl->floor_tex;
-		lvl->texs[T_FLOOR] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+		lvl->planes[T_FLOOR] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
 	}
 	else if (identifier == CEILING)
 	{
 		tex_addr = &lvl->ceil_tex;
-		lvl->texs[T_CEILING] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+		lvl->planes[T_CEILING] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
 	}
 	else
 		return (1);

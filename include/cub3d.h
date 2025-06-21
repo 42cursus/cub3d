@@ -603,7 +603,7 @@ typedef struct s_lvl
 	int			height;
 	int			width;
 	char		*sublvls[4];
-	t_img		*texs[NUM_TEXTURES];
+	t_img		*planes[NUM_TEXTURES];
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -635,7 +635,7 @@ typedef struct s_player
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
-	double	offsets[WIN_HEIGHT / 2];
+	double	row_depths[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
 	t_vect	dmg_dir;

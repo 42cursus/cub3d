@@ -47,7 +47,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -Wno-unused-variable -mavx2 #-Wno-missing-braces
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
 

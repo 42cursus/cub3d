@@ -77,10 +77,10 @@ void	destroy_map(t_lvl *lvl)
 	mlx_destroy_image(app->mlx, lvl->minimap_xl);
 	mlx_destroy_image(app->mlx, lvl->help);
 	mlx_destroy_image(app->mlx, lvl->overlay);
-	if (lvl->texs[T_CEILING])
-		mlx_destroy_image(app->mlx, lvl->texs[T_CEILING]);
-	if (lvl->texs[T_FLOOR])
-		mlx_destroy_image(app->mlx, lvl->texs[T_FLOOR]);
+	if (lvl->planes[T_CEILING])
+		mlx_destroy_image(app->mlx, lvl->planes[T_CEILING]);
+	if (lvl->planes[T_FLOOR])
+		mlx_destroy_image(app->mlx, lvl->planes[T_FLOOR]);
 	free_map(lvl);
 }
 
