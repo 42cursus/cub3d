@@ -173,7 +173,7 @@ double	get_hyp_len(double len1, double len2)
 #include <stdint.h>
 
 /**
- * 	memcpy_avx2()
+ * 	ft_memcpy_avx2()
  * 	copies chunks of 8 integers using avx2 instructions
  *
  * @var stride = 32; // 256-bit = 32 bytes
@@ -183,7 +183,7 @@ double	get_hyp_len(double len1, double len2)
  * @param count
  * @return dst
  */
-void *memcpy_avx2(void *dst, const void *src, size_t count)
+void *ft_memcpy_avx2(void *dst, const void *src, size_t count)
 {
 	size_t			i = 0;
 	__m256i			chunk;

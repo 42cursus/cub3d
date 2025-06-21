@@ -60,14 +60,13 @@ void	toggle_fullscreen(t_info *const app)
 void	replace_frame(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);
-	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->player, 1);
 	if (!app->lvl->outside)
 		fill_floor(app, app->player, 0);
 	draw_rays(app);
 }
-
 
 inline __attribute__((always_inline, used))
 void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
@@ -108,7 +107,7 @@ void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
 }
 
 inline __attribute__((always_inline, used))
-void transpose_canvas_avx2(int *dst, int *src, int width, int height)
+void transpose_img_avx2(int *dst, int *src, int width, int height)
 {
 	int		y;
 	int		x;
@@ -116,11 +115,14 @@ void transpose_canvas_avx2(int *dst, int *src, int width, int height)
 	__m256i	in[8];
 	__m256i	out[8];
 
+	int full_width = width & ~7;   // width divisible by 8
+	int full_height = height & ~7; // height divisible by 8
+
 	y = 0;
-	while (y < height)
+	while (y < full_height)
 	{
 		x = 0;
-		while (x < width)
+		while (x < full_width)
 		{
 			i = -1;
 			while (++i < 8) // Load 8 columns of 8 pixels (column-major input)
@@ -133,14 +135,33 @@ void transpose_canvas_avx2(int *dst, int *src, int width, int height)
 		}
 		y += 8;
 	}
+	y = 0;
+	while (y < full_height) 	// Handle leftover columns (right edge)
+	{
+		x = full_width - 1;
+		while (++x < width)
+		{
+			i = -1;
+			while (++i < 8 && (y + i) < height)
+				dst[(y + i) * width + x] = src[x * height + y + i];
+		}
+		y += 8;
+	}
+	y = full_height - 1;
+	while (++y < height) 	// Handle leftover rows (bottom edge)
+	{
+		x = -1;
+		while (++x < width)
+			dst[y * width + x] = src[x * height + y];
+	}
 }
 
 void	replace_frame_transposed(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);
 
-	memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
 	fill_floor_transposed(app, app->player, 1);
 	if (!app->lvl->outside)

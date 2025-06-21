@@ -29,25 +29,22 @@ double	rand_range(double lower, double upper)
 
 void	fill_with_colour_r(t_img *img, int f_col, int c_col)
 {
-	const int	mid = img->height / 2;
+	const int	mid = img->width / 2;
 	int			i;
 	int			j;
-
-	u_int (*pixels)[img->height][img->width] = (void *)img->data;
+	int			*const pixels = (void *)img->data;
+	int			*row;
 
 	i = -1;
-	while (++i <= mid)
-	{
-		j = -1;
-		while (++j < img->width)
-			(*pixels)[i][j] = c_col;
-	}
-	i--;
 	while (++i < img->height)
 	{
+		row = pixels + i * img->width;
 		j = -1;
+		while (++j <= mid)
+			row[j] = c_col;
+		j--;
 		while (++j < img->width)
-			(*pixels)[i][j] = f_col;
+			row[j] = f_col;
 	}
 }
 
@@ -80,8 +77,8 @@ int	render_win(void *param)
 	t_info *const	app = param;
 	t_tex *const	tex = &app->shtex->title;
 
-	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 
@@ -103,8 +100,8 @@ int	render_lose(void *param)
 	t_info *const	app = param;
 	t_tex *const	tex = &app->shtex->title;
 
-	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
 	replace_frame(app);
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
@@ -125,8 +122,8 @@ int	render_load(void *param)
 	t_info *const	app = param;
 	const t_ivect	pos = (t_ivect) {WIN_WIDTH / 2, 400};
 
-	memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
 	place_str_centred((char *)	"LOADING", app, pos, 2);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -144,34 +141,6 @@ int	render_load(void *param)
 	return (0);
 }
 
-
-// void draw_sky(t_info *const app)
-// {
-// 	int				i;
-// 	int				j;
-// 	const double	angle = app->player->angle;
-// 	t_img	*const	sky = app->skybox;
-// 	t_img	*const	bg = app->canvas;
-// 	int 			offset;
-//
-// 	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
-//
-// 	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
-// 	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
-//
-// 	int start_x;
-//
-// 	i = -1;
-// 	while(++i < sky->height)
-// 	{
-// 		j = -1;
-// 		while (++j < WIN_WIDTH)
-// 		{
-// 			start_x = (j - offset + sky->width) % sky->width;
-// 			(*pixels_bg)[i][j] = (*pixels_sky)[i][start_x];
-// 		}
-// 	}
-// }
 
 int	render_play(void *param)
 {
@@ -198,8 +167,8 @@ int	render_play(void *param)
 
 	replace_frame_transposed(app);
 
-	transpose_canvas_avx2((int *) app->canvas->data,
-						  (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2((int *) app->canvas->data,
+					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -229,12 +198,12 @@ int	render_intro(void *param)
 			app->mlx->end_loop = 1;
 	}
 	cast_all_rays_alt(app, app->lvl, app->player);
-	memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
-				WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
+				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	draw_rays(app);
 
-	transpose_canvas_avx2((int *) app->canvas->data,
-						  (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2((int *) app->canvas->data,
+					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	place_fps(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -254,8 +223,8 @@ int	render_mmenu(void *param)
 	t_img *const	bg = app->bg;
 	t_tex *const	tex = &app->shtex->title;
 
-	memcpy_avx2((int *) app->canvas->data,
-				(int *) bg->data, bg->size_line * bg->height);
+	ft_memcpy_avx2((int *) app->canvas->data,
+				   (int *) bg->data, bg->size_line * bg->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 
@@ -276,8 +245,8 @@ int	render_pmenu(void *param)
 	t_img *const	sshot = app->stillshot;
 	t_tex *const	tex = &app->shtex->title;
 
-	memcpy_avx2((int *) app->canvas->data, (int *) sshot->data,
-				sshot->size_line * sshot->height);
+	ft_memcpy_avx2((int *) app->canvas->data, (int *) sshot->data,
+				   sshot->size_line * sshot->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -307,8 +276,8 @@ int	render_credits(void *param)
 		app->rc = ok;
 		app->mlx->end_loop = 1;
 	}
-	memcpy_avx2((int *) app->canvas->data,
-				(int *) bg->data, bg->size_line * bg->height);
+	ft_memcpy_avx2((int *) app->canvas->data,
+				   (int *) bg->data, bg->size_line * bg->height);
 	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
 	draw_credits(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)

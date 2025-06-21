@@ -84,6 +84,7 @@
 # define MLX_LIGHT_SLATE_BLUE 0x008470ff
 # define MLX_LIGHT_RED 0x00ff5555
 # define MLX_RED 0x00ff0000
+# define MLX_GRAY 0x003d3d3d
 # define MLX_GREEN 0x0000ff00
 # define MLX_BLUE 0x000000ff
 # define MLX_DTURQUOISE 0x0000ddcc
@@ -815,7 +816,7 @@ void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_frame(t_info *app);
 void	replace_frame_transposed(t_info *app);
-void	transpose_canvas_avx2(int *dst, int *src, int width, int height);
+void	transpose_img_avx2(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -890,7 +891,7 @@ t_vect	normalise_vect(t_vect vect);
 double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
 double	get_hyp_len(double len1, double len2);
-void	*memcpy_avx2(void *dst, const void *src, size_t count);
+void	*ft_memcpy_avx2(void *dst, const void *src, size_t count);
 void	*memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player);
@@ -905,7 +906,7 @@ t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl,
 void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
-void	replace_image_r(t_info *app, t_img **img, char *tex_file);
+void	replace_image_r(t_info *app, t_img **img, char *file);
 void	replace_sky(t_info *app, char *tex_file);
 void	replace_sky_r(t_info *app, char *tex_file);
 int		dim_colour(u_int col, double fact);

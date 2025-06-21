@@ -13,6 +13,7 @@
 #include "cub3d.h"
 
 
+__attribute__((optnone))
 void	free_tex_arr_arr(t_tex *tex, int n)
 {
 	while (n--)
@@ -26,7 +27,7 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->phantoon_proj, 6);
 	free_tex_arr_arr(app->shtex->holtz_tex, 6);
 	free_tex_arr_arr(app->shtex->proj_green_tex, 4);
-	free_tex_arr_arr(app->shtex->dmg_tex, 8);
+	free_tex_arr_arr(app->shtex->dmg_tex, 8); // FIXME: munmap_chunk(): invalid pointer ...
 	free_tex_arr_arr(app->shtex->logo_tex, 14); // FIXME: Sometimes empty ...
 	free(app->shtex->square.data);
 	free(app->shtex);

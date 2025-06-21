@@ -15,70 +15,81 @@
 void	replace_sky(t_info *app, char *tex_file)
 {
 	t_img	**img;
-	t_img	*new;
-	t_img	tmp;
-	int		new_x;
+	t_img	*new_img;
+	t_vect	new;
 
 	img = &app->skybox;
 	if (*img != NULL)
 		mlx_destroy_image(app->mlx, *img);
-	new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
-	new_x = WIN_WIDTH * 360.0 / app->fov_deg;
-	new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
-	new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
-	*img = new;
+	new_img = mlx_xpm_file_to_image(app->mlx, tex_file, (int []){}, (int []){});
+	new.x = WIN_WIDTH * 360.0 / app->fov_deg;
+	new.y = WIN_HEIGHT / 2;
+	new_img->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
+	new_img = scale_image(app, new_img, new.x, new.y);
+	*img = new_img;
 }
+
 
 void	replace_sky_r(t_info *app, char *tex_file)
 {
 	t_img	**img;
-	t_img	*new;
-	t_img	tmp;
-	int		new_x;
+	t_img	*new_img;
+	t_vect	new;
 
-	img = &app->skybox_r;
+	img = &app->skybox;
 	if (*img != NULL)
 		mlx_destroy_image(app->mlx, *img);
-	new = mlx_xpm_file_to_image(app->mlx, tex_file, &tmp.width, &tmp.height);
-	new_x = WIN_WIDTH * 360.0 / app->fov_deg;
-	new->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
-	new = scale_image(app, new, new_x, WIN_HEIGHT / 2);
-	*img = new;
+	new_img = mlx_xpm_file_to_image(app->mlx, tex_file, (int []){}, (int []){});
+	new.x = WIN_WIDTH * 360.0 / app->fov_deg;
+	new.y = WIN_HEIGHT / 2;
+	new_img->height *= ((9 * WIN_WIDTH) / 12) / WIN_HEIGHT;
+	new_img = scale_image(app, new_img, new.x, new.y);
+	*img = new_img;
+	app->skybox_r = mlx_new_image(app->mlx, new_img->height,new_img->width);
+	transpose_img_avx2((int *) app->skybox_r->data,
+					   (int *) new_img->data, new_img->height, new_img->width);
 }
 
 static inline __attribute__((always_inline))
-void	copy_sky_full(t_img *const sky, t_img const *bg, t_ivect boundary)
+void	copy_sky_full(t_img *const sky, t_img const *bg, t_ivect bound)
 {
-	int	i;
-	int	height;
+	int		i;
+	int		height;
+	int		copy_width;
+	t_cdata cd;
 
-	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
-	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
+	cd.src = (int *)sky->data;
+	cd.dst = (int *)bg->data;
 	height = sky->height;
+	copy_width = WIN_WIDTH;
 	i = -1;
-	while (++i < height)
-		ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][boundary.x],
-			WIN_WIDTH * sizeof(u_int));
-}
-
-static inline __attribute__((always_inline))
-void	copy_sky_split(t_img *const sky, t_img const *bg, t_ivect boundary)
-{
-	int	i;
-	int	height;
-	int	copy_width;
-
-	u_int (*const pixels_sky)[sky->height][sky->width] = (void *)sky->data;
-	u_int (*const pixels_bg)[bg->height][bg->width] = (void *)bg->data;
-	height = sky->height;
-	i = -1;
-	copy_width = sky->width - boundary.x;
 	while (++i < height)
 	{
-		ft_memcpy(&(*pixels_bg)[i][0], &(*pixels_sky)[i][boundary.x],
-			copy_width * sizeof(u_int));
-		ft_memcpy(&(*pixels_bg)[i][copy_width], &(*pixels_sky)[i][0],
-			(boundary.y + 1) * sizeof(u_int));
+		ft_memcpy(cd.dst, cd.src + bound.x, copy_width * sizeof(int));
+		cd.src += sky->width;
+		cd.dst += WIN_WIDTH;
+	}
+}
+
+static inline __attribute__((always_inline))
+void	copy_sky_split(t_img *const sky, t_img const *bg, t_ivect bound)
+{
+	int		i;
+	int		height;
+	int		copy_width;
+	t_cdata cd;
+
+	cd.src = (int *)sky->data;
+	cd.dst = (int *)bg->data;
+	height = sky->height;
+	copy_width = sky->width - bound.x;
+	i = -1;
+	while (++i < height)
+	{
+		ft_memcpy(cd.dst, cd.src + bound.x, copy_width * sizeof(int));
+		ft_memcpy(cd.dst + copy_width, cd.src, (bound.y + 1) * sizeof(int));
+		cd.src += sky->width;
+		cd.dst += WIN_WIDTH;
 	}
 }
 
@@ -87,17 +98,61 @@ void	draw_sky_transposed(t_info *const app)
 	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
 	t_img *const	sky = app->skybox_r;
 	t_img *const	bg = app->bg_r;
+	int				i;
+	int				stop_h;
+	int				start_h;
+	t_cdata			cd;
 	int				offset;
-	t_ivect			boundary;
+//	t_ivect			boundary;
+	int				copy_width;
 
 	app->player->angle = angle;
-	offset = (int)((angle - app->fov_rad_half * 2) * (sky->width / M_PI)) / 2;
 
-	boundary.x = (0 - offset + sky->width) % sky->width;
-	boundary.y = (WIN_WIDTH - 1 - offset + sky->width) % sky->width;
-	void (*apply)(t_img *const, const t_img *, t_ivect);
-	apply = boundary.y > boundary.x ? copy_sky_full : copy_sky_split;
-	apply(sky, bg, boundary);
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->height / M_PI)) / 2;
+
+	start_h = (0 - offset + sky->height) % sky->height;
+	stop_h = (WIN_WIDTH - 1 - offset + sky->height) % sky->height;
+
+	copy_width = sky->width;
+
+	cd.src = (int *)sky->data;
+	cd.dst = (int *)bg->data;
+
+	int limit;
+
+	cd.src += start_h * sky->width;
+
+	if (stop_h > start_h)
+	{
+		limit = stop_h - start_h;
+		i = -1;
+		while (++i <= limit)
+		{
+			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+	}
+	else
+	{
+		limit = sky->height - start_h;
+		i = -1;
+		while (++i < limit)
+		{
+			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+		cd.src = (int *)sky->data;
+		limit += stop_h;
+		i--;
+		while (++i < limit)
+		{
+			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+	}
 }
 
 void	draw_sky_alt(t_info *const app)
