@@ -106,6 +106,14 @@ void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
 	out[7] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x31);
 }
 
+/**
+ * Alternative to https://en.m.wikipedia.org/wiki/In-place_matrix_transposition
+ * especially there: #Non-square_matrices%3a_Following_the_cycles
+ * @param dst
+ * @param src
+ * @param width
+ * @param height
+ */
 inline __attribute__((always_inline, used))
 void transpose_img_avx2(int *dst, int *src, int width, int height)
 {
@@ -166,7 +174,7 @@ void	replace_frame_transposed(t_info *app)
 	fill_floor_transposed(app, app->player, 1);
 	if (!app->lvl->outside)
 		fill_floor_transposed(app, app->player, 0);
-	draw_rays(app);
+	draw_rays_transposed(app);
 }
 
 /**

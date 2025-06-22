@@ -932,6 +932,7 @@ u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, i
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app);
+void	draw_rays_transposed(t_info *app);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
 void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);

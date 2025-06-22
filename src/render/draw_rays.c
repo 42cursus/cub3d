@@ -218,7 +218,6 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	t_tstep			ts;
 	t_m128i			mc;
 	t_cdata			cd;
-	t_ivect4		ycoord; // for calculating texel Y coordinates
 	int				offset = (int)ray->pos * ray->tex->h;
 
 	it.i = (-(line.top < 0) & -line.top);
@@ -235,16 +234,11 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 	while (it.i + 3 < it.j)
 	{
-		ycoord.t0 = (int)(ts.tex_y + ts.step * 0);
-		ycoord.t1 = (int)(ts.tex_y + ts.step * 1);
-		ycoord.t2 = (int)(ts.tex_y + ts.step * 2);
-		ycoord.t3 = (int)(ts.tex_y + ts.step * 3);
-
 		mc.src = _mm_setr_epi32(
-			cd.src[ycoord.t0 + offset],
-			cd.src[ycoord.t1 + offset],
-			cd.src[ycoord.t2 + offset],
-			cd.src[ycoord.t3 + offset]
+			cd.src[(int)(ts.tex_y + ts.step * 0) + offset],
+			cd.src[(int)(ts.tex_y + ts.step * 1) + offset],
+			cd.src[(int)(ts.tex_y + ts.step * 2) + offset],
+			cd.src[(int)(ts.tex_y + ts.step * 3) + offset]
 		);
 		mc.mask = _mm_cmpeq_epi32(mc.src, mc.transparent);
 		mc.mask = _mm_andnot_si128(mc.mask, _mm_set1_epi32(-1));
@@ -296,8 +290,8 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 	ts.tex_y = ts.step * it.i;
 	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
-//	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
-	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
+	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
+//	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
 
 	while (it.i < it.j)
 	{
@@ -309,9 +303,9 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 
-		cd.dst++;
 		it.i++;
-//		cd.dst += cnvs->w;
+//		cd.dst++;
+		cd.dst += cnvs->w;
 		ts.tex_y += ts.step;
 	}
 }
@@ -336,13 +330,61 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
-//	slice_drawing_sse41(x, ray, canvas, line);
+	slice_drawing_sse41(x, ray, canvas, line);
 //	slice_drawing_sse41x4(x, ray, canvas, line);
-	slice_drawing_avx2x8(x, ray, canvas, line);
+//	slice_drawing_avx2x8(x, ray, canvas, line);
+//	slice_drawing_avx2x8_strided(x, ray, canvas, line);
+}
+
+void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
+{
+	t_anim	*anim;
+	t_lvars	line;
+
+	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
+	{
+		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
+		if (anim->active == 1)
+			ray->tex = get_close_door_tex(anim, app);
+	}
+	else if (ray->face >= DOOR_N_OPEN)
+	{
+		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
+		if (anim->active == 1)
+			ray->tex = get_open_door_tex(anim, app);
+	}
+	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
+	line.top = WIN_HEIGHT / 2 - line.height / 2;
+	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
+//	slice_drawing_sse41(x, ray, canvas, line);
+	slice_drawing_sse41x4(x, ray, canvas, line);
+//	slice_drawing_avx2x8(x, ray, canvas, line);
 //	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
 
 void	draw_rays(t_info *app)
+{
+	int				i;
+	t_ray			*rays;
+	t_ray			*current_ray;
+	t_img *const	canvas = app->canvas;
+
+	const t_tex		tex = {.data = (u_int *) canvas->data, .w = WIN_WIDTH, .h = WIN_HEIGHT};
+
+	rays = app->player->rays;
+	i = -1;
+	while (++i < WIN_WIDTH)
+	{
+		current_ray = &rays[i];
+		while (current_ray)
+		{
+			draw_slice(i, current_ray, app, (t_tex *)&tex);
+			current_ray = current_ray->in_front;
+		}
+	}
+}
+
+void	draw_rays_transposed(t_info *app)
 {
 	int				i;
 	t_ray			*rays;
@@ -358,7 +400,7 @@ void	draw_rays(t_info *app)
 		current_ray = &rays[i];
 		while (current_ray)
 		{
-			draw_slice(i, current_ray, app, (t_tex *)&trans);
+			draw_slice_transposed(i, current_ray, app, (t_tex *)&trans);
 			current_ray = current_ray->in_front;
 		}
 	}

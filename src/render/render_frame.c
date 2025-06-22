@@ -165,10 +165,10 @@ int	render_play(void *param)
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
 
-	replace_frame_transposed(app);
-
-	transpose_img_avx2((int *) app->canvas->data,
-					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	replace_frame(app);
+//	replace_frame_transposed(app);
+//	transpose_img_avx2((int *) app->canvas->data,
+//					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -200,8 +200,8 @@ int	render_intro(void *param)
 	cast_all_rays_alt(app, app->lvl, app->player);
 	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	draw_rays(app);
 
+	draw_rays_transposed(app);
 	transpose_img_avx2((int *) app->canvas->data,
 					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	place_fps(app);

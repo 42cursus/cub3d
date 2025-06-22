@@ -158,7 +158,6 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	}
 }
 
-inline __attribute__((used))
 void	fill_floor_transposed(t_info *app, t_player *player, int is_floor)
 {
 	t_vect	dir[2];
