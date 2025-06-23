@@ -223,7 +223,6 @@ void	fill_floor_transposed_cols(t_info *app, t_player *player)
 	}
 }
 
-__attribute__((optnone))
 void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
@@ -295,7 +294,7 @@ void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player)
 			__m128i idx_x = _mm_and_si128(i_x, tex_width_i);
 			__m128i idx_y = _mm_and_si128(i_y, tex_height_i);
 
-			__m128i final_idxs = _mm_add_epi32(_mm_mul_epi32(idx_y, _mm_set1_epi32(tex.width)), idx_x);
+			__m128i final_idxs = _mm_add_epi32(_mm_mullo_epi32(idx_y, _mm_set1_epi32(tex.width)), idx_x);
 
 			int final_idxs_int[4];
 
