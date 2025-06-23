@@ -223,6 +223,7 @@ void	fill_floor_transposed_cols(t_info *app, t_player *player)
 	}
 }
 
+__attribute__((optnone))
 void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
@@ -278,85 +279,44 @@ void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player)
 		while (iter.y < WIN_HEIGHT)
 		{
 
-//			int y[4] = {
-//			       iter.y + 0,
-//				   iter.y + 1,
-//				   iter.y + 2,
-//				   iter.y + 3,
-//			};
+			__m128 p_val_x = _mm_loadu_ps(&pos_x[iter.y]);
+			__m128 p_val_y = _mm_loadu_ps(&pos_y[iter.y]);
 
-			int y_0 = iter.y + 0;
-			int y_1 = iter.y + 1;
-			int y_2 = iter.y + 2;
-			int y_3 = iter.y + 3;
+			__m128 tex_width = _mm_set1_ps(tex.width);
+			__m128 tex_height = _mm_set1_ps(tex.height);
 
-			float p_val0_x = pos_x[y_0];
-			float p_val1_x = pos_x[y_1];
-			float p_val2_x = pos_x[y_2];
-			float p_val3_x = pos_x[y_3];
-
-			float p_val0_y = pos_y[y_0];
-			float p_val1_y = pos_y[y_1];
-			float p_val2_y = pos_y[y_2];
-			float p_val3_y = pos_y[y_3];
-
-			int i0_x = (int) (p_val0_x * tex.width);
-			int i1_x = (int) (p_val1_x * tex.width);
-			int i2_x = (int) (p_val2_x * tex.width);
-			int i3_x = (int) (p_val3_x * tex.width);
-
-			int i0_y = (int) (p_val0_y * tex.height);
-			int i1_y = (int) (p_val1_y * tex.height);
-			int i2_y = (int) (p_val2_y * tex.height);
-			int i3_y = (int) (p_val3_y * tex.height);
-
-			t_ivect idx0;
-			t_ivect idx1;
-			t_ivect idx2;
-			t_ivect idx3;
-
-			idx0.x = i0_x & (tex.width - 1);
-			idx1.x = i1_x & (tex.width - 1);
-			idx2.x = i2_x & (tex.width - 1);
-			idx3.x = i3_x & (tex.width - 1);
-
-			idx0.y = i0_y & (tex.height - 1);
-			idx1.y = i1_y & (tex.height - 1);
-			idx2.y = i2_y & (tex.height - 1);
-			idx3.y = i3_y & (tex.height - 1);
-
-			int rowrow = iter.x * WIN_HEIGHT;
-
-			int i0 = rowrow + y_0;
-			int i1 = rowrow + y_1;
-			int i2 = rowrow + y_2;
-			int i3 = rowrow + y_3;
-
-			row.dst[i0] = row.src[idx0.y * tex.width + idx0.x];
-			row.dst[i1] = row.src[idx1.y * tex.width + idx1.x];
-			row.dst[i2] = row.src[idx2.y * tex.width + idx2.x];
-			row.dst[i3] = row.src[idx3.y * tex.width + idx3.x];
-
-			i0 += WIN_HEIGHT;
-			i1 += WIN_HEIGHT;
-			i2 += WIN_HEIGHT;
-			i3 += WIN_HEIGHT;
+			__m128i tex_width_i = _mm_set1_epi32(tex.width - 1);
+			__m128i tex_height_i = _mm_set1_epi32(tex.height - 1);
 
 
-			row.dst[i0] = row.src[idx0.y * tex.width + idx0.x];
-			row.dst[i1] = row.src[idx1.y * tex.width + idx1.x];
-			row.dst[i2] = row.src[idx2.y * tex.width + idx2.x];
-			row.dst[i3] = row.src[idx3.y * tex.width + idx3.x];
+			__m128i i_x = _mm_cvtps_epi32(_mm_mul_ps(p_val_x, tex_width));
+			__m128i i_y = _mm_cvtps_epi32(_mm_mul_ps(p_val_y, tex_height));
 
-			pos_x[y_0] += steps_x[y_0];
-			pos_x[y_1] += steps_x[y_1];
-			pos_x[y_2] += steps_x[y_2];
-			pos_x[y_3] += steps_x[y_3];
+			__m128i idx_x = _mm_and_si128(i_x, tex_width_i);
+			__m128i idx_y = _mm_and_si128(i_y, tex_height_i);
 
-			pos_y[y_0] += steps_y[y_0];
-			pos_y[y_1] += steps_y[y_1];
-			pos_y[y_2] += steps_y[y_2];
-			pos_y[y_3] += steps_y[y_3];
+			__m128i final_idxs = _mm_add_epi32(_mm_mul_epi32(idx_y, _mm_set1_epi32(tex.width)), idx_x);
+
+			int final_idxs_int[4];
+
+			_mm_storeu_si128((__m128i *)final_idxs_int, final_idxs);
+
+			__m128i final_results = _mm_setr_epi32(
+				row.src[final_idxs_int[0]],
+				row.src[final_idxs_int[1]],
+				row.src[final_idxs_int[2]],
+				row.src[final_idxs_int[3]]
+			);
+
+			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
+			_mm_storeu_si128((__m128i *)dst, final_results);
+			_mm_storeu_si128((__m128i *)(dst + WIN_HEIGHT), final_results);
+
+			__m128 steps_xx = _mm_loadu_ps(&steps_x[iter.y]);
+			__m128 steps_yy = _mm_loadu_ps(&steps_y[iter.y]);
+
+			_mm_storeu_ps(&pos_x[iter.y], _mm_add_ps(p_val_x, steps_xx));
+			_mm_storeu_ps(&pos_y[iter.y], _mm_add_ps(p_val_y, steps_yy));
 
 			iter.y = iter.y + 4;
 		}
