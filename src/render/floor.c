@@ -296,16 +296,7 @@ void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player)
 
 			__m128i final_idxs = _mm_add_epi32(_mm_mullo_epi32(idx_y, _mm_set1_epi32(tex.width)), idx_x);
 
-			int final_idxs_int[4];
-
-			_mm_storeu_si128((__m128i *)final_idxs_int, final_idxs);
-
-			__m128i final_results = _mm_setr_epi32(
-				row.src[final_idxs_int[0]],
-				row.src[final_idxs_int[1]],
-				row.src[final_idxs_int[2]],
-				row.src[final_idxs_int[3]]
-			);
+			__m128i final_results = _mm_i32gather_epi32((const int *)row.src, final_idxs, 4);
 
 			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
 			_mm_storeu_si128((__m128i *)dst, final_results);
