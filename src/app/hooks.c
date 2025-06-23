@@ -173,7 +173,10 @@ void	replace_frame_transposed(t_info *app)
 
 	fill_floor_transposed_cols(app, app->player, 1);
 	if (!app->lvl->outside)
-		fill_floor_transposed(app, app->player, 0);
+		fill_floor_transposed_cols(app, app->player, 0);
+	// fill_floor_transposed(app, app->player, 1);
+	// if (!app->lvl->outside)
+	// 	fill_floor_transposed(app, app->player, 0);
 	draw_rays_transposed(app);
 }
 
