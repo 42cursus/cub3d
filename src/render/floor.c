@@ -158,6 +158,75 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	}
 }
 
+// __attribute__((optnone))
+void	fill_floor_transposed_cols(t_info *app, t_player *player, int is_floor)
+{
+	t_vect	dir[2];
+	t_vect	pos[WIN_HEIGHT / 2];
+	t_vect	steps[WIN_HEIGHT / 2];
+	t_vect	curr;
+	t_ivect idx;
+	t_cdata row;
+	t_ivect iter;
+
+	int depths_step;
+	int y;
+	int y_start;
+	int depths_idx_start;
+	double	depth;
+	t_img	tex;
+
+	bool is_ceil = !is_floor;
+
+	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
+
+	if (is_ceil)
+	{
+		tex = *app->lvl->planes[T_CEILING];
+		y_start = 0;
+		depths_idx_start = 0;
+		depths_step = 1;
+	}
+	else
+	{
+		tex = *app->lvl->planes[T_FLOOR];
+		y_start = WIN_HEIGHT / 2;
+		depths_idx_start = WIN_HEIGHT / 2 - 1;
+		depths_step = -1;
+	}
+
+	row.dst = (int *)app->canvas_r->data;
+	row.src = (int *)tex.data;
+
+	iter.y = -1;
+	while (++iter.y < WIN_HEIGHT / 2)
+	{
+		depth = player->row_depths[iter.y * depths_step + depths_idx_start];
+		pos[iter.y] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
+		curr = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
+		steps[iter.y].x = (curr.x - pos[iter.y].x) / WIN_WIDTH * 2;
+		steps[iter.y].y = (curr.y - pos[iter.y].y) / WIN_WIDTH * 2;
+	}
+	iter.x = 0;
+	while (iter.x < WIN_WIDTH - 1)
+	{
+		iter.y = -1;
+		while (++iter.y < WIN_HEIGHT / 2)
+		{
+			y = y_start + iter.y;
+			idx.x = ((int)(pos[iter.y].x * tex.width)) & (tex.width - 1);
+			idx.y = ((int)(pos[iter.y].y * tex.height)) & (tex.height - 1);
+
+			row.dst[iter.x * WIN_HEIGHT + y] = row.src[idx.y * tex.width + idx.x];
+			row.dst[(iter.x + 1) * WIN_HEIGHT + y] = row.src[idx.y * tex.width + idx.x];
+			pos[iter.y].x += steps[iter.y].x;
+			pos[iter.y].y += steps[iter.y].y;
+		}
+		iter.x += 2;
+	}
+}
+
 void	fill_floor_transposed(t_info *app, t_player *player, int is_floor)
 {
 	t_vect	dir[2];

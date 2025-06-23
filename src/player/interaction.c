@@ -24,13 +24,13 @@ void	rotate_player(t_info *app, t_player *player,
 	app->player->angle = atan2(app->player->dir.y, app->player->dir.x);
 	if (app->lvl->outside)
 	{
-//		draw_sky_transposed(app);
-		draw_sky_alt(app);
+		draw_sky_transposed(app);
+		// draw_sky_alt(app);
 	}
 	draw_nav(app);
 }
 
-void	handle_open_door(t_info *app, t_ray *crosshair)
+void	handle_open_door(t_info *app, t_ray * crosshair)
 {
 	t_anim	*anim;
 	char	*doortile;

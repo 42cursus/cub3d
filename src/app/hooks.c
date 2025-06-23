@@ -171,7 +171,7 @@ void	replace_frame_transposed(t_info *app)
 	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
-	fill_floor_transposed(app, app->player, 1);
+	fill_floor_transposed_cols(app, app->player, 1);
 	if (!app->lvl->outside)
 		fill_floor_transposed(app, app->player, 0);
 	draw_rays_transposed(app);

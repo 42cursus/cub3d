@@ -165,17 +165,17 @@ int	render_play(void *param)
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
 
-	replace_frame(app);
-//	replace_frame_transposed(app);
-//	transpose_img_avx2((int *) app->canvas->data,
-//					   (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	// replace_frame(app);
+	replace_frame_transposed(app);
+	transpose_img_avx2((int *) app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
-	app->fr_scale = 20000.0/app->fr_time;
+	app->fr_scale = 20000.0 / app->fr_time;
 	app->fr_count++;
 	draw_hud(app);
 	on_expose(app);
