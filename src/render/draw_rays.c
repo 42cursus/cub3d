@@ -296,7 +296,9 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	while (it.i < it.j)
 	{
 		mc.colour = cd.src[(int)ts.tex_y];
+
 		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
+
 		mc.dst = _mm_set1_epi32(*cd.dst);
 
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));

@@ -171,9 +171,13 @@ void	replace_frame_transposed(t_info *app)
 	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
-	fill_floor_transposed_cols(app, app->player, 1);
+//	fill_floor_transposed_cols(app, app->player, 1);
+//	if (!app->lvl->outside)
+//		fill_floor_transposed_cols(app, app->player, 0);
+
+	fill_floor_transposed_cols_avx2(app, app->player);
 	if (!app->lvl->outside)
-		fill_floor_transposed_cols(app, app->player, 0);
+		fill_ceil_transposed_cols(app, app->player);
 	// fill_floor_transposed(app, app->player, 1);
 	// if (!app->lvl->outside)
 	// 	fill_floor_transposed(app, app->player, 0);
