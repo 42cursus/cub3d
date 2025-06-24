@@ -314,6 +314,7 @@ void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player)
 	}
 }
 
+__attribute__((optnone))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
@@ -359,7 +360,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 	iter.x = 0;
 	while (iter.x < WIN_WIDTH - 1)
 	{
-		iter.y = WIN_HEIGHT / 2;
+		iter.y = (WIN_HEIGHT / 2);
 		while (iter.y + 7 < WIN_HEIGHT)
 		{
 
@@ -394,6 +395,22 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			_mm256_storeu_ps(&pos_array_y[iter.y - WIN_HEIGHT / 2], _mm256_add_ps(p_val_y, steps_yy));
 
 			iter.y = iter.y + 8;
+		}
+		while (iter.y < WIN_HEIGHT)
+		{
+			t_ivect idx;
+
+			idx.x = ((int)(pos_array_x[iter.y - WIN_HEIGHT / 2] * tex.width)) & (tex.width - 1);
+			idx.y = ((int)(pos_array_y[iter.y - WIN_HEIGHT / 2] * tex.height)) & (tex.height - 1);
+
+			int result = row.src[idx.y * tex.width + idx.x];
+
+			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
+			dst[0] = result;
+			dst[WIN_HEIGHT] = result;
+			pos_array_x[iter.y - WIN_HEIGHT / 2] += steps_arr_x[iter.y - WIN_HEIGHT / 2];
+			pos_array_y[iter.y - WIN_HEIGHT / 2] += steps_arr_y[iter.y - WIN_HEIGHT / 2];
+			iter.y++;
 		}
 		iter.x += 2;
 	}
@@ -479,6 +496,21 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 			_mm256_storeu_ps(&pos_array_y[iter.y], _mm256_add_ps(p_val_y, steps_yy));
 
 			iter.y = iter.y + 8;
+		}
+		while (iter.y < WIN_HEIGHT)
+		{
+			t_ivect idx;
+
+			idx.x = ((int)(pos_array_x[iter.y - WIN_HEIGHT / 2] * tex.width)) & (tex.width - 1);
+			idx.y = ((int)(pos_array_y[iter.y - WIN_HEIGHT / 2] * tex.height)) & (tex.height - 1);
+
+			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
+
+			dst[0] = row.src[idx.y * tex.width + idx.x];
+			dst[WIN_HEIGHT] = row.src[idx.y * tex.width + idx.x];
+			pos_array_x[iter.y - WIN_HEIGHT / 2] += steps_arr_x[iter.y - WIN_HEIGHT / 2];
+			pos_array_y[iter.y - WIN_HEIGHT / 2] += steps_arr_y[iter.y - WIN_HEIGHT / 2];
+			iter.y++;
 		}
 		iter.x += 2;
 	}

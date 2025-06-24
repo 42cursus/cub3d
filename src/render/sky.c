@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 17:53:25 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 15:42:38 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/06/24 22:58:45 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ void	draw_sky_transposed_avx2(t_info *const app)
 	int				start_h;
 	t_cdata			cd;
 	int				offset;
-//	t_ivect			boundary;
 	int				copy_width;
 
 	app->player->angle = angle;
