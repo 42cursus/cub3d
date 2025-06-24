@@ -71,7 +71,9 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
 
 		dst[i] = src[idx.y * width + idx.x];
 		dst[i + 1] = src[idx.y * width + idx.x];
-		curr = (t_vect){.x = curr.x + step.x, curr.y + step.y};
+
+		curr.x = curr.x + step.x;
+		curr.y = curr.y + step.y;
 		i += 2;
 	}
 }
@@ -275,7 +277,7 @@ void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player)
 	while (iter.x < WIN_WIDTH - 1)
 	{
 		iter.y = WIN_HEIGHT / 2;
-		while (iter.y  + 3 < WIN_HEIGHT)
+		while (iter.y < WIN_HEIGHT - 3)
 		{
 
 			__m128 p_val_x = _mm_loadu_ps(&pos_x[iter.y]);
@@ -317,19 +319,18 @@ void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player)
 __attribute__((optnone))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
-	t_vect	dir[2];
+	t_vect			dir[2];
+	t_vect			pos[2];
+
 	float	pos_array_x[WIN_HEIGHT / 2];
 	float	pos_array_y[WIN_HEIGHT / 2];
 
 	float	steps_arr_x[WIN_HEIGHT / 2];
 	float	steps_arr_y[WIN_HEIGHT / 2];
 
-	t_vect	curr;
-
 	t_cdata row;
 	t_ivect iter;
 
-	double	depth;
 	t_img	tex;
 	double *depths;
 
@@ -342,40 +343,38 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 	row.dst = (int *)app->canvas_r->data;
 	row.src = (int *)tex.data;
 
+	t_vect const	pl_pos = player->pos;
 	iter.y = -1;
 	while (++iter.y < WIN_HEIGHT / 2)
 	{
-		depth = depths[iter.y];
+		double	depth = depths[iter.y];
 
-		t_vect temp = add_vect(player->pos, scale_vect(dir[LEFT], depth));
+		pos[LEFT] = add_vect(pl_pos, scale_vect(dir[LEFT], depth));
+		pos[RIGHT] = add_vect(pl_pos, scale_vect(dir[RIGHT], depth));
 
-		pos_array_x[iter.y] = temp.x;
-		pos_array_y[iter.y] = temp.y;
+		steps_arr_x[iter.y] = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH * 2;
+		steps_arr_y[iter.y] = (pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH * 2;
 
-		curr = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
-
-		steps_arr_x[iter.y] = (curr.x - pos_array_x[iter.y]) / WIN_WIDTH * 2;
-		steps_arr_y[iter.y] = (curr.y - pos_array_y[iter.y]) / WIN_WIDTH * 2;
+		pos_array_x[iter.y] = pos[LEFT].x;
+		pos_array_y[iter.y] = pos[LEFT].y;
 	}
+
+	__m256 tex_width = _mm256_set1_ps(tex.width);
+	__m256 tex_height = _mm256_set1_ps(tex.height);
+	__m256i tex_width_i = _mm256_set1_epi32(tex.width - 1);
+	__m256i tex_height_i = _mm256_set1_epi32(tex.height - 1);
+
 	iter.x = 0;
 	while (iter.x < WIN_WIDTH - 1)
 	{
 		iter.y = (WIN_HEIGHT / 2);
-		while (iter.y + 7 < WIN_HEIGHT)
+		while (iter.y < WIN_HEIGHT - 7)
 		{
+			__m256 curr_x = _mm256_loadu_ps(&pos_array_x[iter.y - WIN_HEIGHT / 2]);
+			__m256 curr_y = _mm256_loadu_ps(&pos_array_y[iter.y - WIN_HEIGHT / 2]);
 
-			__m256 p_val_x = _mm256_loadu_ps(&pos_array_x[iter.y - WIN_HEIGHT / 2]);
-			__m256 p_val_y = _mm256_loadu_ps(&pos_array_y[iter.y - WIN_HEIGHT / 2]);
-
-			__m256 tex_width = _mm256_set1_ps(tex.width);
-			__m256 tex_height = _mm256_set1_ps(tex.height);
-
-			__m256i tex_width_i = _mm256_set1_epi32(tex.width - 1);
-			__m256i tex_height_i = _mm256_set1_epi32(tex.height - 1);
-
-
-			__m256i i_x = _mm256_cvtps_epi32(_mm256_mul_ps(p_val_x, tex_width));
-			__m256i i_y = _mm256_cvtps_epi32(_mm256_mul_ps(p_val_y, tex_height));
+			__m256i i_x = _mm256_cvtps_epi32(_mm256_mul_ps(curr_x, tex_width));
+			__m256i i_y = _mm256_cvtps_epi32(_mm256_mul_ps(curr_y, tex_height));
 
 			__m256i idx_x = _mm256_and_si256(i_x, tex_width_i);
 			__m256i idx_y = _mm256_and_si256(i_y, tex_height_i);
@@ -391,8 +390,8 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			__m256 steps_xx = _mm256_loadu_ps(&steps_arr_x[iter.y - WIN_HEIGHT / 2]);
 			__m256 steps_yy = _mm256_loadu_ps(&steps_arr_y[iter.y - WIN_HEIGHT / 2]);
 
-			_mm256_storeu_ps(&pos_array_x[iter.y - WIN_HEIGHT / 2], _mm256_add_ps(p_val_x, steps_xx));
-			_mm256_storeu_ps(&pos_array_y[iter.y - WIN_HEIGHT / 2], _mm256_add_ps(p_val_y, steps_yy));
+			_mm256_storeu_ps(&pos_array_x[iter.y - WIN_HEIGHT / 2], _mm256_add_ps(curr_x, steps_xx));
+			_mm256_storeu_ps(&pos_array_y[iter.y - WIN_HEIGHT / 2], _mm256_add_ps(curr_y, steps_yy));
 
 			iter.y = iter.y + 8;
 		}
@@ -408,8 +407,10 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
 			dst[0] = result;
 			dst[WIN_HEIGHT] = result;
+
 			pos_array_x[iter.y - WIN_HEIGHT / 2] += steps_arr_x[iter.y - WIN_HEIGHT / 2];
 			pos_array_y[iter.y - WIN_HEIGHT / 2] += steps_arr_y[iter.y - WIN_HEIGHT / 2];
+
 			iter.y++;
 		}
 		iter.x += 2;
@@ -443,7 +444,7 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 	row.dst = (int *)app->canvas_r->data;
 	row.src = (int *)tex.data;
 
-	iter.y = WIN_HEIGHT / 2;
+	iter.y = (WIN_HEIGHT / 2);
 	while (iter.y--)
 	{
 		depth = depths[iter.y];
@@ -462,7 +463,7 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 	while (iter.x < WIN_WIDTH - 1)
 	{
 		iter.y = 0;
-		while (iter.y + 7 < WIN_HEIGHT / 2)
+		while (iter.y < (WIN_HEIGHT / 2) - 7)
 		{
 
 			__m256 p_val_x = _mm256_loadu_ps(&pos_array_x[iter.y]);
@@ -497,19 +498,19 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 
 			iter.y = iter.y + 8;
 		}
-		while (iter.y < WIN_HEIGHT)
+		while (iter.y < WIN_HEIGHT / 2)
 		{
 			t_ivect idx;
 
-			idx.x = ((int)(pos_array_x[iter.y - WIN_HEIGHT / 2] * tex.width)) & (tex.width - 1);
-			idx.y = ((int)(pos_array_y[iter.y - WIN_HEIGHT / 2] * tex.height)) & (tex.height - 1);
+			idx.x = ((int)(pos_array_x[iter.y] * tex.width)) & (tex.width - 1);
+			idx.y = ((int)(pos_array_y[iter.y] * tex.height)) & (tex.height - 1);
 
 			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
 
 			dst[0] = row.src[idx.y * tex.width + idx.x];
 			dst[WIN_HEIGHT] = row.src[idx.y * tex.width + idx.x];
-			pos_array_x[iter.y - WIN_HEIGHT / 2] += steps_arr_x[iter.y - WIN_HEIGHT / 2];
-			pos_array_y[iter.y - WIN_HEIGHT / 2] += steps_arr_y[iter.y - WIN_HEIGHT / 2];
+			pos_array_x[iter.y] += steps_arr_x[iter.y];
+			pos_array_y[iter.y] += steps_arr_y[iter.y];
 			iter.y++;
 		}
 		iter.x += 2;
