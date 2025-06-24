@@ -100,6 +100,8 @@ void	draw_sky_transposed_avx2(t_info *const app)
 	t_img *const	sky = app->skybox_r;
 	t_img *const	bg = app->bg_r;
 	int				i;
+	int				j;
+	t_m256i			mc;
 	int				stop_h;
 	int				start_h;
 	t_cdata			cd;
@@ -129,11 +131,21 @@ void	draw_sky_transposed_avx2(t_info *const app)
 		i = -1;
 		while (++i <= limit)
 		{
-			size_t n = copy_width;
-			int *dest = cd.dst;
-			int *s = cd.src;
-			while (n-- > 0)
-				*dest++ = *s++;
+			int *dst = cd.dst;
+			int *src = cd.src;
+
+			j = -1;
+			while (j + 7 < copy_width)
+			{
+				mc.src = _mm256_loadu_si256((const __m256i *)src);
+				_mm256_storeu_si256((__m256i *)dst, mc.src);
+
+				src += 8;
+				dst += 8;
+				j += 8;
+			}
+			while (++j < copy_width)
+				*dst++ = *src++;
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}
@@ -144,13 +156,21 @@ void	draw_sky_transposed_avx2(t_info *const app)
 		i = -1;
 		while (++i < limit)
 		{
+			int *dst = cd.dst;
+			int *src = cd.src;
 
-			size_t n = copy_width;
-			int *dest = cd.dst;
-			int *s = cd.src;
-			while (n-- > 0)
-				*dest++ = *s++;
+			j = -1;
+			while (j + 7 < copy_width)
+			{
+				mc.src = _mm256_loadu_si256((const __m256i *)src);
+				_mm256_storeu_si256((__m256i *)dst, mc.src);
 
+				src += 8;
+				dst += 8;
+				j += 8;
+			}
+			while (++j < copy_width)
+				*dst++ = *src++;
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}
@@ -160,11 +180,21 @@ void	draw_sky_transposed_avx2(t_info *const app)
 		i--;
 		while (++i < limit)
 		{
-			size_t n = copy_width;
-			int *dest = cd.dst;
-			int *s = cd.src;
-			while (n-- > 0)
-				*dest++ = *s++;
+			int *dst = cd.dst;
+			int *src = cd.src;
+
+			j = -1;
+			while (j + 7 < copy_width)
+			{
+				mc.src = _mm256_loadu_si256((const __m256i *)src);
+				_mm256_storeu_si256((__m256i *)dst, mc.src);
+
+				src += 8;
+				dst += 8;
+				j += 8;
+			}
+			while (++j < copy_width)
+				*dst++ = *src++;
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}
