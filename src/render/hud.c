@@ -490,22 +490,25 @@ void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
 void	put_texture(t_info *app, t_tex *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;
-	u_int32_t		*src_row;
-	u_int32_t		*dst_row;
-	t_mcol			mc;
+	int 			*src_row;
+	int				*dst_row;
+	t_m128i			mc2;
 	t_ivect			i;
 
 	i.y = -1;
 	while (++i.y < tex->h)
 	{
-		src_row = (u_int32_t *)tex->data + (i.y * tex->w);
-		dst_row = (u_int32_t *)canvas->data + ((i.y + y) * canvas->width) + x;
+		src_row = (int *)tex->data + (i.y * tex->w);
+		dst_row = (int *)canvas->data + ((i.y + y) * canvas->width) + x;
 		i.x = -1;
 		while (++i.x < tex->w)
 		{
-			mc.colour = src_row[i.x];
-			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			dst_row[i.x] = (mc.colour & mc.mask) | (dst_row[i.x] & ~mc.mask);
+			mc2.colour = src_row[i.x];
+			mc2.src = _mm_set1_epi32(mc2.colour);
+			mc2.dst = _mm_set1_epi32(dst_row[i.x]);
+			mc2.mask = _mm_set1_epi32(-(mc2.colour != (int)XPM_TRANSPARENT));
+			mc2.blend = _mm_blendv_epi8(mc2.dst, mc2.src, mc2.mask);
+			dst_row[i.x] =  _mm_cvtsi128_si32(mc2.blend);
 		}
 	}
 }
@@ -529,6 +532,7 @@ void	place_tex_to_image_scale(t_img *const img, const t_tex *tex, t_ivect pos, d
 		while (++it.x < limit.x)
 		{
 			mc.colour = src_row[(int)(it.x * step)];
+			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}

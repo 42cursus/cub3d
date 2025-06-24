@@ -229,6 +229,7 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	cd.src = (int *)ray->tex->data;
 	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
 
+	mc.overlay = -(ray->damaged) & MLX_RED;
 	mc.overlay128 = _mm_set1_epi32(-(ray->damaged) & MLX_RED);
 	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
 
@@ -255,12 +256,16 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		ts.tex_y += ts.step * 4;
 		it.i += 4;
 	}
+	cd.src += offset;
 	while (it.i < it.j)
 	{
-		int tex_y = (int)ts.tex_y;
-		int color = cd.src[tex_y + offset];
-		if (color != (int)XPM_TRANSPARENT)
-			*cd.dst = color | (-(ray->damaged) & MLX_RED);
+		mc.colour = cd.src[(int) ts.tex_y];
+		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
+		mc.dst = _mm_set1_epi32(*cd.dst);
+
+		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
+		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
+		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 		cd.dst++;
 		ts.tex_y += ts.step;
 		it.i++;
@@ -340,28 +345,21 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
-	t_anim	*anim;
-	t_lvars	line;
+	t_anim	*const	anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
+	bool const		is_active = (anim->active == 1);
+	t_lvars			line;
 
-	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
-	{
-		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			ray->tex = get_close_door_tex(anim, app);
-	}
-	else if (ray->face >= DOOR_N_OPEN)
-	{
-		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			ray->tex = get_open_door_tex(anim, app);
-	}
+	bool closed = ray->face >= DOOR_N && ray->face < DOOR_N_OPEN;
+	bool open = ray->face >= DOOR_N_OPEN;
+
+	if (closed && is_active)
+		ray->tex = get_close_door_tex(anim, app);
+	else if (open && is_active)
+		ray->tex = get_open_door_tex(anim, app);
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
-//	slice_drawing_sse41(x, ray, canvas, line);
 	slice_drawing_sse41x4(x, ray, canvas, line);
-//	slice_drawing_avx2x8(x, ray, canvas, line);
-//	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
 
 void	draw_rays(t_info *app)
