@@ -276,6 +276,12 @@ typedef struct s_tstep
 	double	tex_y;
 }	t_tstep;
 
+typedef struct s_tfstep
+{
+	float	step;
+	float	tex_y;
+}	t_tfstep;
+
 typedef struct s_cdata
 {
 	int	*src;
@@ -312,6 +318,11 @@ typedef struct s_m256i
 	__m256i	blend;
 	__m256i	overlay256;
 	__m256i	transparent;
+	struct
+	{
+		int		colour;
+		u_int	overlay;
+	};
 }	t_m256i;
 
 typedef struct s_vec4
