@@ -14,6 +14,7 @@
 # define CUB3D_H
 # include <math.h>
 # include <sys/types.h>
+# include <sys/param.h>
 # include <errno.h>
 # include "libft.h"
 # include "mlx.h"
@@ -816,7 +817,8 @@ void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_frame(t_info *app);
 void	replace_frame_transposed(t_info *app);
-void	transpose_img_avx2(int *dst, int *src, int width, int height);
+void	transpose_img_stack(int *dst, int *src, int width, int height);
+void	transpose_img_avx2_tiled(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
