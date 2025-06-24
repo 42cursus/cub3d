@@ -985,7 +985,8 @@ void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
 void	fill_floor_transposed(t_info *app, t_player *player, int is_floor);
 void	fill_floor_transposed_cols(t_info *app, t_player *player);
-void	fill_floor_transposed_cols_avx2(t_info *app, t_player *player);
+void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player);
+void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player);
 void	fill_ceil_transposed_cols(t_info *app, t_player *player);
 
 void	menu_select_current(t_info *app);
