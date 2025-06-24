@@ -248,6 +248,12 @@ typedef struct s_animation
 	int			frames;
 }	t_anim;
 
+typedef struct s_fvect
+{
+	float	x;
+	float	y;
+}	t_fvect;
+
 typedef struct s_vect
 {
 	double	x;
@@ -830,6 +836,7 @@ void	replace_frame(t_info *app);
 void	replace_frame_transposed(t_info *app);
 void	transpose_img_stack(int *dst, int *src, int width, int height);
 void	transpose_img_avx2_tiled(int *dst, int *src, int width, int height);
+void	transpose_img_avx2_tiled_readfriendly(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -894,6 +901,7 @@ t_vect	rotate_vect(t_vect vect, double angle);
 t_vect	rotv(double x, double y, double angle);
 void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
+t_vect	add_fvect(t_fvect v1, t_fvect v2);
 t_vect	addi_vect(t_vect v1, t_ivect v2);
 t_ivect	add_ivect(t_ivect v1, t_ivect v2);
 t_ivect	round_vect(t_vect vect);
@@ -992,6 +1000,7 @@ void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
 void 	draw_sky_alt(t_info *app);
 void 	draw_sky_transposed(t_info *const app);
+void 	draw_sky_transposed_avx2(t_info *const app);
 void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
 void	fill_floor_transposed(t_info *app, t_player *player, int is_floor);

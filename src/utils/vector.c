@@ -88,6 +88,15 @@ t_vect	add_vect(const t_vect v1, t_vect v2)
 	return (out);
 }
 
+t_vect	add_fvect(const t_fvect v1, t_fvect v2)
+{
+	t_vect	out;
+
+	out.x = v1.x + v2.x;
+	out.y = v1.y + v2.y;
+	return (out);
+}
+
 t_vect	addi_vect(const t_vect v1, t_ivect v2)
 {
 	t_vect	out;

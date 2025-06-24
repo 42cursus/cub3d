@@ -140,7 +140,7 @@ void	replace_image_r(t_info *app, t_img **img, char *file)
 			exit((cleanup(app), EXIT_FAILURE));
 		}
 		tmp = scale_image(app, tmp, WIN_HEIGHT, WIN_WIDTH);
-		transpose_img_avx2_tiled((int *) new->data, (int *) tmp->data,
+		transpose_img_avx2_tiled_readfriendly((int *) new->data, (int *) tmp->data,
 								 WIN_HEIGHT,
 								 WIN_WIDTH);
 	}

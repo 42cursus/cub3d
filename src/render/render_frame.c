@@ -167,7 +167,7 @@ int	render_play(void *param)
 
 	// replace_frame(app);
 	replace_frame_transposed(app);
-	transpose_img_stack((int *)app->canvas->data, (int *)app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2_tiled_readfriendly((int *)app->canvas->data, (int *)app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
@@ -201,8 +201,8 @@ int	render_intro(void *param)
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 
 	draw_rays_transposed(app);
-	transpose_img_stack((int *) app->canvas->data,
-							 (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2_tiled_readfriendly((int *)app->canvas->data,
+							 (int *)app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	place_fps(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);

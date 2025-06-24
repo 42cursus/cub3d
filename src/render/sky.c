@@ -46,7 +46,7 @@ void	replace_sky_r(t_info *app, char *tex_file)
 	new_img = scale_image(app, new_img, new.x, new.y);
 	*img = new_img;
 	app->skybox_r = mlx_new_image(app->mlx, new_img->height,new_img->width);
-	transpose_img_avx2_tiled((int *) app->skybox_r->data,
+	transpose_img_avx2_tiled_readfriendly((int *) app->skybox_r->data,
 							 (int *) new_img->data, new_img->height,
 							 new_img->width);
 }
@@ -94,6 +94,83 @@ void	copy_sky_split(t_img *const sky, t_img const *bg, t_ivect bound)
 	}
 }
 
+void	draw_sky_transposed_avx2(t_info *const app)
+{
+	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
+	t_img *const	sky = app->skybox_r;
+	t_img *const	bg = app->bg_r;
+	int				i;
+	int				stop_h;
+	int				start_h;
+	t_cdata			cd;
+	int				offset;
+//	t_ivect			boundary;
+	int				copy_width;
+
+	app->player->angle = angle;
+
+	offset = (int)((angle - app->fov_rad_half * 2) * (sky->height / M_PI)) / 2;
+
+	start_h = (0 - offset + sky->height) % sky->height;
+	stop_h = (WIN_WIDTH - 1 - offset + sky->height) % sky->height;
+
+	copy_width = sky->width;
+
+	cd.src = (int *)sky->data;
+	cd.dst = (int *)bg->data;
+
+	int limit;
+
+	cd.src += start_h * sky->width;
+
+	if (stop_h > start_h)
+	{
+		limit = stop_h - start_h;
+		i = -1;
+		while (++i <= limit)
+		{
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+	}
+	else
+	{
+		limit = sky->height - start_h;
+		i = -1;
+		while (++i < limit)
+		{
+
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
+
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+		cd.src = (int *)sky->data;
+		limit += stop_h;
+
+		i--;
+		while (++i < limit)
+		{
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
+			cd.dst += WIN_HEIGHT;
+			cd.src += copy_width;
+		}
+	}
+}
+
 void	draw_sky_transposed(t_info *const app)
 {
 	const double	angle = atan2(app->player->dir.y, app->player->dir.x);
@@ -129,7 +206,11 @@ void	draw_sky_transposed(t_info *const app)
 		i = -1;
 		while (++i <= limit)
 		{
-			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}
@@ -140,16 +221,27 @@ void	draw_sky_transposed(t_info *const app)
 		i = -1;
 		while (++i < limit)
 		{
-			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
+
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}
 		cd.src = (int *)sky->data;
 		limit += stop_h;
+
 		i--;
 		while (++i < limit)
 		{
-			ft_memcpy(cd.dst, cd.src, copy_width * sizeof(int));
+			size_t n = copy_width;
+			int *dest = cd.dst;
+			int *s = cd.src;
+			while (n-- > 0)
+				*dest++ = *s++;
 			cd.dst += WIN_HEIGHT;
 			cd.src += copy_width;
 		}

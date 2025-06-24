@@ -196,7 +196,7 @@ t_ret_code	do_state_play(void *param)
 	replace_sky_r(app, (char *)TEX_DIR"/skybox.xpm");
 	replace_sky(app, (char *)TEX_DIR"/skybox.xpm");
 	draw_sky_alt(app);
-	draw_sky_transposed(app);
+	draw_sky_transposed_avx2(app);
 	draw_nav(app);
 	calculate_offsets(app, app->player);
 	app->fr_last = get_time_us();
@@ -360,8 +360,7 @@ void	do_initial_to_intro(void *param)
 	app->player = init_player(app);
 	fill_with_colour(app->bg, 0x000000, 0x000000);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
-		(void *)&key_release_intro, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_intro, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);

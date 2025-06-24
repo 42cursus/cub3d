@@ -223,6 +223,64 @@ void transpose_img_avx2_tiled(int *dst, int *src, int width, int height)
 	}
 }
 
+inline __attribute__((always_inline, used))
+void transpose_img_avx2_tiled_readfriendly(int *dst, int *src, int width, int height)
+{
+	int		i;
+	t_ivect	it;
+	t_ivect	tile;
+	t_ivect	max;
+	__m256i	in[8];
+	__m256i	out[8];
+
+	tile.y = 0;
+	while (tile.y < width)
+	{
+		tile.x = 0;
+		while (tile.x < height)
+		{
+			max.y = MIN(tile.y + TILE, width);
+			max.x = MIN(tile.x + TILE, height);
+
+			it.y = tile.y;
+			while (it.y + 7 < max.y)
+			{
+				it.x = tile.x;
+				while (it.x + 7 < max.x)
+				{
+					i = -1;
+					while (++i < 8)
+						in[i] = _mm256_loadu_si256((__m256i *)(src + (it.y + i) * height + it.x));
+
+					transpose8x8_u32_avx2(out, in);
+
+					i = -1;
+					while (++i < 8)
+						_mm256_storeu_si256((__m256i *)(dst + (it.x + i) * width + it.y), out[i]);
+					it.x += 8;
+				}
+				it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
+				while (++it.x < max.x)
+				{
+					i = -1;
+					while (++i < 8 && (it.y + i) < max.y)
+						dst[(it.x) * width + (it.y + i)] = src[(it.y + i) * height + it.x];
+				}
+				it.y += 8;
+			}
+			it.y = tile.y + ((max.y - tile.y) & ~7) - 1;
+			while (++it.y < max.y)
+			{
+				it.x = tile.x - 1;
+				while (++it.x < max.x)
+					dst[it.x * width + it.y] = src[it.y * height + it.x];
+			}
+			tile.x += TILE;
+		}
+		tile.y += TILE;
+	}
+}
+
 /**
  * Alternative to https://en.m.wikipedia.org/wiki/In-place_matrix_transposition
  * especially there: #Non-square_matrices%3a_Following_the_cycles
