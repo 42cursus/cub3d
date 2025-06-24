@@ -296,7 +296,7 @@ void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player)
 
 			__m128i final_idxs = _mm_add_epi32(_mm_mullo_epi32(idx_y, _mm_set1_epi32(tex.width)), idx_x);
 
-			__m128i final_results = _mm_i32gather_epi32((const int *)row.src, final_idxs, 4);
+			__m128i final_results = _mm_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
 
 			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
 			_mm_storeu_si128((__m128i *)dst, final_results);
@@ -381,7 +381,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 
 			__m256i final_idxs = _mm256_add_epi32(_mm256_mullo_epi32(idx_y, _mm256_set1_epi32(tex.width)), idx_x);
 
-			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, 4);
+			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
 
 			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
 			_mm256_storeu_si256((__m256i *)dst, final_results);
