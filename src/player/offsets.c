@@ -33,7 +33,6 @@ void	calculate_offsets(t_info *app, t_player *player)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
 		double d = distance * scalar;
-		player->row_depths[i + WIN_HEIGHT / 2] = d;
 		player->row_depths[WIN_HEIGHT / 2 - i - 1] = d;
 	}
 }

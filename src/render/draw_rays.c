@@ -325,18 +325,22 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
-	t_anim	*const	anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-	t_lvars			line;
+	t_anim	*anim;
+	t_lvars	line;
 
 	bool closed = ray->face >= DOOR_N && ray->face < DOOR_N_OPEN;
 	bool open = ray->face >= DOOR_N_OPEN;
 
-	if ((open || closed) && anim->active == 1)
+	if ((open || closed))
 	{
-		if (closed)
-			ray->tex = get_close_door_tex(anim, app);
-		else
-			ray->tex = get_open_door_tex(anim, app);
+		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
+		if(anim->active)
+		{
+			if (closed)
+				ray->tex = get_close_door_tex(anim, app);
+			else
+				ray->tex = get_open_door_tex(anim, app);
+		}
 	}
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;

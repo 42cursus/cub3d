@@ -79,8 +79,8 @@ void	replace_frame_transposed(t_info *app)
 //	if (!app->lvl->outside)
 //		fill_floor_transposed_cols(app, app->player, 0);
 
-//	fill_floor_transposed_cols_avx2x4(app, app->player);
 	fill_floor_transposed_cols_avx2x8(app, app->player);
+//	fill_floor_transposed_cols(app, app->player);
 	if (!app->lvl->outside)
 		fill_ceil_transposed_cols_avx2x8(app, app->player);
 	// fill_floor_transposed(app, app->player, 1);

@@ -653,7 +653,7 @@ typedef struct s_player
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
-	double	row_depths[WIN_HEIGHT];
+	double	row_depths[WIN_HEIGHT / 2];
 	t_anim	hud;
 	t_vect	tele_pos;
 	t_vect	dmg_dir;
@@ -1003,7 +1003,8 @@ void 	draw_sky_transposed(t_info *const app);
 void 	draw_sky_transposed_avx2(t_info *const app);
 void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
-void	fill_floor_transposed(t_info *app, t_player *player, int is_floor);
+void	fill_floor_transposed(t_info *app, t_player *player);
+void	fill_ceil_transposed(t_info *app, t_player *player);
 void	fill_floor_transposed_cols(t_info *app, t_player *player);
 void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player);
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player);
