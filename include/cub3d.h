@@ -653,7 +653,7 @@ typedef struct s_player
 	double	angle;
 	t_ray	rays[WIN_WIDTH];
 	double	angle_offsets[WIN_WIDTH];
-	double	row_depths[WIN_HEIGHT / 2];
+	float	row_depths[WIN_HEIGHT];
 	t_anim	hud;
 	t_vect	tele_pos;
 	t_vect	dmg_dir;

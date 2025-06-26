@@ -17,8 +17,8 @@ void	calculate_offsets(t_info *app, t_player *player)
 	int				i;
 	const double	offset = app->fov_opp_len / (WIN_WIDTH / 2.0);
 	double			angle;
-	double			distance;
-	double			scalar;
+	float			distance;
+	float			scalar;
 
 	i = -1;
 	while (++i < WIN_WIDTH / 2)
@@ -27,12 +27,13 @@ void	calculate_offsets(t_info *app, t_player *player)
 		player->angle_offsets[i] = angle;
 		player->angle_offsets[WIN_WIDTH - i - 1] = -angle;
 	}
-	scalar = get_hyp_len(app->fov_opp_len, 1);
+	scalar = (float)get_hyp_len(app->fov_opp_len, 1);
 	i = -1;
 	while (++i < WIN_HEIGHT / 2)
 	{
 		distance = WIN_WIDTH / (4.0 * (i + 1) * app->fov_opp_len);
-		double d = distance * scalar;
+		float d = distance * scalar;
+		player->row_depths[i + WIN_HEIGHT / 2] = d;
 		player->row_depths[WIN_HEIGHT / 2 - i - 1] = d;
 	}
 }
