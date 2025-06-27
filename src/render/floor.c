@@ -12,6 +12,8 @@
 
 #include "cub3d.h"
 
+void calc_indexes(const t_info *app, t_player *player, int *idxs, t_img	tex);
+
 /**
  * This function maps a continuous coordinate (like pos = 0.5)
  * to an integer pixel index in a texture of size dim.
@@ -366,91 +368,139 @@ void	fill_floor_transposed_cols_avx2x4(t_info *app, t_player *player)
  * @param app
  * @param player
  */
-__attribute__((optnone))
+inline __attribute__((always_inline))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
-	t_vect			dir[2];
 
-	t_vect			pos[2];
-	t_ivect idx;
-	t_vect	step, curr;
-	int		idxs[WIN_WIDTH][WIN_HEIGHT / 2];
+	int		idxs[WIN_WIDTH * WIN_HEIGHT / 2];
 
-	t_cdata row;
 	t_ivect iter;
+	int full_idx;
 
-	int		full_idx;
 	t_img	tex;
-
-	float *depths = &player->row_depths[WIN_HEIGHT / 2 - 1];
-
-	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
-	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
+	t_cdata row;
 
 	tex = *app->lvl->planes[T_FLOOR];
 
 	row.dst = (int *)app->canvas_r->data;
 	row.src = (int *)tex.data;
 
+	calc_indexes(app, player, idxs, tex);
+
+	iter.x = 0;
+	while (iter.x < WIN_WIDTH - 1)
+	{
+		iter.y = 0;
+		while (iter.y < WIN_HEIGHT / 2 - 7)
+		{
+
+			__m256i final_idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[iter.x *  WIN_HEIGHT / 2 + iter.y]);
+			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
+
+			int	*dst = row.dst + (iter.x * WIN_HEIGHT) + (iter.y + WIN_HEIGHT / 2);
+			_mm256_storeu_si256((__m256i *)dst, final_results);
+			_mm256_storeu_si256((__m256i *)(dst + WIN_HEIGHT), final_results);
+
+			iter.y = iter.y + 8;
+		}
+		while (iter.y < WIN_HEIGHT / 2)
+		{
+			full_idx = idxs[iter.x *  WIN_HEIGHT / 2 + iter.y];
+			int result = row.src[full_idx];
+			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y + WIN_HEIGHT / 2;
+			dst[0] = result;
+			dst[WIN_HEIGHT] = result;
+			iter.y++;
+		}
+		iter.x += 2;
+	}
+}
+
+inline __attribute__((always_inline))
+void calc_indexes(const t_info *app, t_player *player, int *idxs, t_img tex)
+{
+	t_ivect iter;
+
+	float *depths = &player->row_depths[WIN_HEIGHT / 2 - 1];
+
+	t_vect	dir[2];
+	t_fvec256	dir256[2];
+	t_vect	pos[2];
+	t_ivect idx;
+	t_vect	step, curr;
+
+	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
+
+	dir256[LEFT].x = _mm256_set1_ps(dir[LEFT].x);
+	dir256[LEFT].y = _mm256_set1_ps(dir[LEFT].y);
+
+	dir256[RIGHT].x = _mm256_set1_ps(dir[RIGHT].x);
+	dir256[RIGHT].y = _mm256_set1_ps(dir[RIGHT].y);
+
 	t_vect const	pl_pos = player->pos;
 
-	__m256 pl_pos_x = _mm256_set1_ps(pl_pos.x);
-	__m256 pl_pos_y = _mm256_set1_ps(pl_pos.y);
+	t_fvec256 pl_pos256;
+
+	pl_pos256.x = _mm256_set1_ps(pl_pos.x);
+	pl_pos256.y = _mm256_set1_ps(pl_pos.y);
+
+	__m256 half_width = _mm256_set1_ps(WIN_WIDTH / 2);
+	__m256 tex_width = _mm256_set1_ps(tex.width);
+	__m256 tex_height = _mm256_set1_ps(tex.height);
+
+	__m256i tex_width_i = _mm256_set1_epi32(tex.width);
+	__m256i tex_width_mask = _mm256_set1_epi32(tex.width - 1);
+	__m256i tex_height_mask = _mm256_set1_epi32(tex.height - 1);
+
 
 	iter.y = 0;
 	while (iter.y < WIN_HEIGHT / 2 - 7)
 	{
 		__m256 depthxx = _mm256_loadu_ps(&depths[iter.y]);
 
-		__m256 scaled_left_xx = _mm256_mul_ps(_mm256_set1_ps(dir[LEFT].x), depthxx);
-		__m256 scaled_left_yy = _mm256_mul_ps(_mm256_set1_ps(dir[LEFT].y), depthxx);
+		t_fvec256 scaled_left;
+		t_fvec256 scaled_right;
+		t_fvec256 pos_left;
+		t_fvec256 pos_right;
+		t_fvec256 stepx;
+		t_fvec256 currv;
 
-		__m256 scaled_right_xx = _mm256_mul_ps(_mm256_set1_ps(dir[RIGHT].x), depthxx);
-		__m256 scaled_right_yy = _mm256_mul_ps(_mm256_set1_ps(dir[RIGHT].y), depthxx);
+		scaled_left.x = _mm256_mul_ps(dir256[LEFT].x, depthxx);
+		scaled_right.x = _mm256_mul_ps(dir256[RIGHT].x, depthxx);
+		pos_left.x = _mm256_add_ps(pl_pos256.x, scaled_left.x);
+		pos_right.x = _mm256_add_ps(pl_pos256.x, scaled_right.x);
+		stepx.x = _mm256_sub_ps(pos_right.x, pos_left.x);
+		stepx.x = _mm256_div_ps(stepx.x, half_width);
 
-		__m256 pos_left_xx = _mm256_add_ps(pl_pos_x, scaled_left_xx);
-		__m256 pos_left_yy = _mm256_add_ps(pl_pos_y, scaled_left_yy);
 
-		__m256 pos_right_xx = _mm256_add_ps(pl_pos_x, scaled_right_xx);
-		__m256 pos_right_yy = _mm256_add_ps(pl_pos_y, scaled_right_yy);
+		scaled_left.y = _mm256_mul_ps(dir256[LEFT].y, depthxx);
+		scaled_right.y = _mm256_mul_ps(dir256[RIGHT].y, depthxx);
+		pos_left.y = _mm256_add_ps(pl_pos256.y, scaled_left.y);
+		pos_right.y = _mm256_add_ps(pl_pos256.y, scaled_right.y);
+		stepx.y = _mm256_sub_ps(pos_right.y, pos_left.y);
+		stepx.y = _mm256_div_ps(stepx.y, half_width);
 
-		__m256 step_xx = _mm256_sub_ps(pos_right_xx, pos_left_xx);
-		__m256 step_yy = _mm256_sub_ps(pos_right_yy, pos_left_yy);
-
-		step_xx = _mm256_div_ps(step_xx, _mm256_set1_ps(WIN_WIDTH / 2));
-		step_yy = _mm256_div_ps(step_yy, _mm256_set1_ps(WIN_WIDTH / 2));
-
-		__m256 curr_xx = pos_left_xx;
-		__m256 curr_yy = pos_left_yy;
-
-		float currs_x[8];
-		float currs_y[8];
+		currv.x = pos_left.x;
+		currv.y = pos_left.y;
 
 		iter.x = 0;
 		while (iter.x < WIN_WIDTH - 1)
 		{
-			__m256 tex_width = _mm256_set1_ps(tex.width);
-			__m256 tex_height = _mm256_set1_ps(tex.height);
+			t_fvec256 i;
 
-			__m256i tex_width_i = _mm256_set1_epi32(tex.width);
-			__m256i tex_width_mask = _mm256_set1_epi32(tex.width - 1);
-			__m256i tex_height_mask = _mm256_set1_epi32(tex.height - 1);
+			i.x = _mm256_cvttps_epi32(_mm256_mul_ps(currv.x, tex_width));
+			i.x = _mm256_and_si256(i.x, tex_width_mask);
 
-			_mm256_storeu_ps(currs_x, curr_xx);
-			_mm256_storeu_ps(currs_y, curr_yy);
+			i.y = _mm256_cvttps_epi32(_mm256_mul_ps(currv.y, tex_height));
+			i.y = _mm256_and_si256(i.y, tex_height_mask);
 
-			__m256i i_xx = _mm256_cvttps_epi32(_mm256_mul_ps(curr_xx, tex_width));
-			__m256i i_yy = _mm256_cvttps_epi32(_mm256_mul_ps(curr_yy, tex_height));
+			__m256i final_idxs = _mm256_add_epi32(_mm256_mullo_epi32(i.y, tex_width_i), i.x);
 
-			i_xx = _mm256_and_si256(i_xx, tex_width_mask);
-			i_yy = _mm256_and_si256(i_yy, tex_height_mask);
+			_mm256_storeu_si256((__m256i_u *) &idxs[iter.x *  WIN_HEIGHT / 2 + iter.y], final_idxs);
 
-			__m256i final_idxs = _mm256_add_epi32(_mm256_mullo_epi32(i_yy, tex_width_i), i_xx);
-
-			_mm256_storeu_si256((__m256i_u *) &idxs[iter.x][iter.y], final_idxs);
-
-			curr_xx = _mm256_add_ps(curr_xx, step_xx);
-			curr_yy = _mm256_add_ps(curr_yy, step_yy);
+			currv.x = _mm256_add_ps(currv.x, stepx.x);
+			currv.y = _mm256_add_ps(currv.y, stepx.y);
 
 			iter.x += 2;
 		}
@@ -475,9 +525,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			idx.x = ((int)(curr.x * tex.width)) & (tex.width - 1);
 			idx.y = ((int)(curr.y * tex.height)) & (tex.height - 1);
 
-			full_idx = idx.y * tex.width + idx.x;
-
-			idxs[iter.x][iter.y] = full_idx;
+			idxs[iter.x * WIN_HEIGHT / 2 + iter.y] = (idx.y * tex.width) + idx.x;
 
 			curr.x += step.x;
 			curr.y += step.y;
@@ -485,34 +533,6 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			iter.x += 2;
 		}
 		iter.y++;
-	}
-
-	iter.x = 0;
-	while (iter.x < WIN_WIDTH - 1)
-	{
-		iter.y = 0;
-		while (iter.y < WIN_HEIGHT / 2 - 7)
-		{
-
-			__m256i final_idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[iter.x][iter.y]);
-			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
-
-			int	*dst = row.dst + (iter.x * WIN_HEIGHT) + (iter.y + WIN_HEIGHT / 2);
-			_mm256_storeu_si256((__m256i *)dst, final_results);
-			_mm256_storeu_si256((__m256i *)(dst + WIN_HEIGHT), final_results);
-
-			iter.y = iter.y + 8;
-		}
-		while (iter.y < WIN_HEIGHT / 2)
-		{
-			full_idx = idxs[iter.x][iter.y];
-			int result = row.src[full_idx];
-			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y + WIN_HEIGHT / 2;
-			dst[0] = result;
-			dst[WIN_HEIGHT] = result;
-			iter.y++;
-		}
-		iter.x += 2;
 	}
 }
 
@@ -574,8 +594,8 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 			__m256i tex_height_i = _mm256_set1_epi32(tex.height - 1);
 
 
-			__m256i i_x = _mm256_cvtps_epi32(_mm256_mul_ps(p_val_x, tex_width));
-			__m256i i_y = _mm256_cvtps_epi32(_mm256_mul_ps(p_val_y, tex_height));
+			__m256i i_x = _mm256_cvttps_epi32(_mm256_mul_ps(p_val_x, tex_width));
+			__m256i i_y = _mm256_cvttps_epi32(_mm256_mul_ps(p_val_y, tex_height));
 
 			__m256i idx_x = _mm256_and_si256(i_x, tex_width_i);
 			__m256i idx_y = _mm256_and_si256(i_y, tex_height_i);

@@ -254,6 +254,18 @@ typedef struct s_fvect
 	float	y;
 }	t_fvect;
 
+typedef struct s_fvec256
+{
+	__m256	x;
+	__m256	y;
+}	t_fvec256;
+
+typedef struct s_fvec128
+{
+	__m128	x;
+	__m128	y;
+}	t_fvec128;
+
 typedef struct s_vect
 {
 	double	x;
