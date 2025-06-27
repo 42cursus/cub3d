@@ -28,17 +28,10 @@ t_colour lerp_biased(t_colour a, t_colour b, double t)
 
 	// Choose RGB from more opaque color (lower alpha)
 	if (a.a > b.a)
-		result = a;
-	else
 		result = b;
-
-/*
-	// Interpolate alpha linearly
-	result.a = (unsigned char)((a.a - b.a) * (1 - t) + b.a); // =>  a.a * (1 - t) + b.a * t);
-	result.a = (unsigned char)((b.a - a.a) * t + a.a); // =>  b.a * t - a.a * t + a.a = > b.a * frac_x + a.a * (1 - frac_x);
-*/
-
-	result.a = (unsigned char)((1.0 - t) * a.a + t * b.a);
+	else
+		result = a;
+	result.a = (unsigned char) ((b.a - a.a) * t + a.a);
 	return result;
 }
 
@@ -83,55 +76,17 @@ t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 	const double frac_x = fmod(idx.x, 1.0);
 	const double frac_y = fmod(idx.y, 1.0);
 
-	const int row1 = y * tex->w;
-	const int row2 = (y + 1 < tex->h) ? (y + 1) * tex->w : row1;
-
-	const int x1 = x;
-	const int x2 = x + 1;
-
 	// Load the 2x2 texels
-	const t_colour colour_a = {.raw = tex->data[row1 + x1]};
-	const t_colour colour_b = {.raw = tex->data[row1 + x2]};
-	const t_colour colour_c = {.raw = tex->data[row2 + x1]};
-	const t_colour colour_d = {.raw = tex->data[row2 + x2]};
+	u_int *row1 = tex->data + y * tex->w + x;
+	u_int *row2 = tex->data + (y + 1 * (y + 1 < tex->h)) * tex->w + x;
+	const t_colour colour_a = {.raw = row1[0]};
+	const t_colour colour_b = {.raw = row1[1]};
+	const t_colour colour_c = {.raw = row2[0]};
+	const t_colour colour_d = {.raw = row2[1]};
 
-	t_colour top;
-	t_colour bottom;
-	t_colour out;
-
-	if (colour_a.a > colour_b.a)
-	{
-		top = colour_b;
-		top.a = (unsigned char) ((colour_a.a - colour_b.a) * (1.0 - frac_x) + colour_b.a);
-	}
-	else
-	{
-		top = colour_a;
-		top.a = (unsigned char) ((colour_b.a - colour_a.a) * frac_x + colour_a.a);
-	}
-
-	if (colour_c.a > colour_d.a)
-	{
-		bottom = colour_d;
-		bottom.a = (unsigned char) ((colour_c.a - colour_d.a) * (1.0 - frac_x) + colour_d.a);
-	}
-	else
-	{
-		bottom = colour_c;
-		bottom.a = (unsigned char) ((colour_d.a - colour_c.a) * frac_x + colour_c.a);
-	}
-
-
-	if (top.a > bottom.a)
-	{
-		out = bottom;
-		out.a = (unsigned char) ((top.a - bottom.a) * (1.0 - frac_y) + bottom.a);
-	}
-	else
-	{
-		out = top;
-		out.a = (unsigned char) ((bottom.a - top.a) * frac_y + top.a);
-	}
+	t_colour top = lerp_biased(colour_a, colour_b, frac_x);
+	t_colour bottom  = lerp_biased(colour_c, colour_d, frac_x);
+	t_colour out = lerp_biased(top, bottom, frac_y);
 
 	return out;
 }
