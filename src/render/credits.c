@@ -27,7 +27,7 @@ t_colour lerp_biased(t_colour a, t_colour b, double t)
 	t_colour result;
 
 	// Choose RGB from more opaque color (lower alpha)
-	if (a.a < b.a)
+	if (a.a > b.a)
 		result = a;
 	else
 		result = b;
@@ -77,8 +77,6 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 inline __attribute__((always_inline, unused, visibility("hidden")))
 t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 {
-	t_colour	out;
-
 	const int x = (int)idx.x;
 	const int y = (int)idx.y;
 
@@ -98,13 +96,20 @@ t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 	const t_colour colour_d = {.raw = tex->data[row2 + x2]};
 
 	t_colour top;
-	if (colour_a.a > colour_b.a)
-		top = colour_b;
-	else
-		top = colour_a;
-	top.a = (unsigned char) ((colour_b.a - colour_a.a) * frac_x + colour_a.a);
-
 	t_colour bottom;
+	t_colour out;
+
+	if (colour_a.a > colour_b.a)
+	{
+		top = colour_b;
+		top.a = (unsigned char) ((colour_a.a - colour_b.a) * (1.0 - frac_x) + colour_b.a);
+	}
+	else
+	{
+		top = colour_a;
+		top.a = (unsigned char) ((colour_b.a - colour_a.a) * frac_x + colour_a.a);
+	}
+
 	if (colour_c.a > colour_d.a)
 	{
 		bottom = colour_d;

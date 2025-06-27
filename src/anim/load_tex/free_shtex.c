@@ -17,7 +17,7 @@ __attribute__((optnone))
 void	free_tex_arr_arr(t_tex *tex, int n)
 {
 	while (n--)
-		free(tex[n].data);
+		free(tex[n].data);  // FIXME: Sometimes double free (n = 2) ...
 }
 
 void	free_shtex_extra(t_info *app)
