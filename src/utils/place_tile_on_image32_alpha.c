@@ -270,6 +270,32 @@ void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 	}
 }
 
+/**
+ * Blend formula:
+ * 		`final_color = src * opacity + dst * transparency`
+ *
+ * Canonical alpha convention:
+ * 	opacity = alpha / 255
+ * 	transparency = 1 - opacity
+ *
+ * 	blend formula becomes:
+ * 		`final_color = src * (alpha / 255.0) + dst * (1 - alpha / 255.0)`
+ * 		or
+ * 		`final_color = ((src - dst) * opacity) + dst`
+ *
+ * MLX System (with inverted alpha):
+ * 	transparency = alpha / 255
+ * 	opacity = 1 - transparency
+ *
+ * 	blend formula becomes:
+ * 		`final_color = src * (1 - alpha / 255.0) + dst * (alpha / 255.0)`
+ * 		or
+ * 		`final_color = ((dst - src) * transparency) + src`
+ *
+ * @param image
+ * @param tile
+ * @param p
+ */
 inline __attribute__((always_inline, used))
 void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 {
@@ -298,8 +324,8 @@ void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 			const t_vec4 fs = unpack_rgba_bytes_to_floats(mc.src);
 			const t_vec4 fd = unpack_rgba_bytes_to_floats(mc.dst);
 
-			t_vec4 opacity;
 			t_vec4 alpha;
+			t_vec4 transparency;
 			const __m128 byte = _mm_set1_ps(255.0f);
 
 			alpha.r0 = _mm_shuffle_ps(fs.r0, fs.r0, _MM_SHUFFLE(3, 3, 3, 3));
@@ -307,24 +333,23 @@ void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 			alpha.r2 = _mm_shuffle_ps(fs.r2, fs.r2, _MM_SHUFFLE(3, 3, 3, 3));
 			alpha.r3 = _mm_shuffle_ps(fs.r3, fs.r3, _MM_SHUFFLE(3, 3, 3, 3));
 
-			opacity.r0 = _mm_div_ps(_mm_sub_ps(byte, alpha.r0), byte);
-			opacity.r1 = _mm_div_ps(_mm_sub_ps(byte, alpha.r1), byte);
-			opacity.r2 = _mm_div_ps(_mm_sub_ps(byte, alpha.r2), byte);
-			opacity.r3 = _mm_div_ps(_mm_sub_ps(byte, alpha.r3), byte);
+			transparency.r0 = _mm_div_ps(alpha.r0, byte);
+			transparency.r1 = _mm_div_ps(alpha.r1, byte);
+			transparency.r2 = _mm_div_ps(alpha.r2, byte);
+			transparency.r3 = _mm_div_ps(alpha.r3, byte);
 
 			t_vec4 blended;
 			t_vec4 diff;
-			__m128 one = _mm_set1_ps(1.0f);
 
 			diff.r0 = _mm_sub_ps(fd.r0, fs.r0);
 			diff.r1 = _mm_sub_ps(fd.r1, fs.r1);
 			diff.r2 = _mm_sub_ps(fd.r2, fs.r2);
 			diff.r3 = _mm_sub_ps(fd.r3, fs.r3);
 
-			blended.r0 = _mm_add_ps(fs.r0, _mm_mul_ps(diff.r0, _mm_sub_ps(one, opacity.r0)));
-			blended.r1 = _mm_add_ps(fs.r1, _mm_mul_ps(diff.r1, _mm_sub_ps(one, opacity.r1)));
-			blended.r2 = _mm_add_ps(fs.r2, _mm_mul_ps(diff.r2, _mm_sub_ps(one, opacity.r2)));
-			blended.r3 = _mm_add_ps(fs.r3, _mm_mul_ps(diff.r3, _mm_sub_ps(one, opacity.r3)));
+			blended.r0 = _mm_add_ps(fs.r0, _mm_mul_ps(diff.r0, transparency.r0));
+			blended.r1 = _mm_add_ps(fs.r1, _mm_mul_ps(diff.r1, transparency.r1));
+			blended.r2 = _mm_add_ps(fs.r2, _mm_mul_ps(diff.r2, transparency.r2));
+			blended.r3 = _mm_add_ps(fs.r3, _mm_mul_ps(diff.r3, transparency.r3));
 
 			_mm_storeu_si128((__m128i *) (cd.dst + it.x), repack_floats_to_bytes(blended));
 			it.x += 4;
@@ -332,14 +357,16 @@ void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 		while (it.x < limit.x)
 		{
 			mc.colour = cd.src[it.x];
+
 			t_colour src = *(t_colour *) &mc.colour;
 			t_colour dst = *(t_colour *) &cd.dst[it.x];
-			double frac = src.a / 255.0;
+
+			double transparency = src.a / 255.0;
 			if (src.raw != dst.raw)
 			{
-				src.r = ((dst.r - src.r) * frac) + src.r + 0.5;
-				src.g = ((dst.g - src.g) * frac) + src.g + 0.5;
-				src.b = ((dst.b - src.b) * frac) + src.b + 0.5;
+				src.r = ((dst.r - src.r) * transparency) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * transparency) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * transparency) + src.b + 0.5;
 			}
 			cd.dst[it.x] = src.raw;
 			it.x++;

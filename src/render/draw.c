@@ -167,8 +167,8 @@ void	draw_nav(t_info *app)
 	seg.out = *outer;
 	seg.in = inner;
 	ft_bzero(ptr->data, ptr->size_line * ptr->height);
-	apply_alpha(ptr, 255);
+	apply_inverted_alpha(ptr, 255);
 	draw_ring_segment(ptr, seg, MLX_LIGHT_SLATE_GREY);
-	apply_alpha(ptr, 96);
+	apply_inverted_alpha(ptr, 96);
 	draw_circle_filled(ptr, center, 4, MLX_DTURQUOISE);
 }

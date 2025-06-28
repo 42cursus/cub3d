@@ -99,11 +99,20 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 	}
 }
 
-void	apply_alpha(t_img *img, u_char alpha)
+/**
+ * blend	Amount of original alpha preserved
+ *
+ * added_alpha = 0 => no fade => blend = 1.0 => keep all existing alpha.
+ * added_alpha = 255 => fully transparent => blend = 0.0 => all alpha becomes 255.
+ *
+ * @param img
+ * @param alpha
+ */
+void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 {
 	t_ivect			it;
 	t_colour		*row;
-	const double	frac = (255.0 - alpha) / 0xFF;
+	const double	blend = (255.0 - added_alpha) / 255.0;
 
 	it.y = -1;
 	while (++it.y < img->height)
@@ -111,7 +120,7 @@ void	apply_alpha(t_img *img, u_char alpha)
 		row = (t_colour *)img->data + (it.y * img->width);
 		it.x = -1;
 		while (++it.x < img->width)
-			row[it.x].a = (u_char)(alpha + row[it.x].a * frac);
+			row[it.x].a = (u_char) (added_alpha + row[it.x].a * blend);
 	}
 }
 
@@ -338,7 +347,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	img = mlx_new_image(app->mlx, lvl->width * scale,
 			lvl->height * scale);
 	ft_memset(img->data, 0, img->size_line * img->height);
-	apply_alpha(img, 0xFF);
+	apply_inverted_alpha(img, 0xFF);
 	it.y = -1;
 	while (++it.y < lvl->height)
 	{
@@ -360,7 +369,7 @@ t_img	*build_minimap(t_info *app, int scale)
 		}
 	}
 	place_triggers_minimap(lvl, img, scale);
-	apply_alpha(img, 0x7F);
+	apply_inverted_alpha(img, 0x7F);
 	return (img);
 }
 

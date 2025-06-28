@@ -838,7 +838,7 @@ typedef enum e_bit
 	bit_bright,
 }	t_bitno;
 
-void	apply_alpha(t_img *img, u_char alpha);
+void	apply_inverted_alpha(t_img *img, u_char added_alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p);
 void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p);
