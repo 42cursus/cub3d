@@ -46,7 +46,7 @@ int	init_audio(t_info *const app)
 		ft_dprintf(STDERR_FILENO, "Mix_OpenAudio error: %s\n", Mix_GetError());
 		exit((cleanup(app), EXIT_FAILURE));
 	}
-	Mix_AllocateChannels(MIX_CHANNELS + 6);
+	Mix_AllocateChannels(ch_MAX + 6);
 	Mix_ReserveChannels(ch_MAX);
 	load_sounds(aud);
 	// Mix_Volume(ch_music, 64);

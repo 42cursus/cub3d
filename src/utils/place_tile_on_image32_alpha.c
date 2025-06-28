@@ -141,33 +141,6 @@ t_vec4	extract_normalized_alpha(t_vec4 s)
 	return opacity;
 }
 
-/**
- * Stage 2.1: Extract opacity
- * the alpha already represents opacity
- * opacity = (255.0 - alpha_byte) / 255.0
- * @param s
- * @return
- */
-static inline __attribute__((always_inline, used))
-t_vec4	extract_opacity_from_inverted_alpha_old(t_vec4 s)
-{
-	t_vec4			opacity;
-	t_vec4			alpha;
-	const __m128	byte = _mm_set1_ps(255.0f);
-
-	alpha.r0 = _mm_shuffle_ps(s.r0, s.r0, _MM_SHUFFLE(3, 3, 3, 3));
-	alpha.r1 = _mm_shuffle_ps(s.r1, s.r1, _MM_SHUFFLE(3, 3, 3, 3));
-	alpha.r2 = _mm_shuffle_ps(s.r2, s.r2, _MM_SHUFFLE(3, 3, 3, 3));
-	alpha.r3 = _mm_shuffle_ps(s.r3, s.r3, _MM_SHUFFLE(3, 3, 3, 3));
-
-	opacity.r0 = _mm_div_ps(_mm_sub_ps(byte , alpha.r0), byte);
-	opacity.r1 = _mm_div_ps(_mm_sub_ps(byte, alpha.r1), byte);
-	opacity.r2 = _mm_div_ps(_mm_sub_ps(byte, alpha.r2), byte);
-	opacity.r3 = _mm_div_ps(_mm_sub_ps(byte, alpha.r3), byte);
-
-	return (opacity);
-}
-
 static inline __attribute__((always_inline, used))
 t_vec4	extract_opacity_from_inverted_alpha(t_vec4 s)
 {
@@ -244,13 +217,15 @@ t_vec4	blend_pixels(t_vec4 src, t_vec4 dst, t_vec4 alpha) {
 static inline __attribute__((always_inline))
 __m128i	repack_floats_to_bytes(t_vec4 blended)
 {
-	__m128i i0 = _mm_cvtps_epi32(blended.r0);
-	__m128i i1 = _mm_cvtps_epi32(blended.r1);
-	__m128i i2 = _mm_cvtps_epi32(blended.r2);
-	__m128i i3 = _mm_cvtps_epi32(blended.r3);
+	t_vec4 i;
 
-	__m128i p01 = _mm_packs_epi32(i0, i1);
-	__m128i p23 = _mm_packs_epi32(i2, i3);
+	i.r0 = _mm_cvtps_epi32(blended.r0);
+	i.r1 = _mm_cvtps_epi32(blended.r1);
+	i.r2 = _mm_cvtps_epi32(blended.r2);
+	i.r3 = _mm_cvtps_epi32(blended.r3);
+
+	__m128i p01 = _mm_packs_epi32(i.r0, i.r1);
+	__m128i p23 = _mm_packs_epi32(i.r2, i.r3);
 	return _mm_packus_epi16(p01, p23);
 }
 
@@ -259,6 +234,7 @@ void	blend_4pixels(u_int32_t *src, u_int32_t *dst)
 {
 	const __m128i	_src = _mm_loadu_si128((__m128i *) src);
 	const __m128i	_dst = _mm_loadu_si128((__m128i *) dst);
+
 	const t_vec4	fs = unpack_rgba_bytes_to_floats(_src);
 	const t_vec4	fd = unpack_rgba_bytes_to_floats(_dst);
 	const t_vec4	opacity = extract_opacity_from_inverted_alpha(fs);
@@ -300,8 +276,8 @@ void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 	t_point	it;
 	t_point	offset;
 	t_point	limit;
-	u_int	*src_row;
-	u_int	*dst_row;
+	t_cdata cd;
+	t_m128i mc;
 
 	offset.x = -p.x * (p.x < 0);
 	offset.y = -p.y * (p.y < 0);
@@ -311,19 +287,62 @@ void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
 	it.y = offset.y - 1;
 	while (++it.y < limit.y)
 	{
-		src_row = (u_int32_t *) tile->data + it.y * tile->width;
-		dst_row = (u_int32_t *) image->data + (it.y + p.y) * image->width + p.x;
+		cd.src = (int *) tile->data + it.y * tile->width;
+		cd.dst = (int *) image->data + (it.y + p.y) * image->width + p.x;
 		it.x = offset.x;
 		while (it.x + 3 < limit.x)
 		{
-			const __m128i src_1 = _mm_loadu_si128((__m128i *) (src_row + it.x));
-			const __m128i dst_1 = _mm_loadu_si128((__m128i *) (dst_row + it.x));
-			const t_vec4 fs = unpack_rgba_bytes_to_floats(src_1);
-			const t_vec4 fd = unpack_rgba_bytes_to_floats(dst_1);
-			const t_vec4 opacity = extract_opacity_from_inverted_alpha(fs);
-			const t_vec4 blended = blend_pixels(fs, fd, opacity);
-			_mm_storeu_si128((__m128i *) (dst_row + it.x), repack_floats_to_bytes(blended));
+			mc.src = _mm_loadu_si128((__m128i *) (cd.src + it.x));
+			mc.dst = _mm_loadu_si128((__m128i *) (cd.dst + it.x));
+
+			const t_vec4 fs = unpack_rgba_bytes_to_floats(mc.src);
+			const t_vec4 fd = unpack_rgba_bytes_to_floats(mc.dst);
+
+			t_vec4 opacity;
+			t_vec4 alpha;
+			const __m128 byte = _mm_set1_ps(255.0f);
+
+			alpha.r0 = _mm_shuffle_ps(fs.r0, fs.r0, _MM_SHUFFLE(3, 3, 3, 3));
+			alpha.r1 = _mm_shuffle_ps(fs.r1, fs.r1, _MM_SHUFFLE(3, 3, 3, 3));
+			alpha.r2 = _mm_shuffle_ps(fs.r2, fs.r2, _MM_SHUFFLE(3, 3, 3, 3));
+			alpha.r3 = _mm_shuffle_ps(fs.r3, fs.r3, _MM_SHUFFLE(3, 3, 3, 3));
+
+			opacity.r0 = _mm_div_ps(_mm_sub_ps(byte, alpha.r0), byte);
+			opacity.r1 = _mm_div_ps(_mm_sub_ps(byte, alpha.r1), byte);
+			opacity.r2 = _mm_div_ps(_mm_sub_ps(byte, alpha.r2), byte);
+			opacity.r3 = _mm_div_ps(_mm_sub_ps(byte, alpha.r3), byte);
+
+			t_vec4 blended;
+			t_vec4 diff;
+			__m128 one = _mm_set1_ps(1.0f);
+
+			diff.r0 = _mm_sub_ps(fd.r0, fs.r0);
+			diff.r1 = _mm_sub_ps(fd.r1, fs.r1);
+			diff.r2 = _mm_sub_ps(fd.r2, fs.r2);
+			diff.r3 = _mm_sub_ps(fd.r3, fs.r3);
+
+			blended.r0 = _mm_add_ps(fs.r0, _mm_mul_ps(diff.r0, _mm_sub_ps(one, opacity.r0)));
+			blended.r1 = _mm_add_ps(fs.r1, _mm_mul_ps(diff.r1, _mm_sub_ps(one, opacity.r1)));
+			blended.r2 = _mm_add_ps(fs.r2, _mm_mul_ps(diff.r2, _mm_sub_ps(one, opacity.r2)));
+			blended.r3 = _mm_add_ps(fs.r3, _mm_mul_ps(diff.r3, _mm_sub_ps(one, opacity.r3)));
+
+			_mm_storeu_si128((__m128i *) (cd.dst + it.x), repack_floats_to_bytes(blended));
 			it.x += 4;
+		}
+		while (it.x < limit.x)
+		{
+			mc.colour = cd.src[it.x];
+			t_colour src = *(t_colour *) &mc.colour;
+			t_colour dst = *(t_colour *) &cd.dst[it.x];
+			double frac = src.a / 255.0;
+			if (src.raw != dst.raw)
+			{
+				src.r = ((dst.r - src.r) * frac) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * frac) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * frac) + src.b + 0.5;
+			}
+			cd.dst[it.x] = src.raw;
+			it.x++;
 		}
 	}
 }

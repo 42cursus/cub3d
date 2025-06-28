@@ -121,7 +121,7 @@ void	play_pickup_sound(t_info *app, t_obj *obj)
 	else if (obj->subtype <= I_AMMO_S && obj->subtype >= I_ETANK)
 		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
 	if (obj->subtype == I_TROPHY)
-		Mix_PlayChannel(ch_music, app->audio.chunks[snd_win_music], 0);
+		Mix_PlayChannel(ch_music1, app->audio.chunks[snd_win_music], 0);
 }
 
 int	handle_obj_item(t_info *app, t_obj *obj, t_list **current)

@@ -204,7 +204,8 @@ typedef enum e_snd
 enum e_channel
 {
 	ch_any = -1,
-	ch_music = 0,
+	ch_music1 = 0,
+	ch_music2,
 	ch_door,
 	ch_item,
 	ch_tele,

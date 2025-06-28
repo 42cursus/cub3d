@@ -105,5 +105,5 @@ void	set_music_volume(t_info *app, int volume)
 	if (volume > 100)
 		volume = 100;
 	app->audio.mus_volume = volume;
-	Mix_Volume(ch_music, volume);
+	Mix_Volume(ch_music1, volume);
 }
