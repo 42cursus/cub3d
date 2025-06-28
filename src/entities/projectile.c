@@ -53,7 +53,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 	projectile->anim.active = 0;
 	ft_lstadd_back(&lvl->projectiles, ft_lstnew(projectile));
 	snd = ({if (subtype == P_BEAM) snd = snd_gun; else snd = snd_rocket; snd;});
-	Mix_PlayChannel(ch_weapons, aud->chunks[snd], 0);
+	Mix_PlayChannel(-1, aud->chunks[snd], 0);
 }
 
 int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)

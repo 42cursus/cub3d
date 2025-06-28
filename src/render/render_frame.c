@@ -13,6 +13,7 @@
 #include "cub3d.h"
 #include <sys/time.h>
 #include <sysexits.h>
+#include <time.h>
 
 int	point_oob_global(t_vect pos, t_lvl *lvl)
 {
@@ -141,11 +142,17 @@ int	render_load(void *param)
 	return (0);
 }
 
-
+/**
+ * https://stackoverflow.com/questions/17118105/replacing-usleep-with-nanosleep
+ * @param param
+ * @return
+ */
 int	render_play(void *param)
 {
-	size_t			time;
 	t_info *const	app = param;
+	size_t			now;
+	size_t			elapsed;
+	struct timespec	ts;
 
 	if (app->keys[idx_XK_w])
 		move_entity(&app->player->pos, app->lvl,
@@ -169,11 +176,19 @@ int	render_play(void *param)
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_readfriendly((int *)app->canvas->data, (int *)app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
-	while (get_time_us() - app->fr_last < app->fr_delay)
-		usleep(100);
-	time = get_time_us();
-	app->fr_time = time - app->fr_last;
-	app->fr_last = time;
+	now = get_time_us();
+
+	elapsed = now - app->fr_last;
+	if (elapsed < app->fr_delay)
+	{
+		ts.tv_sec = 0;
+		ts.tv_nsec = (__syscall_slong_t)(app->fr_delay - elapsed) * 1000L;
+		nanosleep(&ts, NULL);
+	}
+
+	now = get_time_us(); // update now after sleep
+	app->fr_time = now - app->fr_last;
+	app->fr_last = now;
 	app->fr_scale = 20000.0 / app->fr_time;
 	app->fr_count++;
 	draw_hud(app);
@@ -278,7 +293,7 @@ int	render_credits(void *param)
 	ft_memcpy_avx2((int *) app->canvas->data,
 				   (int *) bg->data, bg->size_line * bg->height);
 	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
-	draw_credits(app, dummy);
+	draw_credits_avx2(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();

@@ -840,7 +840,9 @@ typedef enum e_bit
 void	apply_alpha(t_img *img, u_char alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p);
-void	place_tile_on_image32_alpha(t_img *image, t_tex *tile, t_point p);
+void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p);
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
+void	place_tile_on_image32_alpha4x(t_img *image, t_tex *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
@@ -1068,6 +1070,7 @@ void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 int		check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 //u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
+void	draw_credits_avx2(t_info *app, t_dummy *dummy);
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
 void	toggle_fullscreen(t_info *app);

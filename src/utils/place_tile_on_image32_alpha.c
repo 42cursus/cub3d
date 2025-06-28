@@ -295,7 +295,79 @@ void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p)
 }
 
 inline __attribute__((always_inline, used))
-void	place_tile_on_image32_alpha(t_img *image, t_tex *tile, t_point p)
+void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p)
+{
+	t_point	it;
+	t_point	offset;
+	t_point	limit;
+	u_int	*src_row;
+	u_int	*dst_row;
+
+	offset.x = -p.x * (p.x < 0);
+	offset.y = -p.y * (p.y < 0);
+
+	limit.x = MIN(tile->width, image->width - p.x);
+	limit.y = MIN(tile->height, image->height - p.y);
+	it.y = offset.y - 1;
+	while (++it.y < limit.y)
+	{
+		src_row = (u_int32_t *) tile->data + it.y * tile->width;
+		dst_row = (u_int32_t *) image->data + (it.y + p.y) * image->width + p.x;
+		it.x = offset.x;
+		while (it.x + 3 < limit.x)
+		{
+			const __m128i src_1 = _mm_loadu_si128((__m128i *) (src_row + it.x));
+			const __m128i dst_1 = _mm_loadu_si128((__m128i *) (dst_row + it.x));
+			const t_vec4 fs = unpack_rgba_bytes_to_floats(src_1);
+			const t_vec4 fd = unpack_rgba_bytes_to_floats(dst_1);
+			const t_vec4 opacity = extract_opacity_from_inverted_alpha(fs);
+			const t_vec4 blended = blend_pixels(fs, fd, opacity);
+			_mm_storeu_si128((__m128i *) (dst_row + it.x), repack_floats_to_bytes(blended));
+			it.x += 4;
+		}
+	}
+}
+
+void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p)
+{
+	t_ivect		it;
+	t_ivect		offset;
+	t_point		limit;
+	u_int32_t	*src_row;
+	t_colour	*dst_row;
+
+	t_mcol			mc;
+
+	offset.x = (int []){0, -p.x}[p.x < 0];
+	offset.y = (int []){0, -p.y}[p.y < 0];
+
+	limit.x = MIN(tile->width, image->width - p.x);
+	limit.y = MIN(tile->height, image->height - p.y);
+	it.y = offset.y - 1;
+	while (++it.y < limit.y)
+	{
+		src_row = (u_int32_t *) tile->data + (it.y * tile->width);
+		dst_row = (t_colour *) image->data + ((it.y + p.y) * image->width) + p.x;
+		it.x = offset.x - 1;
+		while (++it.x < limit.x)
+		{
+			mc.colour = src_row[it.x];
+			t_colour src = *(t_colour *) &mc.colour;
+			t_colour dst = dst_row[it.x];
+			mc.frac = src.a / 255.0;
+			if (src.raw != dst.raw)
+			{
+				src.r = ((dst.r - src.r) * mc.frac) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * mc.frac) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * mc.frac) + src.b + 0.5;
+			}
+			dst_row[it.x] = src;
+		}
+	}
+}
+
+inline __attribute__((always_inline, used))
+void	place_tile_on_image32_alpha4x(t_img *image, t_tex *tile, t_point p)
 {
 	t_point	it;
 	t_point	offset;

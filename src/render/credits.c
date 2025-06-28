@@ -125,14 +125,16 @@ int	bilinear_filter_old(double x, double y, const t_tex *tex)
 static inline __attribute__((always_inline, unused))
 t_colour	dim_colour_alpha(t_colour src, double fact)
 {
-	if (fact < 1 || src.raw == XPM_TRANSPARENT)
-		return (src);
-	double opacity = 255 - (255 / fact);
-	opacity = opacity > 228 ? 255 : opacity;
-	src.a = (u_char) opacity;
-	src.r = (u_char)(src.r / fact);
-	src.g = (u_char)(src.g / fact);
-	src.b = (u_char)(src.b / fact);
+	if (fact >= 1 && src.raw != XPM_TRANSPARENT)
+	{
+		double opacity = 255 - (255 / fact);
+		opacity = opacity > 228 ? 255 : opacity;
+		src.a = (u_char) opacity;
+		src.r = (u_char) (src.r / fact);
+		src.g = (u_char) (src.g / fact);
+		src.b = (u_char) (src.b / fact);
+
+	}
 	return (src);
 }
 
@@ -256,4 +258,53 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 		draw_credits_row(app, l_pos, r_pos, row);
 	}
 	place_img_on_image32_alpha(app->canvas, app->overlay, (t_point) {0, 0});
+}
+
+void	draw_credits_avx2(t_info *app, t_dummy *dummy)
+{
+	t_vect	l_dir;
+	t_vect	r_dir;
+	t_vect	l_pos;
+	t_vect	r_pos;
+	int		row;
+
+	row = 0;
+	l_dir = rotate_vect(dummy->dir, app->fov_rad_half);
+	r_dir = rotate_vect(dummy->dir, -app->fov_rad_half);
+	update_rocks(app, dummy);
+	while (++row < WIN_HEIGHT)
+	{
+		l_pos = add_vect(dummy->pos, scale_vect(l_dir, dummy->credits_offsets[row - 1]));
+		r_pos = add_vect(dummy->pos, scale_vect(r_dir, dummy->credits_offsets[row - 1]));
+		
+		const t_tex *tex = &app->shtex->credits;
+		int i;
+		double step_x;
+		double curr_x;
+		t_vect idx;
+		double dist = app->dummy->credits_offsets[row - 1];
+
+		t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
+
+		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
+
+		step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
+		curr_x = l_pos.x;
+		idx.y = (-l_pos.y) * tex->w;
+		if (l_pos.y <= 0 && idx.y <= tex->h)
+		{
+			i = -1;
+			while (++i < WIN_WIDTH)
+			{
+				if (curr_x > lim.x && curr_x < lim.y)
+				{
+					idx.x = (0.5 + curr_x) * tex->w;
+					t_colour src = bilinear_filter(idx, tex);
+					p_row[i] = dim_colour_alpha(src, (dist - 1.5) * 6).raw;
+				}
+				curr_x += step_x;
+			}
+		}
+	}
+	place_img_on_image32_alpha_avx2(app->canvas, app->overlay, (t_point) {0, 0});
 }
