@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include <sys/param.h>
+#include <stdalign.h>
 #include "cub3d.h"
 
 /**
@@ -21,43 +22,19 @@
 static inline __attribute__((always_inline, used))
 t_vec4f_avx	unpack_rgba_bytes_to_floats_avx2_soa(__m256i pixels)
 {
-	int				i;
-	t_vec4f_avx			var;
-	float			r[8], g[8], b[8], a[8];
-	const __m256i	zero = _mm256_setzero_si256();
+	const __m256i mask_8 = _mm256_set1_epi32(0xFF);
 
-	const __m256i lo = _mm256_unpacklo_epi8(pixels, zero);
-	const __m256i hi = _mm256_unpackhi_epi8(pixels, zero);
+	__m256i r = _mm256_and_si256(pixels, mask_8);
+	__m256i g = _mm256_and_si256(_mm256_srli_epi32(pixels, 8), mask_8);
+	__m256i b = _mm256_and_si256(_mm256_srli_epi32(pixels, 16), mask_8);
+	__m256i a = _mm256_and_si256(_mm256_srli_epi32(pixels, 24), mask_8);
 
-	var.r0 = _mm256_cvtepi32_ps(_mm256_unpacklo_epi16(lo, zero));
-	var.r1 = _mm256_cvtepi32_ps(_mm256_unpackhi_epi16(lo, zero));
-	var.r2 = _mm256_cvtepi32_ps(_mm256_unpacklo_epi16(hi, zero));
-	var.r3 = _mm256_cvtepi32_ps(_mm256_unpackhi_epi16(hi, zero));
-
-	// Transpose 4x8 matrix (r0-r3) to get RGBA vectors
-	// Each r contains 8 floats, but interleaved as RGBA
-	float temp[32];
-
-	// Store and reload as float array for now
-	_mm256_storeu_ps(&temp[0], var.r0);
-	_mm256_storeu_ps(&temp[8], var.r1);
-	_mm256_storeu_ps(&temp[16], var.r2);
-	_mm256_storeu_ps(&temp[24], var.r3);
-	i = -1;
-	while (++i < 8)
-	{
-		r[i] = temp[i * 4 + 0];
-		g[i] = temp[i * 4 + 1];
-		b[i] = temp[i * 4 + 2];
-		a[i] = temp[i * 4 + 3];
-	}
-
-	var.r0 = _mm256_loadu_ps(r);
-	var.r1 = _mm256_loadu_ps(g);
-	var.r2 = _mm256_loadu_ps(b);
-	var.r3 = _mm256_loadu_ps(a);
-
-	return (var);
+	t_vec4f_avx out;
+	out.r0 = _mm256_cvtepi32_ps(r);
+	out.r1 = _mm256_cvtepi32_ps(g);
+	out.r2 = _mm256_cvtepi32_ps(b);
+	out.r3 = _mm256_cvtepi32_ps(a);
+	return out;
 }
 
 static inline __attribute__((always_inline, used))
@@ -90,6 +67,8 @@ t_vec4f_avx blend_pixels_avx2_soa(t_vec4f_avx src, t_vec4f_avx dst, __m256 trans
 	return out;
 }
 
+#define CLAMP(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
+
 static inline __attribute__((always_inline, used))
 __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 {
@@ -98,16 +77,24 @@ __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 	__m256i ib = _mm256_cvtps_epi32(blended.r2);
 	__m256i ia = _mm256_cvtps_epi32(blended.r3);
 
-	// Interleave RGBA channels
-	__m256i rg_lo = _mm256_unpacklo_epi8(ir, ig);
-	__m256i rg_hi = _mm256_unpackhi_epi8(ir, ig);
-	__m256i ba_lo = _mm256_unpacklo_epi8(ib, ia);
-	__m256i ba_hi = _mm256_unpackhi_epi8(ib, ia);
+	alignas(32) int r[8], g[8], b[8], a[8];
+	_mm256_store_si256((__m256i *)r, ir);
+	_mm256_store_si256((__m256i *)g, ig);
+	_mm256_store_si256((__m256i *)b, ib);
+	_mm256_store_si256((__m256i *)a, ia);
 
-	__m256i rgba_lo = _mm256_unpacklo_epi16(rg_lo, ba_lo);
-	__m256i rgba_hi = _mm256_unpackhi_epi16(rg_hi, ba_hi);
+	// Interleave RGBA
+	alignas(32) unsigned char rgba[32];
+	int i = -1;
+	while(++i < 8)
+	{
+		rgba[i * 4 + 0] = (unsigned char)CLAMP(r[i], 0, 255);
+		rgba[i * 4 + 1] = (unsigned char)CLAMP(g[i], 0, 255);
+		rgba[i * 4 + 2] = (unsigned char)CLAMP(b[i], 0, 255);
+		rgba[i * 4 + 3] = (unsigned char)CLAMP(a[i], 0, 255);
+	}
 
-	return _mm256_packus_epi16(rgba_lo, rgba_hi);
+	return _mm256_loadu_si256((__m256i *)rgba);
 }
 
 static inline __attribute__((always_inline, used))
