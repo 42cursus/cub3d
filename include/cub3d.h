@@ -344,13 +344,28 @@ typedef struct s_m256i
 	};
 }	t_m256i;
 
+
 typedef struct s_vec4
 {
 	__m128	r0;
 	__m128	r1;
 	__m128	r2;
 	__m128	r3;
-}	t_vec4;
+}	t_vec4f_sse;
+
+typedef struct s_vec2i_avx
+{
+	__m256i r0;
+	__m256i r1;
+}	t_vec2i_avx;
+
+typedef struct s_vec4i_avx
+{
+	__m256i r0;
+	__m256i r1;
+	__m256i r2;
+	__m256i r3;
+}	t_vec4i_avx;
 
 typedef struct s_vec8f
 {
@@ -358,7 +373,7 @@ typedef struct s_vec8f
 	__m256 r1;
 	__m256 r2;
 	__m256 r3;
-}	t_vec8f;
+}	t_vec4f_avx;
 
 typedef struct s_vec8
 {
@@ -848,8 +863,10 @@ typedef enum e_bit
 
 void	apply_inverted_alpha(t_img *img, u_char added_alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
-void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p);
-void	place_img_on_image32_alpha_sse41(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha_sse(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha_avx2(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha_avx2_soa(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);

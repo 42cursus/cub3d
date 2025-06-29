@@ -13,6 +13,9 @@
 FILES   = time.c \
 			vector.c \
 			transpose_img_avx2.c \
-			place_tile_on_image32_alpha.c
+			place_img_alpha.c \
+			place_img_alpha_sse.c \
+			place_img_alpha_avx2.c \
+			place_img_alpha_avx2_soa.c
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)
