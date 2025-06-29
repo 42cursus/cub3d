@@ -67,34 +67,45 @@ t_vec4f_avx blend_pixels_avx2_soa(t_vec4f_avx src, t_vec4f_avx dst, __m256 trans
 	return out;
 }
 
-#define CLAMP(x, min, max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
-
 static inline __attribute__((always_inline, used))
 __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 {
-	__m256i ir = _mm256_cvtps_epi32(blended.r0);
-	__m256i ig = _mm256_cvtps_epi32(blended.r1);
-	__m256i ib = _mm256_cvtps_epi32(blended.r2);
-	__m256i ia = _mm256_cvtps_epi32(blended.r3);
+	t_vec4i_avx rgba;
+	t_vec2i_sse hi_lo;
+	t_vec2i_sse shuf;
 
-	alignas(32) int r[8], g[8], b[8], a[8];
-	_mm256_store_si256((__m256i *)r, ir);
-	_mm256_store_si256((__m256i *)g, ig);
-	_mm256_store_si256((__m256i *)b, ib);
-	_mm256_store_si256((__m256i *)a, ia);
+	const __m256i zero = _mm256_setzero_si256();
+	const __m256i max255 = _mm256_set1_epi32(255);
+	const __m128i shuffle = _mm_setr_epi8(
+		0,  4,  8, 12,
+		1,  5,  9, 13,
+		2,  6, 10, 14,
+		3,  7, 11, 15
+	);
 
-	// Interleave RGBA
-	alignas(32) unsigned char rgba[32];
-	int i = -1;
-	while(++i < 8)
-	{
-		rgba[i * 4 + 0] = (unsigned char)CLAMP(r[i], 0, 255);
-		rgba[i * 4 + 1] = (unsigned char)CLAMP(g[i], 0, 255);
-		rgba[i * 4 + 2] = (unsigned char)CLAMP(b[i], 0, 255);
-		rgba[i * 4 + 3] = (unsigned char)CLAMP(a[i], 0, 255);
-	}
+	rgba.r0 = _mm256_cvtps_epi32(blended.r0);
+	rgba.r1 = _mm256_cvtps_epi32(blended.r1);
+	rgba.r2 = _mm256_cvtps_epi32(blended.r2);
+	rgba.r3 = _mm256_cvtps_epi32(blended.r3);
 
-	return _mm256_loadu_si256((__m256i *)rgba);
+	rgba.r0 = _mm256_min_epi32(_mm256_max_epi32(rgba.r0, zero), max255);
+	rgba.r1 = _mm256_min_epi32(_mm256_max_epi32(rgba.r1, zero), max255);
+	rgba.r2 = _mm256_min_epi32(_mm256_max_epi32(rgba.r2, zero), max255);
+	rgba.r3 = _mm256_min_epi32(_mm256_max_epi32(rgba.r3, zero), max255);
+
+	__m256i rg16 = _mm256_packs_epi32(rgba.r0, rgba.r1);
+	__m256i ba16 = _mm256_packs_epi32(rgba.r2, rgba.r3);
+	__m256i rgba8 = _mm256_packus_epi16(rg16, ba16);
+
+	// Split into 2 128-bit lanes
+	hi_lo.r0 = _mm256_extracti128_si256(rgba8, 0);
+	hi_lo.r1 = _mm256_extracti128_si256(rgba8, 1);
+
+	// Interleave RGBA (4 channels) for 4 pixels per lane (4×4 = 16 bytes)
+	shuf.r0 = _mm_shuffle_epi8(hi_lo.r0, shuffle);
+	shuf.r1 = _mm_shuffle_epi8(hi_lo.r1, shuffle);
+
+	return _mm256_inserti128_si256(_mm256_castsi128_si256(shuf.r0), shuf.r1, 1);
 }
 
 static inline __attribute__((always_inline, used))

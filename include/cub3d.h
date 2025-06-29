@@ -359,6 +359,12 @@ typedef struct s_vec2i_avx
 	__m256i r1;
 }	t_vec2i_avx;
 
+typedef struct s_vec2i_sse
+{
+	__m128i r0;
+	__m128i r1;
+}	t_vec2i_sse;
+
 typedef struct s_vec4i_avx
 {
 	__m256i r0;
