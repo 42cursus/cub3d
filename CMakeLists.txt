@@ -31,6 +31,8 @@ set(FT_CFLAGS
         -ftree-vectorize
         -Wformat
         -Werror=format-security
+        -Wno-self-assign
+        -Wshadow
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
         -include include/cub3d.h

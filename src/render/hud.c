@@ -449,7 +449,7 @@ void	place_mmap(t_info *app)
 
 		p2 = calc_player_pos(lvl, p1, pointer, player);
 
-		place_img_alpha_avx2_soa(canvas, minimap, p1);
+		place_img_alpha_sse_soa(canvas, minimap, p1);
 		place_img_alpha_avx2(canvas, pointer, p2);
 
 		place_items_minimap(lvl, p1, 2);

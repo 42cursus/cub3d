@@ -71,16 +71,14 @@ static inline __attribute__((always_inline, used))
 __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 {
 	t_vec4i_avx rgba;
-	t_vec2i_sse hi_lo;
-	t_vec2i_sse shuf;
 
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i max255 = _mm256_set1_epi32(255);
-	const __m128i shuffle = _mm_setr_epi8(
-		0,  4,  8, 12,
-		1,  5,  9, 13,
-		2,  6, 10, 14,
-		3,  7, 11, 15
+	const __m256i shuffle_mask = _mm256_setr_epi8(
+		0,  4,  8, 12,  1,  5,  9, 13,
+		2,  6, 10, 14,  3,  7, 11, 15,
+		16, 20, 24, 28, 17, 21, 25, 29,
+		18, 22, 26, 30, 19, 23, 27, 31
 	);
 
 	rgba.r0 = _mm256_cvtps_epi32(blended.r0);
@@ -97,15 +95,9 @@ __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 	__m256i ba16 = _mm256_packs_epi32(rgba.r2, rgba.r3);
 	__m256i rgba8 = _mm256_packus_epi16(rg16, ba16);
 
-	// Split into 2 128-bit lanes
-	hi_lo.r0 = _mm256_extracti128_si256(rgba8, 0);
-	hi_lo.r1 = _mm256_extracti128_si256(rgba8, 1);
+	__m256i shuffled = _mm256_shuffle_epi8(rgba8, shuffle_mask);
 
-	// Interleave RGBA (4 channels) for 4 pixels per lane (4×4 = 16 bytes)
-	shuf.r0 = _mm_shuffle_epi8(hi_lo.r0, shuffle);
-	shuf.r1 = _mm_shuffle_epi8(hi_lo.r1, shuffle);
-
-	return _mm256_inserti128_si256(_mm256_castsi128_si256(shuf.r0), shuf.r1, 1);
+	return shuffled;
 }
 
 static inline __attribute__((always_inline, used))

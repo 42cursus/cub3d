@@ -373,6 +373,14 @@ typedef struct s_vec4i_avx
 	__m256i r3;
 }	t_vec4i_avx;
 
+typedef struct s_vec4i_sse
+{
+	__m128i r0;
+	__m128i r1;
+	__m128i r2;
+	__m128i r3;
+}	t_vec4i_sse;
+
 typedef struct s_vec8f
 {
 	__m256 r0;
@@ -871,6 +879,7 @@ void	apply_inverted_alpha(t_img *img, u_char added_alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
 void	place_img_alpha(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_sse(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha_sse_soa(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_avx2(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_avx2_soa(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
