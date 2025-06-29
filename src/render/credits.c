@@ -257,7 +257,7 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 		r_pos = add_vect(dummy->pos, scale_vect(r_dir, dummy->credits_offsets[row - 1]));
 		draw_credits_row(app, l_pos, r_pos, row);
 	}
-	place_img_on_image32_alpha(app->canvas, app->overlay, (t_point) {0, 0});
+	place_img_on_image32_alpha_sse41(app->canvas, app->overlay, (t_point) {0, 0});
 }
 
 void	draw_credits_avx2(t_info *app, t_dummy *dummy)
@@ -306,5 +306,6 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 			}
 		}
 	}
-	place_img_on_image32_alpha_avx2(app->canvas, app->overlay, (t_point) {0, 0});
+	place_img_on_image32_alpha_avx2(app->canvas, app->overlay,
+									(t_point) {0, 0});
 }

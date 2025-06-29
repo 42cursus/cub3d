@@ -17,13 +17,14 @@
  * epi32 - packed elements of 32-bit signed integers
  * `e` is not "integer" per se, it implies integer in the context of Intel
  *
- * epi8	Packed 8-bit signed integers
- * epu8	Packed 8-bit unsigned integers
+ * epi8		Packed 8-bit signed integers
+ * epu8		Packed 8-bit unsigned integers
  * epi16	Packed 16-bit signed integers
- * ps	Packed single-precision floats
- * pd	Packed double-precision floats
+ * ps		Packed single-precision floats
+ * pd		Packed double-precision floats
  *
  * storeu - store unaligned
+ * loadu - load unaligned
  *
  * https://www.cs.virginia.edu/~cr4bd/3330/S2023/simdref.html
  * @param x
@@ -210,7 +211,7 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	mc.overlay128 = _mm_set1_epi32(-(ray->damaged) & MLX_RED);
 	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
 
-//	__m128 idx_f =_mm_set_ps(3.0f, 2.0f, 1.0f, 0.0f);
+//	__m128 idx_f = _mm_set_ps(3.0f, 2.0f, 1.0f, 0.0f);
 //	__m128 addon = _mm_mul_ps(_mm_set1_ps(ts.step), idx_f);
 	while (it.i + 3 < it.j)
 	{

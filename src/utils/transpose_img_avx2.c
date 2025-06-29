@@ -30,7 +30,7 @@ typedef struct
 inline __attribute__((always_inline, used))
 void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
 {
-	const t_vec8 v1 = {
+	const t_vec8i v1 = {
 		_mm256_unpacklo_epi32(in[0], in[1]),
 		_mm256_unpackhi_epi32(in[0], in[1]),
 		_mm256_unpacklo_epi32(in[2], in[3]),
@@ -40,7 +40,7 @@ void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
 		_mm256_unpacklo_epi32(in[6], in[7]),
 		_mm256_unpackhi_epi32(in[6], in[7])
 	};
-	const t_vec8 v2 = {
+	const t_vec8i v2 = {
 		_mm256_unpacklo_epi64(v1.t0, v1.t2),
 		_mm256_unpackhi_epi64(v1.t0, v1.t2),
 		_mm256_unpacklo_epi64(v1.t1, v1.t3),
@@ -167,7 +167,7 @@ void transpose_img_stack(int *dst, int *src, int width, int height)
  * @param height
  */
 inline __attribute__((always_inline, used))
-void transpose_img_avx2_tiled(int *dst, int *src, int width, int height)
+void transpose_img_avx2_tiled_write(int *dst, int *src, int width, int height)
 {
 	int		i;
 	t_ivect	it;
@@ -225,7 +225,7 @@ void transpose_img_avx2_tiled(int *dst, int *src, int width, int height)
 }
 
 inline __attribute__((always_inline, used))
-void transpose_img_avx2_tiled_readfriendly(int *dst, int *src, int width, int height)
+void transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height)
 {
 	int		i;
 	t_ivect	it;

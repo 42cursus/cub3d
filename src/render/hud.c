@@ -87,12 +87,12 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			t_colour src = *(t_colour *) &mc.colour;
 			t_colour dst = *(t_colour *) &dst_row[it.x];
-			mc.frac = alpha / 255.0;
+			mc.transp = alpha / 255.0;
 			if (src.raw != dst.raw)
 			{
-				src.r = ((dst.r - src.r) * mc.frac) + src.r + 0.5;
-				src.g = ((dst.g - src.g) * mc.frac) + src.g + 0.5;
-				src.b = ((dst.b - src.b) * mc.frac) + src.b + 0.5;
+				src.r = ((dst.r - src.r) * mc.transp) + src.r + 0.5;
+				src.g = ((dst.g - src.g) * mc.transp) + src.g + 0.5;
+				src.b = ((dst.b - src.b) * mc.transp) + src.b + 0.5;
 			}
 			dst_row[it.x] = (src.raw & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
@@ -405,7 +405,7 @@ void	place_help(t_info *app)
 	{
 		p1.x = WIN_WIDTH / 2 - help->width / 2;
 		p1.y = WIN_HEIGHT / 2 - help->height / 2;
-		place_img_on_image32_alpha(canvas, help, p1);
+		place_img_on_image32_alpha_sse41(canvas, help, p1);
 	}
 }
 

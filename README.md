@@ -45,7 +45,7 @@ where capital D means it is global (external) and lies in the initialized data s
 
 then load it at runtime like this
 ```c
-void calc_indexes(void)
+void calc_idxs_avx2(void)
 {
 	t_tex			*tex;
 	extern const char	*title_card_xpm[];

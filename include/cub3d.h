@@ -311,7 +311,7 @@ typedef struct s_mcol
 {
 	u_int	colour;
 	u_int	mask;
-	double	frac;
+	double	transp;
 }	t_mcol;
 
 typedef struct s_m128i
@@ -352,6 +352,14 @@ typedef struct s_vec4
 	__m128	r3;
 }	t_vec4;
 
+typedef struct s_vec8f
+{
+	__m256 r0;
+	__m256 r1;
+	__m256 r2;
+	__m256 r3;
+}	t_vec8f;
+
 typedef struct s_vec8
 {
 	__m256i	t0;
@@ -362,7 +370,7 @@ typedef struct s_vec8
 	__m256i	t5;
 	__m256i	t6;
 	__m256i	t7;
-}	t_vec8;
+}	t_vec8i;
 
 typedef struct s_imask
 {
@@ -840,18 +848,16 @@ typedef enum e_bit
 
 void	apply_inverted_alpha(t_img *img, u_char added_alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);
-void	place_img_on_image32_alpha(t_img *image, t_img *tile, t_point p);
 void	place_img_on_image32_alpha_avx2(t_img *image, t_img *tile, t_point p);
-void	place_tile_on_image32_alpha(t_img *image, t_img *tile, t_point p);
-void	place_tile_on_image32_alpha4x(t_img *image, t_tex *tile, t_point p);
+void	place_img_on_image32_alpha_sse41(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_frame(t_info *app);
 void	replace_frame_transposed(t_info *app);
 void	transpose_img_stack(int *dst, int *src, int width, int height);
-void	transpose_img_avx2_tiled(int *dst, int *src, int width, int height);
-void	transpose_img_avx2_tiled_readfriendly(int *dst, int *src, int width, int height);
+void	transpose_img_avx2_tiled_write(int *dst, int *src, int width, int height);
+void	transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);

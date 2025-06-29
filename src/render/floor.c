@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void calc_indexes(const t_info *app, t_player *player, int *idxs, t_img	tex);
+void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img	tex);
 
 /**
  * This function maps a continuous coordinate (like pos = 0.5)
@@ -385,7 +385,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 	row.dst = (int *)app->canvas_r->data;
 	row.src = (int *)tex.data;
 
-	calc_indexes(app, player, idxs, tex);
+	calc_idxs_avx2(app, player, idxs, tex);
 
 	iter.x = 0;
 	while (iter.x < WIN_WIDTH - 1)
@@ -417,7 +417,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 }
 
 inline __attribute__((always_inline))
-void calc_indexes(const t_info *app, t_player *player, int *idxs, t_img tex)
+void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
 {
 	t_ivect iter;
 
@@ -472,7 +472,6 @@ void calc_indexes(const t_info *app, t_player *player, int *idxs, t_img tex)
 		pos_right.x = _mm256_add_ps(pl_pos256.x, scaled_right.x);
 		stepx.x = _mm256_sub_ps(pos_right.x, pos_left.x);
 		stepx.x = _mm256_div_ps(stepx.x, half_width);
-
 
 		scaled_left.y = _mm256_mul_ps(dir256[LEFT].y, depthxx);
 		scaled_right.y = _mm256_mul_ps(dir256[RIGHT].y, depthxx);

@@ -46,9 +46,9 @@ void	replace_sky_r(t_info *app, char *tex_file)
 	new_img = scale_image(app, new_img, new.x, new.y);
 	*img = new_img;
 	app->skybox_r = mlx_new_image(app->mlx, new_img->height,new_img->width);
-	transpose_img_avx2_tiled_readfriendly((int *) app->skybox_r->data,
-							 (int *) new_img->data, new_img->height,
-							 new_img->width);
+	transpose_img_avx2_tiled_read((int *) app->skybox_r->data,
+								  (int *) new_img->data, new_img->height,
+								  new_img->width);
 }
 
 static inline __attribute__((always_inline))
