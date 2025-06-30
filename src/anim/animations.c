@@ -36,7 +36,7 @@ t_tex	*handle_animation(t_info *app, t_anim anim)
 
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app)
 {
-	size_t	frames;
+	ssize_t	frames;
 	t_tex	*tex;
 
 	frames = (app->fr_last - anim->timestart) / 20000;
@@ -53,7 +53,7 @@ t_tex	*get_open_door_tex(t_anim *anim, t_info *app)
 
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app)
 {
-	size_t	frames;
+	ssize_t	frames;
 	t_tex	*door_tex;
 	t_tex	*tex;
 
@@ -69,6 +69,22 @@ t_tex	*get_close_door_tex(t_anim *anim, t_info *app)
 	else
 		tex = &door_tex[2 + (4 - (frames / 4))];
 	return (tex);
+}
+
+t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile)
+{
+	if (!anim->active)
+		return (&anim->tex[tile == 'O']);
+	if (tile == 'O')
+		return (get_open_door_tex(anim, app));
+	else if (tile == 'B')
+	{
+		if (app->lvl->boss_active)
+			return (get_close_door_tex(anim, app));
+		else
+			return (get_open_door_tex(anim, app));
+	}
+	return (get_close_door_tex(anim, app));
 }
 
 void	select_projectile_tex(t_obj *obj, t_player *player, t_info *app)
