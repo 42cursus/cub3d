@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   floor.c                                            :+:      :+:    :+:   */
+/*   floor_avx2.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
+/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/11 18:17:23 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/23 16:22:16 by abelov           ###   ########.fr       */
+/*   Created: 2025/06/30 17:44:29 by abelov            #+#    #+#             */
+/*   Updated: 2025/06/30 17:44:30 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static inline __attribute__((always_inline, unused))
 int	point_oob(t_vect pos, t_lvl *lvl)
 {
 	return ((pos.x < 0 || pos.x > lvl->width)
-		|| (pos.y < 0 || pos.y > lvl->height));
+			|| (pos.y < 0 || pos.y > lvl->height));
 }
 
 static inline __attribute__((always_inline, unused))
@@ -88,7 +88,8 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
  * @param map
  * @param player
  */
-void	fill_floor(t_info *app, t_player *player, int is_floor)
+inline __attribute__((always_inline))
+void	fill_floor_cols_avx2x8(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
 	t_vect	pos[2];
@@ -98,8 +99,6 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	t_cdata row;
 	double	depth;
 	t_img	tex;
-
-	bool is_ceil = !is_floor;
 
 	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
 	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
@@ -112,20 +111,10 @@ void	fill_floor(t_info *app, t_player *player, int is_floor)
 	t_vect	curr;
 	t_ivect	idx;
 
-	if (is_ceil)
-	{
-		tex = *app->lvl->planes[T_CEILING];
-		y_start = 0;
-		depths_idx_start = 0;
-		depths_step = 1;
-	}
-	else
-	{
-		tex = *app->lvl->planes[T_FLOOR];
-		y_start = WIN_HEIGHT / 2;
-		depths_idx_start = WIN_HEIGHT / 2 - 1;
-		depths_step = -1;
-	}
+	tex = *app->lvl->planes[T_FLOOR];
+	y_start = WIN_HEIGHT / 2;
+	depths_idx_start = WIN_HEIGHT / 2 - 1;
+	depths_step = -1;
 
 	iter.y = -1;
 	while (++iter.y < WIN_HEIGHT / 2)
