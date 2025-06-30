@@ -886,6 +886,7 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);
 void	replace_frame(t_info *app);
+void	replace_frame_hybrid(t_info *app);
 void	replace_frame_transposed(t_info *app);
 void	transpose_img_stack(int *dst, int *src, int width, int height);
 void	transpose_img_avx2_tiled_write(int *dst, int *src, int width, int height);
@@ -1006,6 +1007,7 @@ u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, i
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
 void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
 void	draw_rays(t_info *app);
+void	draw_rays_transposed_alt(t_info *app);
 void	draw_rays_transposed(t_info *app);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);

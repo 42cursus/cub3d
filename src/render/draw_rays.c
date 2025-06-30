@@ -372,6 +372,38 @@ void	draw_rays(t_info *app)
 	}
 }
 
+void	draw_rays_transposed_alt(t_info *app)
+{
+	int				i;
+	t_ray			*rays;
+	t_ray			*current_ray;
+	t_img *const	canvas = app->canvas_r;
+
+	u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
+	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
+	const t_img source = {.data = canvas->data, .width = WIN_WIDTH, .height = WIN_HEIGHT};
+
+	i = -1;
+	while (++i < WIN_WIDTH * WIN_HEIGHT)
+		trans_data[i] = XPM_TRANSPARENT;
+
+	rays = app->player->rays;
+	i = -1;
+	while (++i < WIN_WIDTH)
+	{
+		current_ray = &rays[i];
+		while (current_ray)
+		{
+			draw_slice_transposed(i, current_ray, app, (t_tex *)&trans);
+			current_ray = current_ray->in_front;
+		}
+	}
+	transpose_img_avx2_tiled_write((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
+
+	t_point p = {0, 0};
+	place_img_alpha_avx2_soa(app->canvas, (t_img *)&source, p);
+}
+
 void	draw_rays_transposed(t_info *app)
 {
 	int				i;
