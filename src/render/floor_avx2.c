@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 17:44:29 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/30 17:44:30 by abelov           ###   ########.fr       */
+/*   Updated: 2025/06/30 19:35:39 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,12 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
  * @param player
  */
 inline __attribute__((always_inline))
-void	fill_floor_avx2(t_info *app, t_player *player)
+void	fill_floor_sse4x4(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
 	t_vect	pos[2];
 
-	t_ivect iter;
+	t_ivect it;
 
 	t_cdata row;
 	double	depth;
@@ -105,38 +105,87 @@ void	fill_floor_avx2(t_info *app, t_player *player)
 
 	t_vect	step;
 	t_vect	curr;
-	t_ivect	idx;
+	t_vect	currs[8];
+//	t_ivect	idx;
+	t_ivect	idxs[4];
+	int		src_pixels[4];
+	int		full_src_pixels[8];
 
 	tex = *app->lvl->planes[T_FLOOR];
 
-	iter.y = -1;
-	while (++iter.y < WIN_HEIGHT / 2)
+	it.y = -1;
+	while (++it.y < WIN_HEIGHT / 2)
 	{
-		depth = player->row_depths[iter.y + (WIN_HEIGHT / 2 - 1)];
+		depth = player->row_depths[it.y + (WIN_HEIGHT / 2 - 1)];
 
 		pos[LEFT] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
 		pos[RIGHT] = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
 
-		row.dst = (int *)app->canvas->data + (iter.y + WIN_HEIGHT / 2) * app->canvas->width;
+		row.dst = (int *)app->canvas->data + (it.y + WIN_HEIGHT / 2) * app->canvas->width;
 		row.src = (int *)tex.data;
+
+		step.x = ((pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH);
+		step.y = ((pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH);
+
 
 		curr = pos[LEFT];
 
-		step.x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH * 2;
-		step.y = (pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH * 2;
-
-		iter.x = 0;
-		while (iter.x < WIN_WIDTH - 1)
+		it.x = 0;
+		while (it.x < WIN_WIDTH - 1)
 		{
-			idx.x = ((int) (curr.x * tex.width)) & (tex.width - 1);
-			idx.y = ((int) (curr.y * tex.height)) & (tex.height - 1);
+			currs[0] = add_vect(curr, scale_vect(step, it.x + 0));
 
-			row.dst[iter.x] = row.src[idx.y * tex.width + idx.x];
-			row.dst[iter.x + 1] = row.src[idx.y * tex.width + idx.x];
+			currs[1] = add_vect(curr, scale_vect(step, it.x + 2));
 
-			curr.x = curr.x + step.x;
-			curr.y = curr.y + step.y;
-			iter.x += 2;
+			currs[2] = add_vect(curr, scale_vect(step, it.x + 4));
+			currs[3] = add_vect(curr, scale_vect(step, it.x + 6));
+
+			idxs[0].x = ((int) (currs[0].x * tex.width)) & (tex.width - 1);
+			idxs[1].x = ((int) (currs[1].x * tex.width)) & (tex.width - 1);
+			idxs[2].x = ((int) (currs[2].x * tex.width)) & (tex.width - 1);
+			idxs[3].x = ((int) (currs[3].x * tex.width)) & (tex.width - 1);
+
+			idxs[0].y = ((int) (currs[0].y * tex.height)) & (tex.height - 1);
+			idxs[1].y = ((int) (currs[1].y * tex.height)) & (tex.height - 1);
+			idxs[2].y = ((int) (currs[2].y * tex.height)) & (tex.height - 1);
+			idxs[3].y = ((int) (currs[3].y * tex.height)) & (tex.height - 1);
+
+
+			src_pixels[0] = row.src[idxs[0].y * tex.width + idxs[0].x];
+			src_pixels[1] = row.src[idxs[1].y * tex.width + idxs[1].x];
+			src_pixels[2] = row.src[idxs[2].y * tex.width + idxs[2].x];
+			src_pixels[3] = row.src[idxs[3].y * tex.width + idxs[3].x];
+
+			full_src_pixels[7] = src_pixels[3];
+			full_src_pixels[6] = src_pixels[3];
+			full_src_pixels[5] = src_pixels[2];
+			full_src_pixels[4] = src_pixels[2];
+			full_src_pixels[3] = src_pixels[1];
+			full_src_pixels[2] = src_pixels[1];
+			full_src_pixels[1] = src_pixels[0];
+			full_src_pixels[0] = src_pixels[0];
+
+			int *dst = &row.dst[it.x];
+
+			ft_memcpy(&dst[0], &full_src_pixels[0], 4 * sizeof(int));
+			ft_memcpy(&dst[4], &full_src_pixels[4], 4 * sizeof(int));
+
+			it.x += 2 * 4;
 		}
+
+//		while (it.x < WIN_WIDTH - 1)
+//		{
+//
+//			idx.x = ((int) (curr.x * tex.width)) & (tex.width - 1);
+//			idx.y = ((int) (curr.y * tex.height)) & (tex.height - 1);
+//
+//			row.dst[it.x] = row.src[idx.y * tex.width + idx.x];
+//			row.dst[it.x + 1] = row.src[idx.y * tex.width + idx.x];
+//
+//			curr.x = curr.x + step.x;
+//			curr.y = curr.y + step.y;
+//			it.x += 2;
+//		}
+
 	}
 }

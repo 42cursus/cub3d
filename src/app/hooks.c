@@ -73,7 +73,7 @@ void	replace_frame_hybrid(t_info *app)
 	cast_all_rays_alt(app, app->lvl, app->player);
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor_avx2(app, app->player);
+	fill_floor_sse4x4(app, app->player);
 	if (!app->lvl->outside)
 		fill_floor(app, app->player, 0);
 	draw_rays_transposed_alt(app);
