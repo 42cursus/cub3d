@@ -105,7 +105,10 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 
 	t_vect	step;
 	t_vect	curr;
-	t_vect	currs[8];
+	float	currs_x[4];
+	float	currs_y[4];
+	float	scaled_x[4];
+	float	scaled_y[4];
 //	t_ivect	idx;
 	t_ivect	idxs[4];
 	int		src_pixels[4];
@@ -127,29 +130,48 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 		step.x = ((pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH);
 		step.y = ((pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH);
 
+		__m128  step_xx = _mm_set1_ps(step.x);
+		__m128  step_yy = _mm_set1_ps(step.y);
+		__m128  initial = _mm_setr_epi32(0, 2, 4, 6);
 
 		curr = pos[LEFT];
 
 		it.x = 0;
 		while (it.x < WIN_WIDTH - 1)
 		{
-			currs[0] = add_vect(curr, scale_vect(step, it.x + 0));
+			__m128i it_xx = _mm_set1_epi32(it.x);
+			__m128  scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps(_mm_add_epi32( it_xx, initial)));
+			_mm_storeu_ps(scaled_x, scaled_xx);
 
-			currs[1] = add_vect(curr, scale_vect(step, it.x + 2));
+//			scaled_x[0] = step.x * (it.x + 0);
+//			scaled_x[1] = step.x * (it.x + 2);
+//			scaled_x[2] = step.x * (it.x + 4);
+//			scaled_x[3] = step.x * (it.x + 6);
 
-			currs[2] = add_vect(curr, scale_vect(step, it.x + 4));
-			currs[3] = add_vect(curr, scale_vect(step, it.x + 6));
+			scaled_y[0] = step.y * (it.x + 0);
+			scaled_y[1] = step.y * (it.x + 2);
+			scaled_y[2] = step.y * (it.x + 4);
+			scaled_y[3] = step.y * (it.x + 6);
 
-			idxs[0].x = ((int) (currs[0].x * tex.width)) & (tex.width - 1);
-			idxs[1].x = ((int) (currs[1].x * tex.width)) & (tex.width - 1);
-			idxs[2].x = ((int) (currs[2].x * tex.width)) & (tex.width - 1);
-			idxs[3].x = ((int) (currs[3].x * tex.width)) & (tex.width - 1);
+			currs_x[0] = pos[LEFT].x + scaled_x[0];
+			currs_x[1] = pos[LEFT].x + scaled_x[1];
+			currs_x[2] = pos[LEFT].x + scaled_x[2];
+			currs_x[3] = pos[LEFT].x + scaled_x[3];
 
-			idxs[0].y = ((int) (currs[0].y * tex.height)) & (tex.height - 1);
-			idxs[1].y = ((int) (currs[1].y * tex.height)) & (tex.height - 1);
-			idxs[2].y = ((int) (currs[2].y * tex.height)) & (tex.height - 1);
-			idxs[3].y = ((int) (currs[3].y * tex.height)) & (tex.height - 1);
+			currs_y[0] = pos[LEFT].y + scaled_y[0];
+			currs_y[1] = pos[LEFT].y + scaled_y[1];
+			currs_y[2] = pos[LEFT].y + scaled_y[2];
+			currs_y[3] = pos[LEFT].y + scaled_y[3];
 
+			idxs[0].x = ((int) (currs_x[0] * tex.width)) & (tex.width - 1);
+			idxs[1].x = ((int) (currs_x[1] * tex.width)) & (tex.width - 1);
+			idxs[2].x = ((int) (currs_x[2] * tex.width)) & (tex.width - 1);
+			idxs[3].x = ((int) (currs_x[3] * tex.width)) & (tex.width - 1);
+
+			idxs[0].y = ((int) (currs_y[0] * tex.height)) & (tex.height - 1);
+			idxs[1].y = ((int) (currs_y[1] * tex.height)) & (tex.height - 1);
+			idxs[2].y = ((int) (currs_y[2] * tex.height)) & (tex.height - 1);
+			idxs[3].y = ((int) (currs_y[3] * tex.height)) & (tex.height - 1);
 
 			src_pixels[0] = row.src[idxs[0].y * tex.width + idxs[0].x];
 			src_pixels[1] = row.src[idxs[1].y * tex.width + idxs[1].x];
