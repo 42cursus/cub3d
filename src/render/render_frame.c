@@ -172,7 +172,8 @@ int	render_play(void *param)
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
 
-//	replace_frame_hybrid(app);
+	// replace_frame(app);
+	// replace_frame_hybrid(app);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *) app->canvas->data, (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 

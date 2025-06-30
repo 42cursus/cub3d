@@ -891,6 +891,7 @@ void	replace_frame_transposed(t_info *app);
 void	transpose_img_stack(int *dst, int *src, int width, int height);
 void	transpose_img_avx2_tiled_write(int *dst, int *src, int width, int height);
 void	transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height);
+void 	transpose_img_avx2_old(int *dst, int *src, int width, int height);
 int		expose_win(void *param);
 int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -1114,6 +1115,7 @@ void	draw_credits(t_info *app, t_dummy *dummy);
 void	draw_credits_avx2(t_info *app, t_dummy *dummy);
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
+t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile);
 void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 

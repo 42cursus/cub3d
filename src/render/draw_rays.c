@@ -318,31 +318,31 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
-	slice_drawing_sse41(x, ray, canvas, line);
-//	slice_drawing_sse41x4(x, ray, canvas, line);
-//	slice_drawing_avx2x8(x, ray, canvas, line);
-//	slice_drawing_avx2x8_strided(x, ray, canvas, line);
+	// slice_drawing_sse41(x, ray, canvas, line);
+	// slice_drawing_sse41x4(x, ray, canvas, line);
+	// slice_drawing_avx2x8(x, ray, canvas, line);
+	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
-	t_anim	*anim;
+	// t_anim	*anim;
 	t_lvars	line;
 
-	bool closed = ray->face >= DOOR_N && ray->face < DOOR_N_OPEN;
-	bool open = ray->face >= DOOR_N_OPEN;
-
-	if ((open || closed))
-	{
-		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-		if(anim->active)
-		{
-			if (closed)
-				ray->tex = get_close_door_tex(anim, app);
-			else
-				ray->tex = get_open_door_tex(anim, app);
-		}
-	}
+	// bool closed = ray->face >= DOOR_N && ray->face < DOOR_N_OPEN;
+	// bool open = ray->face >= DOOR_N_OPEN;
+	//
+	// if ((open || closed))
+	// {
+	// 	anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
+	// 	if(anim->active)
+	// 	{
+	// 		if (closed)
+	// 			ray->tex = get_close_door_tex(anim, app);
+	// 		else
+	// 			ray->tex = get_open_door_tex(anim, app);
+	// 	}
+	// }
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
@@ -398,7 +398,7 @@ void	draw_rays_transposed_alt(t_info *app)
 			current_ray = current_ray->in_front;
 		}
 	}
-	transpose_img_avx2_tiled_write((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2_old((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
 
 	t_point p = {0, 0};
 	place_img_alpha_avx2_soa(app->canvas, (t_img *)&source, p);
