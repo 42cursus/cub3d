@@ -89,7 +89,7 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
  * @param player
  */
 inline __attribute__((always_inline))
-void	fill_floor_cols_avx2x8(t_info *app, t_player *player)
+void	fill_floor_avx2(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
 	t_vect	pos[2];
@@ -103,29 +103,21 @@ void	fill_floor_cols_avx2x8(t_info *app, t_player *player)
 	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
 	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
 
-	int	y;
-	int y_start;
-	int depths_idx_start;
-	int depths_step;
 	t_vect	step;
 	t_vect	curr;
 	t_ivect	idx;
 
 	tex = *app->lvl->planes[T_FLOOR];
-	y_start = WIN_HEIGHT / 2;
-	depths_idx_start = WIN_HEIGHT / 2 - 1;
-	depths_step = -1;
 
 	iter.y = -1;
 	while (++iter.y < WIN_HEIGHT / 2)
 	{
-		y = y_start + iter.y;
-		depth = player->row_depths[iter.y * depths_step + depths_idx_start];
+		depth = player->row_depths[iter.y + (WIN_HEIGHT / 2 - 1)];
 
 		pos[LEFT] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
 		pos[RIGHT] = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
 
-		row.dst = (int *)app->canvas->data + y * app->canvas->width;
+		row.dst = (int *)app->canvas->data + (iter.y + WIN_HEIGHT / 2) * app->canvas->width;
 		row.src = (int *)tex.data;
 
 		curr = pos[LEFT];
