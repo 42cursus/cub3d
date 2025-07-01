@@ -152,16 +152,19 @@ int	bilinear_filter_old(double x, double y, const t_tex *tex)
 }
 
 static inline __attribute__((always_inline, unused))
-t_colour	dim_colour_alpha(t_colour src, double fact)
+t_colour	dim_colour_alpha(t_colour src, double falloff)
 {
-	if (fact >= 1 && src.raw != XPM_TRANSPARENT)
+	if (falloff >= 1 && src.raw != XPM_TRANSPARENT)
 	{
-		double opacity = 255 - (255 / fact);
-		opacity = opacity > 228 ? 255 : opacity;
-		src.a = (u_char) opacity;
-		src.r = (u_char) (src.r / fact);
-		src.g = (u_char) (src.g / fact);
-		src.b = (u_char) (src.b / fact);
+
+		const double dim = 1.0 / falloff;
+		double alpha = (1 - dim) / 255;
+		alpha = alpha > 228 ? 255 : alpha;
+
+		src.a = (u_char) alpha;
+		src.r = (u_char) (src.r / falloff);
+		src.g = (u_char) (src.g / falloff);
+		src.b = (u_char) (src.b / falloff);
 
 	}
 	return (src);
@@ -289,6 +292,24 @@ void	draw_credits(t_info *app, t_dummy *dummy)
 	place_img_alpha_sse(app->canvas, app->overlay, (t_point) {0, 0});
 }
 
+static inline __attribute__((always_inline))
+u_int dim_colour2(u_int col, double dim)
+{
+	t_colour src = {.raw = col};
+	u_int mask = -(col == XPM_TRANSPARENT);
+
+	dim = fmax(0.0, fmin(1.0, dim));
+
+	double alpha = 1.0 - dim;
+
+	src.r = (u_char)(src.r * dim);
+	src.g = (u_char)(src.g * dim);
+	src.b = (u_char)(src.b * dim);
+	src.a = (u_char)(alpha * 255.0);
+
+	return (src.raw & ~mask) | (col & mask);
+}
+
 void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 {
 	t_vect	l_dir;
@@ -312,6 +333,7 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 		double curr_x;
 		t_vect idx;
 		double dist = app->dummy->credits_offsets[row - 1];
+		const double falloff = (dist - 1.5) * 6.0;
 
 		t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
 
@@ -339,29 +361,27 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 					int y1 = y + (((tex->h - 2 - y) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 					// Load the 2x2 texels
-					u_int *row_1 = tex->data + y * tex->w;
-					u_int *row_2 = tex->data + y1 * tex->w;
+					u_int *row1 = tex->data + y * tex->w;
+					u_int *row2 = tex->data + y1 * tex->w;
 
-					u_int top = lerp_biased(row_1[x], row_1[x1], frac_x);
-					u_int bottom = lerp_biased(row_2[x], row_2[x1], frac_x);
+//					double dim = falloff >= 1.0 ? 1.0 / falloff : 1.0;
 
-					t_colour src = {.raw = lerp_biased(top, bottom, frac_y)};
+					double inv = 1.0 / (falloff + DBL_EPSILON);
+					double dim = 1.0 + (inv - 1.0) * (falloff >= 1.0);
+
+					u_int a = dim_colour2(row1[x], dim);
+					u_int b = dim_colour2(row1[x1], dim);
+					u_int c = dim_colour2(row2[x], dim);
+					u_int d = dim_colour2(row2[x1], dim);
+
+					u_int top = lerp_biased(a, b, frac_x);
+					u_int bottom = lerp_biased(c, d, frac_x);
+					u_int out = lerp_biased(top, bottom, frac_y);
 
 					/* ================dim_colour_alpha============== */
-					const double falloff = (dist - 1.5) * 6.0;
-
-					if (falloff >= 1.0 && src.raw != XPM_TRANSPARENT)
-					{
-						const double dim = 1.0 / falloff;
-						double alpha = (1 - dim) / 255;
-
-						src.a = (u_char) alpha > 228 ? 255 : alpha;
-						src.r = (u_char) (src.r / falloff);
-						src.g = (u_char) (src.g / falloff);
-						src.b = (u_char) (src.b / falloff);
-					}
+//					p_row[i] = dim_colour_alpha(src, falloff).raw;
+					p_row[i] = out;
 					/* ============================================== */
-					p_row[i] = src.raw;
 				}
 				curr_x += step_x;
 			}
