@@ -717,7 +717,7 @@ typedef struct s_dummy
 {
 	t_vect	pos;
 	t_vect	dir;
-	double	credits_offsets[WIN_HEIGHT];
+	double	row_depths[WIN_HEIGHT];
 	t_img	credits;
 	double	speed;
 	t_list	*rocks;
