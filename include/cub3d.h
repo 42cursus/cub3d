@@ -1060,6 +1060,7 @@ void 	draw_sky_transposed_avx2(t_info *const app);
 void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
 void	fill_floor(t_info *app, t_player *player, int is_floor);
 void	fill_floor_sse4x4(t_info *app, t_player *player);
+void	fill_floor_avx2x8(t_info *app, t_player *player);
 void	fill_floor_transposed(t_info *app, t_player *player);
 void	fill_ceil_transposed(t_info *app, t_player *player);
 void	fill_floor_transposed_cols(t_info *app, t_player *player);

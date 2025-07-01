@@ -195,3 +195,109 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 	}
 }
 
+void	fill_floor_avx2x8(t_info *app, t_player *player)
+{
+	t_vect	dir[2];
+	t_vect	pos[2];
+
+	t_ivect it;
+
+	t_cdata row;
+	double	depth;
+	t_img	tex;
+
+	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
+
+	t_vect	step;
+	t_vect	curr;
+	int	idxs_x[4];
+	int	idxs_y[4];
+
+	tex = *app->lvl->planes[T_FLOOR];
+
+	__m256 tex_width = _mm256_set1_ps(tex.width);
+	__m256 tex_height = _mm256_set1_ps(tex.height);
+	__m256i tex_width_i = _mm256_set1_epi32(tex.width);
+	__m256i tex_width_mask = _mm256_set1_epi32(tex.width - 1);
+	__m256i tex_height_mask = _mm256_set1_epi32(tex.height - 1);
+
+	it.y = -1;
+	while (++it.y < WIN_HEIGHT / 2)
+	{
+		depth = player->row_depths[it.y + (WIN_HEIGHT / 2 - 1)];
+
+		pos[LEFT] = add_vect(player->pos, scale_vect(dir[LEFT], depth));
+		pos[RIGHT] = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
+
+		__m256  pos_left_xx = _mm256_set1_ps(pos[LEFT].x);
+		__m256  pos_left_yy = _mm256_set1_ps(pos[LEFT].y);
+
+		row.dst = (int *)app->canvas->data + (it.y + WIN_HEIGHT / 2) * app->canvas->width;
+		row.src = (int *)tex.data;
+
+		step.x = ((pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH);
+		step.y = ((pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH);
+
+		__m256  step_xx = _mm256_set1_ps(step.x);
+		__m256  step_yy = _mm256_set1_ps(step.y);
+		__m256  initial = _mm256_setr_epi32(0, 2, 4, 6, 8, 10, 12, 14);
+
+		curr = pos[LEFT];
+
+		it.x = 0;
+		while (it.x < WIN_WIDTH - 1 - 16)
+		{
+			__m256i it_xx = _mm256_set1_epi32(it.x);
+			__m256  scaled_xx = _mm256_mul_ps(step_xx, _mm256_cvtepi32_ps(_mm256_add_epi32( it_xx, initial)));
+			__m256  scaled_yy = _mm256_mul_ps(step_yy, _mm256_cvtepi32_ps(_mm256_add_epi32( it_xx, initial)));
+
+			__m256  currs_xx = _mm256_add_ps(pos_left_xx, scaled_xx);
+			__m256  currs_yy = _mm256_add_ps(pos_left_yy, scaled_yy);
+
+			__m256i idxs_xx = _mm256_cvttps_epi32(_mm256_mul_ps(currs_xx, tex_width));
+			__m256i idxs_yy = _mm256_cvttps_epi32(_mm256_mul_ps(currs_yy, tex_height));
+
+			idxs_xx = _mm256_and_si256(idxs_xx, tex_width_mask);
+			idxs_yy = _mm256_and_si256(idxs_yy, tex_height_mask);
+
+			_mm256_storeu_si256((__m256i_u *) idxs_x, idxs_xx);
+			_mm256_storeu_si256((__m256i_u *) idxs_y, idxs_yy);
+
+			__m256i final_idxss = _mm256_add_epi32(_mm256_mullo_epi32(idxs_yy, tex_width_i), idxs_xx);
+
+			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxss, sizeof(int));
+
+			__m256i index_lo = _mm256_setr_epi32(0, 0, 1, 1, 2, 2, 3, 3);
+			__m256i index_hi = _mm256_setr_epi32(4, 4, 5, 5, 6, 6, 7, 7);
+
+			__m256i low_result  = _mm256_permutevar8x32_epi32(final_results, index_lo);
+			__m256i high_result = _mm256_permutevar8x32_epi32(final_results, index_hi);
+
+
+			int *dst = &row.dst[it.x];
+			_mm256_storeu_si256((__m256i*)&dst[0],  low_result);
+			_mm256_storeu_si256((__m256i*)&dst[8], high_result);
+
+			it.x += 16;
+		}
+
+		t_ivect	idx;
+		curr.x = curr.x + step.x * it.x; // FIXME: not quite
+		curr.y = curr.y + step.y * it.x;
+		while (it.x < WIN_WIDTH - 1)
+		{
+
+			idx.x = ((int) (curr.x * tex.width)) & (tex.width - 1);
+			idx.y = ((int) (curr.y * tex.height)) & (tex.height - 1);
+
+			row.dst[it.x] = row.src[idx.y * tex.width + idx.x];
+			row.dst[it.x + 1] = row.src[idx.y * tex.width + idx.x];
+
+			curr.x = curr.x + step.x;
+			curr.y = curr.y + step.y;
+			it.x += 2;
+		}
+
+	}
+}
