@@ -94,6 +94,7 @@
 # define MLX_PINK 0x00d6428e
 # define MLX_PALE_GRAY 0xf8f8f8
 # define XPM_TRANSPARENT 0xff000000
+# define ALPHA_CHANNEL 0xFF000000
 
 # define LARGE_MMAP_SCALE 16
 
@@ -882,6 +883,7 @@ void	place_img_alpha_sse(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_sse_soa(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_avx2(t_img *image, t_img *tile, t_point p);
 void	place_img_alpha_avx2_soa(t_img *image, t_img *tile, t_point p);
+void	place_img_alpha_avx2_fast_path_soa(t_img *image, t_img *tile, t_point p);
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void	on_expose(t_info *app);
 int		cleanup(t_info *app);

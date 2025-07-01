@@ -195,3 +195,67 @@ void	place_img_alpha_avx2_soa(t_img *image, t_img *tile, t_point p)
 		it = blend_pixels_scalar(limit.x, it, cd);
 	}
 }
+
+static inline __attribute__((always_inline, used))
+t_point	blend_pixels_scalar_fast_path(int limit_x, t_point it, t_cdata cd)
+{
+	uint32_t	mask;
+	uint32_t	src_pixel;
+	uint32_t	dst_pixel;
+
+	while (it.x < limit_x)
+	{
+		src_pixel = (uint32_t)cd.src[it.x];
+		dst_pixel = (uint32_t)cd.dst[it.x];
+		mask = -(((src_pixel >> 24) & 0xFF) == 0);
+		cd.dst[it.x] = (int)((src_pixel & mask) | (dst_pixel & ~mask));
+		it.x++;
+	}
+	return it;
+}
+
+static inline __attribute__((always_inline, unused))
+void	blend_8pixels_fast_path_avx2(int *src, int *dst)
+{
+	const __m256i v_src = _mm256_loadu_si256((__m256i *)src);
+	const __m256i v_dst = _mm256_loadu_si256((__m256i *)dst);
+
+	const __m256i alpha_mask = _mm256_set1_epi32(ALPHA_CHANNEL);
+	const __m256i alpha = _mm256_and_si256(v_src, alpha_mask);
+
+	const __m256i zero_alpha = _mm256_setzero_si256();
+	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, zero_alpha);
+//	const __m256i full_alpha = _mm256_set1_epi32(XPM_TRANSPARENT);
+//	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, full_alpha);
+	__m256i result = _mm256_blendv_epi8(v_dst, v_src, mask_alpha);
+
+	_mm256_storeu_si256((__m256i *)dst, result);
+}
+
+inline __attribute__((always_inline, used))
+void	place_img_alpha_avx2_fast_path_soa(t_img *image, t_img *tile, t_point p)
+{
+	t_point	it;
+	t_point	offset;
+	t_point	limit;
+	t_cdata cd;
+
+	offset.x = -p.x * (p.x < 0);
+	offset.y = -p.y * (p.y < 0);
+
+	limit.x = MIN(tile->width, image->width - p.x);
+	limit.y = MIN(tile->height, image->height - p.y);
+	it.y = offset.y - 1;
+	while (++it.y < limit.y)
+	{
+		cd.src = (int *) tile->data + it.y * tile->width;
+		cd.dst = (int *) image->data + (it.y + p.y) * image->width + p.x;
+		it.x = offset.x;
+		while (it.x + 7 < limit.x)
+		{
+			blend_8pixels_fast_path_avx2((cd.src + it.x), (cd.dst + it.x));
+			it.x += 8;
+		}
+		it = blend_pixels_scalar_fast_path(limit.x, it, cd);
+	}
+}
