@@ -150,6 +150,9 @@ t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
  * 	opacity = alpha / 255
  * 	transparency = 1 - opacity
  *
+ * 	alpha = 255 * opacity
+ * 	alpha = 255 * (1 - transparency)
+ *
  * 	blend formula becomes:
  * 		`final_color = src * (alpha / 255.0) + dst * (1 - alpha / 255.0)`
  * 		or
@@ -158,6 +161,9 @@ t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
  * MLX System (with inverted alpha):
  * 	transparency = alpha / 255
  * 	opacity = 1 - transparency
+ *
+ * 	alpha = 255 * transparency
+ * 	alpha = 255 * (1 - opacity)
  *
  * 	blend formula becomes:
  * 		`final_color = src * (1 - alpha / 255.0) + dst * (alpha / 255.0)`

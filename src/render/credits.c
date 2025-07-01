@@ -22,16 +22,32 @@
  * @return
  */
 static inline __attribute((always_inline))
-t_colour lerp_biased(t_colour a, t_colour b, double t)
+t_colour lerp_biased_c(t_colour a, t_colour b, double t)
 {
 	t_colour	result;
 	uint32_t	mask;
 
-	mask = -(a.a > b.a);
+	mask = -(a.a < b.a);
 	// Choose RGB from more opaque color (lower alpha)
-	result.raw = ((b.raw & mask) | (a.raw & ~mask));
+	result.raw = ((a.raw & mask) | (b.raw & ~mask));
 	result.a = (unsigned char) ((b.a - a.a) * t + a.a);
 	return result;
+}
+
+static inline __attribute((always_inline, unused))
+u_int lerp_biased(u_int aa, u_int bb, float t)
+{
+	t_colour	result;
+	uint32_t	mask;
+
+	t_colour a = {.raw = aa};
+	t_colour b = {.raw = bb};
+
+	mask = -(a.a < b.a);
+	// Choose RGB from more opaque color (lower alpha)
+	result.raw = ((a.raw & mask) | (b.raw & ~mask));
+	result.a = (u_char) ((b.a - a.a) * t + a.a);
+	return result.raw;
 }
 
 static inline __attribute__((always_inline, unused))
@@ -44,7 +60,7 @@ t_colour	linear_filter(t_vect idx, const t_tex *tex)
 	t_colour left = *(t_colour *)&tex->data[x];
 	t_colour right = *(t_colour *)&tex->data[x + 1];
 
-	t_colour out = lerp_biased(left, right, frac);
+	t_colour out = lerp_biased_c(left, right, frac);
 	return (out);
 }
 
@@ -66,28 +82,42 @@ int	interpolate_colour_inline(int col1, int col2, double frac)
 	return (col1);
 }
 
-inline __attribute__((always_inline, unused, visibility("hidden")))
+/**
+ * for branchless min and max we can use
+ * #define MIN_BRANCHLESS(a, b) ((b) ^ (((a) ^ (b)) & -((a) < (b))))
+ * #define MAX_BRANCHLESS(a, b) ((a) ^ (((a) ^ (b)) & -((a) < (b))))
+ *
+ * #include <sys/param.h> defines MIN() and MAX() macros like ternaries
+ * they do expand to ternary expressions, which means:
+ * 	They can generate branches
+ * 	not safe in all circumstances, e.g.: MIN(i++, j++)
+ *
+ * @param idx
+ * @param tex
+ * @return
+ */
+//inline __attribute__((always_inline, unused, visibility("hidden")))
+static inline __attribute__((optnone, used))
 t_colour	bilinear_filter(t_vect idx, const t_tex *tex)
 {
 	const int x = (int)idx.x;
 	const int y = (int)idx.y;
 
-	const double frac_x = fmod(idx.x, 1.0);
-	const double frac_y = fmod(idx.y, 1.0);
+	const double frac_x = idx.x - x;
+	const double frac_y = idx.y - y;
+
+	int x1 = x + (((tex->w - 2 - x) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
+	int y1 = y + (((tex->h - 2 - y) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 	// Load the 2x2 texels
-	u_int *row1 = tex->data + y * tex->w + x;
-	u_int *row2 = tex->data + (y + 1 * (y + 1 < tex->h)) * tex->w + x;
-	const t_colour colour_a = {.raw = row1[0]};
-	const t_colour colour_b = {.raw = row1[1]};
-	const t_colour colour_c = {.raw = row2[0]};
-	const t_colour colour_d = {.raw = row2[1]};
+	u_int *row1 = tex->data + y * tex->w;
+	u_int *row2 = tex->data + y1 * tex->w;
 
-	t_colour top = lerp_biased(colour_a, colour_b, frac_x);
-	t_colour bottom  = lerp_biased(colour_c, colour_d, frac_x);
-	t_colour out = lerp_biased(top, bottom, frac_y);
+	u_int top = lerp_biased(row1[x], row1[x1], frac_x);
+	u_int bottom  = lerp_biased(row2[x], row2[x1], frac_x);
+	t_colour out = {.raw = lerp_biased(top, bottom, frac_y)};
 
-	return out;
+	return (out);
 }
 
 static inline __attribute__((always_inline, unused))
@@ -302,37 +332,36 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 					const int x = (int) idx.x;
 					const int y = (int) idx.y;
 
-					const double frac_x = fmod(idx.x, 1.0);
-					const double frac_y = fmod(idx.y, 1.0);
+					const double frac_x = idx.x - x;
+					const double frac_y = idx.y - y;
+
+					int x1 = x + (((tex->w - 2 - x) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
+					int y1 = y + (((tex->h - 2 - y) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 					// Load the 2x2 texels
-					u_int *row_1 = tex->data + y * tex->w + x;
-					u_int *row_2 = tex->data + (y + 1 * (y + 1 < tex->h)) * tex->w + x;
-					const t_colour colour_a = {.raw = row_1[0]};
-					const t_colour colour_b = {.raw = row_1[1]};
-					const t_colour colour_c = {.raw = row_2[0]};
-					const t_colour colour_d = {.raw = row_2[1]};
+					u_int *row_1 = tex->data + y * tex->w;
+					u_int *row_2 = tex->data + y1 * tex->w;
 
-					t_colour top = lerp_biased(colour_a, colour_b, frac_x);
-					t_colour bottom = lerp_biased(colour_c, colour_d, frac_x);
-					t_colour out = lerp_biased(top, bottom, frac_y);
+					u_int top = lerp_biased(row_1[x], row_1[x1], frac_x);
+					u_int bottom = lerp_biased(row_2[x], row_2[x1], frac_x);
 
-					t_colour src = out;
+					t_colour src = {.raw = lerp_biased(top, bottom, frac_y)};
+
 					/* ================dim_colour_alpha============== */
-					t_colour src_1 = src;
-					if ((dist - 1.5) * 6 >= 1 && src_1.raw != XPM_TRANSPARENT)
-					{
-						double opacity = 255 - (255 / ((dist - 1.5) * 6));
-						opacity = opacity > 228 ? 255 : opacity;
-						src_1.a = (u_char) opacity;
-						src_1.r = (u_char) (src_1.r / ((dist - 1.5) * 6));
-						src_1.g = (u_char) (src_1.g / ((dist - 1.5) * 6));
-						src_1.b = (u_char) (src_1.b / ((dist - 1.5) * 6));
+					const double falloff = (dist - 1.5) * 6.0;
 
+					if (falloff >= 1.0 && src.raw != XPM_TRANSPARENT)
+					{
+						const double dim = 1.0 / falloff;
+						double alpha = (1 - dim) / 255;
+
+						src.a = (u_char) alpha > 228 ? 255 : alpha;
+						src.r = (u_char) (src.r / falloff);
+						src.g = (u_char) (src.g / falloff);
+						src.b = (u_char) (src.b / falloff);
 					}
-					u_int dimmed = (src_1).raw;
 					/* ============================================== */
-					p_row[i] = dimmed;
+					p_row[i] = src.raw;
 				}
 				curr_x += step_x;
 			}
