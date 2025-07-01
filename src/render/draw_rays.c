@@ -398,7 +398,7 @@ void	draw_rays_transposed_alt(t_info *app)
 			current_ray = current_ray->in_front;
 		}
 	}
-	transpose_img_avx2_old((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
+	transpose_img_avx2_tiled_read((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
 
 	t_point p = {0, 0};
 	place_img_alpha_avx2_soa(app->canvas, (t_img *)&source, p);

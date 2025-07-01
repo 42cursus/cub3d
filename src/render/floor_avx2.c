@@ -89,8 +89,8 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
  * @param player
  */
 #if defined(__clang__)
-inline __attribute__((optnone))
-//inline __attribute__((always_inline))
+//inline __attribute__((optnone))
+inline __attribute__((always_inline))
 #elif defined(__GNUC__)
 inline __attribute__((always_inline))
 #endif
@@ -145,7 +145,7 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 		curr = pos[LEFT];
 
 		it.x = 0;
-		while (it.x < WIN_WIDTH - 8)
+		while (it.x < WIN_WIDTH - 7)
 		{
 			__m128i it_xx = _mm_set1_epi32(it.x);
 			__m128  scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps(_mm_add_epi32( it_xx, initial)));
@@ -246,7 +246,7 @@ void	fill_floor_avx2x8(t_info *app, t_player *player)
 		curr = pos[LEFT];
 
 		it.x = 0;
-		while (it.x < WIN_WIDTH - 1 - 16)
+		while (it.x < WIN_WIDTH - 15)
 		{
 			__m256i it_xx = _mm256_set1_epi32(it.x);
 			__m256  scaled_xx = _mm256_mul_ps(step_xx, _mm256_cvtepi32_ps(_mm256_add_epi32( it_xx, initial)));
@@ -268,12 +268,18 @@ void	fill_floor_avx2x8(t_info *app, t_player *player)
 
 			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxss, sizeof(int));
 
-			__m256i index_lo = _mm256_setr_epi32(0, 0, 1, 1, 2, 2, 3, 3);
-			__m256i index_hi = _mm256_setr_epi32(4, 4, 5, 5, 6, 6, 7, 7);
+			__m128i lo = _mm256_castsi256_si128(final_results);
+			__m128i hi = _mm256_extracti128_si256(final_results, 1);
 
-			__m256i low_result  = _mm256_permutevar8x32_epi32(final_results, index_lo);
-			__m256i high_result = _mm256_permutevar8x32_epi32(final_results, index_hi);
+			__m256i low_result = _mm256_set_m128i(
+				_mm_shuffle_epi32(lo, _MM_SHUFFLE(3, 3, 2, 2)),
+				_mm_shuffle_epi32(lo, _MM_SHUFFLE(1, 1, 0, 0))
+			);
 
+			__m256i high_result = _mm256_set_m128i(
+				_mm_shuffle_epi32(hi, _MM_SHUFFLE(3, 3, 2, 2)),
+				_mm_shuffle_epi32(hi, _MM_SHUFFLE(1, 1, 0, 0))
+			);
 
 			int *dst = &row.dst[it.x];
 			_mm256_storeu_si256((__m256i*)&dst[0],  low_result);
