@@ -341,11 +341,13 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 		pos[LEFT] = add_vect(dummy->pos, scale_vect(dir[LEFT], depth));
 		pos[RIGHT] = add_vect(dummy->pos, scale_vect(dir[RIGHT], depth));
-		
+
+		__m128 pos_LEFT_x = _mm_set1_ps(pos[LEFT].x);
+		__m128 half_ps = _mm_set1_ps(0.5);
+
 		float step_x;
 //		double step_y;
 		float curr_x;
-		float currs_x[4];
 		float idx_xs[4];
 		float idx_ys[4];
 //		double curr_y;
@@ -367,6 +369,7 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 		curr_x = pos[LEFT].x;
 //		curr_y = pos[LEFT].y * 0;
 		float idx_y = (-pos[LEFT].y) * tex->w;
+		__m128i  idx_yy = _mm_set1_ps(idx_y);
 		float weight_y = fmodf(idx_y, 1.0f);
 
 		if (pos[LEFT].y > 0)
@@ -394,21 +397,11 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 			__m128  step_xx = _mm_set1_ps(step_x);
 			__m128  scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps(_mm_add_epi32(ii, initial)));
 
-			__m128 pos_LEFT_x = _mm_set1_ps(pos[LEFT].x);
-			__m128 currs_xx = _mm_add_ps(pos_LEFT_x, scaled_xx);
+			__m128 currs_xx = _mm_add_ps(half_ps, _mm_add_ps(pos_LEFT_x, scaled_xx));
+			__m128 idx_xx = _mm_mul_ps(currs_xx, _mm_cvtepi32_ps(_mm_set1_epi32(tex->w)));
 
-			_mm_storeu_si128((__m128i_u *) currs_x, currs_xx);
-
-
-			idx_xs[0] = (0.5 + currs_x[0]) * tex->w;
-			idx_xs[1] = (0.5 + currs_x[1]) * tex->w;
-			idx_xs[2] = (0.5 + currs_x[2]) * tex->w;
-			idx_xs[3] = (0.5 + currs_x[3]) * tex->w;
-
-			idx_ys[0] = idx_y;
-			idx_ys[1] = idx_y;
-			idx_ys[2] = idx_y;
-			idx_ys[3] = idx_y;
+			_mm_storeu_si128((__m128i_u *) idx_xs, idx_xx);
+			_mm_storeu_si128((__m128i_u *) idx_ys, idx_yy);
 
 			/* ===============bilinear_filter=============== */
 
@@ -435,7 +428,6 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 
 			int x1s[4];
-
 
 			x1s[0] = xs[0] + ((((tex->w - 1) - (xs[0] + 1)) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
 			x1s[1] = xs[1] + ((((tex->w - 1) - (xs[1] + 1)) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
