@@ -24,13 +24,12 @@
 static inline __attribute((always_inline))
 t_colour lerp_biased(t_colour a, t_colour b, double t)
 {
-	t_colour result;
+	t_colour	result;
+	uint32_t	mask;
 
+	mask = -(a.a > b.a);
 	// Choose RGB from more opaque color (lower alpha)
-	if (a.a > b.a)
-		result = b;
-	else
-		result = a;
+	result.raw = ((b.raw & mask) | (a.raw & ~mask));
 	result.a = (unsigned char) ((b.a - a.a) * t + a.a);
 	return result;
 }
@@ -320,7 +319,18 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 					t_colour src = out;
 					/* ================dim_colour_alpha============== */
-					u_int dimmed = dim_colour_alpha(src, (dist - 1.5) * 6).raw;
+					t_colour src_1 = src;
+					if ((dist - 1.5) * 6 >= 1 && src_1.raw != XPM_TRANSPARENT)
+					{
+						double opacity = 255 - (255 / ((dist - 1.5) * 6));
+						opacity = opacity > 228 ? 255 : opacity;
+						src_1.a = (u_char) opacity;
+						src_1.r = (u_char) (src_1.r / ((dist - 1.5) * 6));
+						src_1.g = (u_char) (src_1.g / ((dist - 1.5) * 6));
+						src_1.b = (u_char) (src_1.b / ((dist - 1.5) * 6));
+
+					}
+					u_int dimmed = (src_1).raw;
 					/* ============================================== */
 					p_row[i] = dimmed;
 				}
