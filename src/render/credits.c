@@ -299,13 +299,35 @@ void	draw_credits_avx2(t_info *app, t_dummy *dummy)
 				if (curr_x > lim.x && curr_x < lim.y)
 				{
 					idx.x = (0.5 + curr_x) * tex->w;
-					t_colour src = bilinear_filter(idx, tex);
-					p_row[i] = dim_colour_alpha(src, (dist - 1.5) * 6).raw;
+					/* ===============bilinear_filter=============== */
+					const int x = (int) idx.x;
+					const int y = (int) idx.y;
+
+					const double frac_x = fmod(idx.x, 1.0);
+					const double frac_y = fmod(idx.y, 1.0);
+
+					// Load the 2x2 texels
+					u_int *row_1 = tex->data + y * tex->w + x;
+					u_int *row_2 = tex->data + (y + 1 * (y + 1 < tex->h)) * tex->w + x;
+					const t_colour colour_a = {.raw = row_1[0]};
+					const t_colour colour_b = {.raw = row_1[1]};
+					const t_colour colour_c = {.raw = row_2[0]};
+					const t_colour colour_d = {.raw = row_2[1]};
+
+					t_colour top = lerp_biased(colour_a, colour_b, frac_x);
+					t_colour bottom = lerp_biased(colour_c, colour_d, frac_x);
+					t_colour out = lerp_biased(top, bottom, frac_y);
+
+					t_colour src = out;
+					/* ================dim_colour_alpha============== */
+					u_int dimmed = dim_colour_alpha(src, (dist - 1.5) * 6).raw;
+					/* ============================================== */
+					p_row[i] = dimmed;
 				}
 				curr_x += step_x;
 			}
 		}
 	}
-	place_img_alpha_avx2(app->canvas, app->overlay,
-						 (t_point) {0, 0});
+	t_point p = (t_point) {0, 0};
+	place_img_alpha_avx2_soa(app->canvas, app->overlay, p);
 }
