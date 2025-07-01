@@ -88,7 +88,12 @@ void	draw_floor_row(t_vect pos[2], u_int (*const dst), t_img *tex)
  * @param map
  * @param player
  */
+#if defined(__clang__)
+inline __attribute__((optnone))
+//inline __attribute__((always_inline))
+#elif defined(__GNUC__)
 inline __attribute__((always_inline))
+#endif
 void	fill_floor_sse4x4(t_info *app, t_player *player)
 {
 	t_vect	dir[2];
@@ -105,11 +110,8 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 
 	t_vect	step;
 	t_vect	curr;
-//	t_ivect	idxs[4];
 	int	idxs_x[4];
 	int	idxs_y[4];
-	int		src_pixels[4];
-	int		full_src_pixels[8];
 
 	tex = *app->lvl->planes[T_FLOOR];
 
@@ -143,7 +145,7 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 		curr = pos[LEFT];
 
 		it.x = 0;
-		while (it.x < WIN_WIDTH - 1)
+		while (it.x < WIN_WIDTH - 8)
 		{
 			__m128i it_xx = _mm_set1_epi32(it.x);
 			__m128  scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps(_mm_add_epi32( it_xx, initial)));
@@ -161,53 +163,35 @@ void	fill_floor_sse4x4(t_info *app, t_player *player)
 			_mm_storeu_si128((__m128i_u *) idxs_x, idxs_xx);
 			_mm_storeu_si128((__m128i_u *) idxs_y, idxs_yy);
 
-			int final_idxs[4];
-
 			__m128i final_idxss = _mm_add_epi32(_mm_mullo_epi32(idxs_yy, tex_width_i), idxs_xx);
 
-			_mm_storeu_si128((__m128i_u *) final_idxs, final_idxss);
+			__m128i final_results = _mm_i32gather_epi32((const int *)row.src, final_idxss, sizeof(int));
 
-			final_idxs[0] = idxs_y[0] * tex.width + idxs_x[0];
-			final_idxs[1] = idxs_y[1] * tex.width + idxs_x[1];
-			final_idxs[2] = idxs_y[2] * tex.width + idxs_x[2];
-			final_idxs[3] = idxs_y[3] * tex.width + idxs_x[3];
-
-			src_pixels[0] = row.src[final_idxs[0]];
-			src_pixels[1] = row.src[final_idxs[1]];
-			src_pixels[2] = row.src[final_idxs[2]];
-			src_pixels[3] = row.src[final_idxs[3]];
-
-			full_src_pixels[7] = src_pixels[3];
-			full_src_pixels[6] = src_pixels[3];
-			full_src_pixels[5] = src_pixels[2];
-			full_src_pixels[4] = src_pixels[2];
-			full_src_pixels[3] = src_pixels[1];
-			full_src_pixels[2] = src_pixels[1];
-			full_src_pixels[1] = src_pixels[0];
-			full_src_pixels[0] = src_pixels[0];
+			__m128i low = _mm_shuffle_epi32(final_results, _MM_SHUFFLE(1, 1, 0, 0));
+			__m128i high = _mm_shuffle_epi32(final_results, _MM_SHUFFLE(3, 3, 2, 2));
 
 			int *dst = &row.dst[it.x];
+			_mm_storeu_si128((__m128i*)&dst[0], low);
+			_mm_storeu_si128((__m128i*)&dst[4], high);
 
-			ft_memcpy(&dst[0], &full_src_pixels[0], 4 * sizeof(int));
-			ft_memcpy(&dst[4], &full_src_pixels[4], 4 * sizeof(int));
-
-			it.x += 2 * 4;
+			it.x += 8;
 		}
 
-//		t_ivect	idx;
-//		while (it.x < WIN_WIDTH - 1)
-//		{
-//
-//			idx.x = ((int) (curr.x * tex.width)) & (tex.width - 1);
-//			idx.y = ((int) (curr.y * tex.height)) & (tex.height - 1);
-//
-//			row.dst[it.x] = row.src[idx.y * tex.width + idx.x];
-//			row.dst[it.x + 1] = row.src[idx.y * tex.width + idx.x];
-//
-//			curr.x = curr.x + step.x;
-//			curr.y = curr.y + step.y;
-//			it.x += 2;
-//		}
+		t_ivect	idx;
+		while (it.x < WIN_WIDTH - 1)
+		{
+
+			idx.x = ((int) (curr.x * tex.width)) & (tex.width - 1);
+			idx.y = ((int) (curr.y * tex.height)) & (tex.height - 1);
+
+			row.dst[it.x] = row.src[idx.y * tex.width + idx.x];
+			row.dst[it.x + 1] = row.src[idx.y * tex.width + idx.x];
+
+			curr.x = curr.x + step.x;
+			curr.y = curr.y + step.y;
+			it.x += 2;
+		}
 
 	}
 }
+

@@ -33,6 +33,7 @@ set(FT_CFLAGS
         -Werror=format-security
         -Wno-self-assign
         -Wshadow
+        -msse4.1 -mavx2
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
         -include include/cub3d.h
