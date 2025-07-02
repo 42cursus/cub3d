@@ -200,7 +200,7 @@ u_int dim_colour2_scal(u_int col, double dim)
 	return (result);
 }
 
-static inline __attribute__((optnone))
+static inline __attribute__((always_inline))
 __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 {
 	t_m128i			mc = {.src = color_vec};
@@ -237,12 +237,34 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	_mm_storeu_si128((__m128i_u *) b, bb);
 
 	// Repack back into 0xAARRGGBB
-	out[0] = (t_colour){.a = a[0], .r = r[0], .g = g[0], .b = b[0]}.raw;
-	out[1] = (t_colour){.a = a[1], .r = r[1], .g = g[1], .b = b[1]}.raw;
-	out[2] = (t_colour){.a = a[2], .r = r[2], .g = g[2], .b = b[2]}.raw;
-	out[3] = (t_colour){.a = a[3], .r = r[3], .g = g[3], .b = b[3]}.raw;
+	__m128i rg = _mm_packs_epi32(rr, gg);
+	__m128i ba = _mm_packs_epi32(bb, aa);
 
-	mc.dst = _mm_loadu_si128((const __m128i_u *)out);
+	__m128i rgba = _mm_packus_epi16(rg, ba);
+
+	const __m128i shuffle = _mm_setr_epi8(
+		8,  4, 0, 12,
+		9,  5, 1, 13,
+		10, 6, 2, 14,
+		11, 7, 3, 15
+	);
+
+	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
+	_mm_storeu_si128((__m128i_u *) out, mc.dst);
+
+//	out[0] = (t_colour){.a = a[0], .r = r[0], .g = g[0], .b = b[0]}.raw;
+//	out[1] = (t_colour){.a = a[1], .r = r[1], .g = g[1], .b = b[1]}.raw;
+//	out[2] = (t_colour){.a = a[2], .r = r[2], .g = g[2], .b = b[2]}.raw;
+//	out[3] = (t_colour){.a = a[3], .r = r[3], .g = g[3], .b = b[3]}.raw;
+
+//	mc.dst = _mm_loadu_si128((const __m128i_u *)out);
+
+//	mc.dst =
+//		_mm_or_si128(_mm_slli_epi32(aa, 24),
+//		_mm_or_si128(_mm_slli_epi32(rr, 16),
+//		_mm_or_si128(_mm_slli_epi32(gg, 8),
+//					 _mm_slli_epi32(bb, 0))));
+
 	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
 	mc.blend = _mm_or_si128(
 		_mm_andnot_si128(mc.mask, mc.dst),
