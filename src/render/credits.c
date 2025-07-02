@@ -200,41 +200,66 @@ u_int dim_colour2_scal(u_int col, double dim)
 	return (result);
 }
 
+/**
+ * https://github.com/vpinball/pinmame/blob/master/ext/basicbitmap/BasicBitmap_SSE2.cpp
+ * https://github.com/pjincz/qt-kso-integration/blob/wpsenv/src/gui/painting/qpathgradient_p_sse4.cpp#L110
+ * @param color_vec
+ * @param dim
+ * @return
+ */
 static inline __attribute__((always_inline))
 __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 {
 	t_m128i			mc = {.src = color_vec};
-	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
 
+	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
 	dim = fmaxf(0.0f, fminf(1.0f, dim));
 
 	__m128 dim_vec = _mm_set1_ps(dim);
 	__m128 alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
 
-	t_colour src[4];
-	_mm_storeu_si128((__m128i_u *) src, color_vec);
+//	t_colour src[4];
+//	_mm_storeu_si128((__m128i_u *) src, color_vec);
 
 	// Extract channels: each pixel is 0xAARRGGBB
-	int r[4] = { src[0].r, src[1].r, src[2].r, src[3].r };
-	int g[4] = { src[0].g, src[1].g, src[2].g, src[3].g };
-	int b[4] = { src[0].b, src[1].b, src[2].b, src[3].b };
+//	int r[4] = { src[0].r, src[1].r, src[2].r, src[3].r };
+//	int g[4] = { src[0].g, src[1].g, src[2].g, src[3].g };
+//	int b[4] = { src[0].b, src[1].b, src[2].b, src[3].b };
+
+	__m128i shuffle_unpack = _mm_setr_epi8(
+		2, 6, 10, 14,
+		1, 5, 9,  13,
+		0, 4, 8,  12,
+		3, 7, 11, 15
+	);
+
+	__m128i grouped = _mm_shuffle_epi8(mc.src, shuffle_unpack);
+
+	__m128i zero = _mm_setzero_si128();
+
+	__m128i lo_16 = _mm_unpacklo_epi8(grouped, zero);
+	__m128i hi_16 = _mm_unpackhi_epi8(grouped, zero);
+
+	__m128i rr = _mm_unpacklo_epi16(lo_16, zero);
+	__m128i gg = _mm_unpackhi_epi16(lo_16, zero);
+	__m128i bb = _mm_unpacklo_epi16(hi_16, zero);
 
 	__m128i aa = _mm_cvttps_epi32(alpha_vec);
-	__m128i rr = _mm_loadu_si128((const __m128i_u *)r);
-	__m128i gg = _mm_loadu_si128((const __m128i_u *)g);
-	__m128i bb = _mm_loadu_si128((const __m128i_u *)b);
+//	__m128i rr = _mm_loadu_si128((const __m128i_u *)r);
+//	__m128i gg = _mm_loadu_si128((const __m128i_u *)g);
+//	__m128i bb = _mm_loadu_si128((const __m128i_u *)b);
 
 	rr = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(rr), dim_vec));
 	gg = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(gg), dim_vec));
 	bb = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(bb), dim_vec));
 
-	int out[4];
-	int a[4];
+//	int out[4];
+//	int a[4];
 
-	_mm_storeu_si128((__m128i_u *) a, aa);
-	_mm_storeu_si128((__m128i_u *) r, rr);
-	_mm_storeu_si128((__m128i_u *) g, gg);
-	_mm_storeu_si128((__m128i_u *) b, bb);
+//	_mm_storeu_si128((__m128i_u *) a, aa);
+//	_mm_storeu_si128((__m128i_u *) r, rr);
+//	_mm_storeu_si128((__m128i_u *) g, gg);
+//	_mm_storeu_si128((__m128i_u *) b, bb);
 
 	// Repack back into 0xAARRGGBB
 	__m128i rg = _mm_packs_epi32(rr, gg);
@@ -250,7 +275,7 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	);
 
 	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
-	_mm_storeu_si128((__m128i_u *) out, mc.dst);
+//	_mm_storeu_si128((__m128i_u *) out, mc.dst);
 
 //	out[0] = (t_colour){.a = a[0], .r = r[0], .g = g[0], .b = b[0]}.raw;
 //	out[1] = (t_colour){.a = a[1], .r = r[1], .g = g[1], .b = b[1]}.raw;
@@ -442,8 +467,7 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 		t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
 
-		u_int *const p_row =
-			(u_int *) app->overlay->data + app->overlay->width * row;
+		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
 
 		step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
 //		step_y = 0;
@@ -460,8 +484,7 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 			break;
 
 		int y = (int) idx_y;
-		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^
-					  1); // y1 = MIN(y + 1, tex->h - 1);
+		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 		int start = MAX(0, (lim.x - pos[LEFT].x) / step_x);
 		int stop = MIN(WIN_WIDTH, (lim.y - pos[LEFT].x) / step_x);
@@ -478,13 +501,10 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 			__m128i ii = _mm_set1_epi32(i);
 
 			__m128 step_xx = _mm_set1_ps(step_x);
-			__m128 scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps(
-				_mm_add_epi32(ii, initial)));
+			__m128 scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps( _mm_add_epi32(ii, initial)));
 
-			__m128 currs_xx = _mm_add_ps(half_ps,
-										 _mm_add_ps(pos_LEFT_x, scaled_xx));
-			__m128 idx_xx = _mm_mul_ps(currs_xx,
-									   _mm_cvtepi32_ps(_mm_set1_epi32(tex->w)));
+			__m128 currs_xx = _mm_add_ps(half_ps, _mm_add_ps(pos_LEFT_x, scaled_xx));
+			__m128 idx_xx = _mm_mul_ps(currs_xx, _mm_cvtepi32_ps(_mm_set1_epi32(tex->w)));
 
 			/* ===============bilinear_filter=============== */
 
@@ -515,20 +535,20 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 			const int *row1 = (int *) tex->data + y * tex->w;
 			const int *row2 = (int *) tex->data + y1 * tex->w;
 
-			u_int col_tl_arr[4];
-			u_int col_tr_arr[4];
-			u_int col_bl_arr[4];
-			u_int col_br_arr[4];
+//			u_int col_tl_arr[4];
+//			u_int col_tr_arr[4];
+//			u_int col_bl_arr[4];
+//			u_int col_br_arr[4];
 
 			__m128i col_tl = _mm_i32gather_epi32((const int *) row1, xx, sizeof(int));
 			__m128i col_tr = _mm_i32gather_epi32((const int *) row1, xx1, sizeof(int));
 			__m128i col_bl = _mm_i32gather_epi32((const int *) row2, xx, sizeof(int));
 			__m128i col_br = _mm_i32gather_epi32((const int *) row2, xx1, sizeof(int));
 
-			_mm_storeu_si128((__m128i_u *) col_tl_arr, col_tl);
-			_mm_storeu_si128((__m128i_u *) col_tr_arr, col_tr);
-			_mm_storeu_si128((__m128i_u *) col_bl_arr, col_bl);
-			_mm_storeu_si128((__m128i_u *) col_br_arr, col_br);
+//			_mm_storeu_si128((__m128i_u *) col_tl_arr, col_tl);
+//			_mm_storeu_si128((__m128i_u *) col_tr_arr, col_tr);
+//			_mm_storeu_si128((__m128i_u *) col_bl_arr, col_bl);
+//			_mm_storeu_si128((__m128i_u *) col_br_arr, col_br);
 
 			u_int a[4];
 			u_int b[4];
