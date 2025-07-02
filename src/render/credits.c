@@ -50,6 +50,85 @@ u_int lerp_biased(u_int aa, u_int bb, float t)
 	return result.raw;
 }
 
+static inline __attribute((always_inline, unused))
+__m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
+{
+	const __m128i shuffle = _mm_set_epi8(
+		15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0
+	);
+
+	t_colour col_a[4];
+	t_colour col_b[4];
+
+	_mm_storeu_si128((__m128i_u *) col_a, aa);
+	_mm_storeu_si128((__m128i_u *) col_b, bb);
+
+	__m128i grouped_a = _mm_shuffle_epi8(aa, shuffle);
+	__m128i grouped_b = _mm_shuffle_epi8(bb, shuffle);
+
+	__m128i zero = _mm_setzero_si128();
+
+	__m128i ra_16_a = _mm_unpackhi_epi8(grouped_a, zero);
+	__m128i bg_16_a = _mm_unpacklo_epi8(grouped_a, zero);
+
+
+	__m128i aa_a = _mm_unpackhi_epi16(ra_16_a, zero);
+	__m128i rr_a = _mm_unpacklo_epi16(ra_16_a, zero);
+
+	__m128i gg_a = _mm_unpackhi_epi16(bg_16_a, zero);
+	__m128i bb_a = _mm_unpacklo_epi16(bg_16_a, zero);
+
+
+	__m128i ra_16_b = _mm_unpackhi_epi8(grouped_b, zero);
+	__m128i bg_16_b = _mm_unpacklo_epi8(grouped_b, zero);
+
+
+	__m128i aa_b = _mm_unpackhi_epi16(ra_16_b, zero);
+	__m128i rr_b = _mm_unpacklo_epi16(ra_16_b, zero);
+
+	__m128i gg_b = _mm_unpackhi_epi16(bg_16_b, zero);
+	__m128i bb_b = _mm_unpacklo_epi16(bg_16_b, zero);
+
+	/* do the math for blending */
+	(void)tt;
+
+	__m128 flt_a = _mm_cvtepi32_ps(aa_a);
+	__m128 flt_b = _mm_cvtepi32_ps(aa_b);
+
+	__m128i res_a = _mm_add_epi32(_mm_cvtps_epi32(_mm_mul_ps(_mm_sub_ps(flt_b, flt_a), tt)), aa_a);
+
+	/* == END BLENDING === */
+
+//	result.a = (u_char) ((int)(b.a - a.a) * t + a.a);
+
+	__m128i ra_a = _mm_packs_epi32(rr_a, res_a);
+	__m128i bg_a = _mm_packs_epi32(bb_a, gg_a);
+
+	__m128i rgba_a = _mm_packus_epi16(bg_a, ra_a);
+
+	__m128i ra_b = _mm_packs_epi32(rr_b, res_a);
+	__m128i bg_b = _mm_packs_epi32(bb_b, gg_b);
+
+	__m128i rgba_b = _mm_packus_epi16(bg_b, ra_b);
+
+	t_m128i			mc;
+	(void)rgba_a;
+	(void)rgba_b;
+
+	rgba_b = _mm_shuffle_epi8(rgba_b, shuffle);
+	rgba_a = _mm_shuffle_epi8(rgba_a, shuffle);
+
+	mc.mask = _mm_cmplt_epi32(aa_a, aa_b);
+	mc.blend = _mm_or_si128(
+		_mm_andnot_si128(mc.mask, rgba_b),
+		_mm_and_si128(mc.mask, rgba_a)
+	);
+
+//	mc.blend = _mm_shuffle_epi8(mc.blend, shuffle);
+
+	return mc.blend;
+}
+
 static inline __attribute__((always_inline, unused))
 t_colour linear_filter(t_vect idx, const t_tex *tex)
 {
@@ -226,14 +305,15 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 //	int g[4] = { src[0].g, src[1].g, src[2].g, src[3].g };
 //	int b[4] = { src[0].b, src[1].b, src[2].b, src[3].b };
 
-	__m128i shuffle_unpack = _mm_setr_epi8(
-		2, 6, 10, 14,
-		1, 5, 9,  13,
-		0, 4, 8,  12,
-		3, 7, 11, 15
+//	__m128i shuffle_unpack = _mm_setr_epi8(
+//		2, 6, 10, 14, 1, 5, 9,  13, 0, 4, 8,  12, 3, 7, 11, 15
+//	);
+
+	const __m128i shuffle = _mm_set_epi8(
+		15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0
 	);
 
-	__m128i grouped = _mm_shuffle_epi8(mc.src, shuffle_unpack);
+	__m128i grouped = _mm_shuffle_epi8(mc.src, shuffle);
 
 	__m128i zero = _mm_setzero_si128();
 
@@ -266,13 +346,6 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	__m128i ba = _mm_packs_epi32(bb, aa);
 
 	__m128i rgba = _mm_packus_epi16(rg, ba);
-
-	const __m128i shuffle = _mm_setr_epi8(
-		8,  4, 0, 12,
-		9,  5, 1, 13,
-		10, 6, 2, 14,
-		11, 7, 3, 15
-	);
 
 	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
 //	_mm_storeu_si128((__m128i_u *) out, mc.dst);
@@ -456,7 +529,6 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 		__m128 pos_LEFT_x = _mm_set1_ps(pos[LEFT].x);
 
 		float step_x;
-		float curr_x;
 
 		const float falloff = (depth - 1.5f) * 6.0f;
 
@@ -471,7 +543,6 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 		step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
 //		step_y = 0;
-		curr_x = pos[LEFT].x;
 //		curr_y = pos[LEFT].y * 0;
 		float idx_y = (-pos[LEFT].y) * tex->w;
 		float weight_y = fmodf(idx_y, 1.0f);
@@ -495,7 +566,6 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 		i = start;
 		while (i < stop - 3)
 		{
-			curr_x = pos[LEFT].x + (step_x * i);
 
 			__m128i initial = _mm_setr_epi32(0, 1, 2, 3);
 			__m128i ii = _mm_set1_epi32(i);
@@ -569,27 +639,12 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 			u_int bottom[4];
 			u_int out[4];
 
-			top[0] = lerp_biased(a[0], b[0], weight_xs[0]);
-			top[1] = lerp_biased(a[1], b[1], weight_xs[1]);
-			top[2] = lerp_biased(a[2], b[2], weight_xs[2]);
-			top[3] = lerp_biased(a[3], b[3], weight_xs[3]);
+			__m128i top_vec = lerp_biased_vec(dimmed_a, dimmed_b, weight_xx);
+			__m128i bottom_vec = lerp_biased_vec(dimmed_c, dimmed_d, weight_xx);
+			__m128i out_vec = lerp_biased_vec(top_vec, bottom_vec, weight_yy);
 
-			bottom[0] = lerp_biased(c[0], d[0], weight_xs[0]);
-			bottom[1] = lerp_biased(c[1], d[1], weight_xs[1]);
-			bottom[2] = lerp_biased(c[2], d[2], weight_xs[2]);
-			bottom[3] = lerp_biased(c[3], d[3], weight_xs[3]);
+			_mm_storeu_si128((__m128i_u *) &p_row[i], out_vec);
 
-			out[0] = lerp_biased(top[0], bottom[0], weight_y);
-			out[1] = lerp_biased(top[1], bottom[1], weight_y);
-			out[2] = lerp_biased(top[2], bottom[2], weight_y);
-			out[3] = lerp_biased(top[3], bottom[3], weight_y);
-
-			/* ================dim_colour_alpha============== */
-//					p_row[i] = dim_colour_alpha(src, falloff).raw;
-			p_row[i + 0] = out[0];
-			p_row[i + 1] = out[1];
-			p_row[i + 2] = out[2];
-			p_row[i + 3] = out[3];
 			/* ============================================== */
 
 //			curr_y += step_y;

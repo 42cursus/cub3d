@@ -75,10 +75,15 @@ __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i max255 = _mm256_set1_epi32(255);
 	const __m256i shuffle_mask = _mm256_setr_epi8(
-		0,  4,  8, 12,  1,  5,  9, 13,
-		2,  6, 10, 14,  3,  7, 11, 15,
-		16, 20, 24, 28, 17, 21, 25, 29,
-		18, 22, 26, 30, 19, 23, 27, 31
+		0,  4,  8, 12,
+		1,  5,  9, 13,
+		2,  6, 10, 14,
+		3,  7, 11, 15,
+
+		16, 20, 24, 28,
+		17, 21, 25, 29,
+		18, 22, 26, 30,
+		19, 23, 27, 31
 	);
 
 	rgba.r0 = _mm256_cvtps_epi32(blended.r0);

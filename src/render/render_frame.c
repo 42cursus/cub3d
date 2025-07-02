@@ -286,7 +286,7 @@ int	render_credits(void *param)
 		dummy->pos.y += (dummy->speed * 5) / app->fr_scale;
 	if (app->keys[idx_XK_Down])
 		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
-	dummy->pos.y -= dummy->speed / app->fr_scale;
+//	dummy->pos.y -= dummy->speed / app->fr_scale;
 	if ((-dummy->pos.y) > ((double)app->shtex->credits.h / app->shtex->credits.w) + 2)
 	{
 		app->rc = ok;
