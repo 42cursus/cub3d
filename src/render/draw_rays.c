@@ -289,7 +289,7 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-		*cd.dst = _mm_cvtsi128_si32(mc.blend);
+		*cd.dst = _mm_cvtsi128_si32(mc.blend); // Copy the lower 32-bit integer in a to dst.
 
 		it.i++;
 //		cd.dst++;

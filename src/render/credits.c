@@ -53,9 +53,9 @@ u_int lerp_biased(u_int aa, u_int bb, float t)
 static inline __attribute((always_inline, unused))
 __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 {
-	const __m128i shuffle = _mm_set_epi8(
-		15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0
-	);
+
+	t_m128i			mc;
+	const __m128i shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
 
 	t_colour col_a[4];
 	t_colour col_b[4];
@@ -89,8 +89,7 @@ __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 	__m128i gg_b = _mm_unpackhi_epi16(bg_16_b, zero);
 	__m128i bb_b = _mm_unpacklo_epi16(bg_16_b, zero);
 
-	/* do the math for blending */
-	(void)tt;
+	/* == START BLENDING === */
 
 	__m128 flt_a = _mm_cvtepi32_ps(aa_a);
 	__m128 flt_b = _mm_cvtepi32_ps(aa_b);
@@ -98,8 +97,6 @@ __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 	__m128i res_a = _mm_add_epi32(_mm_cvtps_epi32(_mm_mul_ps(_mm_sub_ps(flt_b, flt_a), tt)), aa_a);
 
 	/* == END BLENDING === */
-
-//	result.a = (u_char) ((int)(b.a - a.a) * t + a.a);
 
 	__m128i ra_a = _mm_packs_epi32(rr_a, res_a);
 	__m128i bg_a = _mm_packs_epi32(bb_a, gg_a);
@@ -111,20 +108,20 @@ __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 
 	__m128i rgba_b = _mm_packus_epi16(bg_b, ra_b);
 
-	t_m128i			mc;
-	(void)rgba_a;
-	(void)rgba_b;
-
-	rgba_b = _mm_shuffle_epi8(rgba_b, shuffle);
-	rgba_a = _mm_shuffle_epi8(rgba_a, shuffle);
+	mc.dst = _mm_shuffle_epi8(rgba_b, shuffle);
+	mc.src = _mm_shuffle_epi8(rgba_a, shuffle);
 
 	mc.mask = _mm_cmplt_epi32(aa_a, aa_b);
-	mc.blend = _mm_or_si128(
-		_mm_andnot_si128(mc.mask, rgba_b),
-		_mm_and_si128(mc.mask, rgba_a)
-	);
+	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 
-//	mc.blend = _mm_shuffle_epi8(mc.blend, shuffle);
+//	__m128 mask = _mm_castsi128_ps(_mm_cmplt_epi32(aa_a, aa_b));
+//	__m128 result = _mm_blendv_ps(_mm_castsi128_ps(mc.dst), _mm_castsi128_ps(mc.src), mask);
+//	mc.blend = _mm_castps_si128(result);
+
+//	mc.blend = _mm_or_si128(
+//		_mm_andnot_si128(mc.mask, rgba_b),
+//		_mm_and_si128(mc.mask, rgba_a)
+//	);
 
 	return mc.blend;
 }
@@ -297,21 +294,7 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	__m128 dim_vec = _mm_set1_ps(dim);
 	__m128 alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
 
-//	t_colour src[4];
-//	_mm_storeu_si128((__m128i_u *) src, color_vec);
-
-	// Extract channels: each pixel is 0xAARRGGBB
-//	int r[4] = { src[0].r, src[1].r, src[2].r, src[3].r };
-//	int g[4] = { src[0].g, src[1].g, src[2].g, src[3].g };
-//	int b[4] = { src[0].b, src[1].b, src[2].b, src[3].b };
-
-//	__m128i shuffle_unpack = _mm_setr_epi8(
-//		2, 6, 10, 14, 1, 5, 9,  13, 0, 4, 8,  12, 3, 7, 11, 15
-//	);
-
-	const __m128i shuffle = _mm_set_epi8(
-		15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0
-	);
+	const __m128i shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
 
 	__m128i grouped = _mm_shuffle_epi8(mc.src, shuffle);
 
@@ -320,54 +303,23 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	__m128i lo_16 = _mm_unpacklo_epi8(grouped, zero);
 	__m128i hi_16 = _mm_unpackhi_epi8(grouped, zero);
 
+	__m128i aa = _mm_cvttps_epi32(alpha_vec);
 	__m128i rr = _mm_unpacklo_epi16(lo_16, zero);
 	__m128i gg = _mm_unpackhi_epi16(lo_16, zero);
 	__m128i bb = _mm_unpacklo_epi16(hi_16, zero);
-
-	__m128i aa = _mm_cvttps_epi32(alpha_vec);
-//	__m128i rr = _mm_loadu_si128((const __m128i_u *)r);
-//	__m128i gg = _mm_loadu_si128((const __m128i_u *)g);
-//	__m128i bb = _mm_loadu_si128((const __m128i_u *)b);
 
 	rr = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(rr), dim_vec));
 	gg = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(gg), dim_vec));
 	bb = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(bb), dim_vec));
 
-//	int out[4];
-//	int a[4];
-
-//	_mm_storeu_si128((__m128i_u *) a, aa);
-//	_mm_storeu_si128((__m128i_u *) r, rr);
-//	_mm_storeu_si128((__m128i_u *) g, gg);
-//	_mm_storeu_si128((__m128i_u *) b, bb);
-
 	// Repack back into 0xAARRGGBB
 	__m128i rg = _mm_packs_epi32(rr, gg);
 	__m128i ba = _mm_packs_epi32(bb, aa);
-
 	__m128i rgba = _mm_packus_epi16(rg, ba);
 
 	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
-//	_mm_storeu_si128((__m128i_u *) out, mc.dst);
-
-//	out[0] = (t_colour){.a = a[0], .r = r[0], .g = g[0], .b = b[0]}.raw;
-//	out[1] = (t_colour){.a = a[1], .r = r[1], .g = g[1], .b = b[1]}.raw;
-//	out[2] = (t_colour){.a = a[2], .r = r[2], .g = g[2], .b = b[2]}.raw;
-//	out[3] = (t_colour){.a = a[3], .r = r[3], .g = g[3], .b = b[3]}.raw;
-
-//	mc.dst = _mm_loadu_si128((const __m128i_u *)out);
-
-//	mc.dst =
-//		_mm_or_si128(_mm_slli_epi32(aa, 24),
-//		_mm_or_si128(_mm_slli_epi32(rr, 16),
-//		_mm_or_si128(_mm_slli_epi32(gg, 8),
-//					 _mm_slli_epi32(bb, 0))));
-
 	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
-	mc.blend = _mm_or_si128(
-		_mm_andnot_si128(mc.mask, mc.dst),
-		_mm_and_si128(mc.mask, mc.src)
-	);
+	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 	return mc.blend;
 }
 
@@ -508,17 +460,18 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 	int i;
 
-//	double	depth;
 	const t_tex *tex = &app->shtex->credits;
 
 	__m128 half_ps = _mm_set1_ps(0.5f);
 	__m128 one_ps = _mm_set1_ps(1.0f);
 	__m128i one_epi32 = _mm_set1_epi32(1);
 	__m128i max_val = _mm_set1_epi32(tex->w - 1);
-	row = 0;
+
 	dir[LEFT] = rotate_vect(dummy->dir, app->fov_rad_half);
 	dir[RIGHT] = rotate_vect(dummy->dir, -app->fov_rad_half);
 	update_rocks(app, dummy);
+
+	row = 0;
 	while (++row < WIN_HEIGHT)
 	{
 		float depth = app->dummy->row_depths[row - 1];
@@ -526,14 +479,19 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 		pos[LEFT] = add_vect(dummy->pos, scale_vect(dir[LEFT], depth));
 		pos[RIGHT] = add_vect(dummy->pos, scale_vect(dir[RIGHT], depth));
 
+		float idx_y = (-pos[LEFT].y) * tex->w;
+		const __m128 weight_yy = _mm_set1_ps(fmodf(idx_y, 1.0f));
+
+		if (pos[LEFT].y > 0)
+			continue;
+		if (idx_y > tex->h)
+			break;
+
 		__m128 pos_LEFT_x = _mm_set1_ps(pos[LEFT].x);
 
-		float step_x;
+		float step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
 
 		const float falloff = (depth - 1.5f) * 6.0f;
-
-//		float dim = falloff >= 1.0 ? 1.0 / falloff : 1.0;
-
 		float inv = 1.0 / (falloff + DBL_EPSILON);
 		float dim = 1.0 + (inv - 1.0) * (falloff >= 1.0);
 
@@ -541,27 +499,11 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
 
-		step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
-//		step_y = 0;
-//		curr_y = pos[LEFT].y * 0;
-		float idx_y = (-pos[LEFT].y) * tex->w;
-		float weight_y = fmodf(idx_y, 1.0f);
-
-		__m128 weight_yy = _mm_set1_ps(weight_y);
-
-		if (pos[LEFT].y > 0)
-			continue;
-		if (idx_y > tex->h)
-			break;
-
 		int y = (int) idx_y;
 		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 		int start = MAX(0, (lim.x - pos[LEFT].x) / step_x);
 		int stop = MIN(WIN_WIDTH, (lim.y - pos[LEFT].x) / step_x);
-//		int stop = MIN(WIN_WIDTH, (int)(step_x * WIN_WIDTH));
-
-//		while (i < WIN_WIDTH && (curr_x > lim.x && curr_x < lim.y))
 
 		i = start;
 		while (i < stop - 3)
@@ -578,78 +520,43 @@ void draw_credits_avx2(t_info *app, t_dummy *dummy)
 
 			/* ===============bilinear_filter=============== */
 
-			int x1s[4];
-			int xs[4];
-
-			float weight_xs[4];
-			float weight_ys[4];
-
 			// fmodf(x, y) == (x - y * trunc(x / y))
+			// https://hugeonotation.github.io/pblog/2024/06/07/fmod.html
 			__m128 div = _mm_div_ps(idx_xx, one_ps);
-			__m128 trunc_div = _mm_round_ps(div, _MM_FROUND_TO_ZERO |
-												 _MM_FROUND_NO_EXC);
+			__m128 trunc_div = _mm_round_ps(div, _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
 			__m128 prod = _mm_mul_ps(one_ps, trunc_div);
 			__m128 weight_xx = _mm_sub_ps(idx_xx, prod);
-
-			_mm_storeu_si128((__m128i_u *) weight_xs, weight_xx);
-			_mm_storeu_si128((__m128i_u *) weight_ys, weight_yy);
 
 			__m128i xx = _mm_cvttps_epi32(idx_xx);
 			__m128i x_plus_1 = _mm_add_epi32(xx, one_epi32);
 			__m128i xx1 = _mm_min_epi32(x_plus_1, max_val);
 
-			_mm_storeu_si128((__m128i_u *) xs, xx);
-			_mm_storeu_si128((__m128i_u *) x1s, xx1);
-
 			// Load the 2x2 texels
 			const int *row1 = (int *) tex->data + y * tex->w;
 			const int *row2 = (int *) tex->data + y1 * tex->w;
-
-//			u_int col_tl_arr[4];
-//			u_int col_tr_arr[4];
-//			u_int col_bl_arr[4];
-//			u_int col_br_arr[4];
 
 			__m128i col_tl = _mm_i32gather_epi32((const int *) row1, xx, sizeof(int));
 			__m128i col_tr = _mm_i32gather_epi32((const int *) row1, xx1, sizeof(int));
 			__m128i col_bl = _mm_i32gather_epi32((const int *) row2, xx, sizeof(int));
 			__m128i col_br = _mm_i32gather_epi32((const int *) row2, xx1, sizeof(int));
 
-//			_mm_storeu_si128((__m128i_u *) col_tl_arr, col_tl);
-//			_mm_storeu_si128((__m128i_u *) col_tr_arr, col_tr);
-//			_mm_storeu_si128((__m128i_u *) col_bl_arr, col_bl);
-//			_mm_storeu_si128((__m128i_u *) col_br_arr, col_br);
+			t_vec4i_sse dimmed;
 
-			u_int a[4];
-			u_int b[4];
-			u_int c[4];
-			u_int d[4];
+			dimmed.r0 = dim_colour2_vec(col_tl, dim);
+			dimmed.r1 = dim_colour2_vec(col_tr, dim);
+			dimmed.r2 = dim_colour2_vec(col_bl, dim);
+			dimmed.r3 = dim_colour2_vec(col_br, dim);
 
-			__m128i dimmed_a = dim_colour2_vec(col_tl, dim);
-			__m128i dimmed_b = dim_colour2_vec(col_tr, dim);
-			__m128i dimmed_c = dim_colour2_vec(col_bl, dim);
-			__m128i dimmed_d = dim_colour2_vec(col_br, dim);
-
-			_mm_storeu_si128((__m128i_u *) a, dimmed_a);
-			_mm_storeu_si128((__m128i_u *) b, dimmed_b);
-			_mm_storeu_si128((__m128i_u *) c, dimmed_c);
-			_mm_storeu_si128((__m128i_u *) d, dimmed_d);
-
-			u_int top[4];
-			u_int bottom[4];
-			u_int out[4];
-
-			__m128i top_vec = lerp_biased_vec(dimmed_a, dimmed_b, weight_xx);
-			__m128i bottom_vec = lerp_biased_vec(dimmed_c, dimmed_d, weight_xx);
+			__m128i top_vec = lerp_biased_vec(dimmed.r0, dimmed.r1, weight_xx);
+			__m128i bottom_vec = lerp_biased_vec(dimmed.r2, dimmed.r3, weight_xx);
 			__m128i out_vec = lerp_biased_vec(top_vec, bottom_vec, weight_yy);
 
 			_mm_storeu_si128((__m128i_u *) &p_row[i], out_vec);
 
 			/* ============================================== */
-
-//			curr_y += step_y;
 			i += 4;
 		}
+
 //		while (i < stop)
 //		{
 //			curr_x = pos[LEFT].x + (step_x * i);
