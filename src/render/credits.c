@@ -30,12 +30,6 @@ t_rgba_ps128	unpack_rgba_bytes_to_floats(__m128i pixels)
 	out.r = _mm_cvtepi32_ps(_mm_unpacklo_epi16(ar_16, zero));
 	out.a = _mm_cvtepi32_ps(_mm_unpackhi_epi16(ar_16, zero));
 
-
-//	argb_a.b = _mm_unpacklo_epi16(bg_16_a, zero);
-//	argb_a.g = _mm_unpackhi_epi16(bg_16_a, zero);
-//	argb_a.r = _mm_unpacklo_epi16(ra_16_a, zero);
-//	argb_a.a = _mm_unpackhi_epi16(ra_16_a, zero);
-
 	return (out);
 }
 
@@ -108,24 +102,18 @@ u_int lerp_biased(u_int aa, u_int bb, float t)
 static inline __attribute((always_inline, unused))
 t_rgba_ps128 lerp_biased_unpvec(t_rgba_ps128 argb_a, t_rgba_ps128 argb_b, __m128 tt)
 {
-	t_m128i			mc;
 	t_rgba_ps128	out;
 
 	/* == START BLENDING === */
 	__m128 diff = _mm_sub_ps(argb_b.a, argb_a.a);
-	__m128i res_a = _mm_cvtps_epi32(_mm_add_ps(_mm_mul_ps(diff, tt), argb_a.a));
-	mc.mask = _mm_cmplt_epi32(argb_a.a, argb_b.a);
+	__m128 res_a = _mm_add_ps(_mm_mul_ps(diff, tt), argb_a.a);
+	__m128 mask = _mm_cmplt_ps(argb_a.a, argb_b.a);
 
-	argb_a.a = res_a;
-	argb_b.a = res_a;
+	out.a = res_a;
+	out.r = _mm_blendv_ps(argb_b.r, argb_a.r, mask);
+	out.g = _mm_blendv_ps(argb_b.g, argb_a.g, mask);
+	out.b = _mm_blendv_ps(argb_b.b, argb_a.b, mask);
 	/* == END BLENDING === */
-
-	mc.dst = repack_rgba_floats_to_bytes_sse(argb_a);
-	mc.src = repack_rgba_floats_to_bytes_sse(argb_b);
-
-	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-
-	out = unpack_rgba_bytes_to_floats(mc.blend);
 
 	return (out);
 }
@@ -140,8 +128,8 @@ __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 	t_rgba_ps128	argb_b = unpack_rgba_bytes_to_floats(bb);
 
 	/* == START BLENDING === */
-
-	__m128 res_a = _mm_add_ps(_mm_mul_ps(_mm_sub_ps(argb_b.a, argb_a.a), tt), argb_a.a);
+	__m128 diff = _mm_sub_ps(argb_b.a, argb_a.a);
+	__m128 res_a = _mm_add_ps(_mm_mul_ps(diff, tt), argb_a.a);
 
 	/* == END BLENDING === */
 
