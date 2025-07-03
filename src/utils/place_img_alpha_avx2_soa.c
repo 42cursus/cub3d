@@ -20,57 +20,57 @@
  * @return
  */
 static inline __attribute__((always_inline, used))
-t_vec4f_avx	unpack_rgba_bytes_to_floats_avx2_soa(__m256i pixels)
+t_rgba_ps256	unpack_rgba_bytes_to_floats_avx2_soa(__m256i pixels)
 {
 	const __m256i mask_8 = _mm256_set1_epi32(0xFF);
 
-	__m256i r = _mm256_and_si256(pixels, mask_8);
-	__m256i g = _mm256_and_si256(_mm256_srli_epi32(pixels, 8), mask_8);
-	__m256i b = _mm256_and_si256(_mm256_srli_epi32(pixels, 16), mask_8);
-	__m256i a = _mm256_and_si256(_mm256_srli_epi32(pixels, 24), mask_8);
+	t_rgba_ps256 in;
 
-	t_vec4f_avx out;
-	out.r0 = _mm256_cvtepi32_ps(r);
-	out.r1 = _mm256_cvtepi32_ps(g);
-	out.r2 = _mm256_cvtepi32_ps(b);
-	out.r3 = _mm256_cvtepi32_ps(a);
+	in.b = _mm256_and_si256(pixels, mask_8);
+	in.g = _mm256_and_si256(_mm256_srli_epi32(pixels, 8), mask_8);
+	in.r = _mm256_and_si256(_mm256_srli_epi32(pixels, 16), mask_8);
+	in.a = _mm256_and_si256(_mm256_srli_epi32(pixels, 24), mask_8);
+
+	t_rgba_ps256 out;
+	out.b = _mm256_cvtepi32_ps(in.b);
+	out.g = _mm256_cvtepi32_ps(in.g);
+	out.r = _mm256_cvtepi32_ps(in.r);
+	out.a = _mm256_cvtepi32_ps(in.a);
 	return out;
 }
 
 static inline __attribute__((always_inline, used))
-__m256 extract_transparency_avx2_soa(t_vec4f_avx fs)
+__m256 extract_transparency_avx2_soa(t_rgba_ps256 fs)
 {
 	__m256 out;
 	const __m256 byte = _mm256_set1_ps(255.0f);
 
-	out = _mm256_div_ps(fs.r3, byte);
+	out = _mm256_div_ps(fs.a, byte);
 
 	return (out);
 }
 
 static inline __attribute__((always_inline, used))
-t_vec4f_avx blend_pixels_avx2_soa(t_vec4f_avx src, t_vec4f_avx dst, __m256 transparency)
+t_rgba_ps256 blend_pixels_avx2_soa(t_rgba_ps256 src, t_rgba_ps256 dst, __m256 transparency)
 {
-	t_vec4f_avx diff;
-	t_vec4f_avx out;
+	t_rgba_ps256 diff;
+	t_rgba_ps256 out;
 
-	diff.r0 = _mm256_sub_ps(dst.r0, src.r0);
-	diff.r1 = _mm256_sub_ps(dst.r1, src.r1);
-	diff.r2 = _mm256_sub_ps(dst.r2, src.r2);
-	diff.r3 = _mm256_sub_ps(dst.r3, src.r3);
+	diff.b = _mm256_sub_ps(dst.b, src.b);
+	diff.g = _mm256_sub_ps(dst.g, src.g);
+	diff.r = _mm256_sub_ps(dst.r, src.r);
 
-	out.r0 = _mm256_add_ps(src.r0, _mm256_mul_ps(diff.r0, transparency));
-	out.r1 = _mm256_add_ps(src.r1, _mm256_mul_ps(diff.r1, transparency));
-	out.r2 = _mm256_add_ps(src.r2, _mm256_mul_ps(diff.r2, transparency));
-	out.r3 = _mm256_add_ps(src.r3, _mm256_mul_ps(diff.r3, transparency));
+	out.b = _mm256_add_ps(src.b, _mm256_mul_ps(diff.b, transparency));
+	out.g = _mm256_add_ps(src.g, _mm256_mul_ps(diff.g, transparency));
+	out.r = _mm256_add_ps(src.r, _mm256_mul_ps(diff.r, transparency));
 
 	return out;
 }
 
 static inline __attribute__((always_inline, used))
-__m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
+__m256i repack_floats_to_bytes_avx2_soa(t_rgba_ps256 blended)
 {
-	t_vec4i_avx rgba;
+	t_rgba_ps256 rgba;
 
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i max255 = _mm256_set1_epi32(255);
@@ -86,19 +86,19 @@ __m256i repack_floats_to_bytes_avx2_soa(t_vec4f_avx blended)
 		19, 23, 27, 31
 	);
 
-	rgba.r0 = _mm256_cvtps_epi32(blended.r0);
-	rgba.r1 = _mm256_cvtps_epi32(blended.r1);
-	rgba.r2 = _mm256_cvtps_epi32(blended.r2);
-	rgba.r3 = _mm256_cvtps_epi32(blended.r3);
+	rgba.b = _mm256_cvtps_epi32(blended.b);
+	rgba.g = _mm256_cvtps_epi32(blended.g);
+	rgba.r = _mm256_cvtps_epi32(blended.r);
+	rgba.a = _mm256_cvtps_epi32(blended.a);
 
-	rgba.r0 = _mm256_min_epi32(_mm256_max_epi32(rgba.r0, zero), max255);
-	rgba.r1 = _mm256_min_epi32(_mm256_max_epi32(rgba.r1, zero), max255);
-	rgba.r2 = _mm256_min_epi32(_mm256_max_epi32(rgba.r2, zero), max255);
-	rgba.r3 = _mm256_min_epi32(_mm256_max_epi32(rgba.r3, zero), max255);
+	rgba.b = _mm256_min_epi32(_mm256_max_epi32(rgba.b, zero), max255);
+	rgba.g = _mm256_min_epi32(_mm256_max_epi32(rgba.g, zero), max255);
+	rgba.r = _mm256_min_epi32(_mm256_max_epi32(rgba.r, zero), max255);
+	rgba.a = _mm256_min_epi32(_mm256_max_epi32(rgba.a, zero), max255);
 
-	__m256i rg16 = _mm256_packs_epi32(rgba.r0, rgba.r1);
-	__m256i ba16 = _mm256_packs_epi32(rgba.r2, rgba.r3);
-	__m256i rgba8 = _mm256_packus_epi16(rg16, ba16);
+	__m256i bg16 = _mm256_packs_epi32(rgba.b, rgba.g);
+	__m256i ra16 = _mm256_packs_epi32(rgba.r, rgba.a);
+	__m256i rgba8 = _mm256_packus_epi16(bg16, ra16);
 
 	__m256i shuffled = _mm256_shuffle_epi8(rgba8, shuffle_mask);
 
@@ -111,11 +111,11 @@ void blend_8pixels_soa(int *src, int *dst)
 	__m256i _src = _mm256_loadu_si256((__m256i *)src);
 	__m256i _dst = _mm256_loadu_si256((__m256i *)dst);
 
-	t_vec4f_avx fs = unpack_rgba_bytes_to_floats_avx2_soa(_src);
-	t_vec4f_avx fd = unpack_rgba_bytes_to_floats_avx2_soa(_dst);
+	t_rgba_ps256 fs = unpack_rgba_bytes_to_floats_avx2_soa(_src);
+	t_rgba_ps256 fd = unpack_rgba_bytes_to_floats_avx2_soa(_dst);
 
 	__m256 transparency = extract_transparency_avx2_soa(fs);
-	t_vec4f_avx blended = blend_pixels_avx2_soa(fs, fd, transparency);
+	t_rgba_ps256 blended = blend_pixels_avx2_soa(fs, fd, transparency);
 
 	__m256i out = repack_floats_to_bytes_avx2_soa(blended);
 	_mm256_storeu_si256((__m256i *)dst, out);
@@ -235,9 +235,9 @@ void	blend_8pixels_fast_path_avx2(int *src, int *dst)
 	const __m256i alpha = _mm256_and_si256(v_src, alpha_mask);
 
 	const __m256i zero_alpha = _mm256_setzero_si256();
-	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, zero_alpha);
 //	const __m256i full_alpha = _mm256_set1_epi32(XPM_TRANSPARENT);
 //	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, full_alpha);
+	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, zero_alpha);
 	__m256i result = _mm256_blendv_epi8(v_dst, v_src, mask_alpha);
 
 	_mm256_storeu_si256((__m256i *)dst, result);

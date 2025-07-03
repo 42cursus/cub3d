@@ -20,21 +20,22 @@
  * @return
  */
 static inline __attribute__((always_inline, used))
-t_vec4f_sse unpack_rgba_bytes_to_floats_soa(__m128i pixels)
+t_rgba_ps128 unpack_rgba_si128_to_ps128_soa(__m128i pixels)
 {
-	t_vec4f_sse out;
-	t_vec4i_sse rgba;
-	const __m128i mask_8 = _mm_set1_epi32(0xFF);
+	t_rgba_ps128	out;
+	t_rgba_si128	rgba;
+	const __m128i	mask_8 = _mm_set1_epi32(0xFF);
 
-	rgba.r0 = _mm_and_si128(pixels, mask_8);
-	rgba.r1 = _mm_and_si128(_mm_srli_epi32(pixels, 8), mask_8);
-	rgba.r2 = _mm_and_si128(_mm_srli_epi32(pixels, 16), mask_8);
-	rgba.r3 = _mm_and_si128(_mm_srli_epi32(pixels, 24), mask_8);
+	rgba.b = _mm_and_si128(pixels, mask_8);
+	rgba.g = _mm_and_si128(_mm_srli_epi32(pixels, 8), mask_8);
+	rgba.r = _mm_and_si128(_mm_srli_epi32(pixels, 16), mask_8);
+	rgba.a = _mm_and_si128(_mm_srli_epi32(pixels, 24), mask_8);
 
-	out.r0 = _mm_cvtepi32_ps(rgba.r0);
-	out.r1 = _mm_cvtepi32_ps(rgba.r1);
-	out.r2 = _mm_cvtepi32_ps(rgba.r2);
-	out.r3 = _mm_cvtepi32_ps(rgba.r3);
+	out.b = _mm_cvtepi32_ps(rgba.b);
+	out.g = _mm_cvtepi32_ps(rgba.g);
+	out.r = _mm_cvtepi32_ps(rgba.r);
+	out.a = _mm_cvtepi32_ps(rgba.a);
+
 	return out;
 }
 
@@ -47,12 +48,12 @@ t_vec4f_sse unpack_rgba_bytes_to_floats_soa(__m128i pixels)
  * @return
  */
 static inline __attribute__((always_inline, used))
-__m128 extract_transparency_sse_soa(t_vec4f_sse fs)
+__m128 extract_transparency_sse_soa(t_rgba_ps128 fs)
 {
 	__m128 out;
 	const __m128 byte = _mm_set1_ps(255.0f);
 
-	out = _mm_div_ps(fs.r3, byte);
+	out = _mm_div_ps(fs.a, byte);
 	return (out);
 }
 
@@ -64,20 +65,20 @@ __m128 extract_transparency_sse_soa(t_vec4f_sse fs)
  * @return
  */
 static inline __attribute__((always_inline, used))
-t_vec4f_sse blend_pixels_avx2_soa(t_vec4f_sse src, t_vec4f_sse dst, __m128 transparency)
+t_rgba_ps128 blend_pixels_avx2_soa(t_rgba_ps128 src, t_rgba_ps128 dst, __m128 transparency)
 {
-	t_vec4f_sse diff;
-	t_vec4f_sse out;
+	t_rgba_ps128 diff;
+	t_rgba_ps128 out;
 
-	diff.r0 = _mm_sub_ps(dst.r0, src.r0);
-	diff.r1 = _mm_sub_ps(dst.r1, src.r1);
-	diff.r2 = _mm_sub_ps(dst.r2, src.r2);
-	diff.r3 = _mm_sub_ps(dst.r3, src.r3);
+	diff.b = _mm_sub_ps(dst.b, src.b);
+	diff.g = _mm_sub_ps(dst.g, src.g);
+	diff.r = _mm_sub_ps(dst.r, src.r);
+	diff.a = _mm_sub_ps(dst.a, src.a);
 
-	out.r0 = _mm_add_ps(src.r0, _mm_mul_ps(diff.r0, transparency));
-	out.r1 = _mm_add_ps(src.r1, _mm_mul_ps(diff.r1, transparency));
-	out.r2 = _mm_add_ps(src.r2, _mm_mul_ps(diff.r2, transparency));
-	out.r3 = _mm_add_ps(src.r3, _mm_mul_ps(diff.r3, transparency));
+	out.b = _mm_add_ps(src.b, _mm_mul_ps(diff.b, transparency));
+	out.g = _mm_add_ps(src.g, _mm_mul_ps(diff.g, transparency));
+	out.r = _mm_add_ps(src.r, _mm_mul_ps(diff.r, transparency));
+	out.a = _mm_add_ps(src.a, _mm_mul_ps(diff.a, transparency));
 
 	return out;
 }
@@ -88,45 +89,43 @@ t_vec4f_sse blend_pixels_avx2_soa(t_vec4f_sse src, t_vec4f_sse dst, __m128 trans
  * @return
  */
 static inline __attribute__((always_inline))
-__m128i repack_floats_to_bytes_soa(t_vec4f_sse blended)
+__m128i repack_floats_to_bytes_soa(t_rgba_ps128 blended)
 {
-	t_vec4i_sse		rgba;
+	t_rgba_si128	rgba;
 	__m128i			out;
 	const __m128i	zero = _mm_setzero_si128();
 	const __m128i	max255 = _mm_set1_epi32(255);
 
-	rgba.r0 = _mm_cvtps_epi32(blended.r0);
-	rgba.r1 = _mm_cvtps_epi32(blended.r1);
-	rgba.r2 = _mm_cvtps_epi32(blended.r2);
-	rgba.r3 = _mm_cvtps_epi32(blended.r3);
+	rgba.b = _mm_cvtps_epi32(blended.b);
+	rgba.g = _mm_cvtps_epi32(blended.g);
+	rgba.r = _mm_cvtps_epi32(blended.r);
+	rgba.a = _mm_cvtps_epi32(blended.a);
 
 	// Clamp channels to [0, 255]
-	rgba.r0 = _mm_min_epi32(_mm_max_epi32(rgba.r0, zero), max255);
-	rgba.r1 = _mm_min_epi32(_mm_max_epi32(rgba.r1, zero), max255);
-	rgba.r2 = _mm_min_epi32(_mm_max_epi32(rgba.r2, zero), max255);
-	rgba.r3 = _mm_min_epi32(_mm_max_epi32(rgba.r3, zero), max255);
+	rgba.b = _mm_min_epi32(_mm_max_epi32(rgba.b, zero), max255);
+	rgba.g = _mm_min_epi32(_mm_max_epi32(rgba.g, zero), max255);
+	rgba.r = _mm_min_epi32(_mm_max_epi32(rgba.r, zero), max255);
+	rgba.a = _mm_min_epi32(_mm_max_epi32(rgba.a, zero), max255);
 
 	// Pack to 8-bit: RGBA per pixel via Shift and OR to combine into 0xAABBGGRR
-	rgba.r0 = _mm_slli_epi32(rgba.r0, 0);
-	rgba.r1 = _mm_slli_epi32(rgba.r1, 8);
-	rgba.r2 = _mm_slli_epi32(rgba.r2, 16);
-	rgba.r3 = _mm_slli_epi32(rgba.r3, 24);
+	rgba.b = _mm_slli_epi32(rgba.b, 0);
+	rgba.g = _mm_slli_epi32(rgba.g, 8);
+	rgba.r = _mm_slli_epi32(rgba.r, 16);
+	rgba.a = _mm_slli_epi32(rgba.a, 24);
 
-	out = _mm_or_si128(rgba.r0, _mm_or_si128(rgba.r1, _mm_or_si128(rgba.r2, rgba.r3)));
+	out = _mm_or_si128(rgba.b, _mm_or_si128(rgba.g, _mm_or_si128(rgba.r, rgba.a)));
 	return (out);
 }
 
 static inline __attribute__((always_inline, used))
 void blend_4pixels_soa(int *src, int *dst)
 {
-	const __m128i _src = _mm_loadu_si128((__m128i *)src);
-	const __m128i _dst = _mm_loadu_si128((__m128i *)dst);
-
-	t_vec4f_sse fs = unpack_rgba_bytes_to_floats_soa(_src);
-	t_vec4f_sse fd = unpack_rgba_bytes_to_floats_soa(_dst);
-
-	__m128 transparency = extract_transparency_sse_soa(fs);
-	t_vec4f_sse blended = blend_pixels_avx2_soa(fs, fd, transparency);
+	const __m128i	_src = _mm_loadu_si128((__m128i *)src);
+	const __m128i	_dst = _mm_loadu_si128((__m128i *)dst);
+	t_rgba_ps128	fs = unpack_rgba_si128_to_ps128_soa(_src);
+	t_rgba_ps128	fd = unpack_rgba_si128_to_ps128_soa(_dst);
+	__m128			transparency = extract_transparency_sse_soa(fs);
+	t_rgba_ps128	blended = blend_pixels_avx2_soa(fs, fd, transparency);
 
 	_mm_storeu_si128((__m128i *)dst, repack_floats_to_bytes_soa(blended));
 }

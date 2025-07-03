@@ -22,7 +22,7 @@
 static inline __attribute__((always_inline, used))
 t_vec4f_sse	unpack_rgba_bytes_to_floats(__m128i pixels)
 {
-	t_vec4f_sse			out;
+	t_vec4f_sse		out;
 	const __m128i	zero = _mm_setzero_si128();
 	const __m128i	lo = _mm_unpacklo_epi8(pixels, zero);
 	const __m128i	hi = _mm_unpackhi_epi8(pixels, zero);
@@ -45,8 +45,8 @@ t_vec4f_sse	unpack_rgba_bytes_to_floats(__m128i pixels)
 static inline __attribute__((always_inline, used))
 t_vec4f_sse	extract_transparency(t_vec4f_sse fs)
 {
-	t_vec4f_sse 			alpha;
-	t_vec4f_sse 			transparency;
+	t_vec4f_sse 	alpha;
+	t_vec4f_sse 	transparency;
 	const __m128	byte = _mm_set1_ps(255.0f);
 
 	alpha.r0 = _mm_shuffle_ps(fs.r0, fs.r0, _MM_SHUFFLE(3, 3, 3, 3));

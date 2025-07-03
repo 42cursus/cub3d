@@ -346,13 +346,21 @@ typedef struct s_m256i
 }	t_m256i;
 
 
-typedef struct s_vec4
+typedef struct s_vec4f_sse
 {
 	__m128	r0;
 	__m128	r1;
 	__m128	r2;
 	__m128	r3;
 }	t_vec4f_sse;
+
+typedef struct s_rgba_ps128
+{
+	__m128	b;
+	__m128	g;
+	__m128	r;
+	__m128	a;
+}	t_rgba_ps128;
 
 typedef struct s_vec2i_avx
 {
@@ -382,6 +390,14 @@ typedef struct s_vec4i_sse
 	__m128i r3;
 }	t_vec4i_sse;
 
+typedef struct s_rgba_si128
+{
+	__m128i b;
+	__m128i g;
+	__m128i r;
+	__m128i a;
+}	t_rgba_si128;
+
 typedef struct s_vec8f
 {
 	__m256 r0;
@@ -389,6 +405,22 @@ typedef struct s_vec8f
 	__m256 r2;
 	__m256 r3;
 }	t_vec4f_avx;
+
+typedef struct s_rgba_ps256
+{
+	__m256	b;
+	__m256	g;
+	__m256	r;
+	__m256	a;
+}	t_rgba_ps256;
+
+typedef struct s_rgba_si256
+{
+	__m128i b;
+	__m128i g;
+	__m128i r;
+	__m128i a;
+}	t_rgba_si256;
 
 typedef struct s_vec8
 {
@@ -1116,7 +1148,8 @@ void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 int		check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 //u_int	interpolate_colour(t_colour col1, t_colour col2);
 void	draw_credits(t_info *app, t_dummy *dummy);
-void	draw_credits_avx2(t_info *app, t_dummy *dummy);
+void	draw_credits_sse4(t_info *app, t_dummy *dummy);
+void	draw_credits_sse4_unpacked(t_info *app, t_dummy *dummy);
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile);

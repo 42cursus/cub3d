@@ -14,6 +14,61 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
+static inline __attribute__((always_inline, unused))
+t_rgba_ps128	unpack_rgba_bytes_to_floats(__m128i pixels)
+{
+	t_rgba_ps128	out;
+	const __m128i	shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
+	const __m128i	zero = _mm_setzero_si128();
+	const __m128i	grouped = _mm_shuffle_epi8(pixels, shuffle);
+
+	const __m128i	ar_16 = _mm_unpackhi_epi8(grouped, zero);
+	const __m128i	gb_16 = _mm_unpacklo_epi8(grouped, zero);
+
+	out.b = _mm_cvtepi32_ps(_mm_unpacklo_epi16(gb_16, zero));
+	out.g = _mm_cvtepi32_ps(_mm_unpackhi_epi16(gb_16, zero));
+	out.r = _mm_cvtepi32_ps(_mm_unpacklo_epi16(ar_16, zero));
+	out.a = _mm_cvtepi32_ps(_mm_unpackhi_epi16(ar_16, zero));
+
+
+//	argb_a.b = _mm_unpacklo_epi16(bg_16_a, zero);
+//	argb_a.g = _mm_unpackhi_epi16(bg_16_a, zero);
+//	argb_a.r = _mm_unpacklo_epi16(ra_16_a, zero);
+//	argb_a.a = _mm_unpackhi_epi16(ra_16_a, zero);
+
+	return (out);
+}
+
+static inline __attribute__((always_inline, unused))
+__m128i repack_rgba_floats_to_bytes_sse(t_rgba_ps128 blended)
+{
+	__m128i			out;
+	t_rgba_si128	rgba;
+
+	const __m128i	shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
+
+	rgba.b = _mm_cvtps_epi32(blended.b);
+	rgba.g = _mm_cvtps_epi32(blended.g);
+	rgba.r = _mm_cvtps_epi32(blended.r);
+	rgba.a = _mm_cvtps_epi32(blended.a);
+
+	// Clamp channels to [0, 255]
+//	const __m128i	zero = _mm_setzero_si128();
+//	const __m128i	max255 = _mm_set1_epi32(255);
+//	rgba.b = _mm_min_epi32(_mm_max_epi32(rgba.b, zero), max255);
+//	rgba.g = _mm_min_epi32(_mm_max_epi32(rgba.g, zero), max255);
+//	rgba.r = _mm_min_epi32(_mm_max_epi32(rgba.r, zero), max255);
+//	rgba.a = _mm_min_epi32(_mm_max_epi32(rgba.a, zero), max255);
+
+	__m128i ra_b = _mm_packs_epi32(rgba.r, rgba.a);
+	__m128i bg_b = _mm_packs_epi32(rgba.b, rgba.g);
+
+	__m128i rgba_a = _mm_packus_epi16(bg_b, ra_b);
+
+	out = _mm_shuffle_epi8(rgba_a, shuffle);
+	return (out);
+}
+
 /**
  * https://en.wikipedia.org/wiki/Linear_interpolation
  * @param a
@@ -51,67 +106,52 @@ u_int lerp_biased(u_int aa, u_int bb, float t)
 }
 
 static inline __attribute((always_inline, unused))
+t_rgba_ps128 lerp_biased_unpvec(t_rgba_ps128 argb_a, t_rgba_ps128 argb_b, __m128 tt)
+{
+	t_m128i			mc;
+	t_rgba_ps128	out;
+
+	/* == START BLENDING === */
+	__m128 diff = _mm_sub_ps(argb_b.a, argb_a.a);
+	__m128i res_a = _mm_cvtps_epi32(_mm_add_ps(_mm_mul_ps(diff, tt), argb_a.a));
+	mc.mask = _mm_cmplt_epi32(argb_a.a, argb_b.a);
+
+	argb_a.a = res_a;
+	argb_b.a = res_a;
+	/* == END BLENDING === */
+
+	mc.dst = repack_rgba_floats_to_bytes_sse(argb_a);
+	mc.src = repack_rgba_floats_to_bytes_sse(argb_b);
+
+	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
+
+	out = unpack_rgba_bytes_to_floats(mc.blend);
+
+	return (out);
+}
+
+static inline __attribute((always_inline, unused))
 __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 {
 
 	t_m128i			mc;
-	const __m128i shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
 
-	t_colour col_a[4];
-	t_colour col_b[4];
-
-	_mm_storeu_si128((__m128i_u *) col_a, aa);
-	_mm_storeu_si128((__m128i_u *) col_b, bb);
-
-	__m128i grouped_a = _mm_shuffle_epi8(aa, shuffle);
-	__m128i grouped_b = _mm_shuffle_epi8(bb, shuffle);
-
-	__m128i zero = _mm_setzero_si128();
-
-	__m128i ra_16_a = _mm_unpackhi_epi8(grouped_a, zero);
-	__m128i bg_16_a = _mm_unpacklo_epi8(grouped_a, zero);
-
-
-	__m128i aa_a = _mm_unpackhi_epi16(ra_16_a, zero);
-	__m128i rr_a = _mm_unpacklo_epi16(ra_16_a, zero);
-
-	__m128i gg_a = _mm_unpackhi_epi16(bg_16_a, zero);
-	__m128i bb_a = _mm_unpacklo_epi16(bg_16_a, zero);
-
-
-	__m128i ra_16_b = _mm_unpackhi_epi8(grouped_b, zero);
-	__m128i bg_16_b = _mm_unpacklo_epi8(grouped_b, zero);
-
-
-	__m128i aa_b = _mm_unpackhi_epi16(ra_16_b, zero);
-	__m128i rr_b = _mm_unpacklo_epi16(ra_16_b, zero);
-
-	__m128i gg_b = _mm_unpackhi_epi16(bg_16_b, zero);
-	__m128i bb_b = _mm_unpacklo_epi16(bg_16_b, zero);
+	t_rgba_ps128	argb_a = unpack_rgba_bytes_to_floats(aa);
+	t_rgba_ps128	argb_b = unpack_rgba_bytes_to_floats(bb);
 
 	/* == START BLENDING === */
 
-	__m128 flt_a = _mm_cvtepi32_ps(aa_a);
-	__m128 flt_b = _mm_cvtepi32_ps(aa_b);
-
-	__m128i res_a = _mm_add_epi32(_mm_cvtps_epi32(_mm_mul_ps(_mm_sub_ps(flt_b, flt_a), tt)), aa_a);
+	__m128 res_a = _mm_add_ps(_mm_mul_ps(_mm_sub_ps(argb_b.a, argb_a.a), tt), argb_a.a);
 
 	/* == END BLENDING === */
 
-	__m128i ra_a = _mm_packs_epi32(rr_a, res_a);
-	__m128i bg_a = _mm_packs_epi32(bb_a, gg_a);
+	mc.mask = _mm_castps_si128(_mm_cmplt_ps(argb_a.a, argb_b.a));
 
-	__m128i rgba_a = _mm_packus_epi16(bg_a, ra_a);
+	argb_a.a = res_a;
+	argb_b.a = res_a;
 
-	__m128i ra_b = _mm_packs_epi32(rr_b, res_a);
-	__m128i bg_b = _mm_packs_epi32(bb_b, gg_b);
-
-	__m128i rgba_b = _mm_packus_epi16(bg_b, ra_b);
-
-	mc.dst = _mm_shuffle_epi8(rgba_b, shuffle);
-	mc.src = _mm_shuffle_epi8(rgba_a, shuffle);
-
-	mc.mask = _mm_cmplt_epi32(aa_a, aa_b);
+	mc.dst = repack_rgba_floats_to_bytes_sse(argb_b);
+	mc.src = repack_rgba_floats_to_bytes_sse(argb_a);
 	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 
 //	__m128 mask = _mm_castsi128_ps(_mm_cmplt_epi32(aa_a, aa_b));
@@ -129,17 +169,14 @@ __m128i lerp_biased_vec(__m128i aa, __m128i bb, __m128 tt)
 static inline __attribute__((always_inline, unused))
 t_colour linear_filter(t_vect idx, const t_tex *tex)
 {
-	const double frac = fmod(idx.x, 1.0);
+	const double	frac = fmod(idx.x, 1.0);
+	int				x = (int) idx.y * tex->w + (int) (idx.x);
 
-	int x = (int) idx.y * tex->w + (int) (idx.x);
-
-	t_colour left = *(t_colour *) &tex->data[x];
-	t_colour right = *(t_colour *) &tex->data[x + 1];
-
-	t_colour out = lerp_biased_c(left, right, frac);
+	t_colour		left = *(t_colour *) &tex->data[x];
+	t_colour		right = *(t_colour *) &tex->data[x + 1];
+	t_colour		out = lerp_biased_c(left, right, frac);
 	return (out);
 }
-
 
 static inline __attribute__((always_inline, unused))
 int interpolate_colour_inline(int col1, int col2, double frac)
@@ -151,8 +188,7 @@ int interpolate_colour_inline(int col1, int col2, double frac)
 	if (col1 != col2 && col1 != (int) XPM_TRANSPARENT)
 	{
 		r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-		g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac +
-			(col1 & MLX_GREEN);
+		g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
 		b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
 		col1 = (r & MLX_RED) + (g & MLX_GREEN) + b;
 	}
@@ -177,14 +213,17 @@ int interpolate_colour_inline(int col1, int col2, double frac)
 static inline __attribute__((optnone, used))
 t_colour bilinear_filter(t_vect idx, const t_tex *tex)
 {
-	const int x = (int) idx.x;
-	const int y = (int) idx.y;
+	const int		x = (int) idx.x;
+	const int		y = (int) idx.y;
 
-	const double frac_x = idx.x - x;
-	const double frac_y = idx.y - y;
+	const double	frac_x = idx.x - x;
+	const double	frac_y = idx.y - y;
 
-	int x1 = x + (((tex->w - 2 - x) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
-	int y1 = y + (((tex->h - 2 - y) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
+	int				x1;
+	int				y1;
+
+	x1 = x + (((tex->w - 2 - x) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
+	y1 = y + (((tex->h - 2 - y) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 	// Load the 2x2 texels
 	u_int *row1 = tex->data + y * tex->w;
@@ -204,13 +243,12 @@ int bilinear_filter_old(double x, double y, const t_tex *tex)
 	int x_upper;
 	int y_lower;
 	int y_upper;
+	int interp;
 
 	x_lower = (int) x;
 	y_lower = (int) y;
 	x_upper = x_lower + 1;
 	y_upper = y_lower + 1;
-
-	int interp;
 
 	if (x_upper == tex->w)
 		x_upper = 0;
@@ -235,16 +273,15 @@ t_colour dim_colour_alpha(t_colour src, double falloff)
 	if (falloff < 1 || src.raw == XPM_TRANSPARENT)
 		return (src);
 
-	const double dim = 1.0 / falloff;
-
-	double alpha = (1 - dim);
+	const double	dim = 1.0 / falloff;
+	double			alpha = (1 - dim);
 
 	alpha = alpha > 228 ? 255 : alpha;
 
-	src.a = (u_char) alpha;
-	src.r = (u_char) (src.r * dim);
-	src.g = (u_char) (src.g * dim);
-	src.b = (u_char) (src.b * dim);
+	src.a = (u_char)alpha;
+	src.r = (u_char)(src.r * dim);
+	src.g = (u_char)(src.g * dim);
+	src.b = (u_char)(src.b * dim);
 	return (src);
 }
 
@@ -274,6 +311,30 @@ u_int dim_colour2_scal(u_int col, double dim)
 	u_int mask = -(col == XPM_TRANSPARENT);
 	result = (src.raw & ~mask) | (col & mask);
 	return (result);
+}
+
+
+static inline __attribute__((always_inline))
+t_rgba_ps128	dim_colour2_unpvec(t_rgba_ps128 in, float dim)
+{
+	dim = fmaxf(0.0f, fminf(1.0f, dim));
+
+	__m128 dim_vec = _mm_set1_ps(dim);
+	__m128 alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
+
+	t_rgba_ps128	out;
+
+	out.g = _mm_mul_ps(in.g, dim_vec);
+	out.r = _mm_mul_ps(in.r, dim_vec);
+	out.a = _mm_mul_ps(in.a, dim_vec);
+
+//	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
+//
+//	out.b = alpha_vec;
+//	out.g = _mm_blendv_epi8(in.g, out.g, mc.mask);
+//	out.r = _mm_blendv_epi8(in.r, out.r, mc.mask);
+//	out.a = _mm_blendv_epi8(in.a, out.a, mc.mask);
+	return (out);
 }
 
 /**
@@ -320,20 +381,19 @@ __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
 	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
 	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-	return mc.blend;
+	return (mc.blend);
 }
 
 void draw_credits_row(t_info *app, t_vect l_pos, t_vect r_pos, int row)
 {
-	const t_tex *tex = &app->shtex->credits;
-	int i;
-	double step_x;
-	double curr_x;
-	t_vect idx;
-	double dist = app->dummy->row_depths[row - 1];
-	t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
-	u_int *const p_row =
-		(u_int *) app->overlay->data + app->overlay->width * row;
+	const t_tex		*tex = &app->shtex->credits;
+	int				i;
+	double			step_x;
+	double			curr_x;
+	t_vect			idx;
+	double			dist = app->dummy->row_depths[row - 1];
+	t_vect			lim = {-0.48, 0.48}; // Relative to 1 block on the map
+	u_int *const	p_row = (u_int *)app->overlay->data + app->overlay->width * row;
 
 	step_x = (r_pos.x - l_pos.x) / WIN_WIDTH;
 	curr_x = l_pos.x;
@@ -451,7 +511,168 @@ void draw_credits(t_info *app, t_dummy *dummy)
 	place_img_alpha_sse(app->canvas, app->overlay, (t_point) {0, 0});
 }
 
-void draw_credits_avx2(t_info *app, t_dummy *dummy)
+void draw_credits_sse4_unpacked(t_info *app, t_dummy *dummy)
+{
+	t_vect dir[2];
+	t_vect pos[2];
+	int row;
+
+
+	int i;
+
+	const t_tex *tex = &app->shtex->credits;
+
+	__m128 half_ps = _mm_set1_ps(0.5f);
+	__m128 one_ps = _mm_set1_ps(1.0f);
+	__m128i one_epi32 = _mm_set1_epi32(1);
+	__m128i max_val = _mm_set1_epi32(tex->w - 1);
+
+	dir[LEFT] = rotate_vect(dummy->dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(dummy->dir, -app->fov_rad_half);
+	update_rocks(app, dummy);
+
+	row = 0;
+	while (++row < WIN_HEIGHT)
+	{
+		float depth = app->dummy->row_depths[row - 1];
+
+		pos[LEFT] = add_vect(dummy->pos, scale_vect(dir[LEFT], depth));
+		pos[RIGHT] = add_vect(dummy->pos, scale_vect(dir[RIGHT], depth));
+
+		float idx_y = (-pos[LEFT].y) * tex->w;
+		const __m128 weight_yy = _mm_set1_ps(fmodf(idx_y, 1.0f));
+
+		if (pos[LEFT].y > 0)
+			continue;
+		if (idx_y > tex->h)
+			break;
+
+		__m128 pos_LEFT_x = _mm_set1_ps(pos[LEFT].x);
+
+		float step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
+
+		const float falloff = (depth - 1.5f) * 6.0f;
+		float inv = 1.0 / (falloff + DBL_EPSILON);
+		float dim = 1.0 + (inv - 1.0) * (falloff >= 1.0);
+
+		t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
+
+		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
+
+		int y = (int) idx_y;
+		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
+
+		int start = MAX(0, (lim.x - pos[LEFT].x) / step_x);
+		int stop = MIN(WIN_WIDTH, (lim.y - pos[LEFT].x) / step_x);
+
+		i = start;
+		while (i < stop - 3)
+		{
+
+			__m128i initial = _mm_setr_epi32(0, 1, 2, 3);
+			__m128i ii = _mm_set1_epi32(i);
+
+			__m128 step_xx = _mm_set1_ps(step_x);
+			__m128 scaled_xx = _mm_mul_ps(step_xx, _mm_cvtepi32_ps( _mm_add_epi32(ii, initial)));
+
+			__m128 currs_xx = _mm_add_ps(half_ps, _mm_add_ps(pos_LEFT_x, scaled_xx));
+			__m128 idx_xx = _mm_mul_ps(currs_xx, _mm_cvtepi32_ps(_mm_set1_epi32(tex->w)));
+
+			/* ===============bilinear_filter=============== */
+
+			// fmodf(x, y) == (x - y * trunc(x / y))
+			// https://hugeonotation.github.io/pblog/2024/06/07/fmod.html
+			__m128 div = _mm_div_ps(idx_xx, one_ps);
+			__m128 trunc_div = _mm_round_ps(div, _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);
+			__m128 prod = _mm_mul_ps(one_ps, trunc_div);
+			__m128 weight_xx = _mm_sub_ps(idx_xx, prod);
+
+			__m128i xx = _mm_cvttps_epi32(idx_xx);
+			__m128i xx1 = _mm_min_epi32(_mm_add_epi32(xx, one_epi32), max_val);
+
+			// Load the 2x2 texels
+			const int *row1 = (int *) tex->data + y * tex->w;
+			const int *row2 = (int *) tex->data + y1 * tex->w;
+
+			t_vec4i_sse source;
+
+			source.r0 = _mm_i32gather_epi32(row1, xx, sizeof(int));
+			source.r1 = _mm_i32gather_epi32(row1, xx1, sizeof(int));
+			source.r2 = _mm_i32gather_epi32(row2, xx, sizeof(int));
+			source.r3 = _mm_i32gather_epi32(row2, xx1, sizeof(int));
+
+			t_rgba_ps128 src_a = unpack_rgba_bytes_to_floats(source.r0);
+			t_rgba_ps128 src_b = unpack_rgba_bytes_to_floats(source.r1);
+			t_rgba_ps128 src_c = unpack_rgba_bytes_to_floats(source.r2);
+			t_rgba_ps128 src_d = unpack_rgba_bytes_to_floats(source.r3);
+
+			t_rgba_ps128 dimmed_a = dim_colour2_unpvec(src_a, dim);
+			t_rgba_ps128 dimmed_b = dim_colour2_unpvec(src_b, dim);
+			t_rgba_ps128 dimmed_c = dim_colour2_unpvec(src_c, dim);
+			t_rgba_ps128 dimmed_d = dim_colour2_unpvec(src_d, dim);
+
+			t_rgba_ps128 top = lerp_biased_unpvec(dimmed_a, dimmed_b, weight_xx);
+			t_rgba_ps128 bottom = lerp_biased_unpvec(dimmed_c, dimmed_d, weight_xx);
+			t_rgba_ps128 outf = lerp_biased_unpvec(top, bottom, weight_yy);
+
+			__m128i rgba = repack_rgba_floats_to_bytes_sse(outf);
+
+			_mm_storeu_si128((__m128i_u *) &p_row[i], rgba);
+
+			/* ============================================== */
+			i += 4;
+		}
+
+//		while (i < stop)
+//		{
+//			curr_x = pos[LEFT].x + (step_x * i);
+//
+//			idx.x = (0.5 + curr_x) * tex->w;
+//			idx.y = idx_y;
+//
+//			/* ===============bilinear_filter=============== */
+//
+//			const int x = (int) idx.x;
+//			const int y = (int) idx.y;
+//
+//			const double weight_x = idx.x - x;
+//			const double weight_y = idx.y - y;
+//
+//			int x1 = x + ((((tex->w - 1) - (x + 1)) >> 31) ^ 1); // x1 = MIN(x + 1, tex->w - 1);
+//			int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
+//
+//			// Load the 2x2 texels
+//			u_int *row1 = tex->data + y * tex->w;
+//			u_int *row2 = tex->data + y1 * tex->w;
+//
+////			double dim = falloff >= 1.0 ? 1.0 / falloff : 1.0;
+//
+//			double inv = 1.0 / (falloff + DBL_EPSILON);
+//			double dim = 1.0 + (inv - 1.0) * (falloff >= 1.0);
+//
+//			u_int a = dim_colour2(row1[x], dim);
+//			u_int b = dim_colour2(row1[x1], dim);
+//			u_int c = dim_colour2(row2[x], dim);
+//			u_int d = dim_colour2(row2[x1], dim);
+//
+//			u_int top = lerp_biased(a, b, weight_x);
+//			u_int bottom = lerp_biased(c, d, weight_x);
+//			u_int out = lerp_biased(top, bottom, weight_y);
+//
+//			/* ================dim_colour_alpha============== */
+////					p_row[i] = dim_colour_alpha(src, falloff).raw;
+//			p_row[i] = out;
+//			/* ============================================== */
+//
+////			curr_y += step_y;
+//			i++;
+//		}
+	}
+	t_point p = (t_point) {0, 0};
+	place_img_alpha_avx2_soa(app->canvas, app->overlay, p);
+}
+
+void draw_credits_sse4(t_info *app, t_dummy *dummy)
 {
 	t_vect dir[2];
 	t_vect pos[2];

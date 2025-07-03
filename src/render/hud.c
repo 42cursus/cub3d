@@ -387,7 +387,7 @@ void	place_startup_overlay(t_info *app)
 		{
 			p1.x = WIN_WIDTH / 2 - overlay->width / 2;
 			p1.y = 0;
-			place_img_alpha_avx2(canvas, overlay, p1);
+			place_img_alpha_avx2_soa(canvas, overlay, p1);
 		}
 		else
 			app->hint_shown = true;
@@ -405,7 +405,7 @@ void	place_help(t_info *app)
 	{
 		p1.x = WIN_WIDTH / 2 - help->width / 2;
 		p1.y = WIN_HEIGHT / 2 - help->height / 2;
-		place_img_alpha_avx2(canvas, help, p1);
+		place_img_alpha_avx2_soa(canvas, help, p1);
 	}
 }
 
@@ -450,7 +450,7 @@ void	place_mmap(t_info *app)
 		p2 = calc_player_pos(lvl, p1, pointer, player);
 
 		place_img_alpha_sse_soa(canvas, minimap, p1);
-		place_img_alpha_avx2(canvas, pointer, p2);
+		place_img_alpha_avx2_soa(canvas, pointer, p2);
 
 		place_items_minimap(lvl, p1, 2);
 		place_enemies_minimap(lvl, p1, 2);
@@ -468,7 +468,7 @@ void	place_mmap(t_info *app)
 		p2.x -= square->w / 2;
 		p2.y -= square->h / 2;
 
-		place_img_alpha_avx2(canvas, minimap, p1);
+		place_img_alpha_avx2_soa(canvas, minimap, p1);
 		put_texture(app, square, p2.x, p2.y);
 	}
 }
