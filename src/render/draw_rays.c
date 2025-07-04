@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <immintrin.h>
 #include <sys/param.h>
 #include "cub3d.h"
 
@@ -145,35 +146,17 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 	while (it.i + 7 < it.j)
 	{
-//		__m256 step_vec = _mm256_set1_ps(ts.step);
-//		__m256i offset = _mm256_setr_ps(0, 1, 2, 3, 4, 5, 6, 7);
-//		__m256i indices = _mm256_cvttps_epi32(_mm256_add_ps(
-//			_mm256_set1_ps(ts.tex_y),
-//			_mm256_mul_ps(offset, step_vec))
-//		);
-//		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
-		mmc.src = _mm256_setr_epi32(
-			cd.src[(int)(ts.tex_y + ts.step * 0)],
-			cd.src[(int)(ts.tex_y + ts.step * 1)],
-			cd.src[(int)(ts.tex_y + ts.step * 2)],
-			cd.src[(int)(ts.tex_y + ts.step * 3)],
-			cd.src[(int)(ts.tex_y + ts.step * 4)],
-			cd.src[(int)(ts.tex_y + ts.step * 5)],
-			cd.src[(int)(ts.tex_y + ts.step * 6)],
-			cd.src[(int)(ts.tex_y + ts.step * 7)]
-		);
-
-		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
+		__m256 step_vec = _mm256_set1_ps(ts.step);
+		__m256i offset = _mm256_setr_ps(0, 1, 2, 3, 4, 5, 6, 7);
+		__m256i indices = _mm256_cvttps_epi32(_mm256_add_ps(
+						_mm256_set1_ps(ts.tex_y),
+						_mm256_mul_ps(offset, step_vec)));
+		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
 
 		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
 		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
 
 		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
-//		mmc.blend = _mm256_or_si256(
-//			_mm256_and_si256(mmc.mask, mmc.src),
-//			_mm256_andnot_si256(mmc.mask, mmc.dst)
-//		);
-
 		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
 
 		cd.dst += 8;

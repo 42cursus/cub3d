@@ -173,9 +173,9 @@ int	render_play(void *param)
 	update_objects(app, app->player, app->lvl);
 
 //	 replace_frame(app);
-	 replace_frame_hybrid(app);
-//	replace_frame_transposed(app);
-//	transpose_img_avx2_tiled_read((int *) app->canvas->data, (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	 // replace_frame_hybrid(app);
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *) app->canvas->data, (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 
 	now = get_time_us();
 
@@ -286,7 +286,7 @@ int	render_credits(void *param)
 		dummy->pos.y += (dummy->speed * 5) / app->fr_scale;
 	if (app->keys[idx_XK_Down])
 		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
-//	dummy->pos.y -= dummy->speed / app->fr_scale;
+	dummy->pos.y -= dummy->speed / app->fr_scale;
 	if ((-dummy->pos.y) > ((double)app->shtex->credits.h / app->shtex->credits.w) + 2)
 	{
 		app->rc = ok;

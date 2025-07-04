@@ -32,18 +32,20 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 						-ftree-vectorize \
 						-mllvm --enable-lto-internalization \
 						-fstrict-aliasing -fno-strict-overflow \
-						-fomit-frame-pointer -march=native \
+						-march=native \
 						-fcf-protection=none \
 						-funroll-loops \
 						-freroll-loops \
 						-fvectorize \
-						-fno-stack-protector # -flto -fno-stack-protector-all
+						-fno-stack-protector \
+						# -fomit-frame-pointer \
+						# -flto -fno-stack-protector-all
 #						-mllvm -inline-threshold=900
 #DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-#					-pg \
+					# -pg \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-D FRAMERATE=60 \
 
@@ -56,8 +58,7 @@ SDL_MIX_LIB			:= -lSDL2_mixer
 ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
-	endif
-	ifeq ($(UNAME_R), 5.15.0-139-generic)
+	else ifeq ($(UNAME_R), 5.15.0-139-generic)
 		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
 	else
 		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
@@ -71,7 +72,7 @@ LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-#					-pg \
+					# -pg \
 #					-flto \
 #					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-fdump-tree-cfg \
