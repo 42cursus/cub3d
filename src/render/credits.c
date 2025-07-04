@@ -46,13 +46,35 @@ __m128i repack_rgba_floats_to_bytes_sse(t_rgba_ps128 blended)
 	rgba.r = _mm_cvtps_epi32(blended.r);
 	rgba.a = _mm_cvtps_epi32(blended.a);
 
+	__m128i ra_b = _mm_packs_epi32(rgba.r, rgba.a);
+	__m128i bg_b = _mm_packs_epi32(rgba.b, rgba.g);
+
+	__m128i rgba_a = _mm_packus_epi16(bg_b, ra_b);
+
+	out = _mm_shuffle_epi8(rgba_a, shuffle);
+	return (out);
+}
+
+static inline __attribute__((always_inline, unused))
+__m128i repack_rgba_floats_to_bytes_sse_clamped(t_rgba_ps128 blended)
+{
+	__m128i			out;
+	t_rgba_si128	rgba;
+
+	const __m128i	shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
+
+	rgba.b = _mm_cvtps_epi32(blended.b);
+	rgba.g = _mm_cvtps_epi32(blended.g);
+	rgba.r = _mm_cvtps_epi32(blended.r);
+	rgba.a = _mm_cvtps_epi32(blended.a);
+
 	// Clamp channels to [0, 255]
-//	const __m128i	zero = _mm_setzero_si128();
-//	const __m128i	max255 = _mm_set1_epi32(255);
-//	rgba.b = _mm_min_epi32(_mm_max_epi32(rgba.b, zero), max255);
-//	rgba.g = _mm_min_epi32(_mm_max_epi32(rgba.g, zero), max255);
-//	rgba.r = _mm_min_epi32(_mm_max_epi32(rgba.r, zero), max255);
-//	rgba.a = _mm_min_epi32(_mm_max_epi32(rgba.a, zero), max255);
+	const __m128i	zero = _mm_setzero_si128();
+	const __m128i	max255 = _mm_set1_epi32(255);
+	rgba.b = _mm_min_epi32(_mm_max_epi32(rgba.b, zero), max255);
+	rgba.g = _mm_min_epi32(_mm_max_epi32(rgba.g, zero), max255);
+	rgba.r = _mm_min_epi32(_mm_max_epi32(rgba.r, zero), max255);
+	rgba.a = _mm_min_epi32(_mm_max_epi32(rgba.a, zero), max255);
 
 	__m128i ra_b = _mm_packs_epi32(rgba.r, rgba.a);
 	__m128i bg_b = _mm_packs_epi32(rgba.b, rgba.g);
@@ -305,23 +327,28 @@ u_int dim_colour2_scal(u_int col, double dim)
 static inline __attribute__((always_inline))
 t_rgba_ps128	dim_colour2_unpvec(t_rgba_ps128 in, float dim)
 {
-	dim = fmaxf(0.0f, fminf(1.0f, dim));
-
-	__m128 dim_vec = _mm_set1_ps(dim);
-	__m128 alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
-
 	t_rgba_ps128	out;
+	__m128			dim_vec;
+	__m128			alpha_vec;
 
-	out.g = _mm_mul_ps(in.g, dim_vec);
+	__m128i fully_transp = _mm_set1_epi32(XPM_TRANSPARENT);
+	__m128i color_vec = repack_rgba_floats_to_bytes_sse(in);
+	__m128 mask = _mm_castsi128_ps(_mm_cmpeq_epi8(color_vec, fully_transp));
+
+	dim = fmaxf(0.0f, fminf(1.0f, dim));
+	dim_vec = _mm_set1_ps(dim);
+	alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
+
+	out.a = alpha_vec;
 	out.r = _mm_mul_ps(in.r, dim_vec);
-	out.a = _mm_mul_ps(in.a, dim_vec);
+	out.g = _mm_mul_ps(in.g, dim_vec);
+	out.b = _mm_mul_ps(in.b, dim_vec);
 
-//	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
-//
-//	out.b = alpha_vec;
-//	out.g = _mm_blendv_epi8(in.g, out.g, mc.mask);
-//	out.r = _mm_blendv_epi8(in.r, out.r, mc.mask);
-//	out.a = _mm_blendv_epi8(in.a, out.a, mc.mask);
+	out.a = _mm_blendv_ps(out.a, in.a, mask);
+	out.r = _mm_blendv_ps(out.r, in.r, mask);
+	out.g = _mm_blendv_ps(out.g, in.g, mask);
+	out.b = _mm_blendv_ps(out.b, in.b, mask);
+
 	return (out);
 }
 
@@ -335,40 +362,32 @@ t_rgba_ps128	dim_colour2_unpvec(t_rgba_ps128 in, float dim)
 static inline __attribute__((always_inline))
 __m128i	dim_colour2_vec(__m128i color_vec, float dim)
 {
+	t_rgba_ps128	in;
+	t_rgba_ps128	out;
 	t_m128i			mc = {.src = color_vec};
 
-	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
 	dim = fmaxf(0.0f, fminf(1.0f, dim));
 
 	__m128 dim_vec = _mm_set1_ps(dim);
 	__m128 alpha_vec = _mm_set1_ps((1.0f - dim) * 255.0f);
 
-	const __m128i shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
+	in = unpack_rgba_bytes_to_floats(color_vec);
+	__m128i fully_transp = _mm_set1_epi32(XPM_TRANSPARENT);
+	__m128 mask = _mm_castsi128_ps(_mm_cmpeq_epi8(color_vec, fully_transp));
 
-	__m128i grouped = _mm_shuffle_epi8(mc.src, shuffle);
+	out.a = alpha_vec;
+	out.r = _mm_mul_ps(in.r, dim_vec);
+	out.g = _mm_mul_ps(in.g, dim_vec);
+	out.b = _mm_mul_ps(in.b, dim_vec);
 
-	__m128i zero = _mm_setzero_si128();
 
-	__m128i lo_16 = _mm_unpacklo_epi8(grouped, zero);
-	__m128i hi_16 = _mm_unpackhi_epi8(grouped, zero);
-
-	__m128i aa = _mm_cvttps_epi32(alpha_vec);
-	__m128i rr = _mm_unpacklo_epi16(lo_16, zero);
-	__m128i gg = _mm_unpackhi_epi16(lo_16, zero);
-	__m128i bb = _mm_unpacklo_epi16(hi_16, zero);
-
-	rr = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(rr), dim_vec));
-	gg = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(gg), dim_vec));
-	bb = _mm_cvtps_epi32(_mm_mul_ps(_mm_cvtepi32_ps(bb), dim_vec));
+	out.a = _mm_blendv_ps(out.a, in.a, mask);
+	out.r = _mm_blendv_ps(out.r, in.r, mask);
+	out.g = _mm_blendv_ps(out.g, in.g, mask);
+	out.b = _mm_blendv_ps(out.b, in.b, mask);
 
 	// Repack back into 0xAARRGGBB
-	__m128i rg = _mm_packs_epi32(rr, gg);
-	__m128i ba = _mm_packs_epi32(bb, aa);
-	__m128i rgba = _mm_packus_epi16(rg, ba);
-
-	mc.dst = _mm_shuffle_epi8(rgba, shuffle);
-	mc.mask = _mm_cmpeq_epi32(color_vec, mc.transparent);
-	mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
+	mc.blend = repack_rgba_floats_to_bytes_sse(out);
 	return (mc.blend);
 }
 
