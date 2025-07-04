@@ -155,6 +155,7 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
 		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
+		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
 
 		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
 		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);

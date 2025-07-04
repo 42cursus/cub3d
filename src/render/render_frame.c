@@ -295,7 +295,7 @@ int	render_credits(void *param)
 	ft_memcpy_avx2((int *) app->canvas->data,
 				   (int *) bg->data, bg->size_line * bg->height);
 	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
-	draw_credits_sse4_unpacked(app, dummy);
+	draw_credits_avx2_unpacked(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();

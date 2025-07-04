@@ -21,6 +21,7 @@ FILES   = render.c \
 			render_frame.c \
 			colour.c \
 			credits.c \
+			credits_avx2.c \
 			draw.c \
 			draw_rays.c \
 			sky.c \

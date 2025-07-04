@@ -416,10 +416,10 @@ typedef struct s_rgba_ps256
 
 typedef struct s_rgba_si256
 {
-	__m128i b;
-	__m128i g;
-	__m128i r;
-	__m128i a;
+	__m256i b;
+	__m256i g;
+	__m256i r;
+	__m256i a;
 }	t_rgba_si256;
 
 typedef struct s_vec8
@@ -1150,6 +1150,7 @@ int		check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 void	draw_credits(t_info *app, t_dummy *dummy);
 void	draw_credits_sse4(t_info *app, t_dummy *dummy);
 void	draw_credits_sse4_unpacked(t_info *app, t_dummy *dummy);
+void	draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy);
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_close_door_tex(t_anim *anim, t_info *app);
 t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile);
@@ -1160,5 +1161,6 @@ void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
 void	spawn_rock(t_info *app, t_vect pos, t_tex *tex, double speed);
 void	spawn_random_rock(t_info *app, double speed);
 int		cmp_rock_speed(void *data1, void *data2);
+void	update_rocks(t_info *app, t_dummy *dummy);
 
 #endif //CUB3D_H
