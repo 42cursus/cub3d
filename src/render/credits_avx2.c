@@ -242,11 +242,9 @@ t_rgba_ps256	dim_colour2_unpvec_avx2(t_rgba_ps256 in, float dim)
 	__m256			dim_vec;
 	__m256			alpha_vec;
 
-	__m256i to_cmp = _mm256_set1_epi32(XPM_TRANSPARENT);
+	__m256 alphas = _mm256_set1_ps(255.0f);
 
-	t_rgba_ps256 t_cmp = unpack_rgba_bytes_to_floats_avx(to_cmp);
-
-	__m256 mask = _mm256_castsi256_ps(_mm256_cmp_ps(in.a, t_cmp.a, _CMP_EQ_OQ));
+	__m256 mask = _mm256_cmp_ps(in.a, alphas, _CMP_EQ_OQ);
 
 	dim = fmaxf(0.0f, fminf(1.0f, dim));
 	dim_vec = _mm256_set1_ps(dim);
