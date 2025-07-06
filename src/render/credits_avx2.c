@@ -332,7 +332,8 @@ void draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy)
 
 		if (pos[LEFT].y > 0)
 			continue;
-		if (idx_y > tex->h)
+		int y = (int) idx_y;
+		if (y >= tex->h)
 			break;
 
 		__m256 pos_LEFT_x = _mm256_set1_ps(pos[LEFT].x);
@@ -347,7 +348,6 @@ void draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy)
 
 		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
 
-		int y = (int) idx_y;
 		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
 		int start = MAX(0, (lim.x - pos[LEFT].x) / step_x);
