@@ -56,7 +56,12 @@ void	spawn_key(t_info *app, t_vect pos, int level)
 		key->pos = pos;
 		key->type = O_KEY;
 		key->subtype = level;
-		key->texture = &app->shtex->rocks[0];
+		key->anim.active = 1;
+		key->anim.loop = 1;
+		key->anim.frames = 6;
+		key->anim.duration = 600000;
+		key->anim.tex = app->shtex->key_tex;
+		key->anim.timestart = app->fr_last;
 		ft_lstadd_back(&lvl->triggers, ft_lstnew(key));
 	}
 }
@@ -86,6 +91,7 @@ int	handle_key(t_info *app, t_obj *key, t_list **current)
 	t_list	*cur_trig;
 	t_obj	*tele;
 
+	key->texture = handle_animation(app, key->anim);
 	if (vector_distance(app->player->pos, key->pos) < 0.4)
 	{
 		tele = find_matching_tele(app->lvl, key);

@@ -27,6 +27,21 @@ void	load_health_pu_tex(t_info *app)
 	}
 }
 
+void	load_key_tex(t_info *app)
+{
+	int		i;
+	char	buf[BUFF_SIZE];
+	t_tex	*tex;
+
+	tex = app->shtex->key_tex;
+	i = -1;
+	while (++i < 6)
+	{
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/key%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
+	}
+}
+
 void	load_ammo_tex(t_info *app)
 {
 	int		i;

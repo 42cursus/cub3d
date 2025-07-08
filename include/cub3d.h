@@ -646,6 +646,7 @@ typedef struct s_shtex
 	t_tex	missile_ammo[2];
 	t_tex	super_ammo[2];
 	t_tex	trophy_tex[2];
+	t_tex	key_tex[6];
 	t_tex	phantoon[10];
 	t_tex	phantoon_proj[6];
 	t_tex	logo_tex[14];
