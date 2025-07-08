@@ -18,7 +18,7 @@ void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype)
 	t_lvl *const	lvl = app->lvl;
 
 	if (subtype > 0 && subtype < 5)
-		spawn_teleporter(app, pos, subtype);
+		return (spawn_teleporter(app, pos, subtype));
 	trigger = ft_calloc(1, sizeof(*trigger));
 	trigger->pos = pos;
 	trigger->type = O_TRIGGER;
@@ -38,9 +38,26 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 		tele->pos = pos;
 		tele->type = O_TELE;
 		tele->dead = 1;
+		tele->attacking = 1;
 		tele->subtype = level;
 		tele->texture = &app->shtex->tele;
 		ft_lstadd_back(&lvl->triggers, ft_lstnew(tele));
+	}
+}
+
+void	spawn_key(t_info *app, t_vect pos, int level)
+{
+	t_obj			*key;
+	t_lvl *const	lvl = app->lvl;
+
+	if (lvl->sublvls[level - 1] != NULL)
+	{
+		key = ft_calloc(1, sizeof(*key));
+		key->pos = pos;
+		key->type = O_KEY;
+		key->subtype = level;
+		key->texture = &app->shtex->rocks[0];
+		ft_lstadd_back(&lvl->triggers, ft_lstnew(key));
 	}
 }
 
@@ -63,6 +80,29 @@ int	handle_trigger(t_info *app, t_obj *obj, t_list **current)
 	return (0);
 }
 
+int	handle_key(t_info *app, t_obj *key, t_list **current)
+{
+	t_list	*cur_trig;
+	t_obj	*trig;
+
+	if (vector_distance(app->player->pos, key->pos) < 0.4)
+	{
+		cur_trig = app->lvl->triggers;
+		while (cur_trig != NULL)
+		{
+			trig = cur_trig->data;
+			if (trig->type == O_TELE && trig->subtype == key->subtype)
+			{
+				trig->attacking = 0;
+				*current = delete_object(&app->lvl->triggers, *current);
+				return (1);
+			}
+			cur_trig = cur_trig->next;
+		}
+	}
+	return (0);
+}
+
 void	handle_tele(t_info *app, t_obj *tele)
 {
 	t_aud *const	aud = &app->audio;
@@ -76,7 +116,7 @@ void	handle_tele(t_info *app, t_obj *tele)
 		app->player->tele_pos = tele->pos;
 		Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
 	}
-	else if (vector_distance(app->player->pos, tele->pos) > 1.5)
+	else if (tele->attacking == 0 && vector_distance(app->player->pos, tele->pos) > 1.5)
 		tele->dead = 0;
 }
 

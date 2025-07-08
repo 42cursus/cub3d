@@ -25,7 +25,7 @@ int	is_map_line(char *line)
 	i = 0;
 	while (line[i])
 	{
-		if (!ft_strchr(" \t01234NSEWDLMemstZARPBHb", line[i++]))
+		if (!ft_strchr(" \t01234789NSEWDLMemstZARPBHb", line[i++]))
 		{
 			errno = C3D_FORBIDDEN_CHAR;
 			return (0);

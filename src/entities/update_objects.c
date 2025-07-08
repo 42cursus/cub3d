@@ -79,6 +79,8 @@ void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 		obj = (t_obj *)current->data;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
 			continue ;
+		if (obj->type == O_KEY && handle_key(app, obj, &current))
+			continue ;
 		if (obj->type == O_TELE)
 			handle_tele(app, obj);
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);

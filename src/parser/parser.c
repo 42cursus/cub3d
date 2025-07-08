@@ -143,6 +143,9 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 		['2'] = 1,
 		['3'] = 2,
 		['4'] = 3,
+		['7'] = 1,
+		['8'] = 2,
+		['9'] = 3,
 		['m'] = I_MISSILE,
 		['t'] = I_TROPHY,
 		['b'] = T_BOSS,
@@ -160,6 +163,8 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 		spawn_item(app, pos, subtype);
 	else if (ft_strchr("234b", el))
 		spawn_trigger(app, pos, subtype);
+	else if (ft_strchr("789", el))
+		spawn_key(app, pos, subtype);
 	else
 	{
 		enpos = ft_lstnew(new_enpos(pos, subtype));
@@ -192,7 +197,7 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 			el = map[it.y][it.x];
 			if (ft_strchr("ODLM", el))
 				spawn_door(app, (t_vect) {it.x, it.y}, 0);
-			else if (ft_strchr("mestZAHRPb234", el))
+			else if (ft_strchr("mestZAHRPb234789", el))
 			{
 				do_spawn_thing(app, lvl, el, it);
 				map[it.y][it.x] = '0';

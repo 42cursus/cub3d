@@ -138,6 +138,7 @@ typedef enum e_etype
 	O_TRIGGER = 4,
 	O_TELE = 5,
 	O_DOOR = 6,
+	O_KEY,
 	O_LOGO,
 	O_MAX
 }	t_etype;
@@ -960,6 +961,7 @@ void	spawn_item(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_door(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
+void	spawn_key(t_info *app, t_vect pos, int level);
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture);
 void	init_logo_pieces(t_info *app, t_vect pos);
 
@@ -1142,6 +1144,7 @@ void	zoomer_ai(t_info *app, t_obj *enemy);
 int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
 int	handle_trigger(t_info *app, t_obj *obj, t_list **current);
 void	handle_tele(t_info *app, t_obj *tele);
+int	handle_key(t_info *app, t_obj *key, t_list **current);
 int	handle_obj_item(t_info *app, t_obj *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
