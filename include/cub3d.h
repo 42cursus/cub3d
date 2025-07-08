@@ -1144,6 +1144,7 @@ void	zoomer_ai(t_info *app, t_obj *enemy);
 int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
 int	handle_trigger(t_info *app, t_obj *obj, t_list **current);
 void	handle_tele(t_info *app, t_obj *tele);
+t_obj	*find_matching_tele(t_lvl *lvl, t_obj *key);
 int	handle_key(t_info *app, t_obj *key, t_list **current);
 int	handle_obj_item(t_info *app, t_obj *obj, t_list **current);
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl);

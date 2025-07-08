@@ -38,7 +38,7 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 		tele->pos = pos;
 		tele->type = O_TELE;
 		tele->dead = 1;
-		tele->attacking = 1;
+		tele->attacking = 0;
 		tele->subtype = level;
 		tele->texture = &app->shtex->tele;
 		ft_lstadd_back(&lvl->triggers, ft_lstnew(tele));
@@ -72,6 +72,7 @@ int	handle_trigger(t_info *app, t_obj *obj, t_list **current)
 			Mix_PlayChannel(ch_music1, app->audio.chunks[snd_music_boss], -1);
 			toggle_boss_doors(app);
 			lvl->boss_active = 1;
+			lvl->boss_obj->anim.active = 1;
 			lvl->boss_obj->dir = (t_vect){0.0, 1.0};
 			*current = delete_object(&lvl->triggers, *current);
 			return (1);
@@ -83,22 +84,15 @@ int	handle_trigger(t_info *app, t_obj *obj, t_list **current)
 int	handle_key(t_info *app, t_obj *key, t_list **current)
 {
 	t_list	*cur_trig;
-	t_obj	*trig;
+	t_obj	*tele;
 
 	if (vector_distance(app->player->pos, key->pos) < 0.4)
 	{
-		cur_trig = app->lvl->triggers;
-		while (cur_trig != NULL)
-		{
-			trig = cur_trig->data;
-			if (trig->type == O_TELE && trig->subtype == key->subtype)
-			{
-				trig->attacking = 0;
-				*current = delete_object(&app->lvl->triggers, *current);
-				return (1);
-			}
-			cur_trig = cur_trig->next;
-		}
+		tele = find_matching_tele(app->lvl, key);
+		if (tele != NULL)
+			tele->attacking = 0;
+		*current = delete_object(&app->lvl->triggers, *current);
+		return (1);
 	}
 	return (0);
 }

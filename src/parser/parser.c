@@ -181,6 +181,42 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 	}
 }
 
+t_obj	*find_matching_tele(t_lvl *lvl, t_obj *key)
+{
+	t_list	*curr;
+	t_obj	*cur_trig;
+
+	curr = lvl->triggers;
+	while (curr != NULL)
+	{
+		cur_trig = curr->data;
+		if (cur_trig->type == O_TELE && cur_trig->subtype == key->subtype)
+			return (cur_trig);
+		curr = curr->next;
+	}
+	return (NULL);
+}
+
+void	lock_teles(t_lvl *lvl)
+{
+	t_list	*curr;
+	t_obj	*cur_obj;
+	t_obj	*tele;
+
+	curr = lvl->triggers;
+	while (curr != NULL)
+	{
+		cur_obj = curr->data;
+		if (cur_obj->type == O_KEY)
+		{
+			tele = find_matching_tele(lvl, cur_obj);
+			if (tele != NULL)
+				tele->attacking = 1;
+		}
+		curr = curr->next;
+	}
+}
+
 void	spawn_map_objects(t_info *app, t_lvl *lvl)
 {
 	char	**map;
@@ -204,6 +240,7 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 			}
 		}
 	}
+	lock_teles(lvl);
 }
 
 void	respawn_enemies(t_info *app, t_lvl *lvl)
