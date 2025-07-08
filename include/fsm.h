@@ -59,6 +59,7 @@ void do_intro_to_mmenu(void *param);
 void do_credits_to_mmenu(void *param);
 void do_credits_to_end(void *param);
 void do_load_to_play(void *param);
+void do_load_to_mmenu(void *param);
 void do_load_to_end(void *param);
 void do_play_to_pmenu(void *param);
 void do_play_to_win(void *param);
@@ -80,7 +81,7 @@ static t_transition_func *const transition_table[NUM_STATES - 1][NUM_STATES] = {
 	[STATE_INITIAL] = {[STATE_INTRO] = do_initial_to_intro, [STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
 	[STATE_INTRO] = {[STATE_MMENU] = do_intro_to_mmenu, [STATE_END] = do_intro_to_end},
 	[STATE_MMENU] = {[STATE_INTRO] = do_mmenu_to_intro, [STATE_LOAD] = do_mmenu_to_load, [STATE_CREDITS] = do_mmenu_to_credits, [STATE_END] = do_mmenu_to_end},
-	[STATE_LOAD] = {[STATE_PLAY] = do_load_to_play, [STATE_END] =  do_load_to_end},
+	[STATE_LOAD] = {[STATE_MMENU] = do_load_to_mmenu, [STATE_PLAY] = do_load_to_play, [STATE_END] =  do_load_to_end},
 	[STATE_PLAY] = { [STATE_PMENU] = do_play_to_pmenu, [STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win, [STATE_END] = do_play_to_end, [STATE_LOAD] = do_play_to_load},
 	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu, [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
 	[STATE_LOSE] = {[STATE_MMENU] = do_lose_to_mmenu, [STATE_END] = do_lose_to_end, [STATE_LOAD] = do_lose_to_load},

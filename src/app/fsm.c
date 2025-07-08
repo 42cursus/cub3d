@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/05 00:24:23 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/07/08 19:31:55 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,18 @@
 t_transition	*get_state_transitions(size_t *size)
 {
 	static t_transition	transitions[] = {
-	{STATE_INITIAL, ok, STATE_MMENU}, {STATE_INITIAL, fail, STATE_END},
-	{STATE_INITIAL, extra, STATE_INTRO}, {STATE_INTRO, ok, STATE_MMENU},
-	{STATE_INTRO, fail, STATE_END}, {STATE_MMENU, ok, STATE_LOAD},
-	{STATE_MMENU, repeat, STATE_CREDITS}, {STATE_MMENU, fail, STATE_END},
-	{STATE_CREDITS, ok, STATE_MMENU}, {STATE_LOAD, ok, STATE_PLAY},
-	{STATE_LOAD, fail, STATE_MMENU}, {STATE_PLAY, ok, STATE_WIN},
+	{STATE_INITIAL, ok, STATE_MMENU},
+	{STATE_INITIAL, fail, STATE_END},
+	{STATE_INITIAL, extra, STATE_INTRO},
+	{STATE_INTRO, ok, STATE_MMENU},
+	{STATE_INTRO, fail, STATE_END},
+	{STATE_MMENU, ok, STATE_LOAD},
+	{STATE_MMENU, repeat, STATE_CREDITS},
+	{STATE_MMENU, fail, STATE_END},
+	{STATE_CREDITS, ok, STATE_MMENU},
+	{STATE_LOAD, ok, STATE_PLAY},
+	{STATE_LOAD, fail, STATE_MMENU},
+	{STATE_PLAY, ok, STATE_WIN},
 	{STATE_PLAY, fail, STATE_LOSE}, {STATE_PLAY, repeat, STATE_PMENU},
 	{STATE_PLAY, extra, STATE_LOAD}, {STATE_PMENU, ok, STATE_PLAY},
 	{STATE_PMENU, repeat, STATE_MMENU}, {STATE_PMENU, fail, STATE_END},
@@ -180,11 +186,13 @@ t_ret_code	do_state_load(void *param)
 {
 	t_info *const	app = param;
 
-	if (app->lvl->music)
+	if (app->rc)
+
+	if (app->lvl && app->lvl->music)
 		Mix_PlayChannel(ch_music1, app->lvl->music, -1);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
-	return (ok);
+	return (app->rc);
 	(void)app;
 }
 
@@ -404,6 +412,8 @@ void	do_mmenu_to_load(void *param)
 	if (parse_cub(app, app->map_ids[app->current_level]))
 	{
 		free_map(app->lvl);
+		app->lvl = NULL;
+		app->player = NULL;
 		app->rc = fail;
 		return ;
 	}
@@ -476,6 +486,25 @@ void	do_credits_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
+	app->menu_state.no_items = 5;
+}
+
+void	do_load_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	app->player = (free(app->player), NULL);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
 	app->menu_state.no_items = 5;
 }
 
@@ -564,6 +593,7 @@ void	do_play_to_load(void *param)
 		if (parse_cub(app, next_lvl))
 		{
 			free_map(app->lvl);
+			app->lvl = NULL;
 			app->rc = fail;
 			return ;
 		}

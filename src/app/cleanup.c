@@ -33,7 +33,8 @@ int	cleanup(t_info *app)
 	if (app->skybox != NULL)
 	{
 		mlx_destroy_image(app->mlx, app->skybox);
-		mlx_destroy_image(app->mlx, app->skybox_r);
+		if (app->skybox_r != NULL)
+			mlx_destroy_image(app->mlx, app->skybox_r);
 	}
 	if (app->pointer != NULL)
 		mlx_destroy_image(app->mlx, app->pointer);
