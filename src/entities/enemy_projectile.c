@@ -63,7 +63,7 @@ int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current)
 		return (start_obj_death(obj, app), 0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
-	if (ft_strchr("1LDM", app->lvl->map[(int)new_pos.y][(int)new_pos.x]))
+	if (ft_strchr("1LDMB", app->lvl->map[(int)new_pos.y][(int)new_pos.x]))
 		return (start_obj_death(obj, app), 0);
 	obj->pos = new_pos;
 	return (0);

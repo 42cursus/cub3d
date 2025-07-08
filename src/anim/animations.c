@@ -34,6 +34,22 @@ t_tex	*handle_animation(t_info *app, t_anim anim)
 	}
 }
 
+t_tex	*get_open_boss_door_tex(t_anim *anim, t_info *app)
+{
+	ssize_t	frames;
+	t_tex	*tex;
+
+	frames = (app->fr_last - anim->timestart) / 20000;
+	if (frames > 19)
+	{
+		anim->active = 0;
+		tex = &anim->tex[1];
+	}
+	else
+		tex = &anim->tex[2 + (frames / 4)];
+	return (tex);
+}
+
 t_tex	*get_open_door_tex(t_anim *anim, t_info *app)
 {
 	ssize_t	frames;
@@ -73,7 +89,7 @@ t_tex	*get_close_door_tex(t_anim *anim, t_info *app)
 
 t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile)
 {
-	if (!anim->active)
+	if (!anim->active && tile != 'B')
 		return (&anim->tex[tile == 'O']);
 	if (tile == 'O')
 		return (get_open_door_tex(anim, app));
@@ -82,7 +98,7 @@ t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile)
 		if (app->lvl->boss_active)
 			return (get_close_door_tex(anim, app));
 		else
-			return (get_open_door_tex(anim, app));
+			return (get_open_boss_door_tex(anim, app));
 	}
 	return (get_close_door_tex(anim, app));
 }
