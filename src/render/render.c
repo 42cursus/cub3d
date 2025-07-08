@@ -268,6 +268,72 @@ u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *
 	return (data);
 }
 
+/**
+ * Row major version of the function (not transposed)
+ * @param app
+ * @param xpm_data
+ * @return
+ */
+t_tex	img_to_tex_static_rm(t_info *app, const char **xpm_data)
+{
+	t_tex		tex;
+	t_img		*img;
+
+	tex.data = NULL;
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
+	if (!img)
+		return (tex);
+
+	tex.w = img->width;
+	tex.h = img->height;
+
+	tex.data = (u_int32_t *)malloc(img->height * img->size_line);
+	if (!tex.data)
+		return (tex);
+	ft_memcpy_avx2((int *) tex.data, (int *) img->data,
+				   img->height * img->size_line);
+	mlx_destroy_image(app->mlx, img);
+	return (tex);
+}
+
+/**
+ * Column major version of the function (transposed)
+ * @param app
+ * @param xpm_data
+ * @return
+ */
+t_tex	img_to_tex_static_cm(t_info *app, const char **xpm_data)
+{
+	t_point		it;
+	t_tex		tex;
+	t_img		*img;
+	u_int32_t	*src;
+	u_int32_t	*src_row;
+
+	tex.data = NULL;
+	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
+	if (!img)
+		return (tex);
+
+	tex.w = img->width;
+	tex.h = img->height;
+
+	tex.data = (u_int32_t *)malloc(img->height * img->size_line);
+	if (!tex.data)
+		return (tex);
+	src = (u_int32_t *) img->data;
+	it.y = -1;
+	while (++it.y < tex.h)
+	{
+		src_row = (u_int32_t *) &src[it.y * tex.w];
+		it.x = -1;
+		while (++it.x < tex.w)
+			tex.data[it.x * tex.h + it.y] = src_row[it.x];
+	}
+	mlx_destroy_image(app->mlx, img);
+	return (tex);
+}
+
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
 {
 	u_int32_t	*dst;

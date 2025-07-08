@@ -1039,6 +1039,8 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void	place_fps(t_info *app);
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 t_tex	img_to_tex(t_info *app, const char *filename);
+t_tex	img_to_tex_static_rm(t_info *app, const char **xpm_data);
+t_tex	img_to_tex_static_cm(t_info *app, const char **xpm_data);
 t_tex	img_to_tex_row_major(t_info *app, const char *filename);
 u_int	*img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
 u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);

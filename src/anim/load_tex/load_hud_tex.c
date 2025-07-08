@@ -82,21 +82,19 @@ void	load_misc_graphics(t_info *app)
 	extern const char	*teleporter_xpm[];
 	extern const char	*scope_xpm[];
 	extern const char	*credits_xpm[];
-	static u_int		player[] = (u_int[]) {[0 ... 4] = MLX_PALE_GRAY};
 	extern const char	*small_font_xpm[];
 
-	tex = &app->shtex->title;
-	tex->data = img_to_tex_static_row_major(app, title_card_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->empty;
-	tex->data = img_to_tex_static_row_major(app, empty_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->tele;
-	tex->data = img_to_tex_static_col_major(app, teleporter_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->scope;
-	tex->data = img_to_tex_static_row_major(app, scope_xpm, &tex->w, &tex->h);
+	app->shtex->title = img_to_tex_static_rm(app, title_card_xpm);
+	app->shtex->empty = img_to_tex_static_rm(app, empty_xpm);
+	app->shtex->tele = img_to_tex_static_cm(app, teleporter_xpm);
+	app->shtex->scope = img_to_tex_static_rm(app, scope_xpm);
+
 	tex = &app->shtex->credits;
 	tex->data = img_to_tex_static_row_major(app, credits_xpm, &tex->w, &tex->h);
-	tex = &app->shtex->alphabet;
-	tex->data = img_to_tex_static_row_major(app, small_font_xpm, &tex->w, &tex->h);
-	app->shtex->playertile = (t_tex){.data = player, .w = 2, .h = 2};
+
+	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
+	app->shtex->playertile.data = (u_int[]){[0 ... 4] = MLX_PALE_GRAY};
+	app->shtex->playertile.w = 2;
+	app->shtex->playertile.h = 2;
 	app->shtex->square = get_tile(15);
 }
