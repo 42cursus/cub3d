@@ -63,6 +63,7 @@ void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 			add_in_front(ray, ray->face + 4, get_close_door_tex(anim, app));
 		ray->in_front->intcpt.x += dda->norm.x;
 		ray->in_front->intcpt.y += dda->norm.y;
+		ray->in_front->maptile = maptile;
 		calculate_ray_stuff(ray->in_front, app->player, dda->gradient, dda->c);
 	}
 }
