@@ -14,9 +14,7 @@ FILES   = render.c \
 			hud.c \
 			floor.c \
 			floor_avx2.c \
-			floor_transposed.c \
 			floor_transposed_avx2.c \
-			floor_transposed_cols.c \
 			menus.c \
 			render_frame.c \
 			colour.c \
