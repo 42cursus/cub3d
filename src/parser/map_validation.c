@@ -24,21 +24,21 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789", map[i - 1][j]))
+	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789{", map[i - 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789", map[i][j - 1]))
+	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789{", map[i][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i + 1][j]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i - 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i - 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i + 1][j - 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j - 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i - 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i - 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789", map[i + 1][j + 1]))
+	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j + 1]))
 		return (printf("Error: map not fully bounded\n"), 0);
 	return (1);
 }
@@ -94,7 +94,7 @@ int	validate_map_tiles(t_lvl *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZAHRPBb234789", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZAHRPBb234789{", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))

@@ -140,6 +140,7 @@ typedef enum e_etype
 	O_DOOR = 6,
 	O_KEY,
 	O_LOGO,
+	O_DECORATIVE,
 	O_MAX
 }	t_etype;
 
@@ -163,6 +164,7 @@ typedef enum e_subtype
 	I_HEALTH,
 	I_TROPHY,
 	T_BOSS,
+	D_SEAWEED,
 	SUBT_MAX
 }	t_subtype;
 
@@ -660,6 +662,7 @@ typedef struct s_shtex
 	t_tex	rocks[7];
 	t_tex	empty;
 	t_tex	playertile;
+	t_tex	decorative[2];
 	t_tex	square;
 	t_tex	textures[TEX_MAX];
 }	t_shtex;
@@ -963,6 +966,7 @@ void	spawn_door(t_info *app, t_vect pos, int subtype);
 void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_teleporter(t_info *app, t_vect pos, int level);
 void	spawn_key(t_info *app, t_vect pos, int level);
+void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype);
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture);
 void	init_logo_pieces(t_info *app, t_vect pos);
 

@@ -39,6 +39,7 @@ void	load_super_textures(t_info *app);
 void	load_cannon_tex(t_info *app);
 void 	load_rock_tex(t_info *app);
 void	load_key_tex(t_info *app);
+void	load_decorative_tex(t_info *app);
 void	load_shtex_extra(t_info *app);
 
 void	load_shtex(t_info *app)
@@ -79,4 +80,5 @@ void	load_shtex_extra(t_info *app)
 	load_dmg_tex(app);
 	load_rock_tex(app);
 	load_key_tex(app);
+	load_decorative_tex(app);
 }

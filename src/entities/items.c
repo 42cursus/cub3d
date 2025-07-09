@@ -68,6 +68,25 @@ void	spawn_item(t_info *app, t_vect pos, t_subtype subtype)
 	ft_lstadd_back(&lvl->items, ft_lstnew(item));
 }
 
+void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype)
+{
+	t_obj			*dec;
+	t_lvl *const	lvl = app->lvl;
+
+	dec = ft_calloc(1, sizeof(*dec));
+	dec->pos = pos;
+	dec->type = O_DECORATIVE;
+	dec->subtype = subtype;
+	// dec->anim.active = 1;
+	// dec->anim.loop = 1;
+	// dec->anim.frames = 2;
+	// dec->anim.duration = 200000;
+	// dec->anim.timestart = app->fr_last;
+	if (subtype == D_SEAWEED)
+		dec->texture = &app->shtex->decorative[0];
+	ft_lstadd_back(&lvl->items, ft_lstnew(dec));
+}
+
 void	handle_collectables(t_obj *obj, t_player *player, t_info *app)
 {
 	if (obj->subtype == I_ETANK)

@@ -156,6 +156,7 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 		['R'] = E_REO,
 		['P'] = E_PHANTOON,
 		['H'] = E_HOLTZ,
+		['{'] = D_SEAWEED,
 	};
 
 	subtype = lt[(u_char) el];
@@ -165,6 +166,8 @@ void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 		spawn_trigger(app, pos, subtype);
 	else if (ft_strchr("789", el))
 		spawn_key(app, pos, subtype);
+	else if (ft_strchr("{", el))
+		spawn_decorative(app, pos, subtype);
 	else
 	{
 		enpos = ft_lstnew(new_enpos(pos, subtype));
@@ -233,7 +236,7 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 			el = map[it.y][it.x];
 			if (ft_strchr("ODLM", el))
 				spawn_door(app, (t_vect) {it.x, it.y}, 0);
-			else if (ft_strchr("mestZAHRPb234789", el))
+			else if (ft_strchr("mestZAHRPb234789{", el))
 			{
 				do_spawn_thing(app, lvl, el, it);
 				map[it.y][it.x] = '0';

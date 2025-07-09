@@ -42,6 +42,15 @@ void	load_key_tex(t_info *app)
 	}
 }
 
+
+void	load_decorative_tex(t_info *app)
+{
+	t_tex	*tex;
+
+	tex = app->shtex->decorative;
+	tex[0] = img_to_tex(app, TEX_DIR"/seaweed.xpm");
+}
+
 void	load_ammo_tex(t_info *app)
 {
 	int		i;
