@@ -34,13 +34,13 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 						-fstrict-aliasing -fno-strict-overflow \
 						-march=native \
 						-fcf-protection=none \
-						-funroll-loops \
-						-freroll-loops \
 						-fvectorize \
 						-fno-stack-protector \
 						# -fomit-frame-pointer \
 						# -flto -fno-stack-protector-all
 #						-mllvm -inline-threshold=900
+# -funroll-loops \
+	# -freroll-loops \
 #DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
