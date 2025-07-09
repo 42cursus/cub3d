@@ -299,6 +299,12 @@ typedef struct s_tstep
 	double	tex_y;
 }	t_tstep;
 
+typedef struct s_ftstep
+{
+	float	step;
+	float	tex_y;
+}	t_ftstep;
+
 typedef struct s_tfstep
 {
 	float	step;

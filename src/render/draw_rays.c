@@ -128,15 +128,18 @@ static inline __attribute__((always_inline, unused))
 void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 {
 	t_iter		it;
-	t_tstep		ts;
+	t_ftstep	ts;
 	t_cdata		cd;
 	t_m256i		mmc;
 
 	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
 
-	ts.step = (double)ray->tex->h / line.height;
+	ts.step = (float)ray->tex->h / line.height;
 	ts.tex_y = ts.step * it.i;
+
+	__m256 offsets = _mm256_setr_ps(0, 1, 2, 3, 4, 5, 6, 7);
+	__m256 step = _mm256_set1_ps(ts.step);
 
 	cd.src = (int *)ray->tex->data + (int) ray->pos * ray->tex->h;
 	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
@@ -146,12 +149,25 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 	while (it.i + 7 < it.j)
 	{
-		__m256 step_vec = _mm256_set1_ps(ts.step);
-		__m256i offset = _mm256_setr_ps(0, 1, 2, 3, 4, 5, 6, 7);
-		__m256i indices = _mm256_cvttps_epi32(_mm256_add_ps(
-						_mm256_set1_ps(ts.tex_y),
-						_mm256_mul_ps(offset, step_vec)));
-		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
+		__m256 indices_ps = _mm256_fmadd_ps(offsets, step, _mm256_set1_ps(ts.tex_y));
+		__m256i indices = _mm256_cvttps_epi32(indices_ps);
+
+		int indices_arr[8] __attribute__((aligned(32)));
+		_mm256_store_si256((__m256i *)indices_arr, indices);
+
+		mmc.src = _mm256_setr_epi32(
+			cd.src[indices_arr[0]],
+			cd.src[indices_arr[1]],
+			cd.src[indices_arr[2]],
+			cd.src[indices_arr[3]],
+			cd.src[indices_arr[4]],
+			cd.src[indices_arr[5]],
+			cd.src[indices_arr[6]],
+			cd.src[indices_arr[7]]
+		);
+
+//		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
+
 
 		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
 
@@ -159,10 +175,6 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
 
 		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
-//		mmc.blend = _mm256_or_si256(
-//			_mm256_and_si256(mmc.mask, mmc.src),
-//			_mm256_andnot_si256(mmc.mask, mmc.dst)
-//		);
 
 		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
 

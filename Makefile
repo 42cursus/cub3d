@@ -36,7 +36,7 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 						-fcf-protection=none \
 						-fvectorize \
 						-fno-stack-protector \
-						# -fomit-frame-pointer \
+						-fomit-frame-pointer \
 						# -flto -fno-stack-protector-all
 #						-mllvm -inline-threshold=900
 # -funroll-loops \
@@ -59,7 +59,7 @@ ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
 	else ifeq ($(UNAME_R), 5.15.0-139-generic)
-#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
 	else
 		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
 	endif
