@@ -74,6 +74,15 @@ void	load_boss_bar_tex(t_info *app)
 	tex[1] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_right.xpm");
 }
 
+t_tex	draw_credits(t_info *app)
+{
+	t_tex	tex = {0x00};
+	extern const char	*credits_xpm[];
+
+	tex.data = img_to_tex_static_row_major(app, credits_xpm, &tex.w, &tex.h);
+	return (tex);
+}
+
 void	load_misc_graphics(t_info *app)
 {
 	t_tex				*tex;
@@ -81,17 +90,13 @@ void	load_misc_graphics(t_info *app)
 	extern const char	*empty_xpm[];
 	extern const char	*teleporter_xpm[];
 	extern const char	*scope_xpm[];
-	extern const char	*credits_xpm[];
 	extern const char	*small_font_xpm[];
 
 	app->shtex->title = img_to_tex_static_rm(app, title_card_xpm);
 	app->shtex->empty = img_to_tex_static_rm(app, empty_xpm);
 	app->shtex->tele = img_to_tex_static_cm(app, teleporter_xpm);
 	app->shtex->scope = img_to_tex_static_rm(app, scope_xpm);
-
-	tex = &app->shtex->credits;
-	tex->data = img_to_tex_static_row_major(app, credits_xpm, &tex->w, &tex->h);
-
+	app->shtex->credits = draw_credits(app);
 	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
 	app->shtex->playertile.data = (u_int[]){[0 ... 4] = MLX_PALE_GRAY};
 	app->shtex->playertile.w = 2;
