@@ -201,8 +201,8 @@ t_ret_code	do_state_play(void *param)
 	t_info *const	app = param;
 
 	mlx_mouse_hide(app->mlx, app->win);
-	replace_sky_r(app, (char *)TEX_DIR"/skybox.xpm");
-	replace_sky(app, (char *)TEX_DIR"/skybox.xpm");
+	replace_sky_r(app, (char *)TEX_DIR"/fog_sky.xpm");
+	replace_sky(app, (char *)TEX_DIR"/fog_sky.xpm");
 	draw_sky_alt(app);
 	draw_sky_transposed_avx2(app);
 	draw_nav(app);

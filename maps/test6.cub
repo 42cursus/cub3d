@@ -3,7 +3,7 @@ SO resources/textures/snowy_wall.xpm
 WE resources/textures/snowy_wall.xpm
 EA resources/textures/snowy_wall.xpm
 
-F resources/textures/floor_maridia.xpm
+F resources/textures/snow_floor1.xpm
 C 0x64,0x9d,0xfa
 
 MU resources/sound/output.wav
