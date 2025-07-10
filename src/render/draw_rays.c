@@ -154,7 +154,7 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 		int indices_arr[8] __attribute__((aligned(32)));
 		_mm256_store_si256((__m256i *)indices_arr, indices);
-
+		__builtin_prefetch(&cd.src[indices_arr[0]]);
 		mmc.src = _mm256_setr_epi32(
 			cd.src[indices_arr[0]],
 			cd.src[indices_arr[1]],
@@ -167,7 +167,6 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		);
 
 //		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
-
 
 		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
 
