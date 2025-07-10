@@ -417,6 +417,7 @@ void	do_mmenu_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
+	app->rc = ok;
 	app->player = init_player(app);
 	app->player->total_pickups += count_collectables(app->lvl);
 	mlx_loop_hook(app->mlx, &render_load, app);
@@ -599,6 +600,7 @@ void	do_play_to_load(void *param)
 		}
 		app->player->total_pickups += count_collectables(app->lvl);
 	}
+	app->rc = ok;
 	refresh_player(app, app->player);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
@@ -801,6 +803,7 @@ void	do_win_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
+	app->rc = ok;
 	refresh_player(app, app->player);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
@@ -830,6 +833,7 @@ void	do_lose_to_load(void *param)
 		app->rc = fail;
 		return ;
 	}
+	app->rc = ok;
 	app->player = init_player(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	app->mlx->end_loop = 0;
