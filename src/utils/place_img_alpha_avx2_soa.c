@@ -241,8 +241,6 @@ void	blend_8pixels_fast_path_avx2(int *src, int *dst)
 	const __m256i alpha = _mm256_and_si256(v_src, alpha_mask);
 
 	const __m256i zero_alpha = _mm256_setzero_si256();
-//	const __m256i full_alpha = _mm256_set1_epi32(XPM_TRANSPARENT);
-//	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, full_alpha);
 	__m256i mask_alpha = _mm256_cmpeq_epi32(alpha, zero_alpha);
 	__m256i result = _mm256_blendv_epi8(v_dst, v_src, mask_alpha);
 

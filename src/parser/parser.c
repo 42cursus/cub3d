@@ -435,7 +435,7 @@ int	parse_cub(t_info *app, char *filename)
 	fd = open(filename, O_RDONLY);
 	if (fd == -1)
 		return ((void)printf("Error: map not provided\n"), 1);
- 	lvl = app->lvl;
+	lvl = app->lvl;
 	lvl->app = app;
 	lvl->sublvls[0] = ft_strdup(filename);
 	file = read_cub(fd);

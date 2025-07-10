@@ -43,6 +43,9 @@
 # ifdef ft_strcmp
 #  undef ft_strcmp
 # endif
+# ifdef ft_strncmp
+#  undef ft_strncmp
+# endif
 # ifdef ft_strlen
 #  undef ft_strlen
 # endif

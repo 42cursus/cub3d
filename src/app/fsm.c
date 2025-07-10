@@ -186,13 +186,13 @@ t_ret_code	do_state_load(void *param)
 {
 	t_info *const	app = param;
 
-	if (app->rc)
-
+	if (app->rc != ok)
+		return (app->rc);
 	if (app->lvl && app->lvl->music)
 		Mix_PlayChannel(ch_music1, app->lvl->music, -1);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
-	return (app->rc);
+	return (ok);
 	(void)app;
 }
 

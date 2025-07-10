@@ -75,13 +75,13 @@ void transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height)
 				{
 					i = -1;
 					while (++i < 8)
-						in[i] = _mm256_loadu_si256((__m256i *)(src + (it.y + i) * height + it.x));
+						in[i] = _mm256_loadu_si256((__m256i_u *)(src + (it.y + i) * height + it.x));
 
 					transpose8x8_u32_avx2(out, in);
 
 					i = -1;
 					while (++i < 8)
-						_mm256_storeu_si256((__m256i *)(dst + (it.x + i) * width + it.y), out[i]);
+						_mm256_storeu_si256((__m256i_u *)(dst + (it.x + i) * width + it.y), out[i]);
 					it.x += 8;
 				}
 				it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
