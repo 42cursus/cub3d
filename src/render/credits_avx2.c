@@ -330,7 +330,7 @@ void draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy)
 
 		t_vect lim = {-0.48, 0.48}; // Relative to 1 block on the map
 
-		u_int *const p_row = (u_int *) app->overlay->data + app->overlay->width * row;
+		u_int *const p_row = (u_int *) app->overlay.data + app->overlay.width * row;
 
 		int y1 = y + ((((tex->h - 1) - (y + 1)) >> 31) ^ 1); // y1 = MIN(y + 1, tex->h - 1);
 
@@ -441,5 +441,5 @@ void draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy)
 //		}
 	}
 	t_point p = (t_point) {0, 0};
-	place_img_alpha_avx2_soa(app->canvas, app->overlay, p);
+	place_img_alpha_avx2_soa(app->canvas, &app->overlay, p);
 }

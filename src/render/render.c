@@ -339,9 +339,12 @@ void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
 	u_int32_t	*dst;
 	u_int32_t	alpha;
 
-	if (p.x < 0 || p.y < 0 || p.x >= img->width || p.y >= img->height)
-		return;
-	dst = (u_int32_t *) img->data + p.y * img->width + p.x;
-	alpha = (u_char)((int) (alpha_frac * 255.0) & 0xFF);	// Clamp and convert to 0-255 range
-	*dst = (alpha << 24) | (base_color & MLX_WHITE);		// Write RGB from base_color and new alpha
+	if (p.x >= 0 && p.y >= 0 && p.x < img->width && p.y < img->height)
+	{
+		dst = (u_int32_t *) img->data + p.y * img->width + p.x;
+		alpha = (u_char) ((int) (alpha_frac * 255.0) &
+						  0xFF);    // Clamp and convert to 0-255 range
+		*dst = (alpha << 24) | (base_color &
+								MLX_WHITE);        // Write RGB from base_color and new alpha
+	}
 }

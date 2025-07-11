@@ -377,7 +377,7 @@ void	place_startup_overlay(t_info *app)
 {
 	t_point			p1;
 	t_lvl *const	lvl = app->lvl;
-	t_img *const	overlay = lvl->overlay;
+	t_img *const	overlay = &lvl->overlay;
 	t_img *const	canvas = app->canvas;
 	int				hint_shown = app->hint_shown;
 
@@ -398,7 +398,7 @@ void	place_help(t_info *app)
 {
 	t_point			p1;
 	t_lvl *const	lvl = app->lvl;
-	t_img *const	help = lvl->help;
+	t_img *const	help = &lvl->help;
 	t_img *const	canvas = app->canvas;
 
 	if (app->keys[get_key_index(XK_h)])

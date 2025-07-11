@@ -74,15 +74,35 @@ void	load_boss_bar_tex(t_info *app)
 	tex[1] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_right.xpm");
 }
 
+
 t_tex	draw_credits(t_info *app)
 {
-	t_tex	tex = {0x00};
-	extern const char	*credits_xpm[];
+	t_tex	tex;
 
-	tex.data = img_to_tex_static_row_major(app, credits_xpm, &tex.w, &tex.h);
+	tex = (t_tex){.w = 1000, .h = 1750};
+	tex.sl = tex.w * sizeof(int);
+	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+		return (tex); //FIXME: add error
+	fill_with_colour_tex(tex, XPM_TRANSPARENT);
+	int fd = open("resources/credits.txt", O_RDONLY);
+	if (fd == -1)
+		return (tex);
+
+	t_point	center = { .x = tex.w / 2, .y = 65};
+	char *line = get_next_line(fd);
+	while (line)
+	{
+		*(ft_strchrnul(line, '\n')) = '\0';
+		draw_text_ft_centered(app, &tex, line, center);
+		center.y += 50;
+		free(line);
+		line = get_next_line(fd);
+	}
+	free(line);
 	return (tex);
 }
 
+__attribute__((optnone))
 void	load_misc_graphics(t_info *app)
 {
 	t_tex				*tex;

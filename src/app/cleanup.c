@@ -26,8 +26,8 @@ int	cleanup(t_info *app)
 		mlx_destroy_image(app->mlx, app->bg);
 		mlx_destroy_image(app->mlx, app->bg_r);
 	}
-	if (app->overlay != NULL)
-		mlx_destroy_image(app->mlx, app->overlay);
+	if (app->overlay.data != NULL)
+		free(app->overlay.data);
 	if (app->stillshot != NULL)
 		mlx_destroy_image(app->mlx, app->stillshot);
 	if (app->skybox != NULL)

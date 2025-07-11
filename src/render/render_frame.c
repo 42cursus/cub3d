@@ -49,6 +49,15 @@ void	fill_with_colour_r(t_img *img, int f_col, int c_col)
 	}
 }
 
+void	fill_with_colour_tex(t_tex t, int col)
+{
+	int	i;
+
+	i = -1;
+	while (++i < (int)(t.sl  / sizeof(int)) * t.h)
+		t.data[i] = col;
+}
+
 void	fill_with_colour(t_img *img, int f_col, int c_col)
 {
 	const int	mid = img->height / 2;
@@ -294,7 +303,7 @@ int	render_credits(void *param)
 	}
 	ft_memcpy_avx2((int *) app->canvas->data,
 				   (int *) bg->data, bg->size_line * bg->height);
-	fill_with_colour(app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
+	fill_with_colour(&app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
 	draw_credits_avx2_unpacked(app, dummy);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);

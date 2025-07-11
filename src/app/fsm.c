@@ -81,8 +81,9 @@ void	destroy_map(t_lvl *lvl)
 
 	mlx_destroy_image(app->mlx, lvl->minimap_xs);
 	mlx_destroy_image(app->mlx, lvl->minimap_xl);
-	mlx_destroy_image(app->mlx, lvl->help);
-	mlx_destroy_image(app->mlx, lvl->overlay);
+	free(lvl->help.data);
+	if (lvl->overlay.data != NULL)
+		free(lvl->overlay.data);
 	if (lvl->planes[T_CEILING])
 		mlx_destroy_image(app->mlx, lvl->planes[T_CEILING]);
 	if (lvl->planes[T_FLOOR])
@@ -136,7 +137,7 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	}
 	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
-		return (printf("Error: failed to open map\n"), fail);
+		return (printf("Error: failed to open map: %m\n"), fail);
 	load_shtex(app);
 	app->win = mlx_new_window(app->mlx, WIN_WIDTH, WIN_HEIGHT, app->title);
 	app->fr_last = get_time_us();
@@ -145,11 +146,26 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	app->stillshot = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
 	app->canvas_r = mlx_new_image(app->mlx, WIN_HEIGHT, WIN_WIDTH);
-	app->overlay = mlx_new_image(app->mlx, WIN_WIDTH, WIN_HEIGHT);
+
+
+	t_tex			tex;
+	t_img			overlay;
+
+	tex = (t_tex){.w = WIN_WIDTH, .h = WIN_HEIGHT};
+	tex.sl = tex.w * sizeof(int);
+	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+		return (printf("Error: posix_memalign: %m\n"), fail);
+	overlay.data = (void *)tex.data;
+	overlay.width = tex.w;
+	overlay.height = tex.h;
+	overlay.size_line = tex.sl;
+	app->overlay = overlay;
+
+	fill_with_colour(&app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
+
 	app->pointer = mlx_new_image(app->mlx, 50, 50);
 	replace_image(app, &app->bg, NULL);
 	replace_image_r(app, &app->bg_r, NULL);
-	replace_image(app, &app->overlay, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 	toggle_fullscreen(app);

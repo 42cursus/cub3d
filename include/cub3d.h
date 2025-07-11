@@ -696,8 +696,8 @@ typedef struct s_lvl
 	int			outside;
 	t_img		*minimap_xs;
 	t_img		*minimap_xl;
-	t_img		*help;
-	t_img		*overlay;
+	t_img		help;
+	t_img		overlay;
 	t_vect		map_scale_factor;
 	t_point		mmap_origin;
 	int			f_col;
@@ -793,6 +793,7 @@ typedef struct s_aud
 enum e_type
 {
 	fnt_main = 0,
+	fnt_snes,
 	fnt_SansMono,
 	FNT_MAX
 };
@@ -813,7 +814,7 @@ struct s_info
 	char		*title;
 	t_img		*canvas;
 	t_img		*canvas_r;
-	t_img		*overlay;
+	t_img		overlay;
 	t_img		*pointer;
 	t_img		*skybox;
 	t_img		*skybox_r;
@@ -1034,6 +1035,7 @@ t_tex	scale_texture(t_tex *tex, int scale);
 t_img	*img_dup(t_info *app, t_img *src);
 void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
+void	fill_with_colour_tex(t_tex img, int col);
 void	fill_with_colour_r(t_img *img, int f_col, int c_col);
 //void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
@@ -1163,6 +1165,7 @@ void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
 void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
+void	draw_text_ft_centered(t_info *app, t_tex *tex, const char *text, t_point c);
 void	spawn_rock(t_info *app, t_vect pos, t_tex *tex, double speed);
 void	spawn_random_rock(t_info *app, double speed);
 int		cmp_rock_speed(void *data1, void *data2);

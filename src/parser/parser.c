@@ -347,7 +347,7 @@ void draw_help(t_lvl *lvl)
 {
 	t_info *const	app = lvl->app;
 	t_point			p;
-	t_img			*help;
+	t_img			help;
 	int				i;
 
 	static const char *help_msgs[] = {
@@ -360,17 +360,18 @@ void draw_help(t_lvl *lvl)
 		"Right Mouse button => deselect missile",
 	};
 
-	help = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
-	if (!help)
+	help = (t_img){.width = WIN_WIDTH * 0.7, .height = WIN_HEIGHT * 0.7};
+	help.size_line = (int)(help.width * sizeof(int));
+	if (posix_memalign((void **) &help.data, 64, help.height * help.size_line))
 		return ;
-	fill_with_colour(help, (int)0xC0000000, (int)0xC0000000);
+	fill_with_colour(&help, (int)0xC0000000, (int)0xC0000000);
 
 	p.x = 50;
 	p.y = 50;
 	i = -1;
 	while (++i < (int)(sizeof(help_msgs)/sizeof(help_msgs[0])))
 	{
-		draw_text_freetype(app, help, help_msgs[i], p);
+		draw_text_freetype(app, &help, help_msgs[i], p);
 		p.y += 60;
 	}
 	lvl->help = help;
@@ -409,19 +410,21 @@ void draw_startup_overlay(t_lvl *lvl)
 {
 	t_info *const	app = lvl->app;
 	t_point			p;
-	t_img			*overlay;
+	t_tex			tex;
+	t_img			overlay;
 
-	overlay = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
-	if (!overlay)
+	tex = (t_tex){.w = WIN_WIDTH * 0.7, .h = WIN_HEIGHT * 0.7};
+	tex.sl = tex.w * sizeof(int);
+	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
 		return ;
-	fill_with_colour(overlay, (int)0xFF000000, (int)0xFF000000);
-
-
-	p.x = 350;
+	overlay.data = (void *)tex.data;
+	overlay.width = tex.w;
+	overlay.height = tex.h;
+	overlay.size_line = tex.sl;
+	fill_with_colour(&overlay, (int)0xFF000000, (int)0xFF000000);
+	p.x = tex.w / 2;
 	p.y = 50;
-
-	draw_text_freetype(app, overlay, "[PRESS 'H' FOR HELP]", p);
-
+	draw_text_ft_centered(app, &tex, "[PRESS 'H' FOR HELP]", p);
 	lvl->overlay = overlay;
 }
 

@@ -27,7 +27,8 @@ void set_fonts(t_info *const app)
 
 	typing->default_size = 50;
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
-//	typing->files[fnt_main] = "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
+	typing->files[fnt_snes] = "resources/fonts/sm-large-snes.otf";
+//	typing->files[fnt_snes] = "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
 	typing->files[fnt_SansMono] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
 
