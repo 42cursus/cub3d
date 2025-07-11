@@ -21,13 +21,13 @@
 void	setup_item_tex(t_info *app, t_obj *item, t_subtype subtype)
 {
 	t_tex *const	lut[SUBT_MAX] = {
-		[I_SUPER] = app->shtex->super_tex,
-		[I_ETANK] = app->shtex->etank_tex,
-		[I_MISSILE] = app->shtex->missile_tex,
-		[I_TROPHY] = app->shtex->trophy_tex,
-		[I_AMMO_M] = app->shtex->missile_ammo,
-		[I_AMMO_S] = app->shtex->super_ammo,
-		[I_HEALTH] = app->shtex->health_pu,
+	[I_SUPER] = app->shtex->super_tex,
+	[I_ETANK] = app->shtex->etank_tex,
+	[I_MISSILE] = app->shtex->missile_tex,
+	[I_TROPHY] = app->shtex->trophy_tex,
+	[I_AMMO_M] = app->shtex->missile_ammo,
+	[I_AMMO_S] = app->shtex->super_ammo,
+	[I_HEALTH] = app->shtex->health_pu,
 	};
 
 	item->anim.tex = lut[subtype];
@@ -77,15 +77,15 @@ void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype)
 	dec->pos = pos;
 	dec->type = O_DECORATIVE;
 	dec->subtype = subtype;
-	// dec->anim.active = 1;
-	// dec->anim.loop = 1;
-	// dec->anim.frames = 2;
-	// dec->anim.duration = 200000;
-	// dec->anim.timestart = app->fr_last;
 	if (subtype == D_SEAWEED)
 		dec->texture = &app->shtex->decorative[0];
 	ft_lstadd_back(&lvl->items, ft_lstnew(dec));
 }
+// dec->anim.active = 1;
+// dec->anim.loop = 1;
+// dec->anim.frames = 2;
+// dec->anim.duration = 200000;
+// dec->anim.timestart = app->fr_last;
 
 void	handle_collectables(t_obj *obj, t_player *player, t_info *app)
 {

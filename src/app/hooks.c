@@ -61,7 +61,7 @@ void	replace_frame(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-				   WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
+		WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
 	fill_floor(app, app->player, 1);
 	if (!app->lvl->outside)
 		fill_floor(app, app->player, 0);
@@ -71,9 +71,8 @@ void	replace_frame(t_info *app)
 void	replace_frame_transposed(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);
-
 	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
-				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	fill_floor_transposed_cols_avx2x8(app, app->player);
 	if (!app->lvl->outside)
 		fill_ceil_transposed_cols_avx2x8(app, app->player);
@@ -394,7 +393,7 @@ int	key_press_play(KeySym key, void *param)
 		else if (key == XK_e)
 			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
-			spawn_projectile(app, player, app->lvl, player->equipped); // DEBUGGING. TODO: fixme
+			spawn_projectile(app, player, app->lvl, player->equipped);
 		else if (key == XK_k)
 			subtract_health(app, player, 10);
 		else if (key == XK_j)

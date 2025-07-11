@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 void	init_pooled_ray(t_ray *ray, t_obj *obj,
-						t_player *player, t_vect intcpt);
+			t_player *player, t_vect intcpt);
 
 static inline __attribute__((always_inline))
 double	vector_distance2(t_vect v1, t_vect v2)

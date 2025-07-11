@@ -384,7 +384,8 @@ void	do_initial_to_intro(void *param)
 	app->player = init_player(app);
 	fill_with_colour(app->bg, 0x000000, 0x000000);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_intro, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+		(void *)&key_release_intro, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
@@ -576,8 +577,8 @@ void	do_play_to_pmenu(void *param)
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	replace_frame(app);
 	ft_memcpy_avx2((int *) app->stillshot->data,
-				   (int *) app->canvas->data,
-				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+		(int *) app->canvas->data,
+		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
 		(void *) &key_press_mmenu, app);

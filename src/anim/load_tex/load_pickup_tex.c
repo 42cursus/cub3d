@@ -42,7 +42,6 @@ void	load_key_tex(t_info *app)
 	}
 }
 
-
 void	load_decorative_tex(t_info *app)
 {
 	t_tex	*tex;

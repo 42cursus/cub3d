@@ -19,12 +19,13 @@ void	pix_dup(t_img *const src, t_img *const dst)
 	if (src->height != dst->height || src->size_line != dst->size_line)
 		return ;
 	ft_memcpy_avx2((int *) dst->data, (const int *) src->data,
-				   src->height * src->size_line);
+		src->height * src->size_line);
 }
 
 t_img	*img_dup(t_info *app, t_img *const src)
 {
-	t_img *const new = mlx_new_image(app->mlx, src->width, src->height);
+	t_img *const	new = mlx_new_image(app->mlx, src->width, src->height);
+
 	if (!new)
 		return (NULL);
 	pix_dup(src, new);
@@ -44,9 +45,10 @@ t_img	*scale_image(t_info *app, t_img *image, int new_x, int new_y)
 	t_ivect	it;
 	t_vect	pos;
 	t_img	*out;
-	t_cdata cd;
+	t_cdata	cd;
 
-	steps = (t_vect){(double)image->width / new_x, (double)image->height / new_y};
+	steps = (t_vect){(double)image->width / new_x,
+		(double)image->height / new_y};
 	out = mlx_new_image(app->mlx, new_x, new_y);
 	it.y = -1;
 	pos.y = 0;
@@ -84,7 +86,7 @@ t_tex	scale_texture(t_tex *tex, int scale)
 	{
 		it.x = -1;
 		pos.x = 0;
-		cd.src = (int *)tex->data + (int)pos.y *  tex->w;
+		cd.src = (int *)tex->data + (int)pos.y * tex->w;
 		cd.dst = (int *)new.data + new.w * it.y;
 		while (++it.x < new.w)
 		{
@@ -106,7 +108,7 @@ void	replace_image(t_info *app, t_img **img, char *tex_file)
 	if (tex_file)
 	{
 		new = mlx_xpm_file_to_image(app->mlx,
-									tex_file, &tmp.width, &tmp.height);
+				tex_file, &tmp.width, &tmp.height);
 		if (!new)
 		{
 			ft_printf("Error opening file: \"%s\"\n", tex_file);
@@ -141,20 +143,19 @@ void	replace_image_r(t_info *app, t_img **img, char *file)
 		}
 		tmp = scale_image(app, tmp, WIN_HEIGHT, WIN_WIDTH);
 		transpose_img_avx2_tiled_read((int *) new->data, (int *) tmp->data,
-									  WIN_HEIGHT,
-									  WIN_WIDTH);
+			WIN_HEIGHT,
+			WIN_WIDTH);
 	}
 	*img = new;
 }
 
-
-t_tex img_to_tex(t_info *app, const char *filename)
+t_tex	img_to_tex(t_info *app, const char *filename)
 {
 	t_point			it;
 	t_tex			new;
 	t_cdata			cd;
 	t_img *const	img = mlx_xpm_file_to_image(app->mlx,
-							(char *)filename, &new.w, &new.h);
+			(char *)filename, &new.w, &new.h);
 
 	new.data = NULL;
 	if (img != NULL)
@@ -178,12 +179,13 @@ t_tex img_to_tex(t_info *app, const char *filename)
 	return (new);
 }
 
-t_tex img_to_tex_row_major(t_info *app, const char *filename)
+t_tex	img_to_tex_row_major(t_info *app, const char *filename)
 {
 	t_tex	new;
-	t_img	*img = mlx_xpm_file_to_image(app->mlx,
-					(char *)filename, &new.w, &new.h);
+	t_img	*img;
 
+	img = mlx_xpm_file_to_image(app->mlx,
+			(char *)filename, &new.w, &new.h);
 	new.data = NULL;
 	new.data = NULL;
 	if (img != NULL)
@@ -192,7 +194,7 @@ t_tex img_to_tex_row_major(t_info *app, const char *filename)
 		if (!new.data)
 			return (mlx_destroy_image(app->mlx, img), new);
 		ft_memcpy_avx2((int *) new.data, (int *) img->data,
-					   img->height * img->size_line);
+			img->height * img->size_line);
 		mlx_destroy_image(app->mlx, img);
 	}
 	return (new);
@@ -200,17 +202,19 @@ t_tex img_to_tex_row_major(t_info *app, const char *filename)
 
 char	*mlx_static_line(char **xpm_data, int *pos, int size)
 {
-	static char *copy = 0;
-	static int len = 0;
-	int len2;
-	char *str;
+	static char	*copy = 0;
+	static int	len = 0;
+	int			len2;
+	char		*str;
 
 	str = xpm_data[(*pos)++];
-	if ((len2 = strlen(str)) > len)
+	len2 = strlen(str);
+	if (len2 > len)
 	{
 		if (copy)
 			free(copy);
-		if (!(copy = malloc(len2 + 1)))
+		copy = malloc(len2 + 1);
+		if (!copy)
 			return ((char *) 0);
 		len = len2;
 	}
@@ -219,23 +223,23 @@ char	*mlx_static_line(char **xpm_data, int *pos, int size)
 	(void)size;
 }
 
-u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h)
+u_int32_t	*img_to_tex_static_col_major(t_info *app,
+				const char **xpm_data, int *w, int *h)
 {
 	t_point		i;
 	t_img		*img;
 	u_int32_t	*data;
+	u_int32_t	*src;
 
 	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (NULL);
-
 	*w = img->width;
 	*h = img->height;
-
 	data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!data)
 		return (NULL);
-	u_int32_t *src = (u_int32_t *)img->data;
+	src = (u_int32_t *)img->data;
 	i.y = -1;
 	while (++i.y < *h)
 	{
@@ -247,7 +251,8 @@ u_int32_t *img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *
 	return (data);
 }
 
-u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h)
+u_int32_t	*img_to_tex_static_row_major(t_info *app,
+				const char **xpm_data, int *w, int *h)
 {
 	t_img		*img;
 	u_int32_t	*data;
@@ -255,15 +260,13 @@ u_int32_t *img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *
 	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (NULL);
-
 	*w = img->width;
 	*h = img->height;
-
 	data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!data)
 		return (NULL);
 	ft_memcpy_avx2((int *) data, (int *) img->data,
-				   img->height * img->size_line);
+		img->height * img->size_line);
 	mlx_destroy_image(app->mlx, img);
 	return (data);
 }
@@ -283,15 +286,13 @@ t_tex	img_to_tex_static_rm(t_info *app, const char **xpm_data)
 	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (tex);
-
 	tex.w = img->width;
 	tex.h = img->height;
-
 	tex.data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!tex.data)
 		return (tex);
 	ft_memcpy_avx2((int *) tex.data, (int *) img->data,
-				   img->height * img->size_line);
+		img->height * img->size_line);
 	mlx_destroy_image(app->mlx, img);
 	return (tex);
 }
@@ -314,10 +315,8 @@ t_tex	img_to_tex_static_cm(t_info *app, const char **xpm_data)
 	img = mlx_int_parse_xpm(app->mlx, (char *)xpm_data, 0, mlx_static_line);
 	if (!img)
 		return (tex);
-
 	tex.w = img->width;
 	tex.h = img->height;
-
 	tex.data = (u_int32_t *)malloc(img->height * img->size_line);
 	if (!tex.data)
 		return (tex);
@@ -334,17 +333,15 @@ t_tex	img_to_tex_static_cm(t_info *app, const char **xpm_data)
 	return (tex);
 }
 
-void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac)
+void	put_pixel_alpha(t_img *img, t_point p,
+			int base_color, double alpha_frac)
 {
 	u_int32_t	*dst;
 	u_int32_t	alpha;
 
-	if (p.x >= 0 && p.y >= 0 && p.x < img->width && p.y < img->height)
-	{
-		dst = (u_int32_t *) img->data + p.y * img->width + p.x;
-		alpha = (u_char) ((int) (alpha_frac * 255.0) &
-						  0xFF);    // Clamp and convert to 0-255 range
-		*dst = (alpha << 24) | (base_color &
-								MLX_WHITE);        // Write RGB from base_color and new alpha
-	}
+	if (p.x < 0 || p.y < 0 || p.x >= img->width || p.y >= img->height)
+		return ;
+	dst = (u_int32_t *)img->data + p.y * img->width + p.x;
+	alpha = (u_char)((int)(alpha_frac * 255.0) & 0xFF);
+	*dst = (alpha << 24) | (base_color & MLX_WHITE);
 }

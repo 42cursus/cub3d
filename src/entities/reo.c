@@ -21,7 +21,8 @@ void	reo_ai(t_info *app, t_obj *enemy)
 		&& vector_distance(enemy->pos, app->player->pos) < 6)
 	{
 		enemy->attacking = 1;
-		Mix_PlayChannel(ch_enemies, app->audio.chunks[snd_enemy_attack1 + (int)rand_range(0, 2)], 0);
+		Mix_PlayChannel(ch_enemies,
+			app->audio.chunks[snd_enemy_attack1 + (int)rand_range(0, 2)], 0);
 	}
 	frames = ((app->fr_last / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)

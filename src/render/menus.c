@@ -29,8 +29,8 @@ void	menu_change_option(t_info *app, int dir)
 				draw_sky_alt(app);
 				replace_frame(app);
 				ft_memcpy_avx2((int *) app->stillshot->data,
-							   (int *) app->canvas->data,
-							   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+					(int *) app->canvas->data,
+					WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 			}
 		}
 		if (menu_state->selected == 1)
@@ -158,48 +158,60 @@ void	draw_menu_items(t_info *app)
 	int			i;
 	char		bufs[6][40];
 	t_ivect		pos;
+	t_player	*player;
 
+	player = app->player;
 	menu_state = &app->menu_state;
 	if (menu_state->state == MAIN)
-	{
-		const char **strings = (const char *[]) {"START", "LEVEL SELECT", "options", "credits", "EXIT"};
-		place_menu(strings, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
-	}
+		place_menu((const char *[]){"START",
+			"LEVEL SELECT",
+			"options",
+			"credits",
+			"EXIT"},
+			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 	else if (menu_state->state == LVL_SELECT)
 	{
 		i = -1;
 		while (++i < app->no_maps)
-		{
-			// ft_snprintf(buf, 20, "Level %d", i + 1);
-			place_str_centred(app->map_ids[i], app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
-		}
-		place_str_centred((char *)"back", app, (t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
+			place_str_centred(app->map_ids[i], app,
+				(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
+		place_str_centred((char *)"back", app,
+			(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
 		pos.x = WIN_WIDTH / 2 - 320;
 		pos.y = 330 + (menu_state->selected * 48);
 		put_texture(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
 	}
 	if (menu_state->state == WIN)
 	{
-		place_str_centred((char *)	"You win", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
+		place_str_centred((char *)"You win", app,
+			(t_ivect){WIN_WIDTH / 2, 340}, 5);
 		if (app->timer.active == 1)
 		{
-			place_str_centred((char *)	"Your time was:", app, (t_ivect){WIN_WIDTH / 2, 420}, 3);
-			place_timer(app, app->timer.total_ms, (t_ivect){WIN_WIDTH / 2 - (24  * 4), 460}, 3);
-			ft_snprintf(bufs[0], 40, "collected: %d%%", (app->player->pickups_collected * 100) / app->player->total_pickups);
+			place_str_centred((char *)"Your time was:", app,
+				(t_ivect){WIN_WIDTH / 2, 420}, 3);
+			place_timer(app, app->timer.total_ms,
+				(t_ivect){WIN_WIDTH / 2 - (24 * 4), 460}, 3);
+			ft_snprintf(bufs[0], 40, "collected: %d%%",
+				(player->pickups_collected * 100) / player->total_pickups);
 			place_str_centred(bufs[0], app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
-			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 100}, 3, app);
+			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"},
+				(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 100}, 3, app);
 		}
 		else
-			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+			place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"},
+				(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == LOSE)
 	{
-		place_str_centred((char *)	"You died", app, (t_ivect){WIN_WIDTH / 2, 340}, 5);
-		place_menu((const char *[]){"retry level", "MAIN MENU", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		place_str_centred((char *)"You died", app,
+			(t_ivect){WIN_WIDTH / 2, 340}, 5);
+		place_menu((const char *[]){"retry level", "MAIN MENU", "EXIT"},
+			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == PAUSE)
 	{
-		place_menu((const char *[]){"resume", "MAIN MENU", "options", "EXIT"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		place_menu((const char *[]){"resume", "MAIN MENU", "options", "EXIT"},
+			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 	if (menu_state->state == OPTIONS)
 	{
@@ -212,7 +224,14 @@ void	draw_menu_items(t_info *app)
 			ft_snprintf(bufs[2], 40, "time trial  off");
 		ft_snprintf(bufs[4], 40, "sound vol  %d", app->audio.snd_volume);
 		ft_snprintf(bufs[5], 40, "music vol  %d", app->audio.mus_volume);
-		place_menu((const char *[]){bufs[0], bufs[1], bufs[3], bufs[4], bufs[5], bufs[2], "back"}, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
+		place_menu((const char *[]){bufs[0],
+			bufs[1],
+			bufs[3],
+			bufs[4],
+			bufs[5],
+			bufs[2],
+			"back"},
+			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
 }
 

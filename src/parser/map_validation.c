@@ -47,10 +47,10 @@ int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 {
 	char			tile;
 	t_vect const	lut[UCHAR_MAX] = {
-		['N'] = {0, 1},
-		['S'] = {0, -1},
-		['E'] = {1, 0},
-		['W'] = {-1, 0},
+	['N'] = {0, 1},
+	['S'] = {0, -1},
+	['E'] = {1, 0},
+	['W'] = {-1, 0},
 	};
 
 	tile = (lvl->map)[i][j];
@@ -128,8 +128,12 @@ int	map_is_valid(t_lvl *data)
 	if (!map_is_terminating(data->map))
 	{
 		if (errno == C3D_FORBIDDEN_CHAR)
-			ft_dprintf(STDERR_FILENO, "Error: forbidden character on the map\n");
-		ft_dprintf(STDERR_FILENO, "Error: map should be defined as the final section in the .cub file. No content should follow it.\n");
+			ft_dprintf(STDERR_FILENO,
+				"Error: forbidden character on the map\n");
+		ft_dprintf(STDERR_FILENO,
+			"Error: map should be defined as the final section in");
+		ft_dprintf(STDERR_FILENO,
+			" the .cub file. No content should follow it.\n");
 		return (0);
 	}
 	normalise_map(data);

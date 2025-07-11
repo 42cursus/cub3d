@@ -12,13 +12,14 @@
 
 #include "cub3d.h"
 
-void free_fonts(t_info *const app)
+void	free_fonts(t_info *const app)
 {
 	t_typing *const		typing = &app->typ;
-	FT_Library			*ft = &typing->ft;
+	FT_Library			*ft;
 	FT_Face				face;
-	int 				i;
+	int					i;
 
+	ft = &typing->ft;
 	i = -1;
 	while (++i < FNT_MAX)
 	{

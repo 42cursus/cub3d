@@ -21,26 +21,27 @@ void	set_sensitivity(t_info *app, int sensitivity)
 	app->sensitivity = sensitivity;
 }
 
-void set_fonts(t_info *const app)
+void	set_fonts(t_info *const app)
 {
 	t_typing *const	typing = &app->typ;
 
 	typing->default_size = 50;
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
 	typing->files[fnt_snes] = "resources/fonts/sm-large-snes.otf";
-//	typing->files[fnt_snes] = "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
-	typing->files[fnt_SansMono] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
+	typing->files[fnt_SansMono]
+		= "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
+//	typing->files[fnt_main]
+//	= "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
 
-void set_audio(t_info *const app)
+void	set_audio(t_info *const app)
 {
-	t_aud	*aud = &app->audio;
+	t_aud *const	aud = &app->audio;
 
 	app->audio.frequency = 44100;
 	app->audio.nchannels = 2;
 	app->audio.chunk_size = 2048;
 	app->audio.format = MIX_DEFAULT_FORMAT;
-
 	aud->files[snd_door] = "resources/sound/cockchafer-gentleman-1.wav";
 	aud->files[snd_gun] = "resources/sound/beam_shot.wav";
 	aud->files[snd_hash] = "resources/sound/percussion-28.wav";
