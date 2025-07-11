@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include "libft.h"
 
 void	load_energy_tex(t_info *app)
 {
@@ -52,7 +53,7 @@ void	load_dmg_tex(t_info *app)
 	while (++i < 8)
 	{
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/dmg%c.xpm", i + '0');
-		tex[i] = img_to_tex_row_major(app,  buf);
+		tex[i] = img_to_tex_row_major(app, buf);
 	}
 }
 
@@ -76,11 +77,27 @@ void	load_boss_bar_tex(t_info *app)
 
 t_tex	draw_credits(t_info *app)
 {
-	t_tex	tex = {0x00};
+	t_tex				tex;
 	extern const char	*credits_xpm[];
 
+	ft_memset(&tex, 0, sizeof(t_tex));
 	tex.data = img_to_tex_static_row_major(app, credits_xpm, &tex.w, &tex.h);
 	return (tex);
+}
+
+t_tex	draw_playertile(void)
+{
+	static u_int	data[4];
+	t_tex			out;
+
+	data[0] = MLX_PALE_GRAY;
+	data[1] = MLX_PALE_GRAY;
+	data[2] = MLX_PALE_GRAY;
+	data[3] = MLX_PALE_GRAY;
+	out.data = data;
+	out.w = 2;
+	out.h = 2;
+	return (out);
 }
 
 void	load_misc_graphics(t_info *app)
@@ -98,8 +115,6 @@ void	load_misc_graphics(t_info *app)
 	app->shtex->scope = img_to_tex_static_rm(app, scope_xpm);
 	app->shtex->credits = draw_credits(app);
 	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
-	app->shtex->playertile.data = (u_int[]){[0 ... 4] = MLX_PALE_GRAY};
-	app->shtex->playertile.w = 2;
-	app->shtex->playertile.h = 2;
+	app->shtex->playertile = draw_playertile();
 	app->shtex->square = get_tile(15);
 }

@@ -16,7 +16,7 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl);
 
 void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->enemies;
@@ -33,7 +33,7 @@ void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->projectiles;
@@ -53,7 +53,7 @@ void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->items;
@@ -70,7 +70,7 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->triggers;

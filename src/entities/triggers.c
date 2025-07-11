@@ -116,7 +116,8 @@ void	handle_tele(t_info *app, t_obj *tele)
 		app->player->tele_pos = tele->pos;
 		Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
 	}
-	else if (tele->attacking == 0 && vector_distance(app->player->pos, tele->pos) > 1.5)
+	else if (tele->attacking == 0
+		&& vector_distance(app->player->pos, tele->pos) > 1.5)
 		tele->dead = 0;
 }
 

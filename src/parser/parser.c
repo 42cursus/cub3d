@@ -35,12 +35,14 @@ int	parse_texture(t_lvl *lvl, char *str, int identifier, t_info *app)
 	else if (identifier == FLOOR)
 	{
 		tex_addr = &lvl->floor_tex;
-		lvl->planes[T_FLOOR] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+		lvl->planes[T_FLOOR] = mlx_xpm_file_to_image(app->mlx,
+				(char *) str, &tmp.width, &tmp.height);
 	}
 	else if (identifier == CEILING)
 	{
 		tex_addr = &lvl->ceil_tex;
-		lvl->planes[T_CEILING] = mlx_xpm_file_to_image(app->mlx, (char *) str, &tmp.width, &tmp.height);
+		lvl->planes[T_CEILING] = mlx_xpm_file_to_image(app->mlx,
+				(char *) str, &tmp.width, &tmp.height);
 	}
 	else
 		return (1);
@@ -88,8 +90,6 @@ int	parse_line(t_lvl *data, char *line, t_info *app)
 	if (!identifier)
 		return (printf("Error: invalid line identifier\n"),
 			free_split(split), 1);
-//	else if (identifier == CEILING)
-//		retval = parse_colour(data, split[1], identifier);
 	else if (identifier <= WEST)
 		retval = parse_texture(data, split[1], identifier, app);
 	else if (identifier <= LVL_C)
@@ -98,6 +98,8 @@ int	parse_line(t_lvl *data, char *line, t_info *app)
 		retval = parse_music(data, split[1]);
 	return (free_split(split), retval);
 }
+//	else if (identifier == CEILING)
+//		retval = parse_colour(data, split[1], identifier);
 
 int	all_fields_parsed(t_lvl *lvl)
 {
@@ -116,47 +118,47 @@ int	all_fields_parsed(t_lvl *lvl)
 		lvl->outside = 1;
 		return (1);
 	}
+	return (1);
+}
 //	if (lvl->f_col == -1)
 //	 	return (0);
 //	if (lvl->c_col == -1)
 //		return (0);
-	return (1);
-}
 
 t_enpos	*new_enpos(t_vect pos, int type)
 {
 	t_enpos	*new;
 
-	new = ft_calloc(1, sizeof(*new)); //FIXME: malloc check?
+	new = ft_calloc(1, sizeof(*new));
 	new->pos = pos;
 	new->type = type;
 	return (new);
 }
 
-void do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
+void	do_spawn_thing(t_info *app, t_lvl *lvl, char el, t_ivect it)
 {
 	t_list			*enpos;
 	t_subtype		subtype;
 	const t_vect	pos = addi_vect((t_vect){0.5, 0.5}, it);
 	const t_vect	dir = rotv(0.0, -1, rand_range(-M_PI, M_PI));
 	const t_subtype	lt[CHAR_MAX] = {
-		['2'] = 1,
-		['3'] = 2,
-		['4'] = 3,
-		['7'] = 1,
-		['8'] = 2,
-		['9'] = 3,
-		['m'] = I_MISSILE,
-		['t'] = I_TROPHY,
-		['b'] = T_BOSS,
-		['s'] = I_SUPER,
-		['e'] = I_ETANK,
-		['Z'] = E_ZOOMER,
-		['A'] = E_ATOMIC,
-		['R'] = E_REO,
-		['P'] = E_PHANTOON,
-		['H'] = E_HOLTZ,
-		['{'] = D_SEAWEED,
+	['2'] = 1,
+	['3'] = 2,
+	['4'] = 3,
+	['7'] = 1,
+	['8'] = 2,
+	['9'] = 3,
+	['m'] = I_MISSILE,
+	['t'] = I_TROPHY,
+	['b'] = T_BOSS,
+	['s'] = I_SUPER,
+	['e'] = I_ETANK,
+	['Z'] = E_ZOOMER,
+	['A'] = E_ATOMIC,
+	['R'] = E_REO,
+	['P'] = E_PHANTOON,
+	['H'] = E_HOLTZ,
+	['{'] = D_SEAWEED,
 	};
 
 	subtype = lt[(u_char) el];
@@ -235,7 +237,7 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 		{
 			el = map[it.y][it.x];
 			if (ft_strchr("ODLM", el))
-				spawn_door(app, (t_vect) {it.x, it.y}, 0);
+				spawn_door(app, (t_vect){it.x, it.y}, 0);
 			else if (ft_strchr("mestZAHRPb234789{", el))
 			{
 				do_spawn_thing(app, lvl, el, it);
@@ -251,14 +253,14 @@ void	respawn_enemies(t_info *app, t_lvl *lvl)
 	t_list	*cur_node;
 	t_enpos	*cur_pos;
 	t_vect	dir;
-	t_vect	def = (t_vect) {0, 1};
+	t_vect	def;
 
+	def = (t_vect){0, 1};
 	ft_lstclear(&lvl->enemies, free);
 	cur_node = lvl->enemy_pos;
 	while (cur_node != NULL)
 	{
 		cur_pos = (t_enpos *)cur_node->data;
-
 		if (cur_pos->type != E_PHANTOON)
 		{
 			dir = rotate_vect(def, rand_range(-M_PI, M_PI));
@@ -278,7 +280,8 @@ void	remove_drops(t_lvl *lvl)
 	current = lvl->items;
 	if (current == NULL)
 		return ;
-	while (((t_obj *)current->content)->subtype >= I_AMMO_M && ((t_obj *)current->content)->subtype <= I_HEALTH)
+	while (((t_obj *)current->content)->subtype >= I_AMMO_M
+		&& ((t_obj *)current->content)->subtype <= I_HEALTH)
 	{
 		lvl->items = current->next;
 		ft_lstdelone(current, free);
@@ -288,7 +291,8 @@ void	remove_drops(t_lvl *lvl)
 	}
 	while (current->next != NULL)
 	{
-		if (((t_obj *)current->next->content)->subtype >= I_AMMO_M && ((t_obj *)current->next->content)->subtype <= I_HEALTH)
+		if (((t_obj *)current->next->content)->subtype >= I_AMMO_M
+			&& ((t_obj *)current->next->content)->subtype <= I_HEALTH)
 		{
 			temp = current->next->next;
 			ft_lstdelone(current->next, free);
@@ -327,9 +331,9 @@ void	refresh_map(t_info *app, t_lvl *lvl)
 
 int	count_collectables(t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*cur_obj;
-	int			count;
+	int		count;
 
 	current = lvl->items;
 	count = 0;
@@ -343,14 +347,13 @@ int	count_collectables(t_lvl *lvl)
 	return (count);
 }
 
-void draw_help(t_lvl *lvl)
+void	draw_help(t_lvl *lvl)
 {
-	t_info *const	app = lvl->app;
-	t_point			p;
-	t_img			*help;
-	int				i;
-
-	static const char *help_msgs[] = {
+	t_info *const		app = lvl->app;
+	t_point				p;
+	t_img				*help;
+	int					i;
+	static const char	*help_msgs[] = {
 		"W, A, S, D => Move forward, left, backward, and right",
 		"left arrow, right arrow => Rotate left and right",
 		"E => Open/close door",
@@ -364,11 +367,10 @@ void draw_help(t_lvl *lvl)
 	if (!help)
 		return ;
 	fill_with_colour(help, (int)0xC0000000, (int)0xC0000000);
-
 	p.x = 50;
 	p.y = 50;
 	i = -1;
-	while (++i < (int)(sizeof(help_msgs)/sizeof(help_msgs[0])))
+	while (++i < (int)(sizeof(help_msgs) / sizeof(help_msgs[0])))
 	{
 		draw_text_freetype(app, help, help_msgs[i], p);
 		p.y += 60;
@@ -376,24 +378,20 @@ void draw_help(t_lvl *lvl)
 	lvl->help = help;
 }
 
-void draw_large_minimap(t_lvl *lvl)
+void	draw_large_minimap(t_lvl *lvl)
 {
-	t_info	*const app = lvl->app;
-	t_img	*large_minimap;
-	t_img	*scaled;
-	t_point p;
+	t_info *const	app = lvl->app;
+	t_img			*large_minimap;
+	t_img			*scaled;
+	t_point			p;
 
 	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
-
 	if (!large_minimap)
 		return ;
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
-
 	p.x = 50;
 	p.y = large_minimap->height - 50;
-
 	draw_text_freetype(app, large_minimap, "Minimap =>", p);
-
 	scaled = build_minimap(app, LARGE_MMAP_SCALE);
 	p.x = (large_minimap->width - scaled->width) / 2;
 	p.y = (large_minimap->height - scaled->height) / 2;
@@ -405,7 +403,7 @@ void draw_large_minimap(t_lvl *lvl)
 	mlx_destroy_image(app->mlx, scaled);
 }
 
-void draw_startup_overlay(t_lvl *lvl)
+void	draw_startup_overlay(t_lvl *lvl)
 {
 	t_info *const	app = lvl->app;
 	t_point			p;
@@ -415,13 +413,9 @@ void draw_startup_overlay(t_lvl *lvl)
 	if (!overlay)
 		return ;
 	fill_with_colour(overlay, (int)0xFF000000, (int)0xFF000000);
-
-
 	p.x = 350;
 	p.y = 50;
-
 	draw_text_freetype(app, overlay, "[PRESS 'H' FOR HELP]", p);
-
 	lvl->overlay = overlay;
 }
 
@@ -493,7 +487,7 @@ void	free_map(t_lvl *lvl)
 	free(lvl);
 }
 
-t_lvl *get_cached_lvl(t_info *app, char *name)
+t_lvl	*get_cached_lvl(t_info *app, char *name)
 {
 	t_list	*current;
 

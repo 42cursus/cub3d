@@ -14,8 +14,8 @@
 
 t_player	*init_player(t_info *app)
 {
-	t_player	*player;
-	t_lvl *const lvl = app->lvl;
+	t_player		*player;
+	t_lvl *const	lvl = app->lvl;
 
 	player = ft_calloc(1, sizeof(*player));
 	player->pos = lvl->starting_pos;
@@ -32,7 +32,7 @@ t_player	*init_player(t_info *app)
 
 void	refresh_player(t_info *app, t_player *player)
 {
-	t_lvl *const lvl = app->lvl;
+	t_lvl *const	lvl = app->lvl;
 
 	player->pos = lvl->starting_pos;
 	player->dir = lvl->starting_dir;

@@ -159,10 +159,10 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	t_tex *const	tile = &(t_tex){.w = 6, .h = 5};
 	t_img *const	cnvs = lvl->app->canvas;
 	static u_int	data[CHAR_MAX][36] = {
-		['D'] = {[0 ... 35] = MLX_BLUE},
-		['O'] = {[0 ... 35] = MLX_PALE_GRAY},
-		['L'] = {[0 ... 35] = MLX_GREEN},
-		['M'] = {[0 ... 35] = MLX_PINK},
+	['D'] = {[0 ...LVL_A] = MLX_BLUE},
+	['O'] = {[0 ...LVL_A] = MLX_PALE_GRAY},
+	['L'] = {[0 ...LVL_A] = MLX_GREEN},
+	['M'] = {[0 ...LVL_A] = MLX_PINK},
 	};
 	t_img 			*mmap = lvl->minimap_xl;
 	t_point			p3;

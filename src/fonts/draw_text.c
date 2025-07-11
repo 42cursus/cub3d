@@ -18,13 +18,14 @@ void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c)
 	t_point		p;
 	FT_Bitmap	*bmp;
 	double		alpha_frac;
-	FT_Face		face = app->typ.faces[fnt_main];
+	FT_Face		face;
 
+	face = app->typ.faces[fnt_main];
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
-	while(*text)
+	while (*text)
 	{
 		if (FT_Load_Char(face, *text, FT_LOAD_RENDER))
-			continue;
+			continue ;
 		bmp = &face->glyph->bitmap;
 		i.y = -1;
 		while (++i.y < (int)bmp->rows)

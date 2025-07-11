@@ -34,40 +34,37 @@
  * @param line
  */
 static inline __attribute__((always_inline, unused))
-void	slice_drawing_avx2x8_strided(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
+void	slice_drawing_avx2x8_strided(int x, t_ray *ray,
+			t_tex *cnvs, t_lvars line)
 {
 	t_iter		it;
 	t_tstep		ts;
 	t_cdata		cd;
 	t_m256i		mc;
 	t_ivect8	dst;
-	int			stride = cnvs->w;
+	int			stride;
 
+	stride = cnvs->w;
 	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
-
 	ts.step = (double)ray->tex->h / line.height;
 	ts.tex_y = ts.step * it.i;
-
 	cd.src = (int *)ray->tex->data + (int)ray->pos * ray->tex->h;
 	cd.dst = (int *)cnvs->data + x + (line.top + it.i) * stride;
-
 	mc.overlay256 = _mm256_set1_epi32(-(ray->damaged) & MLX_RED);
 	mc.transparent = _mm256_set1_epi32(XPM_TRANSPARENT);
-
 	while (it.i + 7 < it.j)
 	{
 		mc.src = _mm256_setr_epi32(
-			cd.src[(int)(ts.tex_y + ts.step * 0)],
-			cd.src[(int)(ts.tex_y + ts.step * 1)],
-			cd.src[(int)(ts.tex_y + ts.step * 2)],
-			cd.src[(int)(ts.tex_y + ts.step * 3)],
-			cd.src[(int)(ts.tex_y + ts.step * 4)],
-			cd.src[(int)(ts.tex_y + ts.step * 5)],
-			cd.src[(int)(ts.tex_y + ts.step * 6)],
-			cd.src[(int)(ts.tex_y + ts.step * 7)]
-		);
-
+				cd.src[(int)(ts.tex_y + ts.step * 0)],
+				cd.src[(int)(ts.tex_y + ts.step * 1)],
+				cd.src[(int)(ts.tex_y + ts.step * 2)],
+				cd.src[(int)(ts.tex_y + ts.step * 3)],
+				cd.src[(int)(ts.tex_y + ts.step * 4)],
+				cd.src[(int)(ts.tex_y + ts.step * 5)],
+				cd.src[(int)(ts.tex_y + ts.step * 6)],
+				cd.src[(int)(ts.tex_y + ts.step * 7)]
+				);
 		dst.t0 = cd.dst[stride * 0];
 		dst.t1 = cd.dst[stride * 1];
 		dst.t2 = cd.dst[stride * 2];
@@ -76,30 +73,24 @@ void	slice_drawing_avx2x8_strided(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		dst.t5 = cd.dst[stride * 5];
 		dst.t6 = cd.dst[stride * 6];
 		dst.t7 = cd.dst[stride * 7];
-
 		mc.dst = _mm256_setr_epi32(
-			dst.t0,
-			dst.t1,
-			dst.t2,
-			dst.t3,
-			dst.t4,
-			dst.t5,
-			dst.t6,
-			dst.t7
-		);
-
-		__m256i mask = _mm256_cmpeq_epi32(mc.src, mc.transparent);
+				dst.t0,
+				dst.t1,
+				dst.t2,
+				dst.t3,
+				dst.t4,
+				dst.t5,
+				dst.t6,
+				dst.t7
+				);
+		__m256i	mask = _mm256_cmpeq_epi32(mc.src, mc.transparent);
 		mask = _mm256_andnot_si256(mask, _mm256_set1_epi32(-1));
-
 		mc.src = _mm256_or_si256(mc.src, mc.overlay256);
-
 		mc.blend = _mm256_or_si256(
-			_mm256_and_si256(mask, mc.src),
-			_mm256_andnot_si256(mask, mc.dst)
-		);
-
+				_mm256_and_si256(mask, mc.src),
+				_mm256_andnot_si256(mask, mc.dst)
+				);
 		_mm256_storeu_si256((__m256i *)&dst, mc.blend);
-
 		cd.dst[stride * 0] = dst.t0;
 		cd.dst[stride * 1] = dst.t1;
 		cd.dst[stride * 2] = dst.t2;
@@ -108,7 +99,6 @@ void	slice_drawing_avx2x8_strided(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 		cd.dst[stride * 5] = dst.t5;
 		cd.dst[stride * 6] = dst.t6;
 		cd.dst[stride * 7] = dst.t7;
-
 		cd.dst += 8 * stride;
 		ts.tex_y += ts.step * 8;
 		it.i += 8;
@@ -131,6 +121,7 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	t_ftstep	ts;
 	t_cdata		cd;
 	t_m256i		mmc;
+	t_m128i		mc;
 
 	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
@@ -151,37 +142,28 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	{
 		__m256 indices_ps = _mm256_fmadd_ps(offsets, step, _mm256_set1_ps(ts.tex_y));
 		__m256i indices = _mm256_cvttps_epi32(indices_ps);
-
 		int indices_arr[8] __attribute__((aligned(32)));
 		_mm256_store_si256((__m256i *)indices_arr, indices);
 		__builtin_prefetch(&cd.src[indices_arr[0]]);
 		mmc.src = _mm256_setr_epi32(
-			cd.src[indices_arr[0]],
-			cd.src[indices_arr[1]],
-			cd.src[indices_arr[2]],
-			cd.src[indices_arr[3]],
-			cd.src[indices_arr[4]],
-			cd.src[indices_arr[5]],
-			cd.src[indices_arr[6]],
-			cd.src[indices_arr[7]]
-		);
-
-//		mmc.src = _mm256_i32gather_epi32(cd.src, indices, sizeof(int));
-
+				cd.src[indices_arr[0]],
+				cd.src[indices_arr[1]],
+				cd.src[indices_arr[2]],
+				cd.src[indices_arr[3]],
+				cd.src[indices_arr[4]],
+				cd.src[indices_arr[5]],
+				cd.src[indices_arr[6]],
+				cd.src[indices_arr[7]]
+				);
 		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
-
 		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
 		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
-
 		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
-
 		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
-
 		cd.dst += 8;
 		ts.tex_y += ts.step * 8;
 		it.i += 8;
 	}
-	t_m128i			mc;
 	mc.overlay = -(ray->damaged) & MLX_RED;
 	while (it.i < it.j)
 	{
@@ -204,41 +186,31 @@ void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	t_tfstep		ts;
 	t_m128i			mc;
 	t_cdata			cd;
-	int				offset = (int)ray->pos * ray->tex->h;
+	int				offset;
 
+	offset = (int)ray->pos * ray->tex->h;
 	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
-
 	ts.step = (float)ray->tex->h / line.height;
 	ts.tex_y = ts.step * it.i;
-
 	cd.src = (int *)ray->tex->data + offset;
 	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
-
 	mc.overlay = -(ray->damaged) & MLX_RED;
 	mc.overlay128 = _mm_set1_epi32(-(ray->damaged) & MLX_RED);
 	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
-
-//	__m128 idx_f = _mm_set_ps(3.0f, 2.0f, 1.0f, 0.0f);
-//	__m128 addon = _mm_mul_ps(_mm_set1_ps(ts.step), idx_f);
 	while (it.i + 3 < it.j)
 	{
-//		__m128i i_x = _mm_cvtps_epi32(_mm_add_ps(_mm_set1_ps(ts.tex_y), addon));
-//		mc.src = _mm_i32gather_epi32((const int *)cd.src, i_x, sizeof(int));
-
 		mc.src = _mm_setr_epi32(
-			cd.src[(int)(ts.tex_y + ts.step * 0)],
-			cd.src[(int)(ts.tex_y + ts.step * 1)],
-			cd.src[(int)(ts.tex_y + ts.step * 2)],
-			cd.src[(int)(ts.tex_y + ts.step * 3)]
-		);
+				cd.src[(int)(ts.tex_y + ts.step * 0)],
+				cd.src[(int)(ts.tex_y + ts.step * 1)],
+				cd.src[(int)(ts.tex_y + ts.step * 2)],
+				cd.src[(int)(ts.tex_y + ts.step * 3)]
+				);
 		mc.mask = _mm_cmpeq_epi32(mc.src, mc.transparent);
 		mc.src = _mm_or_si128(mc.src, mc.overlay128);
 		mc.dst = _mm_loadu_si128((__m128i *)cd.dst);
-
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 		_mm_storeu_si128((__m128i *)cd.dst, mc.blend);
-
 		cd.dst += 4;
 		ts.tex_y += ts.step * 4;
 		it.i += 4;
@@ -274,29 +246,20 @@ void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 	it.i = (-(line.top < 0) & -line.top);
 	it.j = line.end - line.top;
-
 	mc.overlay = -(ray->damaged) & MLX_RED;
 	ts.step = (double)ray->tex->h / line.height;
-
 	ts.tex_y = ts.step * it.i;
 	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
 	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
-//	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
-
 	while (it.i < it.j)
 	{
 		mc.colour = cd.src[(int)ts.tex_y];
-
 		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
-
 		mc.dst = _mm_set1_epi32(*cd.dst);
-
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-		*cd.dst = _mm_cvtsi128_si32(mc.blend); // Copy the lower 32-bit integer in a to dst.
-
+		*cd.dst = _mm_cvtsi128_si32(mc.blend);
 		it.i++;
-//		cd.dst++;
 		cd.dst += cnvs->w;
 		ts.tex_y += ts.step;
 	}
@@ -307,52 +270,25 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	t_anim	*anim;
 	t_lvars	line;
 
-	if (ray->face >= DOOR_N && ray->face < DOOR_N_OPEN)
-	{
-		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			ray->tex = get_close_door_tex(anim, app);
-	}
-	else if (ray->face >= DOOR_N_OPEN)
-	{
-		anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-		if (anim->active == 1)
-			ray->tex = get_open_door_tex(anim, app);
-	}
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
-	// slice_drawing_sse41(x, ray, canvas, line);
-	// slice_drawing_sse41x4(x, ray, canvas, line);
-	// slice_drawing_avx2x8(x, ray, canvas, line);
 	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
+// slice_drawing_sse41(x, ray, canvas, line);
+// slice_drawing_sse41x4(x, ray, canvas, line);
+// slice_drawing_avx2x8(x, ray, canvas, line);
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
-	// t_anim	*anim;
 	t_lvars	line;
 
-	// bool closed = ray->face >= DOOR_N && ray->face < DOOR_N_OPEN;
-	// bool open = ray->face >= DOOR_N_OPEN;
-	//
-	// if ((open || closed))
-	// {
-	// 	anim = &app->lvl->anims[ray->maptile.y][ray->maptile.x];
-	// 	if(anim->active)
-	// 	{
-	// 		if (closed)
-	// 			ray->tex = get_close_door_tex(anim, app);
-	// 		else
-	// 			ray->tex = get_open_door_tex(anim, app);
-	// 	}
-	// }
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 	slice_drawing_avx2x8(x, ray, canvas, line);
-//	slice_drawing_sse41x4(x, ray, canvas, line);
 }
+//	slice_drawing_sse41x4(x, ray, canvas, line);
 
 void	draw_rays(t_info *app)
 {
@@ -360,8 +296,8 @@ void	draw_rays(t_info *app)
 	t_ray			*rays;
 	t_ray			*current_ray;
 	t_img *const	canvas = app->canvas;
-
-	const t_tex		tex = {.data = (u_int *) canvas->data, .w = WIN_WIDTH, .h = WIN_HEIGHT};
+	const t_tex		tex = {.data = (u_int *) canvas->data,
+		.w = WIN_WIDTH, .h = WIN_HEIGHT};
 
 	rays = app->player->rays;
 	i = -1;
@@ -376,46 +312,14 @@ void	draw_rays(t_info *app)
 	}
 }
 
-void	draw_rays_transposed_alt(t_info *app)
-{
-	int				i;
-	t_ray			*rays;
-	t_ray			*current_ray;
-	t_img *const	canvas = app->canvas_r;
-
-	u_int	trans_data[WIN_WIDTH * WIN_HEIGHT];
-	const t_tex		trans = {.data = trans_data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
-	const t_img source = {.data = canvas->data, .width = WIN_WIDTH, .height = WIN_HEIGHT};
-
-	i = -1;
-	while (++i < WIN_WIDTH * WIN_HEIGHT)
-		trans_data[i] = XPM_TRANSPARENT;
-
-	rays = app->player->rays;
-	i = -1;
-	while (++i < WIN_WIDTH)
-	{
-		current_ray = &rays[i];
-		while (current_ray)
-		{
-			draw_slice_transposed(i, current_ray, app, (t_tex *)&trans);
-			current_ray = current_ray->in_front;
-		}
-	}
-	transpose_img_avx2_tiled_read((int *) canvas->data, (int *)trans.data, WIN_WIDTH, WIN_HEIGHT);
-
-	t_point p = {0, 0};
-	place_img_alpha_avx2_fast_path_soa(app->canvas, (t_img *)&source, p);
-}
-
 void	draw_rays_transposed(t_info *app)
 {
 	int				i;
 	t_ray			*rays;
 	t_ray			*current_ray;
 	t_img *const	canvas = app->canvas_r;
-
-	const t_tex		trans = {.data = (u_int *) canvas->data, .w = WIN_HEIGHT, .h = WIN_WIDTH};
+	const t_tex		trans = {.data = (u_int *) canvas->data,
+		.w = WIN_HEIGHT, .h = WIN_WIDTH};
 
 	rays = app->player->rays;
 	i = -1;

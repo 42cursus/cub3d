@@ -59,7 +59,8 @@ void	load_reo_tex(t_info *app)
 	}
 	while (i < 4)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/reo/reo_attack_%c.xpm", i - 2 + '0');
+		ft_snprintf(buf, BUFF_SIZE,
+			TEX_DIR"/reo/reo_attack_%c.xpm", i - 2 + '0');
 		tex[i] = img_to_tex(app, buf);
 		i++;
 	}
@@ -76,7 +77,8 @@ void	load_phantoon_tex(t_info *app)
 	i = -1;
 	while (++i < 10)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/phantoon/phantoon%c.xpm", ids[i] + '0');
+		ft_snprintf(buf, BUFF_SIZE,
+			TEX_DIR"/phantoon/phantoon%c.xpm", ids[i] + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 }
