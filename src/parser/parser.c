@@ -14,11 +14,6 @@
 #include "SDL_mixer.h"
 #include "cub3d.h"
 
-size_t	count_split_words(char **split);
-int		valid_identifier(char *str);
-int		str_cmp_whitespace(void *data, void *ref);
-t_list	*read_cub(int cubfd);
-
 int	parse_texture(t_lvl *lvl, char *str, int identifier, t_info *app)
 {
 	t_tex	*tex_addr;
@@ -370,12 +365,15 @@ void	draw_help(t_lvl *lvl)
 		return ;
 	fill_with_colour(&help, (int)0xC0000000, (int)0xC0000000);
 
+	FT_Face face = app->typ.faces[fnt_main];
+	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
+
 	p.x = 50;
 	p.y = 50;
 	i = -1;
 	while (++i < (int)(sizeof(help_msgs) / sizeof(help_msgs[0])))
 	{
-		draw_text_freetype(app, &help, help_msgs[i], p);
+		draw_text_freetype(face, &help, help_msgs[i], p);
 		p.y += 60;
 	}
 	lvl->help = help;
@@ -394,7 +392,11 @@ void	draw_large_minimap(t_lvl *lvl)
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
 	p.x = 50;
 	p.y = large_minimap->height - 50;
-	draw_text_freetype(app, large_minimap, "Minimap =>", p);
+
+	FT_Face face = app->typ.faces[fnt_main];
+	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
+
+	draw_text_freetype(face, large_minimap, "Minimap =>", p);
 	scaled = build_minimap(app, LARGE_MMAP_SCALE);
 	p.x = (large_minimap->width - scaled->width) / 2;
 	p.y = (large_minimap->height - scaled->height) / 2;
@@ -424,7 +426,9 @@ void	draw_startup_overlay(t_lvl *lvl)
 	fill_with_colour(&overlay, (int)0xFF000000, (int)0xFF000000);
 	p.x = tex.w / 2;
 	p.y = 50;
-	draw_text_ft_centered(app, &tex, "[PRESS 'H' FOR HELP]", p);
+	FT_Face face = app->typ.faces[fnt_main];
+	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
+	draw_text_ft_hcentered(face, tex, "[PRESS 'H' FOR HELP]", p);
 	lvl->overlay = overlay;
 }
 
@@ -441,7 +445,7 @@ int	parse_cub(t_info *app, char *filename)
 	lvl = app->lvl;
 	lvl->app = app;
 	lvl->sublvls[0] = ft_strdup(filename);
-	file = read_cub(fd);
+	file = read_file_stripped(fd);
 	if (!collect_map(file, lvl))
 		return (ft_list_destroy(&file, free),
 			printf("Error: map not provided\n"), 1);

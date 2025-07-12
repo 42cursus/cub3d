@@ -22,7 +22,7 @@ t_lvl	*init_map(void)
 	return (map);
 }
 
-t_list	*read_cub(int cubfd)
+t_list	*read_file_stripped(int cubfd)
 {
 	char	*line;
 	char	*stripped;

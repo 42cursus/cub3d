@@ -21,13 +21,17 @@ void	set_sensitivity(t_info *app, int sensitivity)
 	app->sensitivity = sensitivity;
 }
 
+/**
+ * https://fontstruct.com/gallery/tag/27473/Super%20Metroid
+ * @param app
+ */
 void	set_fonts(t_info *const app)
 {
 	t_typing *const	typing = &app->typ;
 
 	typing->default_size = 50;
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
-	typing->files[fnt_snes] = "resources/fonts/sm-large-snes.otf";
+	typing->files[fnt_snes] = "resources/fonts/SuperMetroidLargeSNES.ttf";
 	typing->files[fnt_SansMono]
 		= "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }

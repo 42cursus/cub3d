@@ -75,32 +75,54 @@ void	load_boss_bar_tex(t_info *app)
 	tex[1] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_right.xpm");
 }
 
+typedef struct s_str_arr
+{
+	char	**arr;
+	int		size;
+	int		current;
+}	t_str_arr;
+
+void	apply(char *str, void *ref)
+{
+	t_str_arr *const	strings = ref;
+
+	strings->arr[strings->current++] = str;
+}
+
 t_tex	draw_credits(t_info *app)
 {
-	t_tex	tex;
+	t_tex		tex = {0x00};
+	t_str_arr	str_arr;
+	t_list		*lines;
 
-	tex = (t_tex){.w = 1000, .h = 1750};
+	int fd = open("resources/credits.txt", O_RDONLY);
+	if (fd == -1)
+		return (tex);
+	lines = read_file_stripped(fd);
+	str_arr.size = ft_list_size(lines);
+	str_arr.arr = ft_calloc(str_arr.size + 1, sizeof(char *));
+	ft_list_foreach_ref(lines, (void *)apply, &str_arr);
+	ft_list_destroy(&lines, NULL);
+
+	FT_Face face = app->typ.faces[fnt_snes];
+	FT_Set_Pixel_Sizes(face, 0, 40);
+
+	const FT_Size_Metrics	metrics = face->size->metrics;
+	const uint32_t			line_height = metrics.height >> 6;
+	const uint32_t			spacing = metrics.ascender >> 6;
+	const uint32_t			total_height = str_arr.size * (line_height + spacing);
+
+	tex = (t_tex){.w = 1000, .h = (int)total_height + 50};
 	tex.sl = tex.w * sizeof(int);
 	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
 		return (tex); //FIXME: add error
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
-	int fd = open("resources/credits.txt", O_RDONLY);
-	if (fd == -1)
-		return (tex);
 
-	t_point	center = { .x = tex.w / 2, .y = 65};
-	char *line = get_next_line(fd);
-	while (line)
-	{
-		*(ft_strchrnul(line, '\n')) = '\0';
-		draw_text_ft_centered(app, &tex, line, center);
-		center.y += 50;
-		free(line);
-		line = get_next_line(fd);
-	}
-	free(line);
+	draw_multiline_text_centered(face, tex, str_arr.arr, str_arr.size);
+	ft_tab_str_free(str_arr.arr);
 	return (tex);
 }
+
 t_tex	draw_playertile(void)
 {
 	static u_int	data[4];

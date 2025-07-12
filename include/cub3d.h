@@ -938,6 +938,11 @@ int		mouse_release_play(unsigned int button, int x, int y, void *param);
 int		mouse_press_play(unsigned int button, int x, int y, void *param);
 int		mouse_move_play(int x, int y, void *param);
 
+size_t	count_split_words(char **split);
+int		valid_identifier(char *str);
+int		str_cmp_whitespace(void *data, void *ref);
+t_list	*read_file_stripped(int cubfd);
+
 t_lvl	*init_map(void);
 void	free_map(t_lvl *lvl);
 int		collect_map(t_list	*file, t_lvl *data);
@@ -1164,8 +1169,10 @@ t_tex	*get_door_tex(t_anim *anim, t_info *app, char tile);
 void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
-void	draw_text_freetype(t_info *app, t_img *img, const char *text, t_point c);
-void	draw_text_ft_centered(t_info *app, t_tex *tex, const char *text, t_point c);
+void	draw_text_freetype(FT_Face face, t_img *img, const char *text, t_point c);
+int		get_text_vertical_offset(FT_Face face, int img_height);
+void	draw_text_ft_hcentered(FT_Face face, t_tex tex, const char *text, t_point c);
+void	draw_multiline_text_centered(FT_Face face, t_tex tex, char **lines, int num_lines);
 void	spawn_rock(t_info *app, t_vect pos, t_tex *tex, double speed);
 void	spawn_random_rock(t_info *app, double speed);
 int		cmp_rock_speed(void *data1, void *data2);

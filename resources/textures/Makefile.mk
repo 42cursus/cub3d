@@ -15,8 +15,6 @@ FILES   = arm_cannon_big.xpm \
 			boss_bar_left.xpm \
 			boss_bar_right.xpm \
 			cloud.xpm \
-			credits.xpm \
-			credits_lorem.xpm \
 			dmg0.xpm \
 			dmg1.xpm \
 			dmg2.xpm \

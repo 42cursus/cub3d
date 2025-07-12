@@ -27,6 +27,7 @@ RMFLAGS			= -r
 CC				:= clang
 #CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
+# https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
 OPTIMIZE_FLAGS	:= -O3 -ffast-math \
 						-mprefer-vector-width=256 \
 						-ftree-vectorize \
