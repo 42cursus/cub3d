@@ -14,7 +14,7 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 t_rgba_ps256	unpack_rgba_bytes_to_floats_avx(__m256i pixels)
 {
 	t_rgba_ps256	out;
@@ -43,7 +43,18 @@ t_rgba_ps256	unpack_rgba_bytes_to_floats_avx(__m256i pixels)
 	return (out);
 }
 
-static inline __attribute__((always_inline, unused))
+/**
+ * One can clamp channels to [0, 255] if needed:
+ * 	const __m256i	zero = _mm256_setzero_si256();
+ * 	const __m256i	max255 = _mm256_set1_epi32(255);
+ * 	rgba.b = _mm256_min_epi32(_mm256_max_epi32(rgba.b, zero), max255);
+ * 	rgba.g = _mm256_min_epi32(_mm256_max_epi32(rgba.g, zero), max255);
+ * 	rgba.r = _mm256_min_epi32(_mm256_max_epi32(rgba.r, zero), max255);
+ * 	rgba.a = _mm256_min_epi32(_mm256_max_epi32(rgba.a, zero), max255);
+ * @param blended
+ * @return
+ */
+static inline __attribute__((always_inline))
 __m256i repack_rgba_floats_to_bytes_avx2(t_rgba_ps256 blended)
 {
 	__m256i			out;
@@ -75,83 +86,7 @@ __m256i repack_rgba_floats_to_bytes_avx2(t_rgba_ps256 blended)
 	return (out);
 }
 
-static inline __attribute__((always_inline, unused))
-__m256i repack_rgba_floats_to_bytes_sse_clamped(t_rgba_ps256 blended)
-{
-	__m256i			out;
-	t_rgba_si256	rgba;
-
-	const __m256i shuffle = _mm256_setr_epi8(
-		0,  4,  8, 12,
-		1,  5,  9, 13,
-		2,  6, 10, 14,
-		3,  7, 11, 15,
-
-		16, 20, 24, 28,
-		17, 21, 25, 29,
-		18, 22, 26, 30,
-		19, 23, 27, 31
-	);
-
-	rgba.b = _mm256_cvtps_epi32(blended.b);
-	rgba.g = _mm256_cvtps_epi32(blended.g);
-	rgba.r = _mm256_cvtps_epi32(blended.r);
-	rgba.a = _mm256_cvtps_epi32(blended.a);
-
-	// Clamp channels to [0, 255]
-	const __m256i	zero = _mm256_setzero_si256();
-	const __m256i	max255 = _mm256_set1_epi32(255);
-	rgba.b = _mm256_min_epi32(_mm256_max_epi32(rgba.b, zero), max255);
-	rgba.g = _mm256_min_epi32(_mm256_max_epi32(rgba.g, zero), max255);
-	rgba.r = _mm256_min_epi32(_mm256_max_epi32(rgba.r, zero), max255);
-	rgba.a = _mm256_min_epi32(_mm256_max_epi32(rgba.a, zero), max255);
-
-	__m256i ra_b = _mm256_packs_epi32(rgba.r, rgba.a);
-	__m256i bg_b = _mm256_packs_epi32(rgba.b, rgba.g);
-
-	__m256i rgba_a = _mm256_packus_epi16(bg_b, ra_b);
-
-	out = _mm256_shuffle_epi8(rgba_a, shuffle);
-	return (out);
-}
-
-/**
- * https://en.wikipedia.org/wiki/Linear_interpolation
- * @param a
- * @param b
- * @param t
- * @return
- */
 static inline __attribute((always_inline))
-t_colour lerp_biased_c(t_colour a, t_colour b, double t)
-{
-	t_colour result;
-	uint32_t mask;
-
-	mask = -(a.a < b.a);
-	// Choose RGB from more opaque color (lower alpha)
-	result.raw = ((a.raw & mask) | (b.raw & ~mask));
-	result.a = (unsigned char) ((b.a - a.a) * t + a.a);
-	return result;
-}
-
-static inline __attribute((always_inline, unused))
-u_int lerp_biased(u_int aa, u_int bb, float t)
-{
-	t_colour result;
-	uint32_t mask;
-
-	t_colour a = {.raw = aa};
-	t_colour b = {.raw = bb};
-
-	mask = -(a.a < b.a);
-	// Choose RGB from more opaque color (lower alpha)
-	result.raw = ((a.raw & mask) | (b.raw & ~mask));
-	result.a = (u_char) ((b.a - a.a) * t + a.a);
-	return result.raw;
-}
-
-static inline __attribute((always_inline, unused))
 t_rgba_ps256 lerp_biased_unpvec(t_rgba_ps256 argb_a, t_rgba_ps256 argb_b, __m256 tt)
 {
 	t_rgba_ps256	out;
@@ -168,71 +103,6 @@ t_rgba_ps256 lerp_biased_unpvec(t_rgba_ps256 argb_a, t_rgba_ps256 argb_b, __m256
 	/* == END BLENDING === */
 
 	return (out);
-}
-
-static inline __attribute((always_inline, unused))
-__m256i lerp_biased_vec(__m256i aa, __m256i bb, __m256 tt)
-{
-
-	t_m256i			mc;
-
-	t_rgba_ps256	argb_a = unpack_rgba_bytes_to_floats_avx(aa);
-	t_rgba_ps256	argb_b = unpack_rgba_bytes_to_floats_avx(bb);
-
-	/* == START BLENDING === */
-	__m256 diff = _mm256_sub_ps(argb_b.a, argb_a.a);
-	__m256 res_a = _mm256_add_ps(_mm256_mul_ps(diff, tt), argb_a.a);
-
-	/* == END BLENDING === */
-
-	mc.mask = _mm256_castps_si256(_mm256_cmp_ps(argb_a.a, argb_b.a, _CMP_LT_OQ));
-
-	argb_a.a = res_a;
-	argb_b.a = res_a;
-
-	mc.dst = repack_rgba_floats_to_bytes_avx2(argb_b);
-	mc.src = repack_rgba_floats_to_bytes_avx2(argb_a);
-	mc.blend = _mm256_blendv_epi8(mc.dst, mc.src, mc.mask);
-
-//	__m256 mask = _mm256_castsi256_ps(_mm256_cmplt_epi32(aa_a, aa_b));
-//	__m256 result = _mm256_blendv_ps(_mm256_castsi256_ps(mc.dst), _mm256_castsi256_ps(mc.src), mask);
-//	mc.blend = _mm256_castps_si256(result);
-
-//	mc.blend = _mm256_or_si256(
-//		_mm256_andnot_si256(mc.mask, rgba_b),
-//		_mm256_and_si256(mc.mask, rgba_a)
-//	);
-
-	return mc.blend;
-}
-
-static inline __attribute__((always_inline, unused))
-t_colour linear_filter(t_vect idx, const t_tex *tex)
-{
-	const double	frac = fmod(idx.x, 1.0);
-	int				x = (int) idx.y * tex->w + (int) (idx.x);
-
-	t_colour		left = *(t_colour *) &tex->data[x];
-	t_colour		right = *(t_colour *) &tex->data[x + 1];
-	t_colour		out = lerp_biased_c(left, right, frac);
-	return (out);
-}
-
-static inline __attribute__((always_inline, unused))
-int interpolate_colour_inline(int col1, int col2, double frac)
-{
-	int r;
-	int g;
-	int b;
-
-	if (col1 != col2 && col1 != (int) XPM_TRANSPARENT)
-	{
-		r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-		g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
-		b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
-		col1 = (r & MLX_RED) + (g & MLX_GREEN) + b;
-	}
-	return (col1);
 }
 
 /**

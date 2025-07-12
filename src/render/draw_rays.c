@@ -33,7 +33,7 @@
  * @param cnvs
  * @param line
  */
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 void	slice_drawing_avx2x8_strided(int x, t_ray *ray,
 			t_tex *cnvs, t_lvars line)
 {
@@ -114,7 +114,7 @@ void	slice_drawing_avx2x8_strided(int x, t_ray *ray,
 	}
 }
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 {
 	t_iter		it;
@@ -179,92 +179,6 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	}
 }
 
-static inline __attribute__((always_inline, unused))
-void	slice_drawing_sse41x4(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
-{
-	t_iter			it;
-	t_tfstep		ts;
-	t_m128i			mc;
-	t_cdata			cd;
-	int				offset;
-
-	offset = (int)ray->pos * ray->tex->h;
-	it.i = (-(line.top < 0) & -line.top);
-	it.j = line.end - line.top;
-	ts.step = (float)ray->tex->h / line.height;
-	ts.tex_y = ts.step * it.i;
-	cd.src = (int *)ray->tex->data + offset;
-	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
-	mc.overlay = -(ray->damaged) & MLX_RED;
-	mc.overlay128 = _mm_set1_epi32(-(ray->damaged) & MLX_RED);
-	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
-	while (it.i + 3 < it.j)
-	{
-		mc.src = _mm_setr_epi32(
-				cd.src[(int)(ts.tex_y + ts.step * 0)],
-				cd.src[(int)(ts.tex_y + ts.step * 1)],
-				cd.src[(int)(ts.tex_y + ts.step * 2)],
-				cd.src[(int)(ts.tex_y + ts.step * 3)]
-				);
-		mc.mask = _mm_cmpeq_epi32(mc.src, mc.transparent);
-		mc.src = _mm_or_si128(mc.src, mc.overlay128);
-		mc.dst = _mm_loadu_si128((__m128i *)cd.dst);
-		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-		_mm_storeu_si128((__m128i *)cd.dst, mc.blend);
-		cd.dst += 4;
-		ts.tex_y += ts.step * 4;
-		it.i += 4;
-	}
-	while (it.i < it.j)
-	{
-		mc.colour = cd.src[(int) ts.tex_y];
-		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
-		mc.dst = _mm_set1_epi32(*cd.dst);
-		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
-		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-		*cd.dst = _mm_cvtsi128_si32(mc.blend);
-		cd.dst++;
-		ts.tex_y += ts.step;
-		it.i++;
-	}
-}
-
-/**
- * slice_drawing_sse41()
- * @param pos
- * @param ray
- * @param cnvs
- * @param line
- */
-static inline __attribute__((always_inline, unused))
-void	slice_drawing_sse41(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
-{
-	t_iter			it;
-	t_tstep			ts;
-	t_m128i			mc;
-	t_cdata			cd;
-
-	it.i = (-(line.top < 0) & -line.top);
-	it.j = line.end - line.top;
-	mc.overlay = -(ray->damaged) & MLX_RED;
-	ts.step = (double)ray->tex->h / line.height;
-	ts.tex_y = ts.step * it.i;
-	cd.src = (int *)ray->tex->data + (ray->tex->w * (int)ray->pos);
-	cd.dst = (int *)cnvs->data + (line.top + it.i) * cnvs->w + x;
-	while (it.i < it.j)
-	{
-		mc.colour = cd.src[(int)ts.tex_y];
-		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
-		mc.dst = _mm_set1_epi32(*cd.dst);
-		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
-		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
-		*cd.dst = _mm_cvtsi128_si32(mc.blend);
-		it.i++;
-		cd.dst += cnvs->w;
-		ts.tex_y += ts.step;
-	}
-}
-
 void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
 	t_anim	*anim;
@@ -275,9 +189,6 @@ void	draw_slice(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
 	slice_drawing_avx2x8_strided(x, ray, canvas, line);
 }
-// slice_drawing_sse41(x, ray, canvas, line);
-// slice_drawing_sse41x4(x, ray, canvas, line);
-// slice_drawing_avx2x8(x, ray, canvas, line);
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {

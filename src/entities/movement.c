@@ -19,7 +19,7 @@ int	point_oob(t_vect pos, t_lvl *lvl)
 		|| (pos.y < 0 || pos.y > lvl->height));
 }
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 void	update_x_y(t_lvl *lvl, t_chvec3 tiles, t_vect new_pos, t_vect *pos)
 {
 	if (check_tile_open(tiles.x, lvl))

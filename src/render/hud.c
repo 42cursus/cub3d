@@ -233,7 +233,7 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	}
 }
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 uint32_t	get_tile_pix(int x, int y, int idx)
 {
 	int	is_edge = 0;
@@ -290,45 +290,24 @@ t_tex	get_tile(int idx)
 	return (*tex);
 }
 
-static inline __attribute__((always_inline, unused))
-int	get_tile_idx_alt(char **map, int i, int j)
-{
-	t_ivect 				iv;
-	t_ivect					nb;
-	static const t_ivect	neighbors[CHAR_BIT] = {
-		[bit_left] = { 0, -1},
-		[bit_top] = { -1,  0},
-		[bit_right] = { 0,  1},
-		[bit_bottom] = { 1,  0},
-		[bit_tleft] = { -1, -1},
-		[bit_tright] = { -1,  1},
-		[bit_bleft] = { 1, -1},
-		[bit_bright] = { 1,  1}
-	};
-
-	iv.x = 0;
-	iv.y = -1;
-	while (++iv.y < CHAR_BIT)
-	{
-		nb = neighbors[iv.y];
-		if (map[j + nb.y][i + nb.x] - '0' != 0)
-			iv.x |= (1 << iv.y);
-	}
-	return (iv.x);
-}
-
-static inline __attribute__((always_inline, unused))
+/**
+ * 0 => 3: Direct neighbors
+ * 4 => 7: Diagonal neighbors
+ * @param map
+ * @param i
+ * @param j
+ * @return
+ */
+static inline __attribute__((always_inline))
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;
 
 	index = 0;
-	/* Direct neighbors */
 	index += (map[i - 0][j - 1] - '0' != 0) << 0;
 	index += (map[i - 1][j + 0] - '0' != 0) << 1;
 	index += (map[i - 0][j + 1] - '0' != 0) << 2;
 	index += (map[i + 1][j + 0] - '0' != 0) << 3;
-	/* Diagonal neighbors */
 	index += (map[i - 1][j - 1] - '0' != 0) << 4;
 	index += (map[i - 1][j + 1] - '0' != 0) << 5;
 	index += (map[i + 1][j - 1] - '0' != 0) << 6;
@@ -409,7 +388,7 @@ void	place_help(t_info *app)
 	}
 }
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 						const t_player *obj)
 {

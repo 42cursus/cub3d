@@ -39,7 +39,7 @@ t_ivect	scale_ivect(t_ivect vect, int scalar)
 	return (out);
 }
 
-inline __attribute__((always_inline, unused))
+inline __attribute__((always_inline))
 void	rotate_vect_inplace(t_vect *vect, double angle)
 {
 	double	temp_x;

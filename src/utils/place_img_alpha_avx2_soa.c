@@ -225,7 +225,7 @@ t_point	blend_pixels_scalar_fast_path(int limit_x, t_point it, t_cdata cd)
 	return it;
 }
 
-static inline __attribute__((always_inline, unused))
+static inline __attribute__((always_inline))
 void	blend_8pixels_fast_path_avx2(int *src, int *dst)
 {
 	const __m256i v_src = _mm256_loadu_si256((__m256i *)src);

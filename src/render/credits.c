@@ -14,53 +14,6 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
-static inline __attribute__((always_inline, unused))
-__m128i repack_rgba_floats_to_bytes_sse_clamped(t_rgba_ps128 blended)
-{
-	__m128i			out;
-	t_rgba_si128	rgba;
-
-	const __m128i	shuffle = _mm_set_epi8(15, 11, 7, 3, 14, 10, 6, 2, 13, 9, 5, 1, 12, 8, 4, 0);
-
-	rgba.b = _mm_cvtps_epi32(blended.b);
-	rgba.g = _mm_cvtps_epi32(blended.g);
-	rgba.r = _mm_cvtps_epi32(blended.r);
-	rgba.a = _mm_cvtps_epi32(blended.a);
-
-	// Clamp channels to [0, 255]
-	const __m128i	zero = _mm_setzero_si128();
-	const __m128i	max255 = _mm_set1_epi32(255);
-	rgba.b = _mm_min_epi32(_mm_max_epi32(rgba.b, zero), max255);
-	rgba.g = _mm_min_epi32(_mm_max_epi32(rgba.g, zero), max255);
-	rgba.r = _mm_min_epi32(_mm_max_epi32(rgba.r, zero), max255);
-	rgba.a = _mm_min_epi32(_mm_max_epi32(rgba.a, zero), max255);
-
-	__m128i ra_b = _mm_packs_epi32(rgba.r, rgba.a);
-	__m128i bg_b = _mm_packs_epi32(rgba.b, rgba.g);
-
-	__m128i rgba_a = _mm_packus_epi16(bg_b, ra_b);
-
-	out = _mm_shuffle_epi8(rgba_a, shuffle);
-	return (out);
-}
-
-static inline __attribute__((always_inline, unused))
-int interpolate_colour_inline(int col1, int col2, double frac)
-{
-	int r;
-	int g;
-	int b;
-
-	if (col1 != col2 && col1 != (int) XPM_TRANSPARENT)
-	{
-		r = ((col2 & MLX_RED) - (col1 & MLX_RED)) * frac + (col1 & MLX_RED);
-		g = ((col2 & MLX_GREEN) - (col1 & MLX_GREEN)) * frac + (col1 & MLX_GREEN);
-		b = ((col2 & MLX_BLUE) - (col1 & MLX_BLUE)) * frac + (col1 & MLX_BLUE);
-		col1 = (r & MLX_RED) + (g & MLX_GREEN) + b;
-	}
-	return (col1);
-}
-
 void update_rocks(t_info *app, t_dummy *dummy)
 {
 	t_rock *rock;
