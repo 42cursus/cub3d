@@ -77,8 +77,12 @@ void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype)
 	dec->pos = pos;
 	dec->type = O_DECORATIVE;
 	dec->subtype = subtype;
-	if (subtype == D_SEAWEED)
-		dec->texture = &app->shtex->decorative[0];
+	dec->anim.active = 1;
+	dec->anim.loop = 1;
+	dec->anim.frames = 9;
+	dec->anim.duration = 1500000;
+	dec->anim.tex = app->shtex->decorative;
+	dec->texture = &app->shtex->decorative[0];
 	ft_lstadd_back(&lvl->items, ft_lstnew(dec));
 }
 // dec->anim.active = 1;
@@ -161,4 +165,9 @@ int	handle_obj_item(t_info *app, t_obj *obj, t_list **current)
 		return (1);
 	}
 	return (0);
+}
+
+void	handle_decorative(t_info *app, t_obj *obj)
+{
+	obj->texture = handle_animation(app, obj->anim);
 }

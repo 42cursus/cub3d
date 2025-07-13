@@ -62,6 +62,8 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 		obj = (t_obj *)current->data;
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
 			continue ;
+		else if (obj->type == O_DECORATIVE)
+			handle_decorative(app, obj);
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;

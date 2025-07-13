@@ -651,7 +651,7 @@ typedef struct s_shtex
 	t_tex	rocks[7];
 	t_tex	empty;
 	t_tex	playertile;
-	t_tex	decorative[2];
+	t_tex	decorative[9];
 	t_tex	square;
 	t_tex	messages[MSG_MAX];
 	t_tex	textures[TEX_MAX];
@@ -1141,6 +1141,7 @@ void	handle_tele(t_info *app, t_obj *tele);
 t_obj	*find_matching_tele(t_lvl *lvl, t_obj *key);
 int	handle_key(t_info *app, t_obj *key, t_list **current);
 int	handle_obj_item(t_info *app, t_obj *obj, t_list **current);
+void	handle_decorative(t_info *app, t_obj *obj);
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
 int		check_line_of_sight(t_info *app, t_obj *obj, t_player *player);

@@ -45,9 +45,16 @@ void	load_key_tex(t_info *app)
 void	load_decorative_tex(t_info *app)
 {
 	t_tex	*tex;
+	char	buf[BUFF_SIZE];
+	int		i;
 
 	tex = app->shtex->decorative;
-	tex[0] = img_to_tex(app, TEX_DIR"/seaweed.xpm");
+	i = -1;
+	while (++i < 9)
+	{
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/seaweed_2_%c.xpm", i + '0');
+		tex[i] = img_to_tex(app, buf);
+	}
 }
 
 void	load_ammo_tex(t_info *app)
