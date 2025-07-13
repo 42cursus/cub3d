@@ -308,6 +308,7 @@ typedef struct s_m128i
 	__m128i	dst;
 	__m128i	mask;
 	__m128i	blend;
+	__m128i	transparent;
 	struct
 	{
 		int		colour;

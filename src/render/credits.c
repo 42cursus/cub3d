@@ -14,18 +14,71 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
+__attribute__((optnone))
+void	copy_row(const int *src_row, int *dst_row, int width, double step)
+{
+	t_ivect	it;
+	t_m128i	mc;
+
+	mc.transparent = _mm_set1_epi32(XPM_TRANSPARENT);
+	it.x = -1;
+	while (++it.x < width)
+	{
+		mc.colour = src_row[(int)(it.x * step)];
+		mc.src = _mm_set1_epi32(mc.colour);
+		mc.dst = _mm_set1_epi32(dst_row[it.x]);
+//		mc.mask = _mm_cmpeq_epi32(mc.src, mc.transparent);
+		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
+		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
+		dst_row[it.x] = _mm_cvtsi128_si32(mc.blend);
+	}
+}
+
+__attribute__((optnone))
+void	place_tex_to_image_scale_safe(t_img *const dst, const t_tex tex, t_ivect pos, double scalar)
+{
+	t_ivect			it;
+	t_tex			copy;
+	t_cdata			cd;
+	const double		step = 1.0 / scalar;
+	const t_ivect	limit = scale_ivect(tex.xy, scalar);
+
+	it.y = -1;
+	copy.h = MIN((dst->height - pos.y), limit.y);
+	while(++it.y < copy.h)
+	{
+		cd.src = (int *)tex.data + (int)(it.y * step) * tex.w;
+		cd.dst = (int *)dst->data + ((it.y + pos.y) * dst->width) + pos.x;
+
+		copy.w = MIN((dst->width - pos.x), limit.x);
+		copy_row(cd.src, cd.dst, copy.w, step);
+		copy_row(cd.src + copy.w - 1, cd.dst + copy.w - dst->width, tex.w - copy.w, step);
+	}
+//	it.y--;
+//	while(++it.y < limit.y)
+//	{
+//		cd.src = (int *)tex.data + ((int)(it.y * step) * tex.w);
+//		cd.dst = (int *)dst->data + ((it.y - copy.h) * dst->width) + pos.x;
+//		copy.w = MIN((dst->width - pos.x), tex.w);
+//		copy_row(cd.src, cd.dst, copy.w, step);
+//		copy_row(cd.src + copy.w - 1, cd.dst + copy.w - dst->width, tex.w - copy.w, step);
+//	}
+}
+
 void update_rocks(t_info *app, t_dummy *dummy)
 {
-	t_rock *rock;
-	t_list *current;
+	t_rock	*rock;
+	t_list	*current;
+	t_vect	new;
 
 	current = dummy->rocks;
 	while (current != NULL)
 	{
 		rock = current->data;
-		place_tex_to_image_scale(app->canvas, rock->tex, round_vect(rock->pos),
-								 rock->scale);
-		rock->pos.x += rock->speed;
+		place_tex_to_image_scale_safe(app->canvas, *rock->tex, round_vect(rock->pos), rock->scale);
+		new.x = rock->pos.x;
+		new.x += rock->speed;
+		rock->pos.x = fmod((new.x + app->canvas->width), app->canvas->width);
 		current = current->next;
 	}
 }

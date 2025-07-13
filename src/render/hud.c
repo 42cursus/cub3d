@@ -452,29 +452,6 @@ void	place_mmap(t_info *app)
 	}
 }
 
-void	pix_copy(t_img *const src, t_img *const dst, t_point pos)
-{
-	u_int32_t	*src_row;
-	u_int32_t	*dst_row;
-	t_mcol		mc;
-	t_ivect		i;
-
-	i.y = -1;
-	while (++i.y < src->height)
-	{
-
-		src_row = (u_int32_t *) src->data + (i.y * src->width);
-		dst_row = (u_int32_t *) dst->data + ((i.y + pos.y) * dst->width) + pos.x;
-		i.x = -1;
-		while (++i.x < src->width)
-		{
-			mc.colour = src_row[i.x];
-			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			dst_row[i.x] = (mc.colour & mc.mask) | (dst_row[i.x] & ~mc.mask);
-		}
-	}
-}
-
 void	put_texture(t_info *app, t_tex *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;
@@ -501,7 +478,7 @@ void	put_texture(t_info *app, t_tex *tex, int x, int y)
 	}
 }
 
-void	place_tex_to_image_scale(t_img *const img, const t_tex *tex, t_ivect pos, double scalar)
+void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos, double scalar)
 {
 	t_ivect	it;
 	double	step;
@@ -520,7 +497,6 @@ void	place_tex_to_image_scale(t_img *const img, const t_tex *tex, t_ivect pos, d
 		while (++it.x < limit.x)
 		{
 			mc.colour = src_row[(int)(it.x * step)];
-			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
 			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
 		}
