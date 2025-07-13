@@ -52,7 +52,7 @@ void	load_decorative_tex(t_info *app)
 	i = -1;
 	while (++i < 9)
 	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/seaweed_2_%c.xpm", i + '0');
+		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/seaweed/seaweed_%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 }

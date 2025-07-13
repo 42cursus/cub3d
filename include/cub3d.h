@@ -205,6 +205,7 @@ typedef enum e_snd
 	snd_music_boss,
 	snd_player_damage,
 	snd_win_music,
+	snd_credits_finale,
 	SND_MAX
 }	t_snd;
 
@@ -611,7 +612,12 @@ typedef enum e_shtex
 
 typedef enum e_msg
 {
-	MSG_NOKEY,
+	MSG_NOKEY_1 = 0,
+	MSG_NOKEY_2,
+	MSG_NOKEY_3,
+	MSG_FOUND_KEY_1,
+	MSG_FOUND_KEY_2,
+	MSG_FOUND_KEY_3,
 	MSG_MAX,
 }	t_msg;
 

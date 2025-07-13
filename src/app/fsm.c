@@ -269,6 +269,7 @@ t_ret_code	do_state_credits(void *param)
 	set_fov(app, 70);
 	set_framerate(app, 500);
 	calculate_credits_offset(app, app->dummy);
+	Mix_PlayChannel(ch_music1, app->audio.chunks[snd_credits_finale], 0);
 	mlx_mouse_hide(app->mlx, app->win);
 	app->fr_last = get_time_us();
 	mlx_loop(app->mlx);

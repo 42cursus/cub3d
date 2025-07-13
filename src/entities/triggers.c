@@ -88,7 +88,6 @@ int	handle_trigger(t_info *app, t_obj *obj, t_list **current)
 
 int	handle_key(t_info *app, t_obj *key, t_list **current)
 {
-	t_list	*cur_trig;
 	t_obj	*tele;
 
 	key->texture = handle_animation(app, key->anim);
@@ -97,6 +96,9 @@ int	handle_key(t_info *app, t_obj *key, t_list **current)
 		tele = find_matching_tele(app->lvl, key);
 		if (tele != NULL)
 			tele->attacking = 0;
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
+		app->msg_to_show = MSG_FOUND_KEY_1 + key->subtype - 1;
+		app->msg_last_time = app->fr_last;
 		*current = delete_object(&app->lvl->triggers, *current);
 		return (1);
 	}
@@ -121,7 +123,7 @@ void	handle_tele(t_info *app, t_obj *tele)
 		}
 		else if (tele->attacking == 1)
 		{
-			app->msg_to_show = MSG_NOKEY;
+			app->msg_to_show = MSG_NOKEY_1 + tele->subtype - 1;
 			app->msg_last_time = app->fr_last;
 		}
 	}

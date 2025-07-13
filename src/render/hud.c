@@ -352,6 +352,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	return (img);
 }
 
+__attribute__((optnone))
 void	place_startup_overlay(t_info *app)
 {
 	t_point			p1;
@@ -373,7 +374,7 @@ void	place_startup_overlay(t_info *app)
 	}
 	if (app->msg_to_show > -1)
 	{
-		if (app->fr_last - app->msg_last_time < 500000)
+		if (app->fr_last - app->msg_last_time < 1200000)
 		{
 			t_img	img;
 			t_tex	tex;
@@ -383,7 +384,7 @@ void	place_startup_overlay(t_info *app)
 			img.height = tex.h;
 			img.data = (char *)tex.data;
 			p1.x = (WIN_WIDTH - img.width) / 2;
-			p1.y = WIN_HEIGHT * 3 / 4;
+			p1.y = WIN_HEIGHT * 3 / 5;
 			place_img_alpha_avx2_soa(canvas, &img, p1);
 		}
 		else
@@ -805,7 +806,6 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 
 void	draw_hud(t_info *app)
 {
-	place_startup_overlay(app);
 	place_mmap(app);
 	place_help(app);
 	if (!app->ads)
@@ -815,6 +815,7 @@ void	draw_hud(t_info *app)
 	}
 	else
 		place_scope(app);
+	place_startup_overlay(app);
 	place_energy(app, app->player);
 	place_ammo(app, app->player);
 	// if (app->framecount % (5) == 0)

@@ -158,27 +158,40 @@ t_tex	draw_playertile(void)
 	return (out);
 }
 
+__attribute__((optnone))
 void	generate_msg_text(t_info *app)
 {
 	t_tex *const msgs = app->shtex->messages;
 	FT_Face face = app->typ.faces[fnt_snes];
 	FT_Set_Pixel_Sizes(face, 0, 40);
 	t_str_arr	str_arrs[MSG_MAX];
-	static char	*str_arr[1] = {
-		"Teleporter inactive. Find the key.",
+	static const char	*str_arr[6] = {
+		"Teleporter ONE inactive. Find the key.",
+		"Teleporter TWO inactive. Find the key.",
+		"Teleporter THREE inactive. Find the key.",
+		"You found key for teleporter ONE.",
+		"You found key for teleporter TWO.",
+		"You found key for teleporter THREE."
 	};
-	// int			i;
+	int			i;
 
-	str_arrs[MSG_NOKEY].arr = str_arr;
-	str_arrs[MSG_NOKEY].longest_index = 0;
-	str_arrs[MSG_NOKEY].current = 0;
-	str_arrs[MSG_NOKEY].size = 1;
-	msgs[MSG_NOKEY] = create_ft_string(face, str_arrs[MSG_NOKEY]);
+	i = -1;
+	while (++i < MSG_MAX)
+	{
+		t_str_arr *sa = &str_arrs[i];
+		sa->arr = (char **)&str_arr[i];
+		sa->longest_index = 0;
+		sa->current = 0;
+		sa->size = 1;
+	}
+
+	i = -1;
+	while (++i < MSG_MAX)
+		msgs[i] = create_ft_string(face, str_arrs[i]);
 }
 
 void	load_misc_graphics(t_info *app)
 {
-	t_tex				*tex;
 	extern const char	*title_card_xpm[];
 	extern const char	*empty_xpm[];
 	extern const char	*teleporter_xpm[];

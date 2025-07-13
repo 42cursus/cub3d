@@ -137,7 +137,6 @@ int	render_load(void *param)
 
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-
 	place_str_centred((char *)	"LOADING", app, pos, 2);
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(50);
@@ -183,12 +182,9 @@ int	render_play(void *param)
 	if (app->keys[idx_XK_Left])
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
-
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *) app->canvas->data, (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
-
 	now = get_time_us();
-
 	elapsed = now - app->fr_last;
 	if (elapsed < app->fr_delay)
 	{
@@ -196,7 +192,6 @@ int	render_play(void *param)
 		ts.tv_nsec = (__syscall_slong_t)(app->fr_delay - elapsed) * 1000L;
 		nanosleep(&ts, NULL);
 	}
-
 	now = get_time_us(); // update now after sleep
 	app->fr_time = now - app->fr_last;
 	app->fr_last = now;
@@ -225,7 +220,6 @@ int	render_intro(void *param)
 	cast_all_rays_alt(app, app->lvl, app->player);
 	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-
 	draw_rays_transposed(app);
 	transpose_img_avx2_tiled_read((int *) app->canvas->data,
 								  (int *) app->canvas_r->data, WIN_WIDTH,
@@ -236,8 +230,6 @@ int	render_intro(void *param)
 	time = get_time_us();
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
-	// app->fr_scale = 20000.0/app->fr_time;
-	// app->fr_count++;
 	on_expose(app);
 	return (0);
 }
@@ -253,13 +245,11 @@ int	render_mmenu(void *param)
 				   (int *) bg->data, bg->size_line * bg->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
 	draw_menu_items(app);
-
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
-
 	on_expose(app);
 	return (0);
 }
