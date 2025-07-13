@@ -57,17 +57,6 @@ void	toggle_fullscreen(t_info *const app)
 			WIN_WIDTH, WIN_HEIGHT);
 }
 
-void	replace_frame(t_info *app)
-{
-	cast_all_rays_alt(app, app->lvl, app->player);
-	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
-		WIN_HEIGHT * WIN_WIDTH * sizeof(int) / 2);
-	fill_floor(app, app->player, 1);
-	if (!app->lvl->outside)
-		fill_floor(app, app->player, 0);
-	draw_rays(app);
-}
-
 void	replace_frame_transposed(t_info *app)
 {
 	cast_all_rays_alt(app, app->lvl, app->player);

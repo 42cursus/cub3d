@@ -27,7 +27,9 @@ void	menu_change_option(t_info *app, int dir)
 			{
 				calculate_offsets(app, app->player);
 				draw_sky_alt(app);
-				replace_frame(app);
+				replace_frame_transposed(app);
+				transpose_img_avx2_tiled_read((int *) app->canvas->data,
+					(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 				ft_memcpy_avx2((int *) app->stillshot->data,
 					(int *) app->canvas->data,
 					WIN_HEIGHT * WIN_WIDTH * sizeof(int));

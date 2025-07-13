@@ -90,8 +90,9 @@ int	render_win(void *param)
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
-	replace_frame(app);
-
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *) app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -113,7 +114,9 @@ int	render_lose(void *param)
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
 				   WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	update_objects(app, app->player, app->lvl);
-	replace_frame(app);
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *) app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 	put_texture(app, tex, (WIN_WIDTH - app->shtex->title.w) / 2, 100);
 	draw_menu_items(app);
 	while (get_time_us() - app->fr_last < app->fr_delay)
@@ -181,8 +184,6 @@ int	render_play(void *param)
 		rotate_player(app, app->player, 0, 12);
 	update_objects(app, app->player, app->lvl);
 
-//	 replace_frame(app);
-	 // replace_frame_hybrid(app);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *) app->canvas->data, (int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
 

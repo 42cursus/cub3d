@@ -575,9 +575,10 @@ void	do_play_to_pmenu(void *param)
 	app->mlx->end_loop = 0;
 	app->timer.stop_time = get_time_ms();
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
-	replace_frame(app);
-	ft_memcpy_avx2((int *) app->stillshot->data,
-		(int *) app->canvas->data,
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *) app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	ft_memcpy_avx2((int *) app->stillshot->data, (int *) app->canvas->data,
 		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
 	mlx_loop_hook(app->mlx, &render_pmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,

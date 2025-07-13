@@ -268,11 +268,6 @@ typedef struct s_fvec256
 	__m256	y;
 }	t_fvec256;
 
-typedef struct s_fvec128
-{
-	__m128	x;
-	__m128	y;
-}	t_fvec128;
 
 typedef struct s_vect
 {
@@ -280,39 +275,19 @@ typedef struct s_vect
 	double	y;
 }	t_vect;
 
-typedef struct s_vecf
-{
-	union
-	{
-		struct
-		{
-			double			x;
-			double			y;
-			struct s_vect	(*addi)(const t_vect self, t_ivect to_add);
-			struct s_vect	(*rot)(const t_vect self, double angle);
-			struct s_vect	(*add)(const t_vect self, t_vect to_add);
-		};
-		t_vect	v;
-	};
-}	t_vecf;
-
-typedef struct s_tstep
-{
-	double	step;
-	double	tex_y;
-}	t_tstep;
-
 typedef struct s_ftstep
 {
 	float	step;
 	float	tex_y;
 }	t_ftstep;
 
-typedef struct s_tfstep
+typedef struct s_fma_avx2
 {
-	float	step;
-	float	tex_y;
-}	t_tfstep;
+	__m256	offsets;
+	__m256	step;
+	__m256i	indices;
+	int 	idx[8] __attribute__((aligned(32)));
+}	t_fma_avx2;
 
 typedef struct s_cdata
 {
@@ -333,8 +308,6 @@ typedef struct s_m128i
 	__m128i	dst;
 	__m128i	mask;
 	__m128i	blend;
-	__m128i	overlay128;
-	__m128i	transparent;
 	struct
 	{
 		int		colour;
