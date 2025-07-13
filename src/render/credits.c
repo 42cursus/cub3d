@@ -14,7 +14,6 @@
 #include <sys/param.h>
 #include "cub3d.h"
 
-__attribute__((optnone))
 void	copy_row(const int *src_row, int *dst_row, int width, double step)
 {
 	t_ivect	it;
@@ -34,7 +33,6 @@ void	copy_row(const int *src_row, int *dst_row, int width, double step)
 	}
 }
 
-__attribute__((optnone))
 void	place_tex_to_image_scale_safe(t_img *const dst, const t_tex tex, t_ivect pos, double scalar)
 {
 	t_ivect			it;

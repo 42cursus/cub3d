@@ -27,30 +27,45 @@ RMFLAGS			= -r
 CC				:= clang
 #CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
+# https://github.com/llvm/llvm-project/issues/61684
+# https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
-OPTIMIZE_FLAGS	:= -O3 -ffast-math \
-						-mprefer-vector-width=256 \
-						-ftree-vectorize \
-						-mllvm --enable-lto-internalization \
-						-fstrict-aliasing -fno-strict-overflow \
-						-march=native \
+OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
+						-march=native -mtune=native \
+						-flto \
+						-mllvm -inline-threshold=1000 -maes \
+						-mllvm -extra-vectorizer-passes \
+						-mllvm -enable-cond-stores-vec \
+						-mllvm -slp-vectorize-hor-store \
+						-mllvm -enable-loopinterchange \
+						-mllvm -enable-loop-distribute \
+						-mllvm -enable-unroll-and-jam \
+						-mllvm -enable-lto-internalization \
+						-mllvm --interleave-loops \
+						-mllvm -unroll-runtime-multi-exit \
+						-mllvm -aggressive-ext-opt \
+						-mllvm -enable-interleaved-mem-accesses \
+						-mllvm -enable-masked-interleaved-mem-accesses \
+						-mllvm -inline-threshold=900 \
+						-falign-functions=32 \
+						-fno-semantic-interposition \
 						-fcf-protection=none \
-						-fvectorize \
 						-fno-stack-protector \
 						-fomit-frame-pointer \
-						# -flto -fno-stack-protector-all
-#						-mllvm -inline-threshold=900
-# -funroll-loops \
-	# -freroll-loops \
+						-fvectorize \
+						-mprefer-vector-width=256 \
+						-ftree-vectorize \
+						-fstrict-aliasing -fno-strict-overflow
+
 #DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 					# -pg \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2 #-Wno-missing-braces
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
 
@@ -60,7 +75,7 @@ ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
 	else ifeq ($(UNAME_R), 5.15.0-139-generic)
-		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
 	else
 		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
 	endif
@@ -70,14 +85,16 @@ LIBFT			=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
+
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
+					-O3 -Wl,--lto-O3,-O3,-Bsymbolic-functions,--as-needed \
+						-march=native -maes \
+						-flto -fuse-ld=lld \
+						-Wl,-zmax-page-size=0x200000 \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 					# -pg \
-#					-flto \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
-#					-fdump-tree-cfg \
-#					https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 
 SRC_DIR			= src
 

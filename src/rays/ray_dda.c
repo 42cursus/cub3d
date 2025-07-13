@@ -50,9 +50,7 @@ void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 		anim = &app->lvl->anims[maptile.y][maptile.x];
 		if (tile == 'O')
 			add_in_front(ray, ray->face + 8, get_door_tex(anim, app, tile));
-		else if (tile == 'L')
-			add_in_front(ray, ray->face + 4, get_door_tex(anim, app, tile));
-		else if (tile == 'M')
+		else if (tile == 'L' || tile == 'M')
 			add_in_front(ray, ray->face + 4, get_door_tex(anim, app, tile));
 		else if (tile == 'B')
 		{

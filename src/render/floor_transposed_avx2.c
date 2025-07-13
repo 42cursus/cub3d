@@ -18,7 +18,6 @@ void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img	tex);
  * @param app
  * @param player
  */
-//inline __attribute__((optnone))
 inline __attribute__((always_inline))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
@@ -203,7 +202,6 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
  * @param tex
  */
 inline __attribute__((always_inline))
-//inline __attribute__((optnone))
 void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
 {
 	t_ivect iter;

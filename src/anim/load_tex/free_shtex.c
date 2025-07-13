@@ -12,7 +12,6 @@
 
 #include "cub3d.h"
 
-__attribute__((optnone))
 void	free_tex_arr_arr(t_tex *tex, int n)
 {
 	while (n--)

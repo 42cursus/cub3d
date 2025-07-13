@@ -352,7 +352,6 @@ t_img	*build_minimap(t_info *app, int scale)
 	return (img);
 }
 
-__attribute__((optnone))
 void	place_startup_overlay(t_info *app)
 {
 	t_point			p1;

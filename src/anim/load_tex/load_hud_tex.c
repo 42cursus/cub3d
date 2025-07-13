@@ -158,7 +158,6 @@ t_tex	draw_playertile(void)
 	return (out);
 }
 
-__attribute__((optnone))
 void	generate_msg_text(t_info *app)
 {
 	t_tex *const msgs = app->shtex->messages;

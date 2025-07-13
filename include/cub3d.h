@@ -401,6 +401,17 @@ typedef struct s_rgba_ps256
 	__m256	a;
 }	t_rgba_ps256;
 
+typedef struct	s_repack_256
+{
+	__m256i	zero;
+	__m256i	max255;
+	__m256i	shuffle_mask;
+	__m256i	bg16;
+	__m256i	ra16;
+	__m256i	rgba8;
+	__m256i	shuffled;
+}	t_repack_256;
+
 typedef struct s_rgba_si256
 {
 	__m256i b;
@@ -900,18 +911,6 @@ typedef struct s_colour
 
 # define SMALL_MMAP_SCALE 8
 # define ALL_VALID_CHARS "NESW01DMLmsteZAHRPBb234789{"
-
-typedef enum e_bit
-{
-	bit_left = 0,
-	bit_top,
-	bit_right,
-	bit_bottom,
-	bit_tleft,
-	bit_tright,
-	bit_bleft,
-	bit_bright,
-}	t_bitno;
 
 void	apply_inverted_alpha(t_img *img, u_char added_alpha);
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p);

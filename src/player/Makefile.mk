@@ -14,6 +14,7 @@ FILES   = init.c \
 		  offsets.c \
 		  interaction.c \
 		  settings.c \
+		  settings_misc.c \
 		  weapons.c \
 		  health.c \
 
