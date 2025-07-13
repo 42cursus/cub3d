@@ -32,9 +32,6 @@ void replace_image(t_info *app)
 	draw_rays(app, &im3);
 	mlx_destroy_image(app->mlx, app->canvas);
 	app->canvas = im3.img;
-	// mlx_put_image_to_window(app->mlx, app->root,
-	// 						app->canvas, app->clip_x_origin,
-	// 						app->clip_y_origin);
 }
 
 int exit_win(void *param)
@@ -54,9 +51,6 @@ int expose_win(void *param)
 	t_imgdata im3;
 	t_info *const app = param;
 
-	t_imgdata im2;
-	int retcode;
-
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
 	if (!im3.img)
 	{
@@ -64,24 +58,10 @@ int expose_win(void *param)
 		cleanup(app);
 		exit(EXIT_FAILURE);
 	}
-	im2.img = mlx_xpm_file_to_image(app->mlx, (char *) "./textures/grass.xpm",
-								&im2.width, &im2.height);
-	if (!im2.img)
-	{
-		printf(" !! KO !!\n");
-		exit(1);
-	}
-	im2.addr = mlx_get_data_addr(im2.img, &im2.bpp, &im2.line_length, &im2.endian);
 	mlx_clear_window(app->mlx,  app->root);
-	// dprintf(2, "OK (xpm %dx%d)(img bpp2: %d, sizeline2: %d endian: %d type: %d)\n",
-	// 	   xpm1_x, xpm1_y, bpp2, sl2, endian2, im2->type);
-
 	app->canvas = im3.img;
+	replace_image(app);
 	on_expose(app);
-	retcode = mlx_put_image_to_window(app->mlx, app->root, im2.img, 200,0);
-	mlx_destroy_image(app->mlx, im2.img);
-	if (retcode)
-		return (EXIT_FAILURE);
 	return (EXIT_SUCCESS);
 }
 
@@ -131,6 +111,5 @@ int key_win(KeySym key, void *param)
 		rotate_player(app->player, 0);
 	replace_image(app);
 	on_expose(app);
-	// expose_win(app);
 	return (0);
 }

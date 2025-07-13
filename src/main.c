@@ -26,8 +26,6 @@ int	main(int argc, char **argv)
 	if (cubfd == -1)
 		return (printf("Error: failed to open map\n"), 1);
 	app->map = init_map();
-	// print_ascii_mmap(app->map, app->player);
-	printf("\e[?25l");
 	app->endianness = check_endianness();
 	app->mlx = mlx_init();
 	if (app->mlx == NULL)
@@ -39,12 +37,11 @@ int	main(int argc, char **argv)
 	mlx_hook(app->root, DestroyNotify, 0, &exit_win, app);
 	mlx_keypress_hook(app->root, &key_win, app);
 	if (parse_cub(app, cubfd))
-		return (free_map(app->map), 1);
+		return (cleanup(app), 1);
 	app->player = init_player(app->map);
-	// mlx_key_hook(app->root, &key_win, app);
 	// replace_image(app);
+	// on_expose(app);
 	mlx_loop(app->mlx);
-	printf("\e[?25h");
 	cleanup(app);
 	return (EXIT_SUCCESS);
 	(void)argc;

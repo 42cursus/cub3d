@@ -14,7 +14,8 @@
 
 int	cleanup(t_info *app)
 {
-	mlx_destroy_image(app->mlx, app->canvas);
+	if (app->canvas)
+		mlx_destroy_image(app->mlx, app->canvas);
 	mlx_destroy_window(app->mlx, app->root);
 	mlx_destroy_display(app->mlx);
 	free(app->mlx);

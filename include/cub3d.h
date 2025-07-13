@@ -17,8 +17,8 @@
 # include "mlx_int.h"
 # include <math.h>
 
-# define NUM_5 0x35 /* (53) Number 5 on the main keyboard */
-# define ESC 0xFF1B /* (53) Number 5 on the main keyboard */
+# define NUM_5 0x35
+# define ESC 0xFF1B
 # define UP 65362
 # define DOWN 65364
 # define RIGHT 65363
@@ -57,7 +57,6 @@ typedef	struct s_data
 	t_texarr		s_tex;
 	t_texarr		e_tex;
 	t_texarr		w_tex;
-	void			*maptiles[17];
 	int		f_col;
 	int		c_col;
 	char	**map;
@@ -131,7 +130,6 @@ t_data	*init_map(void);
 void	free_map(t_data *map);
 int		parse_cub(t_info *app, int fd);
 void	print_t_map(t_data *map);
-void	print_ascii_mmap(t_data *data, t_player *player);
 
 t_player	*init_player(t_data *map);
 void		move_player(t_player *player, char **map, t_vect dir);
@@ -147,10 +145,7 @@ void	cast_all_rays(t_data *map, t_player *player);
 int		determine_face(t_vect intersect);
 
 void	fill_bg(t_imgdata *canvas, t_data *map);
-void	load_map_textures(t_info *app);
 unsigned int	**img_to_arr(char *filename, t_info *app, int *x, int *y);
 void	draw_rays(t_info *app, t_imgdata *canvas);
-void	tiletest(t_info *app);
-void	draw_mmap(t_info *app);
 
 #endif //CUB3D_H

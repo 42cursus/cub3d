@@ -202,7 +202,7 @@ int	collect_map(t_list	*file, t_data *data)
 	}
 	if (current->next == NULL)
 		return (ft_list_destroy(&(current->next), NULL), 0);
-	ft_list_reverse_fun(current->next);
+	ft_list_reverse(&current->next);
 	data->map = (char **)ft_lst_to_arr(current->next);
 	ft_list_destroy(&(current->next), NULL);
 	current->next = NULL;
@@ -451,7 +451,6 @@ int	parse_cub(t_info *app, int fd)
 	t_data	*data;
 
 	data = app->map;
-	load_map_textures(app);
 	file = read_cub(fd);
 	if (!collect_map(file, data))
 		return (ft_list_destroy(&file, free),
@@ -470,13 +469,6 @@ int	parse_cub(t_info *app, int fd)
 	ft_list_destroy(&file, free);
 	if (!all_fields_parsed(data))
 		return (printf("Error: not all fields provided\n"), 1);
-	// {
-	// 	printf("NORTH: %d %d\n", data->n_tex.x, data->n_tex.y);
-	// 	printf("SOUTH: %d %d\n", data->s_tex.x, data->s_tex.y);
-	// 	printf("EAST: %d %d\n", data->e_tex.x, data->e_tex.y);
-	// 	printf("WEST: %d %d\n", data->w_tex.x, data->w_tex.y);
-	// 	exit(0);
-	// }
 	return (0);
 }
 
