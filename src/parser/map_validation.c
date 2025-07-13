@@ -12,34 +12,33 @@
 
 #include "cub3d.h"
 
-int		is_map_line(char *line);
-void	normalise_map(t_lvl *data);
-int		str_cmp_whitespace(void *data, void *ref);
-
 int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 {
+	t_ivect	it;
+	char	tiles[] = {
+		map[i - 1][j + 0],
+		map[i + 0][j - 1],
+		map[i + 0][j + 1],
+		map[i + 1][j + 0],
+		map[i - 1][j - 1],
+		map[i + 1][j - 1],
+		map[i - 1][j + 1],
+		map[i + 1][j + 1]
+	};
+
 	if (i == 0 || j == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i + 1] == NULL)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (map[i][j + 1] == 0)
+	if (map[i + 0][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789{", map[i - 1][j]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234789{", map[i][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i - 1][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i - 1][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234789{", map[i + 1][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
+
+	it.x = -1;
+	while (++it.x < 8)
+	{
+		if (!ft_strchr(ALL_VALID_CHARS, tiles[it.x]))
+			return (printf("Error: map not fully bounded\n"), 0);
+	}
 	return (1);
 }
 
@@ -96,9 +95,12 @@ int	validate_map_tiles(t_lvl *data, char **map)
 		{
 			if (ft_strchr("0NEWSDLMmsteZAHRPBb234789{", map[i][j]))
 			{
-				if (!surrounding_tiles_valid(map, i, j)
-					|| !check_start_pos(data, i, j, &start_found))
-					return (print_invalid_tile_err(map, i, j), 0);
+				if (!surrounding_tiles_valid(map, i, j) ||
+					!check_start_pos(data, i, j, &start_found))
+				{
+					print_invalid_tile_err(map, i, j);
+					return (0);
+				}
 			}
 		}
 	}

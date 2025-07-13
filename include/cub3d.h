@@ -899,6 +899,7 @@ typedef struct s_colour
 # define MAP_BOT_RIGHT	0b10000000
 
 # define SMALL_MMAP_SCALE 8
+# define ALL_VALID_CHARS "NESW01DMLmsteZAHRPBb234789{"
 
 typedef enum e_bit
 {
@@ -995,7 +996,6 @@ void	rotate_vect_inplace(t_vect *vect, double angle);
 t_vect	add_vect(t_vect v1, t_vect v2);
 t_vect	add_fvect(t_fvect v1, t_fvect v2);
 t_vect	addi_vect(t_vect v1, t_ivect v2);
-t_ivect	add_ivect(t_ivect v1, t_ivect v2);
 t_ivect	round_vect(t_vect vect);
 t_vect	subtract_vect(t_vect v1, t_vect v2);
 double	vector_distance(t_vect v1, t_vect v2);
@@ -1005,33 +1005,25 @@ double	dot_product(t_vect v1, t_vect v2);
 double	vector_angle(t_vect v1, t_vect v2);
 double	get_hyp_len(double len1, double len2);
 void	*ft_memcpy_avx2(void *dst, const void *src, size_t count);
-void	*memcpy_sse2(void *dst_void, const void *src_void, size_t size);
 
 void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player);
 t_ray	*get_pooled_ray(int flag);
 t_poolnode	*add_poolnode(t_poolnode *head);
 void	clear_poolnodes(t_poolnode *head, t_poolnode **current);
 void	reset_pool(t_poolnode *head, t_poolnode **current);
-int		count_poolnodes(t_poolnode *head);
 t_ray	ray_dda(t_info *app, t_lvl *lvl, t_player *player, double angle);
-t_ray	ray_dda_refactor(t_info *app, t_lvl *lvl,
-			t_player *player, double angle);
-void	free_ray_children(t_ray *ray);
 
 void	replace_image(t_info *app, t_img **img, char *tex_file);
 void	replace_image_r(t_info *app, t_img **img, char *file);
 void	replace_sky(t_info *app, char *tex_file);
 void	replace_sky_r(t_info *app, char *tex_file);
-int		dim_colour(u_int col, double fact);
 
 t_img	*scale_image(t_info *app, t_img *img, int new_x, int new_y);
 t_tex	scale_texture(t_tex *tex, int scale);
-t_img	*img_dup(t_info *app, t_img *src);
 void	pix_dup(t_img *src, t_img *dst);
 void	fill_with_colour(t_img *img, int f_col, int c_col);
 void	fill_with_colour_tex(t_tex img, int col);
 void	fill_with_colour_r(t_img *img, int f_col, int c_col);
-//void	my_put_pixel_32(t_img *img, int x, int y, unsigned int colour);
 void	put_texture(t_info *app, t_tex *tex, int x, int y);
 void	place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
 			double scalar);
@@ -1043,12 +1035,7 @@ t_tex	img_to_tex(t_info *app, const char *filename);
 t_tex	img_to_tex_static_rm(t_info *app, const char **xpm_data);
 t_tex	img_to_tex_static_cm(t_info *app, const char **xpm_data);
 t_tex	img_to_tex_row_major(t_info *app, const char *filename);
-u_int	*img_to_tex_static_row_major(t_info *app, const char **xpm_data, int *w, int *h);
-u_int	*img_to_tex_static_col_major(t_info *app, const char **xpm_data, int *w, int *h);
 void	put_pixel_alpha(t_img *img, t_point p, int base_color, double alpha_frac);
-void	put_pixel_alpha_add(t_img *img, t_ivect p, int base_color, double alpha_frac);
-void	draw_rays(t_info *app);
-void	draw_rays_transposed_alt(t_info *app);
 void	draw_rays_transposed(t_info *app);
 void	draw_hud(t_info *app);
 void	draw_circle_filled(t_img *img, t_point c, int r, int color);
@@ -1062,48 +1049,41 @@ size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
 
-int key_press_intro(KeySym key, void *param);
-int key_release_intro(KeySym key, void *param);
+int		key_press_intro(KeySym key, void *param);
+int		key_release_intro(KeySym key, void *param);
 
-int key_press_mmenu(KeySym key, void *param);
-int key_release_mmenu(KeySym key, void *param);
+int		key_press_mmenu(KeySym key, void *param);
+int		key_release_mmenu(KeySym key, void *param);
 
-int key_press_play(KeySym key, void *param);
-int key_release_play(KeySym key, void *param);
+int		key_press_play(KeySym key, void *param);
+int		key_release_play(KeySym key, void *param);
 
-int key_press_pmenu(KeySym key, void *param);
-int key_release_pmenu(KeySym key, void *param);
+int		key_press_pmenu(KeySym key, void *param);
+int		key_release_pmenu(KeySym key, void *param);
 
-int key_press_lose(KeySym key, void *param);
-int key_release_lose(KeySym key, void *param);
+int		key_press_lose(KeySym key, void *param);
+int		key_release_lose(KeySym key, void *param);
 
-int key_press_win(KeySym key, void *param);
-int key_release_win(KeySym key, void *param);
+int		key_press_win(KeySym key, void *param);
+int		key_release_win(KeySym key, void *param);
 
-int key_press_credits(KeySym key, void *param);
-int key_release_credits(KeySym key, void *param);
+int		key_press_credits(KeySym key, void *param);
+int		key_release_credits(KeySym key, void *param);
 
-int	render_intro(void *param);
-int	render_mmenu(void *param);
-int	render_pmenu(void *param);
-int	render_play(void *app);
-int	render_load(void *app);
-int	render_lose(void *param);
-int	render_win(void *param);
-int	render_credits(void *param);
+int		render_intro(void *param);
+int		render_mmenu(void *param);
+int		render_pmenu(void *param);
+int		render_play(void *app);
+int		render_load(void *app);
+int		render_lose(void *param);
+int		render_win(void *param);
+int		render_credits(void *param);
 
-void	draw_sky(t_info *app);
 void	draw_nav(t_info *app);
 void 	draw_sky_alt(t_info *app);
-void 	draw_sky_transposed(t_info *const app);
 void 	draw_sky_transposed_avx2(t_info *const app);
-void	fill_ceiling(t_info *app, t_lvl *lvl, t_player *player);
-void	fill_floor(t_info *app, t_player *player, int is_floor);
-void	fill_floor_sse4x4(t_info *app, t_player *player);
-void	fill_floor_avx2x8(t_info *app, t_player *player);
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player);
 void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player);
-void	fill_ceil_transposed_cols(t_info *app, t_player *player);
 
 void	menu_select_current(t_info *app);
 void	draw_menu_items(t_info *app);
@@ -1126,27 +1106,27 @@ void	calculate_credits_offset(t_info *app, t_dummy *dummy);
 void	start_obj_death(t_obj *obj, t_info *app);
 t_list	*delete_object(t_list **obj_list, t_list *obj_node);
 t_obj	*check_obj_proximity(t_vect pos, t_lvl *lvl);
-int	point_oob_global(t_vect pos, t_lvl *lvl);
+int		point_oob_global(t_vect pos, t_lvl *lvl);
 void	select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
 t_tex	*handle_animation(t_info *app, t_anim anim);
 t_anim	**create_anim_arr(int x, int y);
 void	init_anims(t_info *app, t_lvl *lvl);
 void	reset_anims(t_info *app, t_lvl *lvl);
-int	count_collectables(t_lvl *lvl);
-int	handle_obj_projectile(t_info *app, t_obj *obj, t_list **current);
-int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current);
+int		count_collectables(t_lvl *lvl);
+int		handle_obj_projectile(t_info *app, t_obj *obj, t_list **current);
+int		handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current);
 void	spawn_drops(t_info *app, t_obj *obj, int no);
 void	phantoon_ai(t_info *app, t_obj *obj);
 void	reo_ai(t_info *app, t_obj *enemy);
 void	atomic_ai(t_info *app, t_obj *enemy);
 void	holtz_ai(t_info *app, t_obj *enemy, t_player *player);
 void	zoomer_ai(t_info *app, t_obj *enemy);
-int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
-int	handle_trigger(t_info *app, t_obj *obj, t_list **current);
+int		handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
+int		handle_trigger(t_info *app, t_obj *obj, t_list **current);
 void	handle_tele(t_info *app, t_obj *tele);
 t_obj	*find_matching_tele(t_lvl *lvl, t_obj *key);
-int	handle_key(t_info *app, t_obj *key, t_list **current);
-int	handle_obj_item(t_info *app, t_obj *obj, t_list **current);
+int		handle_key(t_info *app, t_obj *key, t_list **current);
+int		handle_obj_item(t_info *app, t_obj *obj, t_list **current);
 void	handle_decorative(t_info *app, t_obj *obj);
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
@@ -1161,12 +1141,12 @@ int		get_key_index(KeySym key);
 
 void	draw_text_freetype(FT_Face face, t_img *img, const char *text, t_point c);
 int		compute_text_width(FT_Face face, const char *text);
-int		get_text_vertical_offset(FT_Face face, int img_height);
 void	draw_text_ft_hcentered(FT_Face face, t_tex tex, const char *text, t_point c);
 void	draw_multiline_text_centered(FT_Face face, t_tex tex, char **lines, int num_lines);
-void	spawn_rock(t_info *app, t_vect pos, t_tex *tex, double speed);
 void	spawn_random_rock(t_info *app, double speed);
-int		cmp_rock_speed(void *data1, void *data2);
 void	update_rocks(t_info *app, t_dummy *dummy);
+int		is_map_line(char *line);
+void	normalise_map(t_lvl *data);
+int		str_cmp_whitespace(void *data, void *ref);
 
 #endif //CUB3D_H
