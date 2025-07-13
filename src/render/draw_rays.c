@@ -93,20 +93,20 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
 	mmc.overlay256 = _mm256_set1_epi32(-(ray->damaged) & MLX_RED);
 	mmc.transparent = _mm256_set1_epi32(XPM_TRANSPARENT);
-//	while (it.i + 7 < it.j)
-//	{
-//		fma.indices = _mm256_cvttps_epi32(_mm256_fmadd_ps(fma.offsets, fma.step,
-//			_mm256_set1_ps(ts.tex_y)));
-//		mmc.src = _mm256_i32gather_epi32((const int *)cd.src, fma.indices, 4);
-//		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
-//		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
-//		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
-//		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
-//		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
-//		cd.dst += 8;
-//		ts.tex_y += ts.step * 8;
-//		it.i += 8;
-//	}
+	while (it.i + 7 < it.j)
+	{
+		fma.indices = _mm256_cvttps_epi32(_mm256_fmadd_ps(fma.offsets, fma.step,
+			_mm256_set1_ps(ts.tex_y)));
+		mmc.src = _mm256_i32gather_epi32((const int *)cd.src, fma.indices, 4);
+		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
+		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
+		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
+		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
+		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
+		cd.dst += 8;
+		ts.tex_y += ts.step * 8;
+		it.i += 8;
+	}
 	slice_drawing_scalar(ray, it, ts, cd);
 }
 

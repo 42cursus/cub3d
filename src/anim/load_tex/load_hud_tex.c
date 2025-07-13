@@ -80,6 +80,7 @@ typedef struct s_str_arr
 	char	**arr;
 	int		size;
 	int		current;
+	int		longest_index;
 }	t_str_arr;
 
 void	apply(char *str, void *ref)
@@ -87,6 +88,24 @@ void	apply(char *str, void *ref)
 	t_str_arr *const	strings = ref;
 
 	strings->arr[strings->current++] = str;
+}
+
+t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
+{
+	t_tex					tex;
+	const FT_Size_Metrics	metrics = face->size->metrics;
+	const uint32_t			line_height = metrics.height >> 6;
+	const uint32_t			spacing = metrics.ascender >> 6;
+	const uint32_t			total_height = str_arr.size * (line_height + spacing);
+	const uint32_t			width = compute_text_width(face, str_arr.arr[str_arr.longest_index]);
+
+	tex = (t_tex){.w = (int)width, .h = (int)total_height * 2};
+	tex.sl = tex.w * sizeof(int);
+	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+		return (tex);
+	fill_with_colour_tex(tex, XPM_TRANSPARENT);
+	draw_multiline_text_centered(face, tex, str_arr.arr, str_arr.size);
+	return (tex);
 }
 
 t_tex	draw_credits(t_info *app)
@@ -139,6 +158,24 @@ t_tex	draw_playertile(void)
 	return (out);
 }
 
+void	generate_msg_text(t_info *app)
+{
+	t_tex *const msgs = app->shtex->messages;
+	FT_Face face = app->typ.faces[fnt_snes];
+	FT_Set_Pixel_Sizes(face, 0, 40);
+	t_str_arr	str_arrs[MSG_MAX];
+	static char	*str_arr[1] = {
+		"Teleporter inactive. Find the key.",
+	};
+	// int			i;
+
+	str_arrs[MSG_NOKEY].arr = str_arr;
+	str_arrs[MSG_NOKEY].longest_index = 0;
+	str_arrs[MSG_NOKEY].current = 0;
+	str_arrs[MSG_NOKEY].size = 1;
+	msgs[MSG_NOKEY] = create_ft_string(face, str_arrs[MSG_NOKEY]);
+}
+
 void	load_misc_graphics(t_info *app)
 {
 	t_tex				*tex;
@@ -156,4 +193,5 @@ void	load_misc_graphics(t_info *app)
 	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
 	app->shtex->playertile = draw_playertile();
 	app->shtex->square = get_tile(15);
+	generate_msg_text(app);
 }

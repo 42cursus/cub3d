@@ -224,6 +224,8 @@ t_ret_code	do_state_play(void *param)
 	draw_nav(app);
 	calculate_offsets(app, app->player);
 	app->fr_last = get_time_us();
+	app->msg_to_show = -1;
+	app->msg_last_time = app->fr_last;
 	mlx_loop(app->mlx);
 	mlx_mouse_show(app->mlx, app->win);
 	return (app->rc);

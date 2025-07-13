@@ -609,6 +609,12 @@ typedef enum e_shtex
 	TEX_MAX
 }	t_etex;
 
+typedef enum e_msg
+{
+	MSG_NOKEY,
+	MSG_MAX,
+}	t_msg;
+
 typedef struct s_shtex
 {
 	t_tex	door_tex[7];
@@ -647,6 +653,7 @@ typedef struct s_shtex
 	t_tex	playertile;
 	t_tex	decorative[2];
 	t_tex	square;
+	t_tex	messages[MSG_MAX];
 	t_tex	textures[TEX_MAX];
 }	t_shtex;
 
@@ -827,6 +834,8 @@ struct s_info
 	t_dummy		*dummy;
 	int			sensitivity;
 	char		hint_shown;
+	int			msg_to_show;
+	size_t		msg_last_time;
 };
 
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -1144,6 +1153,7 @@ void	toggle_fullscreen(t_info *app);
 int		get_key_index(KeySym key);
 
 void	draw_text_freetype(FT_Face face, t_img *img, const char *text, t_point c);
+int		compute_text_width(FT_Face face, const char *text);
 int		get_text_vertical_offset(FT_Face face, int img_height);
 void	draw_text_ft_hcentered(FT_Face face, t_tex tex, const char *text, t_point c);
 void	draw_multiline_text_centered(FT_Face face, t_tex tex, char **lines, int num_lines);

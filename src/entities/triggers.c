@@ -106,18 +106,27 @@ int	handle_key(t_info *app, t_obj *key, t_list **current)
 void	handle_tele(t_info *app, t_obj *tele)
 {
 	t_aud *const	aud = &app->audio;
+	const double	distance = vector_distance(app->player->pos, tele->pos);
 
-	if (tele->dead == 0 && vector_distance(app->player->pos, tele->pos) < 0.4)
+	if (distance < 0.4)
 	{
-		tele->dead = 1;
-		app->current_sublevel = tele->subtype;
-		app->rc = extra;
-		app->mlx->end_loop = 1;
-		app->player->tele_pos = tele->pos;
-		Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
+		if (tele->dead == 0)
+		{
+			tele->dead = 1;
+			app->current_sublevel = tele->subtype;
+			app->rc = extra;
+			app->mlx->end_loop = 1;
+			app->player->tele_pos = tele->pos;
+			Mix_PlayChannel(ch_tele, aud->chunks[snd_portal], 0);
+		}
+		else if (tele->attacking == 1)
+		{
+			app->msg_to_show = MSG_NOKEY;
+			app->msg_last_time = app->fr_last;
+		}
 	}
 	else if (tele->attacking == 0
-		&& vector_distance(app->player->pos, tele->pos) > 1.5)
+		&& distance > 1.5)
 		tele->dead = 0;
 }
 

@@ -371,6 +371,24 @@ void	place_startup_overlay(t_info *app)
 		else
 			app->hint_shown = true;
 	}
+	if (app->msg_to_show > -1)
+	{
+		if (app->fr_last - app->msg_last_time < 500000)
+		{
+			t_img	img;
+			t_tex	tex;
+
+			tex = app->shtex->messages[app->msg_to_show];
+			img.width = tex.w;
+			img.height = tex.h;
+			img.data = (char *)tex.data;
+			p1.x = (WIN_WIDTH - img.width) / 2;
+			p1.y = WIN_HEIGHT * 3 / 4;
+			place_img_alpha_avx2_soa(canvas, &img, p1);
+		}
+		else
+			app->msg_to_show = -1;
+	}
 }
 
 void	place_help(t_info *app)
