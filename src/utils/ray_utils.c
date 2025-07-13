@@ -1,0 +1,46 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ray_utils.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/13 18:54:32 by fsmyth            #+#    #+#             */
+/*   Updated: 2025/07/13 19:00:41 by fsmyth           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../../include/cub3d.h"
+
+double	get_gradient_dir(t_vect dir)
+{
+	return (dir.y / dir.x);
+}
+
+double	get_gradient_angle(double angle)
+{
+	return (tan(angle));
+}
+
+double	get_y_intercept(t_vect pos, double gradient)
+{
+	return (pos.y - (gradient * pos.x));
+}
+
+t_vect	get_horizontal_int(double y, double gradient, double c)
+{
+	t_vect	out;
+
+	out.y = y;
+	out.x = (y - c) / gradient;
+	return (out);
+}
+
+t_vect	get_vertical_int(double x, double gradient, double c)
+{
+	t_vect	out;
+
+	out.x = x;
+	out.y = (gradient * x) + c;
+	return (out);
+}

@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 int	check_endianness(void)
 {
 	int	a;
@@ -23,4 +22,3 @@ int	check_endianness(void)
 		little_endian = 0;
 	return (little_endian);
 }
-

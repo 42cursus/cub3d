@@ -6,16 +6,16 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:33:25 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/28 17:22:07 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/07/13 19:08:23 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/cub3d.h"
 #include <X11/X.h>
 
-void replace_image(t_info *app)
+void	replace_image(t_info *app)
 {
-	t_imgdata im3;
+	t_imgdata	im3;
 
 	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
 	if (!im3.img)
@@ -26,7 +26,8 @@ void replace_image(t_info *app)
 	}
 	im3.height = WIN_HEIGHT;
 	im3.width = WIN_WIDTH;
-	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp, &im3.line_length, &im3.endian);
+	im3.addr = mlx_get_data_addr(im3.img, &im3.bpp,
+			&im3.line_length, &im3.endian);
 	fill_bg(&im3, app->map);
 	cast_all_rays(app->map, app->player);
 	draw_rays(app, &im3);
@@ -34,9 +35,10 @@ void replace_image(t_info *app)
 	app->canvas = im3.img;
 }
 
-int exit_win(void *param)
+int	exit_win(void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
+
 	mlx_loop_end(app->mlx);
 	return (0);
 }
@@ -46,48 +48,20 @@ int exit_win(void *param)
  * https://tronche.com/gui/x/xlib/events/exposure/expose.html
  * https://tronche.com/gui/x/xlib/window/attributes/#XSetWindowAttributes
  */
-int expose_win(void *param)
-{
-	t_imgdata im3;
-	t_info *const app = param;
 
-	im3.img = mlx_new_image(app->mlx, app->win.width, app->win.height);
-	if (!im3.img)
-	{
-		ft_printf(" !! KO !!\n");
-		cleanup(app);
-		exit(EXIT_FAILURE);
-	}
-	mlx_clear_window(app->mlx,  app->root);
-	app->canvas = im3.img;
-	replace_image(app);
-	on_expose(app);
-	return (EXIT_SUCCESS);
-}
-
-int mouse_win(unsigned int button, int x, int y, void *p)
+void	mlx_keypress_hook(t_win_list *win,
+			int (*hook)(KeySym, void *), void *param)
 {
-	if (button == 5 || button == 4)
-	{
-		replace_image((t_info *) p);
-		on_expose((t_info *) p);
-	}
-	return (0);
-	((void) x, (void) y);
-}
-
-void mlx_keypress_hook(t_win_list *win, int (*hook)(KeySym, void *), void *param)
-{
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	win->hooks[KeyPress].hook = hook;
 	win->hooks[KeyPress].param = app;
 	win->hooks[KeyPress].mask = KeyPressMask;
 }
 
-int key_win(KeySym key, void *param)
+int	key_win(KeySym key, void *param)
 {
-	t_info *const app = param;
+	t_info *const	app = param;
 
 	if (key == NUM_5 || key == ESC)
 	{
@@ -98,13 +72,13 @@ int key_win(KeySym key, void *param)
 		move_player(app->player, app->map->map, app->player->direction);
 	else if (key == KEY_S)
 		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, M_PI));
+			rotate_vect(app->player->direction, M_PI));
 	else if (key == KEY_A)
 		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, M_PI_2));
+			rotate_vect(app->player->direction, M_PI_2));
 	else if (key == KEY_D)
 		move_player(app->player, app->map->map,
-					rotate_vect(app->player->direction, -M_PI_2));
+			rotate_vect(app->player->direction, -M_PI_2));
 	else if (key == RIGHT)
 		rotate_player(app->player, 1);
 	else if (key == LEFT)

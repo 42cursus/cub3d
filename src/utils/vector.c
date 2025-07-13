@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 14:53:49 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/03/13 16:04:11 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/07/13 18:59:57 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ t_vect	rotate_vect(t_vect vect, double angle)
 	return (out);
 }
 
-char	get_max_direction(t_vect vect)
+char	get_max_direction(t_vect vect, t_vect *pos, t_vect *new_pos)
 {
 	double	absx;
 	double	absy;
@@ -49,6 +49,14 @@ char	get_max_direction(t_vect vect)
 	absx = fabs(vect.x);
 	absy = fabs(vect.y);
 	if (absx > absy)
-		return ('x');
-	return ('y');
+		pos->x = new_pos->x;
+	else
+		pos->y = new_pos->y;
+	return (0);
+}
+
+double	get_cam_distance(t_vect pos, double angle, t_vect intcpt)
+{
+	return (fabs((cos(angle) * (intcpt.y - pos.y))
+			- (sin(angle) * (intcpt.x - pos.x))));
 }
