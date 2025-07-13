@@ -101,6 +101,7 @@ t_tex	draw_credits(t_info *app)
 	lines = read_file_stripped(fd);
 	str_arr.size = ft_list_size(lines);
 	str_arr.arr = ft_calloc(str_arr.size + 1, sizeof(char *));
+	str_arr.current = 0;
 	ft_list_foreach_ref(lines, (void *)apply, &str_arr);
 	ft_list_destroy(&lines, NULL);
 
