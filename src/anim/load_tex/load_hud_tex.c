@@ -75,14 +75,6 @@ void	load_boss_bar_tex(t_info *app)
 	tex[1] = img_to_tex_row_major(app, TEX_DIR"/boss_bar_right.xpm");
 }
 
-typedef struct s_str_arr
-{
-	char	**arr;
-	int		size;
-	int		current;
-	int		longest_index;
-}	t_str_arr;
-
 void	apply(char *str, void *ref)
 {
 	t_str_arr *const	strings = ref;
@@ -92,14 +84,15 @@ void	apply(char *str, void *ref)
 
 t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
 {
-	t_tex					tex;
-	const FT_Size_Metrics	metrics = face->size->metrics;
-	const uint32_t			line_height = metrics.height >> 6;
-	const uint32_t			spacing = metrics.ascender >> 6;
-	const uint32_t			total_height = str_arr.size * (line_height + spacing);
-	const uint32_t			width = compute_text_width(face, str_arr.arr[str_arr.longest_index]);
+	t_tex	tex;
+	t_fnt	fnt;
 
-	tex = (t_tex){.w = (int)width, .h = (int)total_height * 2};
+	fnt.metrics = face->size->metrics;
+	fnt.line_height = fnt.metrics.height >> 6;
+	fnt.spacing = fnt.metrics.ascender >> 6;
+	fnt.total_height = str_arr.size * (fnt.line_height + fnt.spacing);
+	fnt.width = compute_text_width(face, str_arr.arr[str_arr.longest_index]);
+	tex = (t_tex){.w = (int)fnt.width, .h = (int)fnt.total_height * 2};
 	tex.sl = tex.w * sizeof(int);
 	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
 		return (tex);
@@ -110,11 +103,14 @@ t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
 
 t_tex	draw_credits(t_info *app)
 {
-	t_tex		tex = {0x00};
+	int			fd;
+	t_tex		tex;
 	t_str_arr	str_arr;
 	t_list		*lines;
+	t_fnt		fnt;
 
-	int fd = open("resources/credits.txt", O_RDONLY);
+	ft_memset(&tex, 0, sizeof(tex));
+	fd = open("resources/credits.txt", O_RDONLY);
 	if (fd == -1)
 		return (tex);
 	lines = read_file_stripped(fd);
@@ -123,22 +119,18 @@ t_tex	draw_credits(t_info *app)
 	str_arr.current = 0;
 	ft_list_foreach_ref(lines, (void *)apply, &str_arr);
 	ft_list_destroy(&lines, NULL);
-
-	FT_Face face = app->typ.faces[fnt_snes];
-	FT_Set_Pixel_Sizes(face, 0, 40);
-
-	const FT_Size_Metrics	metrics = face->size->metrics;
-	const uint32_t			line_height = metrics.height >> 6;
-	const uint32_t			spacing = metrics.ascender >> 6;
-	const uint32_t			total_height = str_arr.size * (line_height + spacing);
-
-	tex = (t_tex){.w = 1000, .h = (int)total_height + 50};
+	fnt.face = app->typ.faces[fnt_snes];
+	FT_Set_Pixel_Sizes(fnt.face, 0, 40);
+	fnt.metrics = fnt.face->size->metrics;
+	fnt.line_height = fnt.metrics.height >> 6;
+	fnt.spacing = fnt.metrics.ascender >> 6;
+	fnt.total_height = str_arr.size * (fnt.line_height + fnt.spacing);
+	tex = (t_tex){.w = 1000, .h = (int)fnt.total_height + 50};
 	tex.sl = tex.w * sizeof(int);
 	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
-		return (tex); //FIXME: add error
+		return (tex);
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
-
-	draw_multiline_text_centered(face, tex, str_arr.arr, str_arr.size);
+	draw_multiline_text_centered(fnt.face, tex, str_arr.arr, str_arr.size);
 	ft_tab_str_free(str_arr.arr);
 	return (tex);
 }
@@ -160,10 +152,10 @@ t_tex	draw_playertile(void)
 
 void	generate_msg_text(t_info *app)
 {
-	t_tex *const msgs = app->shtex->messages;
-	FT_Face face = app->typ.faces[fnt_snes];
-	FT_Set_Pixel_Sizes(face, 0, 40);
-	t_str_arr	str_arrs[MSG_MAX];
+	int					i;
+	t_tex *const		msgs = app->shtex->messages;
+	FT_Face const		face = app->typ.faces[fnt_snes];
+	t_str_arr			str_arrs[MSG_MAX];
 	static const char	*str_arr[6] = {
 		"Teleporter ONE inactive. Find the key.",
 		"Teleporter TWO inactive. Find the key.",
@@ -172,18 +164,16 @@ void	generate_msg_text(t_info *app)
 		"You found key for teleporter TWO.",
 		"You found key for teleporter THREE."
 	};
-	int			i;
 
+	FT_Set_Pixel_Sizes(face, 0, 40);
 	i = -1;
 	while (++i < MSG_MAX)
 	{
-		t_str_arr *sa = &str_arrs[i];
-		sa->arr = (char **)&str_arr[i];
-		sa->longest_index = 0;
-		sa->current = 0;
-		sa->size = 1;
+		str_arrs[i].arr = (char **)&str_arr[i];
+		str_arrs[i].longest_index = 0;
+		str_arrs[i].current = 0;
+		str_arrs[i].size = 1;
 	}
-
 	i = -1;
 	while (++i < MSG_MAX)
 		msgs[i] = create_ft_string(face, str_arrs[i]);

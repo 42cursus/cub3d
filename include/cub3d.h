@@ -103,6 +103,24 @@
 
 # define TEX_DIR "./resources/textures"
 
+typedef struct s_str_arr
+{
+	char	**arr;
+	int		size;
+	int		current;
+	int		longest_index;
+}	t_str_arr;
+
+typedef struct s_font_metrics
+{
+	FT_Size_Metrics	metrics;
+	uint32_t		line_height;
+	uint32_t		spacing;
+	uint32_t		total_height;
+	uint32_t		width;
+	FT_Face			face;
+}	t_fnt;
+
 enum e_dir
 {
 	LEFT = 0,
