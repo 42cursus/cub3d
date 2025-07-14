@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include "cub3d.h"
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
-	t_info *const app = &(t_info) {
+	t_info *const	app = &(t_info){
 		.title = (char *) "cub3d",
 		.fullscreen = GO_TO_FULLSCREEN_ON_LOAD
 	};

@@ -14,8 +14,8 @@
 
 int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 {
-	t_ivect	it;
-	char	tiles[] = {
+	t_ivect		it;
+	const char	tiles[] = {
 		map[i - 1][j + 0],
 		map[i + 0][j - 1],
 		map[i + 0][j + 1],
@@ -32,7 +32,6 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i + 0][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-
 	it.x = -1;
 	while (++it.x < 8)
 	{
@@ -95,8 +94,8 @@ int	validate_map_tiles(t_lvl *data, char **map)
 		{
 			if (ft_strchr("0NEWSDLMmsteZAHRPBb234789{", map[i][j]))
 			{
-				if (!surrounding_tiles_valid(map, i, j) ||
-					!check_start_pos(data, i, j, &start_found))
+				if (!surrounding_tiles_valid(map, i, j)
+					|| !check_start_pos(data, i, j, &start_found))
 				{
 					print_invalid_tile_err(map, i, j);
 					return (0);

@@ -344,12 +344,12 @@ int	count_collectables(t_lvl *lvl)
 
 void	draw_help(t_lvl *lvl)
 {
-	t_info *const	app = lvl->app;
-	t_point			p;
-	t_img			help;
-	int				i;
-
-	static const char *help_msgs[] = {
+	t_info *const		app = lvl->app;
+	t_point				p;
+	t_img				help;
+	int					i;
+	FT_Face				face;
+	static const char	*help_msgs[] = {
 		"W, A, S, D => Move forward, left, backward, and right",
 		"left arrow, right arrow => Rotate left and right",
 		"E => Open/close door",
@@ -364,10 +364,8 @@ void	draw_help(t_lvl *lvl)
 	if (posix_memalign((void **) &help.data, 64, help.height * help.size_line))
 		return ;
 	fill_with_colour(&help, (int)0xC0000000, (int)0xC0000000);
-
-	FT_Face face = app->typ.faces[fnt_main];
+	face = app->typ.faces[fnt_main];
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
-
 	p.x = 50;
 	p.y = 50;
 	i = -1;
@@ -385,6 +383,7 @@ void	draw_large_minimap(t_lvl *lvl)
 	t_img			*large_minimap;
 	t_img			*scaled;
 	t_point			p;
+	FT_Face			face;
 
 	large_minimap = mlx_new_image(app->mlx, WIN_WIDTH * 0.7, WIN_HEIGHT * 0.7);
 	if (!large_minimap)
@@ -392,10 +391,8 @@ void	draw_large_minimap(t_lvl *lvl)
 	fill_with_colour(large_minimap, (int)0xC0000000, (int)0xC0000000);
 	p.x = 50;
 	p.y = large_minimap->height - 50;
-
-	FT_Face face = app->typ.faces[fnt_main];
+	face = app->typ.faces[fnt_main];
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
-
 	draw_text_freetype(face, large_minimap, "Minimap =>", p);
 	scaled = build_minimap(app, LARGE_MMAP_SCALE);
 	p.x = (large_minimap->width - scaled->width) / 2;
@@ -414,6 +411,7 @@ void	draw_startup_overlay(t_lvl *lvl)
 	t_point			p;
 	t_tex			tex;
 	t_img			overlay;
+	FT_Face			face;
 
 	tex = (t_tex){.w = WIN_WIDTH * 0.7, .h = WIN_HEIGHT * 0.7};
 	tex.sl = tex.w * sizeof(int);
@@ -426,7 +424,7 @@ void	draw_startup_overlay(t_lvl *lvl)
 	fill_with_colour(&overlay, (int)0xFF000000, (int)0xFF000000);
 	p.x = tex.w / 2;
 	p.y = 50;
-	FT_Face face = app->typ.faces[fnt_main];
+	face = app->typ.faces[fnt_main];
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
 	draw_text_ft_hcentered(face, tex, "[PRESS 'H' FOR HELP]", p);
 	lvl->overlay = overlay;
