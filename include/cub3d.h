@@ -1072,6 +1072,7 @@ t_tex	get_tile(int idx);
 size_t	get_time_ms(void);
 size_t	get_time_us(void);
 double	rand_range(double lower, double upper);
+void	cleanup_maps(t_info *app);
 
 int		key_press_intro(KeySym key, void *param);
 int		key_release_intro(KeySym key, void *param);

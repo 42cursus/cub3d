@@ -369,6 +369,7 @@ t_img	cvttex_img(t_tex tex)
 	img.width = tex.w;
 	img.height = tex.h;
 	img.data = (char *)tex.data;
+	img.size_line = (int)tex.sl;
 	return (img);
 }
 

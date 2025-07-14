@@ -12,6 +12,14 @@
 
 #include "cub3d.h"
 
+void	destroy_cnvs(t_info *app)
+{
+	mlx_destroy_image(app->mlx, app->canvas);
+	mlx_destroy_image(app->mlx, app->canvas_r);
+	mlx_destroy_image(app->mlx, app->bg);
+	mlx_destroy_image(app->mlx, app->bg_r);
+}
+
 int	cleanup(t_info *app)
 {
 	free_shtex(app);
@@ -20,12 +28,7 @@ int	cleanup(t_info *app)
 	free_split(app->map_ids);
 	get_pooled_ray(2);
 	if (app->canvas != NULL)
-	{
-		mlx_destroy_image(app->mlx, app->canvas);
-		mlx_destroy_image(app->mlx, app->canvas_r);
-		mlx_destroy_image(app->mlx, app->bg);
-		mlx_destroy_image(app->mlx, app->bg_r);
-	}
+		destroy_cnvs(app);
 	if (app->overlay.data != NULL)
 		free(app->overlay.data);
 	if (app->stillshot != NULL)
