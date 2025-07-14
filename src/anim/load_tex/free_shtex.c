@@ -27,6 +27,8 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->proj_green_tex, 4);
 	free_tex_arr_arr(app->shtex->dmg_tex, 8);
 	free_tex_arr_arr(app->shtex->logo_tex, 14);
+	free_tex_arr_arr(app->shtex->decorative, 9);
+	free_tex_arr_arr(app->shtex->key_tex, 6);
 	free(app->shtex->square.data);
 	free(app->shtex);
 }
@@ -59,5 +61,6 @@ void	free_shtex(t_info *app)
 	free_tex_arr_arr(app->shtex->door_missile_tex, 7);
 	free_tex_arr_arr(app->shtex->door_boss_tex, 7);
 	free_tex_arr_arr(app->shtex->rocks, 7);
+	free_tex_arr_arr(app->shtex->messages, MSG_MAX);
 	free_shtex_extra(app);
 }

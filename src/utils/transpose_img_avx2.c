@@ -15,27 +15,19 @@
 #define TILE 32
 
 inline __attribute__((always_inline, used))
-void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
+void	transpose8x8_u32_avx2(__m256i *out, const __m256i *i)
 {
-	const t_vec8i v1 = {
-		_mm256_unpacklo_epi32(in[0], in[1]),
-		_mm256_unpackhi_epi32(in[0], in[1]),
-		_mm256_unpacklo_epi32(in[2], in[3]),
-		_mm256_unpackhi_epi32(in[2], in[3]),
-		_mm256_unpacklo_epi32(in[4], in[5]),
-		_mm256_unpackhi_epi32(in[4], in[5]),
-		_mm256_unpacklo_epi32(in[6], in[7]),
-		_mm256_unpackhi_epi32(in[6], in[7])
+	const __m256i	v[8] = {
+		_mm256_unpacklo_epi32(i[0], i[1]), _mm256_unpackhi_epi32(i[0], i[1]),
+		_mm256_unpacklo_epi32(i[2], i[3]), _mm256_unpackhi_epi32(i[2], i[3]),
+		_mm256_unpacklo_epi32(i[4], i[5]), _mm256_unpackhi_epi32(i[4], i[5]),
+		_mm256_unpacklo_epi32(i[6], i[7]), _mm256_unpackhi_epi32(i[6], i[7])
 	};
-	const t_vec8i v2 = {
-		_mm256_unpacklo_epi64(v1.t0, v1.t2),
-		_mm256_unpackhi_epi64(v1.t0, v1.t2),
-		_mm256_unpacklo_epi64(v1.t1, v1.t3),
-		_mm256_unpackhi_epi64(v1.t1, v1.t3),
-		_mm256_unpacklo_epi64(v1.t4, v1.t6),
-		_mm256_unpackhi_epi64(v1.t4, v1.t6),
-		_mm256_unpacklo_epi64(v1.t5, v1.t7),
-		_mm256_unpackhi_epi64(v1.t5, v1.t7),
+	const t_vec8i	v2 = {
+		_mm256_unpacklo_epi64(v[0], v[2]), _mm256_unpackhi_epi64(v[0], v[2]),
+		_mm256_unpacklo_epi64(v[1], v[3]), _mm256_unpackhi_epi64(v[1], v[3]),
+		_mm256_unpacklo_epi64(v[4], v[6]), _mm256_unpackhi_epi64(v[4], v[6]),
+		_mm256_unpacklo_epi64(v[5], v[7]), _mm256_unpackhi_epi64(v[5], v[7]),
 	};
 
 	out[0] = _mm256_permute2x128_si256(v2.t0, v2.t4, 0x20);
@@ -48,60 +40,66 @@ void transpose8x8_u32_avx2(__m256i *out, const __m256i *in)
 	out[7] = _mm256_permute2x128_si256(v2.t3, v2.t7, 0x31);
 }
 
-inline __attribute__((always_inline, used))
-void transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height)
+inline __attribute__((always_inline))
+t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 {
-	int		i;
-	t_ivect	it;
-	t_ivect	tile;
-	t_ivect	max;
-	__m256i	in[8];
-	__m256i	out[8];
+	t_ivect3	it;
+	__m256i		in[8];
+	__m256i		out[8];
 
-	tile.y = 0;
-	while (tile.y < width)
+	it.y = tile.y;
+	while (it.y + 7 < max.y)
 	{
-		tile.x = 0;
-		while (tile.x < height)
+		it.x = tile.x;
+		while (it.x + 7 < max.x)
 		{
-			max.y = MIN(tile.y + TILE, width);
-			max.x = MIN(tile.x + TILE, height);
+			it.z = -1;
+			while (++it.z < 8)
+				in[it.z] = _mm256_loadu_si256((__m256i_u *)(cd.src + (it.y + it.z) * t.h + it.x));
+			transpose8x8_u32_avx2(out, in);
+			it.z = -1;
+			while (++it.z < 8)
+				_mm256_storeu_si256((__m256i_u *)(cd.dst + (it.x + it.z) * t.w + it.y), out[it.z]);
+			it.x += 8;
+		}
+		it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
+		while (++it.x < max.x)
+		{
+			it.z = -1;
+			while (++it.z < 8 && (it.y + it.z) < max.y)
+				cd.dst[(it.x) * t.w + (it.y + it.z)] = cd.src[(it.y + it.z) * t.h + it.x];
+		}
+		it.y += 8;
+	}
+	return (it.xy);
+}
 
-			it.y = tile.y;
-			while (it.y + 7 < max.y)
-			{
-				it.x = tile.x;
-				while (it.x + 7 < max.x)
-				{
-					i = -1;
-					while (++i < 8)
-						in[i] = _mm256_loadu_si256((__m256i_u *)(src + (it.y + i) * height + it.x));
+inline __attribute__((always_inline, used))
+void	transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height)
+{
+	t_ivect			t;
+	t_ivect			max;
+	t_ivect			it;
+	const t_cdata	cd = {.src = src, .dst = dst};
+	const t_tex		tex = {.w = width, .h = height};
 
-					transpose8x8_u32_avx2(out, in);
-
-					i = -1;
-					while (++i < 8)
-						_mm256_storeu_si256((__m256i_u *)(dst + (it.x + i) * width + it.y), out[i]);
-					it.x += 8;
-				}
-				it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
-				while (++it.x < max.x)
-				{
-					i = -1;
-					while (++i < 8 && (it.y + i) < max.y)
-						dst[(it.x) * width + (it.y + i)] = src[(it.y + i) * height + it.x];
-				}
-				it.y += 8;
-			}
-			it.y = tile.y + ((max.y - tile.y) & ~7) - 1;
+	t.y = 0;
+	while (t.y < width)
+	{
+		t.x = 0;
+		while (t.x < height)
+		{
+			max = (t_ivect){MIN(t.x + TILE, tex.h), MIN(t.y + TILE, tex.w)};
+			it = main_loop(t, cd, tex, max);
+			it.y = t.y + ((max.y - t.y) & ~7) - 1;
 			while (++it.y < max.y)
 			{
-				it.x = tile.x - 1;
+				it.x = t.x - 1;
 				while (++it.x < max.x)
 					dst[it.x * width + it.y] = src[it.y * height + it.x];
 			}
-			tile.x += TILE;
+			t.x += TILE;
 		}
-		tile.y += TILE;
+		t.y += TILE;
 	}
 }
