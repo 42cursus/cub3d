@@ -93,13 +93,13 @@ int	parse_cub(t_info *app, int fd)
 			printf("Error: map not provided\n"), 1);
 	if (!map_is_valid(data))
 		return (ft_list_destroy(&file, free), 1);
-	ft_list_remove_if(&file, NULL, str_cmp_whitespace, free);
 	current = file;
 	while (current != NULL)
 	{
-		if (parse_line(data, current->data, app))
-			return (ft_printf("\e[31m%s\e[m\n", current->data),
-				ft_list_destroy(&file, free), 1);
+		if (str_cmp_whitespace(current->data, NULL))
+			if (parse_line(data, current->data, app))
+				return (ft_printf("\e[31m%s\e[m\n", current->data),
+					ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}
 	ft_list_destroy(&file, free);

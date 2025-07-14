@@ -46,5 +46,7 @@ int	parse_texture(t_data *data, char *str, int identifier, t_info *app)
 	if (tex_addr->img != NULL)
 		return (printf("Error: texture defined multiple times\n"), 1);
 	tex_addr->img = img_to_arr(str, app, &tex_addr->x, &tex_addr->y);
+	if (tex_addr->img == NULL)
+		return (-1);
 	return (0);
 }
