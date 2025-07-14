@@ -55,11 +55,13 @@ t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 		{
 			it.z = -1;
 			while (++it.z < 8)
-				in[it.z] = _mm256_loadu_si256((__m256i_u *)(cd.src + (it.y + it.z) * t.h + it.x));
+				in[it.z] = _mm256_loadu_si256(
+						(__m256i_u *)(cd.src + (it.y + it.z) * t.h + it.x));
 			transpose8x8_u32_avx2(out, in);
 			it.z = -1;
 			while (++it.z < 8)
-				_mm256_storeu_si256((__m256i_u *)(cd.dst + (it.x + it.z) * t.w + it.y), out[it.z]);
+				_mm256_storeu_si256((__m256i_u *)
+					(cd.dst + (it.x + it.z) * t.w + it.y), out[it.z]);
 			it.x += 8;
 		}
 		it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
@@ -67,7 +69,8 @@ t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 		{
 			it.z = -1;
 			while (++it.z < 8 && (it.y + it.z) < max.y)
-				cd.dst[(it.x) * t.w + (it.y + it.z)] = cd.src[(it.y + it.z) * t.h + it.x];
+				cd.dst[(it.x) * t.w + (it.y + it.z)]
+					= cd.src[(it.y + it.z) * t.h + it.x];
 		}
 		it.y += 8;
 	}
