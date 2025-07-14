@@ -98,7 +98,7 @@ int	parse_cub(t_info *app, int fd)
 	while (current != NULL)
 	{
 		if (parse_line(data, current->data, app))
-			return (ft_printf("%s\n", current->data),
+			return (ft_printf("\e[31m%s\e[m\n", current->data),
 				ft_list_destroy(&file, free), 1);
 		current = current->next;
 	}

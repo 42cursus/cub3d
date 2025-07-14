@@ -18,7 +18,7 @@ void	load_tmp_image(t_imgdata *texture, t_info *app, char *filename)
 			&texture->width, &texture->height);
 	if (!texture->img)
 	{
-		printf(" !! KO !!\n");
+		printf("Error: Failed to load texture: %s\n", filename);
 		exit(1);
 	}
 	texture->addr = mlx_get_data_addr(texture->img,

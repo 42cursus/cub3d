@@ -11,43 +11,34 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
-
-int	get_col(char *str)
-{
-	char	*endptr;
-	long	num;
-
-	num = ft_strtol(str, &endptr, 0);
-	if (num > 255 || num < 0)
-		return (-1);
-	if (*endptr != 0)
-		return (-1);
-	return (num);
-}
+#include "ft/ft_ctype.h"
 
 int	convert_col(char *str)
 {
-	char	**split;
+	int		num;
 	int		col;
 	int		i;
-	int		shift;
-	int		num;
+	char	*endptr;
 
 	col = 0;
-	split = ft_split(str, ',');
-	if (count_split_words(split) != 3)
-		return (free_split(split), -1);
-	i = 0;
-	shift = 16;
-	while (i < 3)
+	i = -1;
+	while (++i < 3)
 	{
-		num = get_col(split[i++]);
-		if (num == -1)
-			return (free_split(split), -1);
-		col += num << shift;
-		shift -= 8;
+		num = ft_strtol(str, &endptr, 0);
+		col += num << (16 - (8 * i));
+		if (num > 255 || num < 0)
+			return (-1);
+		if (*endptr == 0)
+			break ;
+		if (*endptr != ',')
+			return (-1);
+		str = endptr + 1;
+		if (!ft_isdigit(*str))
+			return (-1);
 	}
-	return (free_split(split), col);
+	if (i != 2)
+		return (-1);
+	return (col);
 }
 
 int	parse_colour(t_data *map, char *str, int identifier)
@@ -62,6 +53,6 @@ int	parse_colour(t_data *map, char *str, int identifier)
 		return (printf("Error: colour defined multiple times\n"), 1);
 	*coladdr = convert_col(str);
 	if (*coladdr == -1)
-		return (printf("Error: invalid colour\n"), 1);
+		return (printf("Error: failed to parse colour\n"), 1);
 	return (0);
 }
