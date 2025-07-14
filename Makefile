@@ -89,9 +89,9 @@ LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-					-O3 -Wl,--lto-O3,-O3,-Bsymbolic-functions,--as-needed \
+					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
-						-flto -fuse-ld=lld \
+						-flto \
 						-Wl,-zmax-page-size=0x200000 \
 					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 					# -pg \
