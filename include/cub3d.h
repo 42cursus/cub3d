@@ -283,10 +283,15 @@ typedef struct s_fvect
 
 typedef struct s_fvec256
 {
-	__m256	x;
-	__m256	y;
+	__m256	xx;
+	__m256	yy;
 }	t_fvec256;
 
+typedef struct s_ivec256
+{
+	__m256i	xx;
+	__m256i	yy;
+}	t_ivec256;
 
 typedef struct s_vect
 {
@@ -461,6 +466,21 @@ typedef struct s_rgba_ps256
 	__m256	r;
 	__m256	a;
 }	t_rgba_ps256;
+
+typedef struct s_rgba4_ps256
+{
+	t_rgba_ps256 r0;
+	t_rgba_ps256 r1;
+	t_rgba_ps256 r2;
+	t_rgba_ps256 r3;
+}	t_rgba4_ps256;
+
+typedef struct s_fmodf_avx2
+{
+	__m256	div;
+	__m256	tdiv;
+	__m256	prod;
+} t_fmodf_avx2;
 
 typedef struct	s_repack_256
 {

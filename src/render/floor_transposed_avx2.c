@@ -217,14 +217,14 @@ void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
 	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
 	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
 
-	dir256[LEFT].x = _mm256_set1_ps(dir[LEFT].x);
-	dir256[LEFT].y = _mm256_set1_ps(dir[LEFT].y);
+	dir256[LEFT].xx = _mm256_set1_ps(dir[LEFT].x);
+	dir256[LEFT].yy = _mm256_set1_ps(dir[LEFT].y);
 
-	dir256[RIGHT].x = _mm256_set1_ps(dir[RIGHT].x);
-	dir256[RIGHT].y = _mm256_set1_ps(dir[RIGHT].y);
+	dir256[RIGHT].xx = _mm256_set1_ps(dir[RIGHT].x);
+	dir256[RIGHT].yy = _mm256_set1_ps(dir[RIGHT].y);
 
-	pl_pos256.x = _mm256_set1_ps(pl_pos.x);
-	pl_pos256.y = _mm256_set1_ps(pl_pos.y);
+	pl_pos256.xx = _mm256_set1_ps(pl_pos.x);
+	pl_pos256.yy = _mm256_set1_ps(pl_pos.y);
 
 	__m256 half_width = _mm256_set1_ps(WIN_WIDTH / 2);
 	__m256 tex_width = _mm256_set1_ps(tex.width);
@@ -248,29 +248,31 @@ void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
 		t_fvec256 currv;
 
 		// Compute left/right projected positions
-		scaled_left.x = _mm256_mul_ps(dir256[LEFT].x, depthxx);
-		scaled_right.x = _mm256_mul_ps(dir256[RIGHT].x, depthxx);
-		pos_left.x = _mm256_add_ps(pl_pos256.x, scaled_left.x);
-		pos_right.x = _mm256_add_ps(pl_pos256.x, scaled_right.x);
-		stepx.x = _mm256_div_ps(_mm256_sub_ps(pos_right.x, pos_left.x), half_width);
+		scaled_left.xx = _mm256_mul_ps(dir256[LEFT].xx, depthxx);
+		scaled_right.xx = _mm256_mul_ps(dir256[RIGHT].xx, depthxx);
+		pos_left.xx = _mm256_add_ps(pl_pos256.xx, scaled_left.xx);
+		pos_right.xx = _mm256_add_ps(pl_pos256.xx, scaled_right.xx);
+		stepx.xx = _mm256_div_ps(_mm256_sub_ps(pos_right.xx, pos_left.xx), half_width);
 
-		scaled_left.y = _mm256_mul_ps(dir256[LEFT].y, depthxx);
-		scaled_right.y = _mm256_mul_ps(dir256[RIGHT].y, depthxx);
-		pos_left.y = _mm256_add_ps(pl_pos256.y, scaled_left.y);
-		pos_right.y = _mm256_add_ps(pl_pos256.y, scaled_right.y);
-		stepx.y = _mm256_div_ps(_mm256_sub_ps(pos_right.y, pos_left.y), half_width);
+		scaled_left.yy = _mm256_mul_ps(dir256[LEFT].yy, depthxx);
+		scaled_right.yy = _mm256_mul_ps(dir256[RIGHT].yy, depthxx);
+		pos_left.yy = _mm256_add_ps(pl_pos256.yy, scaled_left.yy);
+		pos_right.yy = _mm256_add_ps(pl_pos256.yy, scaled_right.yy);
+		stepx.yy = _mm256_div_ps(_mm256_sub_ps(pos_right.yy, pos_left.yy), half_width);
 
 		// Walk across screen (x-axis)
 		iter.x = 0;
-		currv.x = pos_left.x;
-		currv.y = pos_left.y;
+		currv.xx = pos_left.xx;
+		currv.yy = pos_left.yy;
 		while (iter.x < WIN_WIDTH - 1)
 		{
-			__m256 x_scaled = _mm256_mul_ps(currv.x, tex_width);
-			__m256 y_scaled = _mm256_mul_ps(currv.y, tex_height);
+			t_fvec256	scaled;
 
-			__m256i x_idx = _mm256_and_si256(_mm256_cvttps_epi32(x_scaled), tex_width_mask);
-			__m256i y_idx = _mm256_and_si256(_mm256_cvttps_epi32(y_scaled), tex_height_mask);
+			scaled.xx = _mm256_mul_ps(currv.xx, tex_width);
+			scaled.yy = _mm256_mul_ps(currv.yy, tex_height);
+
+			__m256i x_idx = _mm256_and_si256(_mm256_cvttps_epi32(scaled.xx), tex_width_mask);
+			__m256i y_idx = _mm256_and_si256(_mm256_cvttps_epi32(scaled.yy), tex_height_mask);
 
 			__m256i mull = _mm256_mullo_epi32(y_idx, tex_width_i);
 			__m256i final_idxs = _mm256_add_epi32(mull, x_idx);
@@ -278,8 +280,8 @@ void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
 			int offset = iter.x * (WIN_HEIGHT / 2) + iter.y;
 			_mm256_storeu_si256((__m256i_u *)&idxs[offset], final_idxs);
 
-			currv.x = _mm256_add_ps(currv.x, stepx.x);
-			currv.y = _mm256_add_ps(currv.y, stepx.y);
+			currv.xx = _mm256_add_ps(currv.xx, stepx.xx);
+			currv.yy = _mm256_add_ps(currv.yy, stepx.yy);
 
 			iter.x += 2;
 		}
