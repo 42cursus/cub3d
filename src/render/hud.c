@@ -40,25 +40,25 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
 	t_img *const	cnvs = app->canvas;
 	t_tex const		alph = app->shtex->alphabet;
-	t_ivect			it;
-	int const 		x = (c - ' ') * CHAR_WIDTH;
-	u_int			*src_row;
-	u_int			*dst_row;
+	t_ivect3		it;
+	t_cdata			cd;
 	t_mcol			mc;
 
 	if (!ft_isprint(c) || scalar < 1)
 		return ;
+	it.z = (c - ' ') * CHAR_WIDTH;
 	it.y = -1;
 	while (++it.y < CHAR_WIDTH * scalar)
 	{
-		src_row = (u_int *)alph.data + ((it.y / scalar) * alph.w) + x;
-		dst_row = (u_int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
+		cd.src = (int *)alph.data + ((it.y / scalar) * alph.w) + it.z;
+		cd.dst = (int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
 		it.x = -1;
 		while (++it.x < CHAR_WIDTH * scalar)
 		{
-			mc.colour = src_row[it.x / scalar];
-			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			dst_row[it.x] = (mc.colour & mc.mask) | (dst_row[it.x] & ~mc.mask);
+			mc.colour = cd.src[it.x / scalar];
+			mc.mask = (u_int) -(mc.colour != XPM_TRANSPARENT);
+			mc.colour = (mc.colour & mc.mask) | (cd.dst[it.x] & ~mc.mask);
+			cd.dst[it.x] = (int)(mc.colour);
 		}
 	}
 }
@@ -67,34 +67,34 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
 	t_img *const	cnvs = app->canvas;
 	t_tex const		alph = app->shtex->alphabet;
-	t_ivect			it;
-	int const		x = (c - ' ') * CHAR_WIDTH;
-	u_int			*src_row;
-	u_int			*dst_row;
+	t_ivect3		it;
+	t_cdata			cd;
 	t_mcol			mc;
 
 	if (!ft_isprint(c) || p.z < 1)
 		return ;
+	it.z = (c - ' ') * CHAR_WIDTH;
 	it.y = -1;
 	while (++it.y < CHAR_WIDTH * p.z)
 	{
-		src_row = (u_int *)alph.data + ((it.y / p.z) * alph.w) + x;
-		dst_row = (u_int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
+		cd.src = (int *)alph.data + ((it.y / p.z) * alph.w) + it.z;
+		cd.dst = (int *)cnvs->data + ((it.y + p.y) * cnvs->width) + p.x;
 		it.x = -1;
 		while (++it.x < CHAR_WIDTH * p.z)
 		{
-			mc.colour = src_row[it.x / p.z];
+			mc.colour = cd.src[it.x / p.z];
 			mc.mask = -(mc.colour != XPM_TRANSPARENT);
-			t_colour src = *(t_colour *) &mc.colour;
-			t_colour dst = *(t_colour *) &dst_row[it.x];
+			mc.src = *(t_colour *) &mc.colour;
+			mc.dst = *(t_colour *) &cd.dst[it.x];
 			mc.transp = alpha / 255.0;
-			if (src.raw != dst.raw)
+			if (mc.src.raw != mc.dst.raw)
 			{
-				src.r = ((dst.r - src.r) * mc.transp) + src.r + 0.5;
-				src.g = ((dst.g - src.g) * mc.transp) + src.g + 0.5;
-				src.b = ((dst.b - src.b) * mc.transp) + src.b + 0.5;
+				mc.src.r = ((mc.dst.r - mc.src.r) * mc.transp) + mc.src.r + 0.5;
+				mc.src.g = ((mc.dst.g - mc.src.g) * mc.transp) + mc.src.g + 0.5;
+				mc.src.b = ((mc.dst.b - mc.src.b) * mc.transp) + mc.src.b + 0.5;
 			}
-			dst_row[it.x] = (src.raw & mc.mask) | (dst_row[it.x] & ~mc.mask);
+			mc.colour = (mc.src.raw & mc.mask) | (cd.dst[it.x] & ~mc.mask);
+			cd.dst[it.x] = (int)mc.colour;
 		}
 	}
 }
@@ -103,7 +103,7 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
  * blend	Amount of original alpha preserved
  *
  * added_alpha = 0 => no fade => blend = 1.0 => keep all existing alpha.
- * added_alpha = 255 => fully transparent => blend = 0.0 => all alpha becomes 255.
+ * added_alpha = 255 => fully transparent => blend = 0.0 => alpha becomes 255.
  *
  * @param img
  * @param alpha
@@ -120,23 +120,25 @@ void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 		row = (t_colour *)img->data + (it.y * img->width);
 		it.x = -1;
 		while (++it.x < img->width)
-			row[it.x].a = (u_char) (added_alpha + row[it.x].a * blend);
+			row[it.x].a = (u_char)(added_alpha + row[it.x].a * blend);
 	}
 }
+
+#define THREE 3
+#define THIRTY_FIVE 35
 
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
-	t_obj		*curr_obj;
-	t_img *const	cnvs = lvl->app->canvas;
-	t_tex *const 	tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
-
-	t_img 	*mmap = lvl->minimap_xl;
+	t_obj			*curr_obj;
 	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
+	const t_tex		tile = {
+		.data = (u_int []){[0 ...THREE] = MLX_PALETURQUOISE}, .w = 2, .h = 2};
 
-	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
-	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
+	offset.x += lvl->minimap_xl->width - lvl->mmap_origin.x
+		- lvl->width * msf.x - tile.w * scalar / 2;
+	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile.h * scalar / 2;
 	current = lvl->items;
 	while (current != NULL)
 	{
@@ -145,7 +147,7 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 		{
 			p3.x = offset.x + curr_obj->pos.x * msf.x;
 			p3.y = offset.y - curr_obj->pos.y * msf.y;
-			place_tex_to_image_scale(cnvs, tile, p3, scalar);
+			place_tex_to_image_scale(lvl->app->canvas, &tile, p3, scalar);
 		}
 		current = current->next;
 	}
@@ -153,48 +155,44 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 
 void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
-
 	t_list			*current;
 	t_obj			*curr_obj;
 	t_tex *const	tile = &(t_tex){.w = 6, .h = 5};
-	t_img *const	cnvs = lvl->app->canvas;
 	static u_int	data[CHAR_MAX][36] = {
-		['D'] = {[0 ... 35] = MLX_BLUE},
-		['O'] = {[0 ... 35] = MLX_PALE_GRAY},
-		['L'] = {[0 ... 35] = MLX_GREEN},
-		['M'] = {[0 ... 35] = MLX_PINK},
+	['D'] = {[0 ...THIRTY_FIVE] = MLX_BLUE},
+	['O'] = {[0 ...THIRTY_FIVE] = MLX_PALE_GRAY},
+	['L'] = {[0 ...THIRTY_FIVE] = MLX_GREEN},
+	['M'] = {[0 ...THIRTY_FIVE] = MLX_PINK},
 	};
-	t_img 			*mmap = lvl->minimap_xl;
-	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
-	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
+	offset.x += lvl->minimap_xl->width - lvl->mmap_origin.x
+		- lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
 	current = lvl->doors;
 	while (current != NULL)
 	{
 		curr_obj = current->content;
-		char ch = *(char *)(curr_obj->texture);
-		tile->data = data[(u_char)ch];
-		p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
-		p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
-		place_tex_to_image_scale(cnvs, tile, p3, scalar);
+		tile->data = data[(u_char) *(char *)(curr_obj->texture)];
+		place_tex_to_image_scale(lvl->app->canvas, tile, (t_point){
+			.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar,
+			.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar},
+			scalar);
 		current = current->next;
 	}
 }
 
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
-	t_list		*current;
-	t_obj	*curr_obj;
-	t_img *const	cnvs = lvl->app->canvas;
-	t_tex *const tile = &(t_tex){ .data = (u_int []){[0 ... 3] = MLX_RED}, .w = 2, .h = 2};
-
-	t_img 	*mmap = lvl->minimap_xl;
+	t_list			*current;
+	t_obj			*curr_obj;
+	t_tex *const	tile = &(t_tex){
+		.data = (u_int []){[0 ...THREE] = MLX_RED}, .w = 2, .h = 2};
 	t_point			p3;
 	t_vect const	msf = scale_vect(lvl->map_scale_factor, MMAP_TILE_W);
 
-	offset.x += mmap->width - lvl->mmap_origin.x - lvl->width * msf.x - tile->w * scalar / 2;
+	offset.x += lvl->minimap_xl->width - lvl->mmap_origin.x
+		- lvl->width * msf.x - tile->w * scalar / 2;
 	offset.y += lvl->mmap_origin.y + lvl->height * msf.y - tile->h * scalar / 2;
 	current = lvl->enemies;
 	while (current != NULL)
@@ -204,7 +202,7 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 		{
 			p3.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar;
 			p3.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar;
-			place_tex_to_image_scale(cnvs, tile, p3, scalar);
+			place_tex_to_image_scale(lvl->app->canvas, tile, p3, scalar);
 		}
 		current = current->next;
 	}
@@ -213,7 +211,7 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 {
 	t_list			*current;
-	t_obj		*curr_obj;
+	t_obj			*curr_obj;
 	t_ivect3		pos_scalar;
 	t_info *const	app = lvl->app;
 
@@ -225,7 +223,8 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 		if (curr_obj->type == O_TELE)
 		{
 			pos_scalar.x = (int)curr_obj->pos.x * MMAP_TILE_W;
-			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1) * MMAP_TILE_H + 1;
+			pos_scalar.y = (lvl->height - (int)curr_obj->pos.y - 1)
+				* MMAP_TILE_H + 1;
 			pos_scalar.xy = scale_ivect(pos_scalar.xy, scale / MMAP_TILE_W);
 			place_char_img('t', img, app, pos_scalar);
 		}
@@ -233,12 +232,21 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 	}
 }
 
+/**
+ * 0 => 3: Direct neighbors
+ * 4 => 7: Diagonal neighbors
+ * @param x
+ * @param y
+ * @param idx
+ * @return
+ */
 static inline __attribute__((always_inline))
 uint32_t	get_tile_pix(int x, int y, int idx)
 {
-	int	is_edge = 0;
+	int			is_edge;
+	uint32_t	out;
 
-	/* Direct neighbors */
+	is_edge = 0;
 	if (idx & MAP_LEFT && x == 0)
 		is_edge = 1;
 	if (idx & MAP_RIGHT && x == MMAP_TILE_W - 1)
@@ -247,7 +255,6 @@ uint32_t	get_tile_pix(int x, int y, int idx)
 		is_edge = 1;
 	if (idx & MAP_TOP && y == MMAP_TILE_H - 1)
 		is_edge = 1;
-	/* Diagonal neighbors */
 	if ((idx & MAP_BOT_LEFT) && x == 0 && y == 0)
 		is_edge = 1;
 	if ((idx & MAP_BOT_RIGHT) && x == MMAP_TILE_W - 1 && y == 0)
@@ -256,7 +263,8 @@ uint32_t	get_tile_pix(int x, int y, int idx)
 		is_edge = 1;
 	if ((idx & MAP_TOP_RIGHT) && x == MMAP_TILE_W - 1 && y == MMAP_TILE_H - 1)
 		is_edge = 1;
-	return (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
+	out = (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
+	return (out);
 }
 
 inline __attribute__((always_inline, used))
@@ -265,15 +273,16 @@ t_tex	get_tile(int idx)
 	t_ivect			it;
 	t_tex			*tex;
 	u_int32_t		*row;
-	static t_tex	tiles[256] = {0x0};
+	static t_tex	tiles[256] = {0x00};
 
 	tex = &tiles[15];
 	if (idx >= 0 && idx < 0xFF)
 	{
 		if (tiles[idx].data)
-			return tiles[idx];
+			return (tiles[idx]);
 		tex = &tiles[idx];
-		*tex = (t_tex){.w = MMAP_TILE_W, .h = MMAP_TILE_H, .sl = MMAP_TILE_W * sizeof(int)};
+		*tex = (t_tex){.w = MMAP_TILE_W, .h = MMAP_TILE_H};
+		tex->sl = MMAP_TILE_W * sizeof(int);
 		tex->data = malloc(sizeof(u_int) * MMAP_TILE_W * MMAP_TILE_H);
 		if (tex->data != NULL)
 		{
@@ -317,11 +326,11 @@ int	get_tile_idx(char **map, int i, int j)
 
 t_img	*build_minimap(t_info *app, int scale)
 {
-	t_img		*img;
-	t_ivect		it;
-	int			idx;
-	t_tex		tile;
-	t_lvl		*const lvl = app->lvl;
+	t_img			*img;
+	t_ivect3		it;
+	int				idx;
+	t_tex			tile;
+	t_lvl *const	lvl = app->lvl;
 
 	img = mlx_new_image(app->mlx, lvl->width * scale,
 			lvl->height * scale);
@@ -330,19 +339,19 @@ t_img	*build_minimap(t_info *app, int scale)
 	it.y = -1;
 	while (++it.y < lvl->height)
 	{
-		int i = lvl->height - it.y - 1;
-		char *row = lvl->map[i];
+		it.z = lvl->height - it.y - 1;
 		it.x = -1;
 		while (++it.x < lvl->width)
 		{
 			idx = -1;
-			if (ft_strchr("0ODMBL", row[it.x]))
-				idx = get_tile_idx(lvl->map, i, it.x);
+			if (ft_strchr("0ODMBL", lvl->map[it.z][it.x]))
+				idx = get_tile_idx(lvl->map, it.z, it.x);
 			if (idx >= 0)
 			{
 				tile = get_tile(idx);
 				tile = scale_texture(&tile, scale);
-				place_tex_to_image_scale(img, &tile, scale_ivect(it, scale), 1);
+				place_tex_to_image_scale(img, &tile,
+					scale_ivect(it.xy, scale), 1);
 				free(tile.data);
 			}
 		}
@@ -352,15 +361,26 @@ t_img	*build_minimap(t_info *app, int scale)
 	return (img);
 }
 
+inline __attribute__((always_inline))
+t_img	cvttex_img(t_tex tex)
+{
+	t_img	img;
+
+	img.width = tex.w;
+	img.height = tex.h;
+	img.data = (char *)tex.data;
+	return (img);
+}
+
 void	place_startup_overlay(t_info *app)
 {
 	t_point			p1;
+	t_img			img;
 	t_lvl *const	lvl = app->lvl;
 	t_img *const	overlay = &lvl->overlay;
 	t_img *const	canvas = app->canvas;
-	int				hint_shown = app->hint_shown;
 
-	if (!hint_shown)
+	if (!app->hint_shown)
 	{
 		if (app->fr_count < 500)
 		{
@@ -375,13 +395,7 @@ void	place_startup_overlay(t_info *app)
 	{
 		if (app->fr_last - app->msg_last_time < 1200000)
 		{
-			t_img	img;
-			t_tex	tex;
-
-			tex = app->shtex->messages[app->msg_to_show];
-			img.width = tex.w;
-			img.height = tex.h;
-			img.data = (char *)tex.data;
+			img = cvttex_img(app->shtex->messages[app->msg_to_show]);
 			p1.x = (WIN_WIDTH - img.width) / 2;
 			p1.y = WIN_HEIGHT * 3 / 5;
 			place_img_alpha_avx2_soa(canvas, &img, p1);
@@ -407,22 +421,18 @@ void	place_help(t_info *app)
 }
 
 static inline __attribute__((always_inline))
-t_point calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
+t_point	calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 						const t_player *obj)
 {
-	t_img 			*mmap = lvl->minimap_xl;
 	t_point			p3;
 	const t_vect	msf = lvl->map_scale_factor;
+	const int		dx = (lvl->width - obj->pos.x) * MMAP_TILE_W * msf.x;
+	const int		dy = (lvl->height - obj->pos.y) * MMAP_TILE_H * msf.y;
 
-	int dx = (lvl->width - obj->pos.x) * MMAP_TILE_W * msf.x;
-	int dy = (lvl->height - obj->pos.y) * MMAP_TILE_H * msf.y;
-
-	p3.x = mmap->width - dx + offset.x - lvl->mmap_origin.x;
+	p3.x = lvl->minimap_xl->width - dx + offset.x - lvl->mmap_origin.x;
 	p3.y = dy + offset.y + lvl->mmap_origin.y;
-
 	p3.x -= pointer->width / 2;
 	p3.y -= pointer->height / 2;
-
 	return (p3);
 }
 

@@ -296,11 +296,54 @@ typedef struct s_cdata
 	int	*dst;
 }	t_cdata;
 
+# if __BYTE_ORDER == __LITTLE_ENDIAN
+
+typedef struct s_colour
+{
+	union
+	{
+		u_int	raw;
+
+		struct
+		{
+			u_char	b;
+			u_char	g;
+			u_char	r;
+			u_char	a;
+		};
+	};
+}	t_colour;
+# elif __BYTE_ORDER == __BIG_ENDIAN
+
+typedef struct s_colour
+{
+	union
+	{
+		u_int	raw;
+		struct
+		{
+			u_char	a;
+			u_char	r;
+			u_char	g;
+			u_char	b;
+		};
+	};
+}	t_colour;
+
+# else
+#  error "Unsupported byte order"
+# endif
+
 typedef struct s_mcol
 {
-	u_int	colour;
-	u_int	mask;
-	double	transp;
+	u_int		colour;
+	u_int		mask;
+	double		transp;
+	struct
+	{
+		t_colour src;
+		t_colour dst;
+	};
 }	t_mcol;
 
 typedef struct s_m128i
@@ -856,44 +899,6 @@ struct s_info
 	size_t		msg_last_time;
 };
 
-# if __BYTE_ORDER == __LITTLE_ENDIAN
-
-typedef struct s_colour
-{
-	union
-	{
-		u_int	raw;
-
-		struct
-		{
-			u_char	b;
-			u_char	g;
-			u_char	r;
-			u_char	a;
-		};
-	};
-}	t_colour;
-# elif __BYTE_ORDER == __BIG_ENDIAN
-
-typedef struct s_colour
-{
-	union
-	{
-		u_int	raw;
-		struct
-		{
-			u_char	a;
-			u_char	r;
-			u_char	g;
-			u_char	b;
-		};
-	};
-}	t_colour;
-
-# else
-#  error "Unsupported byte order"
-# endif
-
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
 # define CHAR_WIDTH 8
 # define MMAP_TILE_W 8
@@ -1043,6 +1048,7 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color);
 void	free_shtex(t_info *app);
 void	free_shsnd(t_info *app);
 void	free_fonts(t_info *app);
+t_img	cvttex_img(t_tex tex);
 t_img	*build_minimap(t_info *app, int scale);
 t_tex	get_tile(int idx);
 size_t	get_time_ms(void);
