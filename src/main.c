@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
-#include "../include/cub3d.h"
+#include "cub3d.h"
 
 void	init_mlx(t_info *app)
 {

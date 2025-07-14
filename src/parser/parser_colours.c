@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
-#include "ft/ft_ctype.h"
 
 int	convert_col(char *str)
 {
