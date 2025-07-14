@@ -124,7 +124,9 @@ typedef struct s_font_metrics
 enum e_dir
 {
 	LEFT = 0,
-	RIGHT
+	RIGHT,
+	STEP,
+	CURR
 };
 
 enum
@@ -391,13 +393,16 @@ typedef struct s_m256i
 	__m256i	blend;
 	__m256i	overlay256;
 	__m256i	transparent;
-	struct
-	{
-		int		colour;
-		u_int	overlay;
-	};
 }	t_m256i;
 
+typedef struct s_m256i2
+{
+	__m256i	idxs;
+	__m256i	dst;
+	__m256i	mask;
+	__m256i	blend;
+	t_cdata cd;
+}	t_m256i2;
 
 typedef struct s_vec4f_sse
 {

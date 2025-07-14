@@ -12,308 +12,234 @@
 
 #include "cub3d.h"
 
-void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img	tex);
+t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
+{
+	while (it.y < WIN_HEIGHT / 2)
+	{
+		it.z = idxs[it.x * WIN_HEIGHT / 2 + it.y];
+		cd.dst = row.dst + it.x * WIN_HEIGHT + it.y + WIN_HEIGHT / 2;
+		cd.dst[0] = row.src[it.z];
+		cd.dst[WIN_HEIGHT] = row.src[it.z];
+		it.y++;
+	}
+	return (it);
+}
+
+static inline
+t_fvec256	vect_to_256f(t_vect v)
+{
+	t_fvec256	r;
+
+	r.xx = _mm256_set1_ps((float) v.x);
+	r.yy = _mm256_set1_ps((float) v.y);
+	return (r);
+}
+
+static inline
+t_fvec256	load_depth_vec8(const float *d)
+{
+	t_fvec256	out;
+
+	out.xx = _mm256_loadu_ps(d);
+	out.yy = _mm256_loadu_ps(d);
+	return (out);
+}
+
+static inline
+t_fvec256	add_vec256(t_fvec256 a, t_fvec256 b)
+{
+	t_fvec256	r;
+
+	r.xx = _mm256_add_ps(a.xx, b.xx);
+	r.yy = _mm256_add_ps(a.yy, b.yy);
+	return (r);
+}
+
+static inline
+t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b)
+{
+	t_fvec256	r;
+
+	r.xx = _mm256_sub_ps(a.xx, b.xx);
+	r.yy = _mm256_sub_ps(a.yy, b.yy);
+	return (r);
+}
+
+static inline
+t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b)
+{
+	t_fvec256	r;
+
+	r.xx = _mm256_mul_ps(a.xx, b.xx);
+	r.yy = _mm256_mul_ps(a.yy, b.yy);
+	return (r);
+}
+
+static inline
+t_fvec256	div_vec256(t_fvec256 a, __m256 denom)
+{
+	t_fvec256	r;
+
+	r.xx = _mm256_div_ps(a.xx, denom);
+	r.yy = _mm256_div_ps(a.yy, denom);
+	return (r);
+}
+
+static inline
+void	calc_idxs_scalar(t_info *app, float *rd, int *idxs, t_img tex)
+{
+	t_ivect			it;
+	t_ivect			ix;
+	t_vect			pos[4];
+	t_vect			dir[2];
+	const t_player	player = *app->player;
+
+	dir[LEFT] = rotate_vect(player.dir, app->fov_rad_half);
+	dir[RIGHT] = rotate_vect(player.dir, -app->fov_rad_half);
+	it.y = WIN_HEIGHT / 2 - 7;
+	while (++it.y < WIN_HEIGHT / 2)
+	{
+		pos[CURR] = add_vect(player.pos, scale_vect(dir[LEFT], rd[it.y]));
+		pos[RIGHT] = add_vect(player.pos, scale_vect(dir[RIGHT], rd[it.y]));
+		pos[STEP].x = (pos[RIGHT].x - pos[CURR].x) / WIN_WIDTH * 2;
+		pos[STEP].y = (pos[RIGHT].y - pos[CURR].y) / WIN_WIDTH * 2;
+		it.x = 0;
+		while (it.x < WIN_WIDTH - 1)
+		{
+			ix.x = ((int)(pos[CURR].x * tex.width)) & (tex.width - 1);
+			ix.y = ((int)(pos[CURR].y * tex.height)) & (tex.height - 1);
+			idxs[it.x * (WIN_HEIGHT / 2) + it.y] = ix.y * tex.width + ix.x;
+			pos[CURR] = add_vect(pos[CURR], pos[STEP]);
+			it.x += 2;
+		}
+	}
+}
+
+static
+void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, int y_off, int x_off)
+{
+	__m256i			*ptr;
+	__m256i			idx;
+	const t_fvec256	scaled = {
+		_mm256_mul_ps(curr.xx, _mm256_set1_ps(tex.width)),
+		_mm256_mul_ps(curr.yy, _mm256_set1_ps(tex.height))
+	};
+	const t_ivec256	idxx = {
+		_mm256_and_si256(_mm256_cvttps_epi32(scaled.xx),
+			_mm256_set1_epi32(tex.width - 1)),
+		_mm256_and_si256(_mm256_cvttps_epi32(scaled.yy),
+			_mm256_set1_epi32(tex.height - 1))
+	};
+
+	idx = _mm256_add_epi32(_mm256_mullo_epi32(idxx.yy,
+				_mm256_set1_epi32(tex.width)), idxx.xx);
+	ptr = (__m256i_u *)(ixs + (x_off * (WIN_HEIGHT / 2) + y_off));
+	_mm256_storeu_si256(ptr, idx);
+}
+
+static
+t_ivect	calc_row_avx2(t_ivect it, float *depths, t_fvec256 *dir256,
+						t_fvec256 pl, t_img tex, int *idxs)
+{
+	const t_fvec256	depth = load_depth_vec8(&depths[it.y]);
+	t_fvec256		lr[2];
+	t_fvec256		step;
+	t_fvec256		curr;
+
+	lr[LEFT] = scale_vec256(dir256[LEFT], depth);
+	lr[RIGHT] = scale_vec256(dir256[RIGHT], depth);
+	curr = add_vec256(pl, lr[LEFT]);
+	step = div_vec256(sub_vec256(add_vec256(pl, lr[RIGHT]), curr),
+			_mm256_set1_ps(WIN_WIDTH / 2.0f));
+	it.x = 0;
+	while (it.x < WIN_WIDTH - 1)
+	{
+		store_idx_row(idxs, curr, tex, it.y, it.x);
+		curr = add_vec256(curr, step);
+		it.x += 2;
+	}
+	return (it);
+}
+
+static
+void	calc_idxs_avx2(t_info *app, float *row_depths, int *idxs, t_img tex)
+{
+	t_ivect			it;
+	t_fvec256		dir256[2];
+	t_fvec256		pl;
+	t_player *const	player = app->player;
+
+	dir256[LEFT] = vect_to_256f(rotate_vect(player->dir, app->fov_rad_half));
+	dir256[RIGHT] = vect_to_256f(rotate_vect(player->dir, -app->fov_rad_half));
+	pl = vect_to_256f(player->pos);
+	it.y = 0;
+	while (it.y < WIN_HEIGHT / 2 - 7)
+	{
+		it = calc_row_avx2(it, row_depths, dir256, pl, tex, idxs);
+		it.y += 8;
+	}
+}
 
 /**
+ * int	idxs[WIN_WIDTH * WIN_HEIGHT / 2] __attribute__((aligned(32)));
  * @param app
  * @param player
  */
 inline __attribute__((always_inline))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
+	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
+	t_ivect3		it;
+	t_m256i2		mc;
+	const t_img		tex = *app->lvl->planes[T_FLOOR];
+	const t_cdata	row = {(int *) tex.data, (int *) app->canvas_r->data};
 
-	int		idxs[WIN_WIDTH * WIN_HEIGHT / 2] __attribute__((aligned(32)));
-
-	t_ivect		it;
-	int			full_idx;
-
-	t_img	tex;
-	t_cdata row;
-
-	tex = *app->lvl->planes[T_FLOOR];
-
-	row.dst = (int *)app->canvas_r->data;
-	row.src = (int *)tex.data;
-
-	calc_idxs_avx2(app, player, idxs, tex);
-
+	calc_idxs_avx2(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
+	calc_idxs_scalar(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
 	it.x = 0;
 	while (it.x < WIN_WIDTH - 1)
 	{
 		it.y = 0;
 		while (it.y < WIN_HEIGHT / 2 - 7)
 		{
-			__m256i final_idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.x * WIN_HEIGHT / 2 + it.y]);
-			__builtin_prefetch(&row.src[idxs[it.x * WIN_HEIGHT / 2 + it.y]]);
-			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
-
-			int	*dst = row.dst + (it.x * WIN_HEIGHT) + (it.y + WIN_HEIGHT / 2);
-			_mm256_storeu_si256((__m256i *)dst, final_results);
-			_mm256_storeu_si256((__m256i *)(dst + WIN_HEIGHT), final_results);
-
-			it.y = it.y + 8;
+			it.z = it.x * WIN_HEIGHT / 2 + it.y;
+			mc.idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.z]);
+			mc.blend = _mm256_i32gather_epi32((int *) row.src, mc.idxs, 4);
+			mc.cd.dst = row.dst + (it.x * WIN_HEIGHT) + (it.y + WIN_HEIGHT / 2);
+			_mm256_storeu_si256((__m256i *)mc.cd.dst, mc.blend);
+			_mm256_storeu_si256((__m256i *)(mc.cd.dst + WIN_HEIGHT), mc.blend);
+			it.y += 8;
 		}
-		while (it.y < WIN_HEIGHT / 2)
-		{
-			full_idx = idxs[it.x * WIN_HEIGHT / 2 + it.y];
-			int result = row.src[full_idx];
-			int	*dst = row.dst + it.x * WIN_HEIGHT + it.y + WIN_HEIGHT / 2;
-			dst[0] = result;
-			dst[WIN_HEIGHT] = result;
-			it.y++;
-		}
+		fill_floor_scalar(idxs, row, it, mc.cd);
 		it.x += 2;
 	}
 }
 
 void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
-	t_vect	dir[2];
-	float	pos_array_x[WIN_HEIGHT / 2];
-	float	pos_array_y[WIN_HEIGHT / 2];
+	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
+	t_ivect3		it;
+	t_m256i2		mc;
+	const t_img		tex = *app->lvl->planes[T_CEILING];
+	const t_cdata	row = {(int *) tex.data, (int *) app->canvas_r->data};
 
-	float	steps_arr_x[WIN_HEIGHT / 2];
-	float	steps_arr_y[WIN_HEIGHT / 2];
-
-	t_vect	curr;
-
-	t_cdata row;
-	t_ivect iter;
-
-	double	depth;
-	t_img	tex;
-
-	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
-	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
-
-	tex = *app->lvl->planes[T_CEILING];
-
-	float *depths = player->row_depths;
-	row.dst = (int *)app->canvas_r->data;
-	row.src = (int *)tex.data;
-
-	iter.y = (WIN_HEIGHT / 2);
-	while (iter.y--)
+	calc_idxs_avx2(app, player->row_depths, idxs, tex);
+	calc_idxs_scalar(app, player->row_depths, idxs, tex);
+	it.x = 0;
+	while (it.x < WIN_WIDTH - 1)
 	{
-		depth = depths[iter.y];
-
-		t_vect temp = add_vect(player->pos, scale_vect(dir[LEFT], depth));
-
-		pos_array_x[iter.y] = temp.x;
-		pos_array_y[iter.y] = temp.y;
-
-		curr = add_vect(player->pos, scale_vect(dir[RIGHT], depth));
-
-		steps_arr_x[iter.y] = (curr.x - pos_array_x[iter.y]) / WIN_WIDTH * 2;
-		steps_arr_y[iter.y] = (curr.y - pos_array_y[iter.y]) / WIN_WIDTH * 2;
-	}
-	iter.x = 0;
-	while (iter.x < WIN_WIDTH - 1)
-	{
-		iter.y = 0;
-		while (iter.y < (WIN_HEIGHT / 2) - 7)
+		it.y = 0;
+		while (it.y < WIN_HEIGHT / 2 - 7)
 		{
-
-			__m256 p_val_x = _mm256_loadu_ps(&pos_array_x[iter.y]);
-			__m256 p_val_y = _mm256_loadu_ps(&pos_array_y[iter.y]);
-
-			__m256 tex_width = _mm256_set1_ps(tex.width);
-			__m256 tex_height = _mm256_set1_ps(tex.height);
-
-			__m256i tex_width_i = _mm256_set1_epi32(tex.width - 1);
-			__m256i tex_height_i = _mm256_set1_epi32(tex.height - 1);
-
-
-			__m256i i_x = _mm256_cvttps_epi32(_mm256_mul_ps(p_val_x, tex_width));
-			__m256i i_y = _mm256_cvttps_epi32(_mm256_mul_ps(p_val_y, tex_height));
-
-			__m256i idx_x = _mm256_and_si256(i_x, tex_width_i);
-			__m256i idx_y = _mm256_and_si256(i_y, tex_height_i);
-
-			__m256i final_idxs = _mm256_add_epi32(_mm256_mullo_epi32(idx_y, _mm256_set1_epi32(tex.width)), idx_x);
-
-			__m256i final_results = _mm256_i32gather_epi32((const int *)row.src, final_idxs, sizeof(int));
-
-			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
-			_mm256_storeu_si256((__m256i *)dst, final_results);
-			_mm256_storeu_si256((__m256i *)(dst + WIN_HEIGHT), final_results);
-
-			__m256 steps_xx = _mm256_loadu_ps(&steps_arr_x[iter.y]);
-			__m256 steps_yy = _mm256_loadu_ps(&steps_arr_y[iter.y]);
-
-			_mm256_storeu_ps(&pos_array_x[iter.y], _mm256_add_ps(p_val_x, steps_xx));
-			_mm256_storeu_ps(&pos_array_y[iter.y], _mm256_add_ps(p_val_y, steps_yy));
-
-			iter.y = iter.y + 8;
+			it.z = it.x * WIN_HEIGHT / 2 + it.y;
+			mc.idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.z]);
+			mc.blend = _mm256_i32gather_epi32((int *)row.src, mc.idxs, 4);
+			mc.cd.dst = row.dst + it.x * WIN_HEIGHT + it.y;
+			_mm256_storeu_si256((__m256i *)mc.cd.dst, mc.blend);
+			_mm256_storeu_si256((__m256i *)(mc.cd.dst + WIN_HEIGHT), mc.blend);
+			it.y += 8;
 		}
-		while (iter.y < WIN_HEIGHT / 2)
-		{
-			t_ivect idx;
-
-			idx.x = ((int)(pos_array_x[iter.y] * tex.width)) & (tex.width - 1);
-			idx.y = ((int)(pos_array_y[iter.y] * tex.height)) & (tex.height - 1);
-
-			int	*dst = row.dst + iter.x * WIN_HEIGHT + iter.y;
-
-			dst[0] = row.src[idx.y * tex.width + idx.x];
-			dst[WIN_HEIGHT] = row.src[idx.y * tex.width + idx.x];
-			pos_array_x[iter.y] += steps_arr_x[iter.y];
-			pos_array_y[iter.y] += steps_arr_y[iter.y];
-			iter.y++;
-		}
-		iter.x += 2;
-	}
-}
-
-/**
- * Clamping
- * 	`__m256i tex_width_mask = _mm256_set1_epi32(tex.width - 1);`
- * 	`i_xx = _mm256_and_si256(i_xx, tex_width_mask);`
- *
- * only works if tex.width is a power of 2, aka
- * 	`x % tex.width == x & (tex.width - 1)`
- *
- * better use:
- * 	`i_xx = _mm256_min_epi32(i_xx, _mm256_set1_epi32(tex.width - 1));`
- * 	`i_xx = _mm256_max_epi32(i_xx, _mm256_setzero_si256());`
- *
- * or full modulo:
- * 	`__m256i divisor = _mm256_set1_epi32(tex.width);`
- *
- * 	1. Integer divide (no native AVX2 integer division, convert to float)
- * 	`__m256 xf      = _mm256_cvtepi32_ps(x);`
- * 	`__m256 df      = _mm256_cvtepi32_ps(divisor);`
- * 	`__m256 quotf   = _mm256_div_ps(xf, df);`
- *
- * 	2. Floor the result
- * 	`__m256 quotf_trunc = _mm256_round_ps(quotf, _MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC);`
- * 	`__m256i quot = _mm256_cvttps_epi32(quotf_trunc);`
- *
- * 	3. Multiply and subtract to get modulo
- * 	`__m256i prod = _mm256_mullo_epi32(quot, divisor);`
- * 	`__m256i mod  = _mm256_sub_epi32(x, prod);`
- *
- *	...
- * or compute the magic number with:
- * 	https://github.com/hcs0/Hackers-Delight/blob/master/magicu.c.txt
- * @param app
- * @param player
- * @param idxs
- * @param tex
- */
-inline __attribute__((always_inline))
-void calc_idxs_avx2(const t_info *app, t_player *player, int *idxs, t_img tex)
-{
-	t_ivect iter;
-	t_vect	dir[2];
-	t_vect	pos[2];
-	t_vect	step, curr;
-	t_fvec256	dir256[2];
-	t_fvec256	pl_pos256;
-
-	float *depths = &player->row_depths[WIN_HEIGHT / 2 - 1];
-	t_vect const pl_pos = player->pos;
-
-	dir[LEFT] = rotate_vect(player->dir, app->fov_rad_half);
-	dir[RIGHT] = rotate_vect(player->dir, -app->fov_rad_half);
-
-	dir256[LEFT].xx = _mm256_set1_ps(dir[LEFT].x);
-	dir256[LEFT].yy = _mm256_set1_ps(dir[LEFT].y);
-
-	dir256[RIGHT].xx = _mm256_set1_ps(dir[RIGHT].x);
-	dir256[RIGHT].yy = _mm256_set1_ps(dir[RIGHT].y);
-
-	pl_pos256.xx = _mm256_set1_ps(pl_pos.x);
-	pl_pos256.yy = _mm256_set1_ps(pl_pos.y);
-
-	__m256 half_width = _mm256_set1_ps(WIN_WIDTH / 2);
-	__m256 tex_width = _mm256_set1_ps(tex.width);
-	__m256 tex_height = _mm256_set1_ps(tex.height);
-
-	__m256i tex_width_i = _mm256_set1_epi32(tex.width);
-	__m256i tex_width_mask = _mm256_set1_epi32(tex.width - 1);
-	__m256i tex_height_mask = _mm256_set1_epi32(tex.height - 1);
-
-	// Inverted loop: y outer, x inner
-	iter.y = 0;
-	while (iter.y < WIN_HEIGHT / 2 - 7)
-	{
-		__m256 depthxx = _mm256_loadu_ps(&depths[iter.y]);
-
-		t_fvec256 scaled_left;
-		t_fvec256 scaled_right;
-		t_fvec256 pos_left;
-		t_fvec256 pos_right;
-		t_fvec256 stepx;
-		t_fvec256 currv;
-
-		// Compute left/right projected positions
-		scaled_left.xx = _mm256_mul_ps(dir256[LEFT].xx, depthxx);
-		scaled_right.xx = _mm256_mul_ps(dir256[RIGHT].xx, depthxx);
-		pos_left.xx = _mm256_add_ps(pl_pos256.xx, scaled_left.xx);
-		pos_right.xx = _mm256_add_ps(pl_pos256.xx, scaled_right.xx);
-		stepx.xx = _mm256_div_ps(_mm256_sub_ps(pos_right.xx, pos_left.xx), half_width);
-
-		scaled_left.yy = _mm256_mul_ps(dir256[LEFT].yy, depthxx);
-		scaled_right.yy = _mm256_mul_ps(dir256[RIGHT].yy, depthxx);
-		pos_left.yy = _mm256_add_ps(pl_pos256.yy, scaled_left.yy);
-		pos_right.yy = _mm256_add_ps(pl_pos256.yy, scaled_right.yy);
-		stepx.yy = _mm256_div_ps(_mm256_sub_ps(pos_right.yy, pos_left.yy), half_width);
-
-		// Walk across screen (x-axis)
-		iter.x = 0;
-		currv.xx = pos_left.xx;
-		currv.yy = pos_left.yy;
-		while (iter.x < WIN_WIDTH - 1)
-		{
-			t_fvec256	scaled;
-
-			scaled.xx = _mm256_mul_ps(currv.xx, tex_width);
-			scaled.yy = _mm256_mul_ps(currv.yy, tex_height);
-
-			__m256i x_idx = _mm256_and_si256(_mm256_cvttps_epi32(scaled.xx), tex_width_mask);
-			__m256i y_idx = _mm256_and_si256(_mm256_cvttps_epi32(scaled.yy), tex_height_mask);
-
-			__m256i mull = _mm256_mullo_epi32(y_idx, tex_width_i);
-			__m256i final_idxs = _mm256_add_epi32(mull, x_idx);
-
-			int offset = iter.x * (WIN_HEIGHT / 2) + iter.y;
-			_mm256_storeu_si256((__m256i_u *)&idxs[offset], final_idxs);
-
-			currv.xx = _mm256_add_ps(currv.xx, stepx.xx);
-			currv.yy = _mm256_add_ps(currv.yy, stepx.yy);
-
-			iter.x += 2;
-		}
-		iter.y += 8;
-	}
-
-	// Scalar fallback (unchanged)
-	while (iter.y < WIN_HEIGHT / 2)
-	{
-		double depth = depths[iter.y * -1];
-		pos[LEFT] = add_vect(pl_pos, scale_vect(dir[LEFT], depth));
-		pos[RIGHT] = add_vect(pl_pos, scale_vect(dir[RIGHT], depth));
-
-		step.x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH * 2;
-		step.y = (pos[RIGHT].y - pos[LEFT].y) / WIN_WIDTH * 2;
-
-		curr = pos[LEFT];
-
-		iter.x = 0;
-		while (iter.x < WIN_WIDTH - 1)
-		{
-			t_ivect idx;
-			idx.x = ((int)(curr.x * tex.width)) & (tex.width - 1);
-			idx.y = ((int)(curr.y * tex.height)) & (tex.height - 1);
-
-			idxs[iter.x * (WIN_HEIGHT / 2) + iter.y] = (idx.y * tex.width) + idx.x;
-
-			curr.x += step.x;
-			curr.y += step.y;
-
-			iter.x += 2;
-		}
-		iter.y++;
+		fill_floor_scalar(idxs, row, it, mc.cd);
+		it.x += 2;
 	}
 }
