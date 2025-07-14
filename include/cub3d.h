@@ -284,10 +284,10 @@ typedef struct s_ftstep
 
 typedef struct s_fma_avx2
 {
-	__m256	offsets;
-	__m256	step;
-	__m256i	indices;
-	int 	idx[8] __attribute__((aligned(32)));
+	__m256		offsets;
+	__m256		step;
+	__m256i		indices;
+	int 		idx[8] __attribute__((aligned(32)));
 }	t_fma_avx2;
 
 typedef struct s_cdata
@@ -446,9 +446,10 @@ typedef struct s_lvect
 
 typedef struct s_lvars
 {
-	int	height;
-	int	top;
-	int	end;
+	int			height;
+	int			top;
+	int			end;
+	t_iter		it;
 }	t_lvars;
 
 /**

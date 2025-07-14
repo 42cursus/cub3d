@@ -34,7 +34,7 @@
  * @param line
  */
 static inline __attribute__((always_inline))
-void	slice_drawing_scalar(const t_ray *ray, t_iter it, t_ftstep ts, t_cdata cd)
+void	slice_drawing_scalar(t_ray *ray, t_iter it, t_ftstep ts, t_cdata cd)
 {
 	t_m128i		mc;
 
@@ -45,7 +45,6 @@ void	slice_drawing_scalar(const t_ray *ray, t_iter it, t_ftstep ts, t_cdata cd)
 		mc.colour = cd.src[(int) ts.tex_y];
 		mc.src = _mm_set1_epi32(mc.colour | mc.overlay);
 		mc.dst = _mm_set1_epi32(*cd.dst);
-//		mc.mask = _mm_cmpeq_epi32(mc.src, mc.transparent);
 		mc.mask = _mm_set1_epi32(-(mc.colour != (int)XPM_TRANSPARENT));
 		mc.blend = _mm_blendv_epi8(mc.dst, mc.src, mc.mask);
 		*cd.dst = _mm_cvtsi128_si32(mc.blend);
@@ -74,35 +73,26 @@ void	slice_drawing_scalar(const t_ray *ray, t_iter it, t_ftstep ts, t_cdata cd)
  * @param line
  */
 static inline __attribute__((always_inline))
-void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
+void	slice_drawing_avx2x8(t_cdata cd, t_ray *ray, t_ftstep ts, t_lvars line)
 {
 	t_iter		it;
-	t_ftstep	ts;
-	t_m256i		mmc;
-	t_cdata		cd;
+	t_m256i		m;
 	t_fma_avx2	fma;
 
-	it.i = (-(line.top < 0) & -line.top);
-	it.j = line.end - line.top;
-	ts.step = (float)ray->tex->h / line.height;
-	ts.tex_y = ts.step * it.i;
-
+	it = line.it;
 	fma.offsets = _mm256_setr_ps(0, 1, 2, 3, 4, 5, 6, 7);
 	fma.step = _mm256_set1_ps(ts.step);
-	cd.src = (int *)ray->tex->data + (int) ray->pos * ray->tex->h;
-	cd.dst = (int *)cnvs->data + (line.top + it.i) + cnvs->w * x;
-	mmc.overlay256 = _mm256_set1_epi32(-(ray->damaged) & MLX_RED);
-	mmc.transparent = _mm256_set1_epi32(XPM_TRANSPARENT);
+	m.overlay256 = _mm256_set1_epi32(-(ray->damaged) & MLX_RED);
 	while (it.i + 7 < it.j)
 	{
 		fma.indices = _mm256_cvttps_epi32(_mm256_fmadd_ps(fma.offsets, fma.step,
-			_mm256_set1_ps(ts.tex_y)));
-		mmc.src = _mm256_i32gather_epi32((const int *)cd.src, fma.indices, 4);
-		mmc.mask = _mm256_cmpeq_epi32(mmc.src, mmc.transparent);
-		mmc.src = _mm256_or_si256(mmc.src, mmc.overlay256);
-		mmc.dst = _mm256_loadu_si256((__m256i *)cd.dst);
-		mmc.blend = _mm256_blendv_epi8(mmc.src, mmc.dst, mmc.mask);
-		_mm256_storeu_si256((__m256i *)cd.dst, mmc.blend);
+					_mm256_set1_ps(ts.tex_y)));
+		m.src = _mm256_i32gather_epi32((const int *)cd.src, fma.indices, 4);
+		m.mask = _mm256_cmpeq_epi32(m.src, _mm256_set1_epi32(XPM_TRANSPARENT));
+		m.src = _mm256_or_si256(m.src, m.overlay256);
+		m.dst = _mm256_loadu_si256((__m256i *)cd.dst);
+		m.blend = _mm256_blendv_epi8(m.src, m.dst, m.mask);
+		_mm256_storeu_si256((__m256i *)cd.dst, m.blend);
 		cd.dst += 8;
 		ts.tex_y += ts.step * 8;
 		it.i += 8;
@@ -112,12 +102,21 @@ void	slice_drawing_avx2x8(int x, t_ray *ray, t_tex *cnvs, t_lvars line)
 
 void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 {
-	t_lvars	line;
+	t_lvars		line;
+	t_iter		it;
+	t_ftstep	ts;
+	t_cdata		cd;
 
 	line.height = (int)(WIN_WIDTH / (ray->distance * 2.0 * app->fov_opp_len));
 	line.top = WIN_HEIGHT / 2 - line.height / 2;
 	line.end = MIN(WIN_HEIGHT / 2 - line.height / 2 + line.height, WIN_HEIGHT);
-	slice_drawing_avx2x8(x, ray, canvas, line);
+	it = (t_iter){(-(line.top < 0) & -line.top), line.end - line.top};
+	ts.step = (float)ray->tex->h / line.height;
+	ts.tex_y = ts.step * it.i;
+	line.it = it;
+	cd.src = (int *)ray->tex->data + (int) ray->pos * ray->tex->h;
+	cd.dst = (int *)canvas->data + (line.top + it.i) + canvas->w * x;
+	slice_drawing_avx2x8(cd, ray, ts, line);
 }
 
 void	draw_rays_transposed(t_info *app)
