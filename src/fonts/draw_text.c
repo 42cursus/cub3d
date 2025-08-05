@@ -20,17 +20,18 @@
  * @param text
  * @param c
  */
-void draw_text_freetype(FT_Face face, t_img *img, const char *text, t_point c)
+void	draw_text_freetype(FT_Face face, t_img *img,
+			const char *text, t_point c)
 {
-	t_ivect i;
-	t_point p;
-	FT_Bitmap *bmp;
-	double alpha_frac;
+	t_ivect		i;
+	t_point		p;
+	FT_Bitmap	*bmp;
+	double		alpha_frac;
 
 	while (*text)
 	{
 		if (FT_Load_Char(face, *text, FT_LOAD_RENDER))
-			continue;
+			continue ;
 		bmp = &face->glyph->bitmap;
 		i.y = -1;
 		while (++i.y < (int) bmp->rows)
@@ -66,7 +67,7 @@ int	compute_text_width(FT_Face face, const char *text)
 		{
 			if (prev_glyph && FT_HAS_KERNING(face))
 				if (FT_Get_Kerning(face, prev_glyph, glyph_index,
-								   FT_KERNING_DEFAULT, &delta) == 0)
+						FT_KERNING_DEFAULT, &delta) == 0)
 					total_width += delta.x;
 			total_width += face->glyph->advance.x;
 			prev_glyph = glyph_index;
@@ -78,10 +79,10 @@ int	compute_text_width(FT_Face face, const char *text)
 
 void	draw_char_ft(FT_GlyphSlot glyph, t_tex *tex, t_point c)
 {
-	t_point			p;
-	FT_Bitmap		*bmp = &glyph->bitmap;
-	t_ivect			it;
-	double			alpha_frac;
+	t_point				p;
+	const FT_Bitmap		*bmp = &glyph->bitmap;
+	t_ivect				it;
+	double				alpha_frac;
 
 	it.y = -1;
 	while (++it.y < (int) bmp->rows)
@@ -94,13 +95,13 @@ void	draw_char_ft(FT_GlyphSlot glyph, t_tex *tex, t_point c)
 			p.y = c.y - glyph->bitmap_top + it.y;
 			if (alpha_frac != 1)
 			{
-				u_int32_t *dst;
-				u_int32_t alpha;
+				u_int32_t	*dst;
+				u_int32_t	alpha;
 
 				if (p.x >= 0 && p.y >= 0 && p.x < (*tex).w && p.y < (*tex).h)
 				{
-					dst = (u_int32_t *) (*tex).data + p.y * (*tex).w + p.x;
-					alpha = (u_char) ((int) (alpha_frac * 255.0) & 0xFF);
+					dst = (u_int32_t *)(*tex).data + p.y * (*tex).w + p.x;
+					alpha = (u_char)((int)(alpha_frac * 255.0) & 0xFF);
 					*dst = (alpha << 24) | (0xffea00 & MLX_WHITE);
 				}
 			}
@@ -118,7 +119,8 @@ void	draw_char_ft(FT_GlyphSlot glyph, t_tex *tex, t_point c)
  * @param text
  * @param c
  */
-void	draw_text_ft_hcentered(FT_Face face, t_tex tex, const char *text, t_point c)
+void	draw_text_ft_hcentered(FT_Face face, t_tex tex,
+			const char *text, t_point c)
 {
 	FT_Set_Pixel_Sizes(face, 0, 40);
 	c.x -= compute_text_width(face, text) / 2;

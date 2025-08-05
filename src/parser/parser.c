@@ -345,9 +345,8 @@ int	count_collectables(t_lvl *lvl)
 void	draw_help(t_lvl *lvl)
 {
 	t_info *const		app = lvl->app;
-	t_point				p;
+	t_ivect3			p;
 	t_img				help;
-	int					i;
 	FT_Face				face;
 	static const char	*help_msgs[] = {
 		"W, A, S, D => Move forward, left, backward, and right",
@@ -368,10 +367,10 @@ void	draw_help(t_lvl *lvl)
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
 	p.x = 50;
 	p.y = 50;
-	i = -1;
-	while (++i < (int)(sizeof(help_msgs) / sizeof(help_msgs[0])))
+	p.z = -1;
+	while (++p.z < (int)(sizeof(help_msgs) / sizeof(help_msgs[0])))
 	{
-		draw_text_freetype(face, &help, help_msgs[i], p);
+		draw_text_freetype(face, &help, help_msgs[p.z], p.xy);
 		p.y += 60;
 	}
 	lvl->help = help;
