@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 13:30:32 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:08:08 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:14:44 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,17 +72,12 @@ void	init_menu_select_funcs(t_info *app, t_menustate *menu_state)
 		menu_state->select_funcs[WIN], 3 * sizeof(t_menu_select_func));
 }
 
-void	menu_select_current(t_info *app)
+void	free_select_funcs(t_menustate *menu_state)
 {
-	t_menustate	*menu_state;
-	void		(*sf)(t_info *, t_menustate *);
-	int			state;
-	int			selected;
+	int	i;
 
-	menu_state = &app->menu_state;
-	state = menu_state->state;
-	selected = menu_state->selected;
-	sf = menu_state->select_funcs[state][selected];
-	if (sf != NULL)
-		sf(app, menu_state);
+	i = -1;
+	while (++i < MENUSTATE_MAX)
+		free(menu_state->select_funcs[i]);
+	free(menu_state->select_funcs);
 }

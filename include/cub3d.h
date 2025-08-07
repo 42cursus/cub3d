@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/07 15:59:55 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:15:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1156,6 +1156,7 @@ void		place_menu(const char **strings, t_ivect pos, int scalar, t_info *app);
 void		draw_menu_options(t_info *app);
 void		draw_menu_win(t_info *app);
 void		draw_menu_lvlselect(t_info *app);
+void		free_select_funcs(t_menustate *menu_state);
 
 t_state		run_state(t_info *app, int argc, char **argv);
 void		set_fov(t_info *app, int fov);

@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/05/16 18:41:44 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/08/07 16:12:10 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -61,7 +61,7 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 					# -pg \
 #					-D FRAMERATE=60 \
 
@@ -93,7 +93,7 @@ LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-
 						-march=native -maes \
 						-flto \
 						-Wl,-zmax-page-size=0x200000 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 					# -pg \
 
 SRC_DIR			= src

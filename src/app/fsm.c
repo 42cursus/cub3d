@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/07 14:38:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:12:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void	do_prep(int argc, t_info *const app)
 	set_music_volume(app, 100);
 	srand(get_time_ms());
 	app->map_ids = ft_calloc(argc, sizeof(char *));
+	app->no_maps = argc - 1;
 }
 
 void	do_load(t_info *const app)
@@ -103,7 +104,6 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 		str = ({if (has_slash == true) str = "start.cub"; else str = ""; str;});
 		app->map_ids[i - 1] = ft_strjoin(argv[i], str);
 	}
-	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map: %m\n"), fail);
 	init_menu_select_funcs(app, &app->menu_state);

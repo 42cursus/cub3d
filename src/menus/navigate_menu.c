@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   menus.c                                            :+:      :+:    :+:   */
+/*   navigate_menu.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/15 12:42:56 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:07:02 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:13:33 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,19 @@ void	change_menu_selection(t_info *app, int dir)
 	else if (new_selection < 0)
 		new_selection = menu_state->no_items - 1;
 	menu_state->selected = new_selection;
+}
+
+void	menu_select_current(t_info *app)
+{
+	t_menustate	*menu_state;
+	void		(*sf)(t_info *, t_menustate *);
+	int			state;
+	int			selected;
+
+	menu_state = &app->menu_state;
+	state = menu_state->state;
+	selected = menu_state->selected;
+	sf = menu_state->select_funcs[state][selected];
+	if (sf != NULL)
+		sf(app, menu_state);
 }

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:42:14 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/15 13:43:52 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:15:23 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ int	cleanup(t_info *app)
 	free_fonts(app);
 	free_split(app->map_ids);
 	get_pooled_ray(2);
+	free_select_funcs(&app->menu_state);
 	if (app->canvas != NULL)
 		destroy_cnvs(app);
 	if (app->overlay.data != NULL)
