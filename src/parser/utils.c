@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:31:28 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:32:21 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:21:44 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,14 +37,14 @@ int	valid_identifier(char *str)
 	return (NONE);
 }
 
-void	print_map(t_lvl *data)
-{
-	int	i;
-
-	i = 0;
-	while (data->map[i] != NULL)
-		ft_printf("<%s>\n", data->map[i++]);
-}
+// void	print_map(t_lvl *data)
+// {
+// 	int	i;
+//
+// 	i = 0;
+// 	while (data->map[i] != NULL)
+// 		ft_printf("<%s>\n", data->map[i++]);
+// }
 
 int	str_cmp_whitespace(void *data, void *ref)
 {
@@ -72,17 +72,17 @@ size_t	count_split_words(char **split)
 	return (i);
 }
 
-void	print_list(t_list *list)
-{
-	t_list	*current;
-
-	current = list;
-	while (current != NULL)
-	{
-		ft_printf("%s\n", current->data);
-		current = current->next;
-	}
-}
+// void	print_list(t_list *list)
+// {
+// 	t_list	*current;
+//
+// 	current = list;
+// 	while (current != NULL)
+// 	{
+// 		ft_printf("%s\n", current->data);
+// 		current = current->next;
+// 	}
+// }
 
 void	free_split(char **split)
 {

@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/14 15:12:36 by abelov            #+#    #+#             */
-/*   Updated: 2025/07/14 15:12:36 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:30:14 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,6 @@ void	do_mmenu_to_load(void *param)
 	}
 	app->rc = ok;
 	app->player = init_player(app);
-	app->player->total_pickups += count_collectables(app->lvl);
 	mlx_loop_hook(app->mlx, &render_load, app);
 	app->mlx->end_loop = 0;
 	app->timer.total_ms = 0;
