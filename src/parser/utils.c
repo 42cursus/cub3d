@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:31:28 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:21:44 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:43:58 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,32 +46,6 @@ int	valid_identifier(char *str)
 // 		ft_printf("<%s>\n", data->map[i++]);
 // }
 
-int	str_cmp_whitespace(void *data, void *ref)
-{
-	char	*line;
-	int		i;
-
-	line = (char *)data;
-	i = 0;
-	while (line[i])
-	{
-		if (!ft_isspace(line[i++]))
-			return (1);
-	}
-	return (0);
-	(void)ref;
-}
-
-size_t	count_split_words(char **split)
-{
-	size_t	i;
-
-	i = 0;
-	while (split[i])
-		i++;
-	return (i);
-}
-
 // void	print_list(t_list *list)
 // {
 // 	t_list	*current;
@@ -84,32 +58,16 @@ size_t	count_split_words(char **split)
 // 	}
 // }
 
-void	free_split(char **split)
+void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
 {
-	int	i;
-
-	i = 0;
-	if (split == NULL)
-		return ;
-	while (split[i])
-		free(split[i++]);
-	free(split);
-}
-
-void	**ft_lst_to_arr(t_list *list)
-{
-	void	**array;
-	t_list	*current;
-	int		i;
-
-	array = ft_calloc(ft_lstsize(list) + 1, sizeof(void *));
-	i = 0;
-	current = list;
-	while (current != NULL)
+	printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
+	printf("on line: %s\n", map[i]);
+	j = -1;
+	while (map[++j])
 	{
-		array[i++] = current->content;
-		current = current->next;
+		if (j >= i - 1 && j <= i + 1)
+			printf("\e[31m%s\e[m\n", map[j]);
+		else
+			printf("%s\n", map[j]);
 	}
-	array[i] = NULL;
-	return (array);
 }

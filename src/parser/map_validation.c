@@ -6,11 +6,13 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:04:55 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:17:46 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:44:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j);
 
 int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 {
@@ -63,20 +65,6 @@ int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 		*start_found = 1;
 	}
 	return (1);
-}
-
-void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
-{
-	printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
-	printf("on line: %s\n", map[i]);
-	j = -1;
-	while (map[++j])
-	{
-		if (j >= i - 1 && j <= i + 1)
-			printf("\e[31m%s\e[m\n", map[j]);
-		else
-			printf("%s\n", map[j]);
-	}
 }
 
 int	validate_map_tiles(t_lvl *data, char **map)

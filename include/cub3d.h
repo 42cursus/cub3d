@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/07 16:15:00 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 17:42:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -771,12 +771,19 @@ typedef enum e_textures
 typedef struct s_lvl
 {
 	t_info		*app;
-	t_tex		n_tex;
-	t_tex		s_tex;
-	t_tex		e_tex;
-	t_tex		w_tex;
-	t_tex		floor_tex;
-	t_tex		ceil_tex;
+	union
+	{
+		struct
+		{
+			t_tex		floor_tex;
+			t_tex		ceil_tex;
+			t_tex		n_tex;
+			t_tex		s_tex;
+			t_tex		e_tex;
+			t_tex		w_tex;
+		};
+		t_tex	texs[6];
+	};
 	Mix_Chunk	*music;
 	int			outside;
 	t_img		*minimap_xs;
@@ -987,6 +994,8 @@ t_lvl		*init_map(void);
 void		free_map(t_lvl *lvl);
 int			collect_map(t_list	*file, t_lvl *data);
 int			map_is_valid(t_lvl *data);
+int			parse_line(t_lvl *data, char *line, t_info *app);
+int			all_fields_parsed(t_lvl *lvl);
 int			parse_cub(t_info *app, char *filename);
 t_lvl		*get_cached_lvl(t_info *app, char *name);
 void		free_split(char **split);
