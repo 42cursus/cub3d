@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/13 16:58:10 by abelov            #+#    #+#             */
-/*   Updated: 2025/07/08 19:31:55 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/07 14:38:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	app->no_maps = argc - 1;
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map: %m\n"), fail);
+	init_menu_select_funcs(app, &app->menu_state);
 	do_load(app);
 	replace_image(app, &app->bg, NULL);
 	replace_image_r(app, &app->bg_r, NULL);

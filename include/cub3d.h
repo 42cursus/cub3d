@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/07 18:05:05 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 15:59:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -687,15 +687,20 @@ typedef enum e_menustate
 	OPTIONS,
 	WIN,
 	LOSE,
+	MENUSTATE_MAX,
 }	t_emenus;
 
-typedef struct s_menustate
+typedef struct s_menustate t_menustate;
+typedef void	(*t_menu_select_func)(t_info *, t_menustate *);
+
+struct s_menustate
 {
-	t_emenus	state;
-	t_emenus	prev;
-	int			selected;
-	int			no_items;
-}	t_menustate;
+	t_emenus				state;
+	t_emenus				prev;
+	int						selected;
+	int						no_items;
+	t_menu_select_func		**select_funcs;
+};
 
 typedef enum e_shtex
 {
@@ -1139,6 +1144,18 @@ void		menu_select_current(t_info *app);
 void		draw_menu_items(t_info *app);
 void		change_menu_selection(t_info *app, int dir);
 void		menu_change_option(t_info *app, int dir);
+void		menu_go_lvlselect(t_info *app, t_menustate *menu_state);
+void		menu_go_options(t_info *app, t_menustate *menu_state);
+void		menu_go_selectedlvl(t_info *app, t_menustate *menu_state);
+void		menu_go_prev(t_info *app, t_menustate *menu_state);
+void		menu_go_ok(t_info *app, t_menustate *menu_state);
+void		menu_go_repeat(t_info *app, t_menustate *menu_state);
+void		menu_go_fail(t_info *app, t_menustate *menu_state);
+void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
+void		place_menu(const char **strings, t_ivect pos, int scalar, t_info *app);
+void		draw_menu_options(t_info *app);
+void		draw_menu_win(t_info *app);
+void		draw_menu_lvlselect(t_info *app);
 
 t_state		run_state(t_info *app, int argc, char **argv);
 void		set_fov(t_info *app, int fov);
