@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 17:40:27 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 17:41:25 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 17:50:35 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,9 +90,9 @@ int	all_fields_parsed(t_lvl *lvl)
 		return (0);
 	if (lvl->w_tex.data == NULL)
 		return (0);
-	if (lvl->floor_tex.data == NULL)
+	if (lvl->floor_tex.data == NULL && lvl->f_col == -1)
 		return (0);
-	if (lvl->ceil_tex.data == NULL)
+	if (lvl->ceil_tex.data == NULL && lvl->c_col == -1)
 	{
 		lvl->outside = 1;
 		return (1);

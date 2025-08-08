@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:31:28 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:43:58 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 14:59:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,4 +70,47 @@ void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
 		else
 			printf("%s\n", map[j]);
 	}
+}
+
+void	free_map(t_lvl *lvl)
+{
+	free(lvl->n_tex.data);
+	free(lvl->s_tex.data);
+	free(lvl->e_tex.data);
+	free(lvl->w_tex.data);
+	free(lvl->floor_tex.data);
+	free(lvl->ceil_tex.data);
+	free(lvl->sublvls[0]);
+	free(lvl->sublvls[1]);
+	free(lvl->sublvls[2]);
+	free(lvl->sublvls[3]);
+	free_split(lvl->map);
+	free_split((char **)lvl->anims);
+	ft_lstclear(&lvl->enemies, free);
+	ft_lstclear(&lvl->items, free);
+	ft_lstclear(&lvl->triggers, free);
+	ft_lstclear(&lvl->doors, free);
+	ft_lstclear(&lvl->projectiles, free);
+	ft_lstclear(&lvl->logo, free);
+	ft_lstclear(&lvl->enemy_pos, free);
+	Mix_FreeChunk(lvl->music);
+	free(lvl);
+}
+
+int	count_collectables(t_lvl *lvl)
+{
+	t_list	*current;
+	t_obj	*cur_obj;
+	int		count;
+
+	current = lvl->items;
+	count = 0;
+	while (current != NULL)
+	{
+		cur_obj = current->content;
+		if (cur_obj->subtype >= I_ETANK && cur_obj->subtype <= I_MISSILE)
+			count++;
+		current = current->next;
+	}
+	return (count);
 }
