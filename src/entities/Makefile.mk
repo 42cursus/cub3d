@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/06/04 19:52:19 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/08/08 17:53:15 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,7 @@ FILES   = enemy_construction.c \
 		  projectile.c \
 		  enemy_projectile.c \
 		  enemies.c \
+		  teles.c \
 		  triggers.c \
 		  zoomer.c \
 		  reo.c \
@@ -21,6 +22,7 @@ FILES   = enemy_construction.c \
 		  atomic.c \
 		  phantoon.c \
 		  items.c \
+		  item_handling.c \
 		  obj_utils.c \
 		  update_objects.c \
 		  logo.c \

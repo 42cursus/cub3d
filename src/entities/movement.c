@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 15:28:58 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 16:05:04 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 17:45:02 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,10 @@ int	check_tile_open(char tile, t_lvl *lvl)
 
 void	move_entity(t_vect *pos, t_lvl *lvl, t_vect dir)
 {
-	t_vect		new_pos;
-	t_chvec3	tiles;
-	char		**map;
+	t_vect			new_pos;
+	t_chvec3		tiles;
+	char *const		*map = lvl->map;
 
-	map = lvl->map;
 	new_pos = add_vect(*pos, dir);
 	if (point_oob(new_pos, lvl))
 		return ;
