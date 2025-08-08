@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   transpose_img_stack_avx2.c                         :+:      :+:    :+:   */
+/*   transpose_img_avx2.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/24 14:27:29 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/24 14:27:29 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/08 16:19:08 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,19 @@ void	transpose8x8_u32_avx2(__m256i *out, const __m256i *i)
 }
 
 inline __attribute__((always_inline))
+int	scalar_loop(const t_cdata cd, const t_tex t, t_ivect max, t_ivect3 it)
+{
+	while (++it.x < max.x)
+	{
+		it.z = -1;
+		while (++it.z < 8 && (it.y + it.z) < max.y)
+			cd.dst[(it.x) * t.w + (it.y + it.z)]
+				= cd.src[(it.y + it.z) * t.h + it.x];
+	}
+	return (it.y + 8);
+}
+
+inline __attribute__((always_inline))
 t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 {
 	t_ivect3	it;
@@ -65,14 +78,7 @@ t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 			it.x += 8;
 		}
 		it.x = tile.x + ((max.x - tile.x) & ~7) - 1;
-		while (++it.x < max.x)
-		{
-			it.z = -1;
-			while (++it.z < 8 && (it.y + it.z) < max.y)
-				cd.dst[(it.x) * t.w + (it.y + it.z)]
-					= cd.src[(it.y + it.z) * t.h + it.x];
-		}
-		it.y += 8;
+		it.y = scalar_loop(cd, t, max, it);
 	}
 	return (it.xy);
 }
