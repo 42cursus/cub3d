@@ -119,3 +119,23 @@ There's no direct source-level feature for this, but we can help the compiler by
 ```
 
 Including one of these pulls in all previous ones
+
+#### Sanitizers
+
+```bash
+export ASAN_OPTIONS=color=always:print_summary=1:verbosity=0:symbolize=1:detect_stack_use_after_return=true:malloc_context_size=20:detect_leaks=1:handle_segv=2:abort_on_error=1:fast_unwind_on_malloc=0
+```
+
+With Clang:
+```bash
+export ASAN_SYMBOLIZER_PATH="$(command -v llvm-symbolizer)"
+```
+
+If you need object lists and more chatter:
+```bash
+export LSAN_OPTIONS=verbosity=1:report_objects=1 ASAN_OPTIONS=fast_unwind_on_malloc=0"
+```
+
+```bash
+export UBSAN_OPTIONS=print_stacktrace=1
+```

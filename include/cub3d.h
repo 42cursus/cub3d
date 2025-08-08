@@ -52,6 +52,9 @@
 # ifdef ft_strdup
 #  undef ft_strdup
 # endif
+# ifdef ft_calloc
+#  undef ft_calloc
+# endif
 
 # ifndef WIN_WIDTH
 #  define WIN_WIDTH 1920
@@ -114,6 +117,14 @@ typedef struct s_font_metrics
 	uint32_t		width;
 	FT_Face			face;
 }	t_fnt;
+
+enum e_avx_modes
+{
+	ROUND_NEAREST = _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC,
+	ROUND_DOWN    = _MM_FROUND_TO_NEG_INF     | _MM_FROUND_NO_EXC,
+	ROUND_UP      = _MM_FROUND_TO_POS_INF     | _MM_FROUND_NO_EXC,
+	ROUND_ZERO    = _MM_FROUND_TO_ZERO        | _MM_FROUND_NO_EXC
+};
 
 enum e_dir
 {

@@ -25,7 +25,7 @@ t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
 	return (it);
 }
 
-static inline
+inline __attribute__((always_inline, used))
 t_fvec256	vect_to_256f(t_vect v)
 {
 	t_fvec256	r;

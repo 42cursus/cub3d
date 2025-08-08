@@ -18,6 +18,7 @@ void	do_win_to_credits(void *param)
 {
 	t_info *const	app = param;
 	t_dummy			*dummy;
+	int				i;
 
 	cleanup_maps(app);
 	free(app->player);
@@ -29,6 +30,9 @@ void	do_win_to_credits(void *param)
 	dummy->dir = (t_vect){0.0, 1.0};
 	dummy->pos = (t_vect){0.0, -0.6};
 	dummy->speed = 0.002;
+	i = -1;
+	while (++i < 12)
+		spawn_random_rock(app, 0);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
 		(void *) &key_press_credits, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask,

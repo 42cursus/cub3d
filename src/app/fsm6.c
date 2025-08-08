@@ -61,6 +61,7 @@ void	do_credits_to_mmenu(void *param)
 	t_info *const	app = param;
 
 	ft_lstclear(&app->dummy->rocks, free);
+	app->dummy = (free(app->dummy), NULL);
 	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
@@ -73,6 +74,7 @@ void	do_credits_to_mmenu(void *param)
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
 	app->menu_state.no_items = 5;
+
 }
 
 void	do_load_to_mmenu(void *param)

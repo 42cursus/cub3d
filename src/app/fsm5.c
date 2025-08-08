@@ -44,6 +44,8 @@ void	do_credits_to_end(void *param)
 {
 	t_info *const	app = param;
 
+	ft_lstclear(&app->dummy->rocks, free);
+	app->dummy = (free(app->dummy), NULL);
 	return ;
 	(void)app;
 }
