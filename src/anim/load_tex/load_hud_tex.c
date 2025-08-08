@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:19:04 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/04 20:06:39 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 18:00:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,16 @@ t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
 	return (tex);
 }
 
+void	draw_credits_setup_font(t_info *app, t_fnt *fnt, int size)
+{
+	fnt->face = app->typ.faces[fnt_snes];
+	FT_Set_Pixel_Sizes(fnt->face, 0, 40);
+	fnt->metrics = fnt->face->size->metrics;
+	fnt->line_height = fnt->metrics.height >> 6;
+	fnt->spacing = fnt->metrics.ascender >> 6;
+	fnt->total_height = size * (fnt->line_height + fnt->spacing);
+}
+
 t_tex	draw_credits(t_info *app)
 {
 	int			fd;
@@ -119,12 +129,7 @@ t_tex	draw_credits(t_info *app)
 	str_arr.current = 0;
 	ft_list_foreach_ref(lines, (void *)apply, &str_arr);
 	ft_list_destroy(&lines, NULL);
-	fnt.face = app->typ.faces[fnt_snes];
-	FT_Set_Pixel_Sizes(fnt.face, 0, 40);
-	fnt.metrics = fnt.face->size->metrics;
-	fnt.line_height = fnt.metrics.height >> 6;
-	fnt.spacing = fnt.metrics.ascender >> 6;
-	fnt.total_height = str_arr.size * (fnt.line_height + fnt.spacing);
+	draw_credits_setup_font(app, &fnt, str_arr.size);
 	tex = (t_tex){.w = 1000, .h = (int)fnt.total_height + 50};
 	tex.sl = tex.w * sizeof(int);
 	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))

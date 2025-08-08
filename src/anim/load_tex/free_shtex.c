@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:51:51 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/04 23:47:37 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 17:57:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ void	free_shtex_extra(t_info *app)
 	free_tex_arr_arr(app->shtex->logo_tex, 14);
 	free_tex_arr_arr(app->shtex->decorative, 9);
 	free_tex_arr_arr(app->shtex->key_tex, 6);
+	free_tex_arr_arr(app->shtex->door_missile_tex, 7);
+	free_tex_arr_arr(app->shtex->door_boss_tex, 7);
+	free_tex_arr_arr(app->shtex->rocks, 7);
 	free(app->shtex->square.data);
 	free(app->shtex);
 }
@@ -58,9 +61,6 @@ void	free_shtex(t_info *app)
 	free_tex_arr_arr(app->shtex->super_tex, 12);
 	free_tex_arr_arr(app->shtex->missile_tex, 12);
 	free_tex_arr_arr(app->shtex->door_super_tex, 7);
-	free_tex_arr_arr(app->shtex->door_missile_tex, 7);
-	free_tex_arr_arr(app->shtex->door_boss_tex, 7);
-	free_tex_arr_arr(app->shtex->rocks, 7);
 	free_tex_arr_arr(app->shtex->messages, MSG_MAX);
 	free_shtex_extra(app);
 }

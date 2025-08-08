@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 12:54:57 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 20:48:29 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 17:56:35 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,8 +59,6 @@ void	load_shtex(t_info *app)
 	load_ammo_tex(app);
 	load_logo_tex(app);
 	load_explode_tex(app);
-	load_energy_tex(app);
-	load_phantoon_tex(app);
 	load_boss_bar_tex(app);
 	load_trophy_tex(app);
 	load_door_tex(app);
@@ -81,4 +79,6 @@ void	load_shtex_extra(t_info *app)
 	load_rock_tex(app);
 	load_key_tex(app);
 	load_decorative_tex(app);
+	load_energy_tex(app);
+	load_phantoon_tex(app);
 }
