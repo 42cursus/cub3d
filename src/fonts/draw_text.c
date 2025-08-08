@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 17:36:49 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/01 17:36:50 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/08 17:37:36 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ void	draw_text_freetype(FT_Face face, t_img *img,
 	FT_Bitmap	*bmp;
 	double		alpha_frac;
 
-	while (*text)
+	while (*(text++))
 	{
-		if (FT_Load_Char(face, *text, FT_LOAD_RENDER))
+		if (FT_Load_Char(face, *(text - 1), FT_LOAD_RENDER))
 			continue ;
 		bmp = &face->glyph->bitmap;
 		i.y = -1;
@@ -47,34 +47,23 @@ void	draw_text_freetype(FT_Face face, t_img *img,
 			}
 		}
 		c.x += face->glyph->advance.x >> 6;
-		text++;
 	}
 }
 
-int	compute_text_width(FT_Face face, const char *text)
+void	draw_char_ft_handle_alpha(t_tex *tex, t_point p, double alpha_frac)
 {
-	int			total_width;
-	FT_Vector	delta;
-	FT_UInt		glyph_index;
-	FT_UInt		prev_glyph;
+	u_int32_t	*dst;
+	u_int32_t	alpha;
 
-	total_width = 0;
-	prev_glyph = 0;
-	while (*text)
+	if (alpha_frac != 1)
 	{
-		glyph_index = FT_Get_Char_Index(face, *text);
-		if (!FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT))
+		if (p.x >= 0 && p.y >= 0 && p.x < (*tex).w && p.y < (*tex).h)
 		{
-			if (prev_glyph && FT_HAS_KERNING(face))
-				if (FT_Get_Kerning(face, prev_glyph, glyph_index,
-						FT_KERNING_DEFAULT, &delta) == 0)
-					total_width += delta.x;
-			total_width += face->glyph->advance.x;
-			prev_glyph = glyph_index;
+			dst = (u_int32_t *)(*tex).data + p.y * (*tex).w + p.x;
+			alpha = (u_char)((int)(alpha_frac * 255.0) & 0xFF);
+			*dst = (alpha << 24) | (0xffea00 & MLX_WHITE);
 		}
-		++text;
 	}
-	return (total_width >> 6);
 }
 
 void	draw_char_ft(FT_GlyphSlot glyph, t_tex *tex, t_point c)
@@ -93,18 +82,7 @@ void	draw_char_ft(FT_GlyphSlot glyph, t_tex *tex, t_point c)
 			alpha_frac = 1.0f - bmp->buffer[it.y * bmp->pitch + it.x] / 255.0;
 			p.x = c.x + glyph->bitmap_left + it.x;
 			p.y = c.y - glyph->bitmap_top + it.y;
-			if (alpha_frac != 1)
-			{
-				u_int32_t	*dst;
-				u_int32_t	alpha;
-
-				if (p.x >= 0 && p.y >= 0 && p.x < (*tex).w && p.y < (*tex).h)
-				{
-					dst = (u_int32_t *)(*tex).data + p.y * (*tex).w + p.x;
-					alpha = (u_char)((int)(alpha_frac * 255.0) & 0xFF);
-					*dst = (alpha << 24) | (0xffea00 & MLX_WHITE);
-				}
-			}
+			draw_char_ft_handle_alpha(tex, p, alpha_frac);
 		}
 	}
 }

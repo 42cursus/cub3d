@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/14 15:05:26 by abelov            #+#    #+#             */
-/*   Updated: 2025/07/14 15:05:26 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/08 16:51:57 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ void	do_play_to_win(void *param)
 	fill_with_colour(app->bg, MLX_LIME, MLX_GREEN);
 	mlx_loop_hook(app->mlx, &render_win, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, (void *) &key_release_win, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
@@ -106,8 +106,7 @@ void	do_play_to_lose(void *param)
 	mlx_loop_hook(app->mlx, &render_lose, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
 		(void *) &key_press_mmenu, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask,
-		(void *)&key_release_lose, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
