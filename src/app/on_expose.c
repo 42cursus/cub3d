@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 22:25:05 by abelov            #+#    #+#             */
-/*   Updated: 2025/03/28 17:28:28 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 16:47:11 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,4 +27,18 @@ void	on_expose(t_info *app)
 	mlx_put_image_to_window(app->mlx, app->win,
 		app->canvas, app->origin.x,
 		app->origin.y);
+}
+
+/**
+ * https://tronche.com/gui/x/xlib/events/exposure/
+ * https://tronche.com/gui/x/xlib/events/exposure/expose.html
+ * https://tronche.com/gui/x/xlib/window/attributes/#XSetWindowAttributes
+ */
+int	expose_win(void *param)
+{
+	t_info *const	app = param;
+
+	mlx_clear_window(app->mlx, app->win);
+	on_expose(app);
+	return (EXIT_SUCCESS);
 }
