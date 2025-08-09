@@ -981,16 +981,14 @@ struct s_info
 
 void		apply_inverted_alpha(t_img *img, u_char added_alpha);
 void		place_tile_on_image32(t_img *img, t_img *tile, t_point p);
-void		place_img_alpha_avx2_soa(t_img *image, t_img *tile, t_point p);
-void		place_img_alpha_avx2_fast_path_soa(t_img *image,
-				t_img *tile, t_point p);
+void		place_img_alpha_avx2_soa(t_img *image, const t_img *, t_point p);
+void		place_img_alpha_avx2_fast_path_soa(t_img *, t_img *, t_point);
 void		place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void		on_expose(t_info *app);
 int			cleanup(t_info *app);
 void		replace_frame(t_info *app);
 void		replace_frame_transposed(t_info *app);
-void		transpose_img_avx2_tiled_read(int *dst, int *src,
-				int width, int height);
+void		transpose_img_avx2_tiled_read(int *, int *, int, int);
 int			expose_win(void *param);
 int			mouse_release_play(unsigned int button, int x, int y, void *param);
 int			mouse_press_play(unsigned int button, int x, int y, void *param);
@@ -1019,16 +1017,13 @@ void		refresh_player(t_info *app, t_player *player);
 void		refresh_map(t_info *app, t_lvl *lvl);
 void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
 void		move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data);
-void		rotate_player(t_info *app, t_player *player, int direction,
-				double sensitivity);
+void		rotate_player(t_info *, t_player *, int, double);
 void		handle_open_door(t_info *app, t_ray *ray);
 void		next_weapon(t_player *player);
 void		prev_weapon(t_player *player);
 
-void		spawn_projectile(t_info *app, t_player *player, t_lvl *lvl,
-				t_subtype subtype);
-void		spawn_enemy_projectile(t_info *app, t_obj *enemy, t_vect dir,
-				int subtype);
+void		spawn_projectile(t_info *, t_player *, t_lvl *, t_subtype);
+void		spawn_enemy_projectile(t_info *, t_obj *, t_vect, int);
 t_obj		*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void		spawn_item(t_info *app, t_vect pos, t_subtype subtype);
 void		spawn_door(t_info *app, t_vect pos, int subtype);
@@ -1036,8 +1031,7 @@ void		spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void		spawn_teleporter(t_info *app, t_vect pos, int level);
 void		spawn_key(t_info *app, t_vect pos, int level);
 void		spawn_decorative(t_info *app, t_vect pos, t_subtype subtype);
-void		spawn_logo_piece(t_info *app, t_vect pos, t_vect dir,
-				t_tex *texture);
+void		spawn_logo_piece(t_info *, t_vect, t_vect, t_tex *);
 void		init_logo_pieces(t_info *app, t_vect pos);
 
 void		developer_console(t_info *app, t_player *player);
@@ -1054,8 +1048,7 @@ t_vect		get_vertical_int(double x, double gradient, double c);
 t_vect		get_horizontal_int(double y, double gradient, double c);
 double		get_cam_distance(t_vect pos, double angle, t_vect intcpt);
 void		add_in_front(t_ray *ray, int face, t_tex *texture);
-t_vect		get_line_intersect(t_vect l1p1, t_vect l1p2,
-				t_vect l2p1, t_vect l2p2);
+t_vect		get_line_intersect(t_vect, t_vect, t_vect, t_vect);
 t_ray		*check_obj_collision(t_obj *object, t_ray *ray, t_player *player);
 void		order_obj_ray(t_ray *obj, t_ray *ray);
 void		calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
@@ -1174,7 +1167,7 @@ void		menu_go_ok(t_info *app, t_menustate *menu_state);
 void		menu_go_repeat(t_info *app, t_menustate *menu_state);
 void		menu_go_fail(t_info *app, t_menustate *menu_state);
 void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
-void		place_menu(const char **strings, t_ivect pos, int scalar, t_info *app);
+void		place_menu(const char **, t_ivect, int, t_info *);
 void		draw_menu_options(t_info *app);
 void		draw_menu_win(t_info *app);
 void		draw_menu_lvlselect(t_info *app);
@@ -1229,13 +1222,10 @@ t_tex		*get_door_tex(t_anim *anim, t_info *app, char tile);
 void		toggle_fullscreen(t_info *app);
 int			get_key_index(KeySym key);
 
-void		draw_text_freetype(FT_Face face, t_img *img,
-				const char *text, t_point c);
+void		draw_text_freetype(FT_Face, t_img *, const char *, t_point);
 int			compute_text_width(FT_Face face, const char *text);
-void		draw_text_ft_hcentered(FT_Face face, t_tex tex,
-				const char *text, t_point c);
-void		draw_multiline_text_centered(FT_Face face, t_tex tex,
-				char **lines, int num_lines);
+void		draw_text_ft_hcentered(FT_Face, t_tex, const char *, t_point);
+void		draw_multiline_text_centered(FT_Face, t_tex, char **, int);
 void		spawn_random_rock(t_info *app, double speed);
 void		update_rocks(t_info *app, t_dummy *dummy);
 int			is_map_line(char *line);
