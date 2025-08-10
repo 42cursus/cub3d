@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 17:52:50 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/08 20:21:18 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/10 17:39:38 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,25 @@ t_rgba_ps256	dim_colour2_unpvec_avx2(t_rgba_ps256 in, float dim)
 	return (out);
 }
 
+t_rgba4_ps256	get_and_unpack(__m256i xx, __m256i xx1, const int *row1,
+								const int *row2)
+{
+	t_vec4i_avx		source;
+	t_rgba4_ps256	out;
+
+	source.r0 = _mm256_i32gather_epi32(row1, xx, sizeof(int));
+	source.r1 = _mm256_i32gather_epi32(row1, xx1, sizeof(int));
+	source.r2 = _mm256_i32gather_epi32(row2, xx, sizeof(int));
+	source.r3 = _mm256_i32gather_epi32(row2, xx1, sizeof(int));
+	out.r0 = unpack_rgba_bytes_to_floats_avx(source.r0);
+	out.r1 = unpack_rgba_bytes_to_floats_avx(source.r1);
+	out.r2 = unpack_rgba_bytes_to_floats_avx(source.r2);
+	out.r3 = unpack_rgba_bytes_to_floats_avx(source.r3);
+	return (out);
+}
+
 inline __attribute__((always_inline, used))
-t_rgba4_ps256	get_and_unpack(t_vec2i_avx xx, const int **row)
+t_rgba4_ps256	get_and_unpack_v2(t_vec2i_avx xx, const int **row)
 {
 	t_vec4i_avx		source;
 	t_rgba4_ps256	out;
@@ -160,6 +177,112 @@ __m256	calc_weights(__m256 idxx)
 }
 
 inline __attribute__((always_inline, used))
+__m256	get_idxx(const int tex_w, t_vect v, __m256 offsets)
+{
+	__m256			id_xx;
+	const __m256	half_ps = _mm256_set1_ps(0.5f);
+
+	id_xx = _mm256_mul_ps(_mm256_add_ps(half_ps,
+				_mm256_add_ps(_mm256_set1_ps((float) v.x), offsets)),
+			_mm256_cvtepi32_ps(_mm256_set1_epi32(tex_w)));
+	return (id_xx);
+}
+
+typedef struct s_params
+{
+	int			idx_xs[WIN_WIDTH * WIN_HEIGHT * 2];
+	int			y[WIN_HEIGHT];
+	int			start_x[WIN_HEIGHT];
+	int			stop_x[WIN_HEIGHT];
+	float		weight_y[WIN_HEIGHT];
+	float		weight_x[WIN_WIDTH * WIN_HEIGHT * 2];
+}	t_params;
+
+typedef struct s_params_ptr
+{
+	int			*idx_xs;
+	int			*y;
+	int			*start_x;
+	int			*stop_x;
+	float		*weight_y;
+	float		*weight_x;
+}	t_params_ptr;
+
+
+inline __attribute__((always_inline, used))
+void	calc_pos(const t_info *app, t_dummy *dummy, t_vect *pos, float d)
+{
+	t_vect	scaled[2];
+
+	scaled[LEFT] = scale_vect(rotate_vect(dummy->dir, app->fov_rad_half), d);
+	scaled[RIGHT] = scale_vect(rotate_vect(dummy->dir, -app->fov_rad_half), d);
+	pos[LEFT] = add_vect(dummy->pos, scaled[LEFT]);
+	pos[RIGHT] = add_vect(dummy->pos, scaled[RIGHT]);
+}
+
+inline __attribute__((always_inline, used))
+t_vec2i_avx	calc_xx(__m256 id_xx, const int tex_w)
+{
+	t_vec2i_avx		xx;
+	const __m256i	max_val = _mm256_set1_epi32(tex_w - 1);
+	const __m256i	one_epi32 = _mm256_set1_epi32(1);
+
+	xx.r0 = _mm256_cvttps_epi32(id_xx);
+	xx.r1 = _mm256_min_epi32(_mm256_add_epi32(xx.r0, one_epi32), max_val);
+	return (xx);
+}
+
+inline __attribute__((always_inline, used))
+t_vec2i_avx	get_xx(t_ivect3 it, t_params_ptr params_ptrs)
+{
+	t_vec2i_avx		xx;
+
+	xx.r0 = _mm256_loadu_si256((__m256i_u *)&params_ptrs.idx_xs[it.y * WIN_WIDTH + it.x]);
+	xx.r1 = _mm256_loadu_si256((__m256i_u *)&params_ptrs.idx_xs[(it.y + WIN_HEIGHT) * WIN_WIDTH + it.x]);
+	return (xx);
+}
+
+__attribute__((optnone))
+void	calc_idxs(const t_info *app, const t_tex tex, t_dummy *dummy, t_params_ptr params_ptrs)
+{
+	t_ivect3		it;
+	float			depth;
+	t_vect			pos[2];
+	float			step_x;
+	float			idx_y;
+	__m256			id_xx;
+	t_vec2i_avx		xx;
+
+	it.y = -1;
+	while (++it.y < WIN_HEIGHT)
+	{
+		depth = dummy->row_depths[it.y];
+		calc_pos(app, dummy, pos, depth);
+		idx_y = (-pos[LEFT].y) * tex.w;
+		params_ptrs.weight_y[it.y] = fmodf(idx_y, 1.0f);
+		params_ptrs.y[it.y] = (int)idx_y;
+		if (pos[LEFT].y > 0)
+			continue;
+		step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
+		it.x = MAX(0, (-0.48 - pos[LEFT].x) / step_x);
+		it.z = MIN(WIN_WIDTH, (0.48 - pos[LEFT].x) / step_x);
+		params_ptrs.start_x[it.y] = it.x;
+		params_ptrs.stop_x[it.y] = it.z;
+		while (it.x < it.z - 7)
+		{
+			id_xx = get_idxx(tex.w, pos[LEFT], get_fma(step_x, it.x));
+			__m256 weight_xx = calc_weights(id_xx);
+			float *ptr = &params_ptrs.weight_x[it.y * WIN_WIDTH + it.x];
+			_mm256_storeu_ps(ptr, weight_xx);
+			xx = calc_xx(id_xx, tex.w);
+			_mm256_storeu_si256((__m256i_u *)&params_ptrs.idx_xs[(it.y) * WIN_WIDTH + it.x], xx.r0);
+			_mm256_storeu_si256((__m256i_u *)&params_ptrs.idx_xs[(it.y + WIN_HEIGHT) * WIN_WIDTH + it.x], xx.r1);
+			it.x += 8;
+		}
+	}
+}
+
+inline __attribute__((always_inline, used))
 float	get_dim(float depth)
 {
 	const float	falloff = (depth - 1.5f) * 6.0f;
@@ -176,46 +299,11 @@ __m256i	get_dimmed(t_fvec256 weight, float d, const int **rows, t_vec2i_avx xx)
 	__m256i			ret;
 	t_rgba4_ps256	dim;
 
-	dim = dim_avx2_unp4(get_dim(d), get_and_unpack(xx, rows));
+	dim = dim_avx2_unp4(get_dim(d), get_and_unpack_v2(xx, rows));
 	ret = repack_rgba_floats_to_bytes_avx2(lerp_biased_unpvec(
-				lerp_biased_unpvec(dim.r0, dim.r1, weight.xx),
-				lerp_biased_unpvec(dim.r2, dim.r3, weight.xx), weight.yy));
+		lerp_biased_unpvec(dim.r0, dim.r1, weight.xx),
+		lerp_biased_unpvec(dim.r2, dim.r3, weight.xx), weight.yy));
 	return (ret);
-}
-
-inline __attribute__((always_inline, used))
-__m256	get_idxx(const int tex_w, t_vect v, __m256 offsets)
-{
-	__m256			id_xx;
-	const __m256	half_ps = _mm256_set1_ps(0.5f);
-
-	id_xx = _mm256_mul_ps(_mm256_add_ps(half_ps,
-				_mm256_add_ps(_mm256_set1_ps((float) v.x), offsets)),
-			_mm256_cvtepi32_ps(_mm256_set1_epi32(tex_w)));
-	return (id_xx);
-}
-
-inline __attribute__((always_inline, used))
-t_vec2i_avx	get_xx(__m256 id_xx, const int tex_w)
-{
-	t_vec2i_avx		xx;
-	const __m256i	max_val = _mm256_set1_epi32(tex_w - 1);
-	const __m256i	one_epi32 = _mm256_set1_epi32(1);
-
-	xx.r0 = _mm256_cvttps_epi32(id_xx);
-	xx.r1 = _mm256_min_epi32(_mm256_add_epi32(xx.r0, one_epi32), max_val);
-	return (xx);
-}
-
-inline __attribute__((always_inline, used))
-void	calc_pos(const t_info *app, t_dummy *dummy, t_vect *pos, float d)
-{
-	t_vect	scaled[2];
-
-	scaled[LEFT] = scale_vect(rotate_vect(dummy->dir, app->fov_rad_half), d);
-	scaled[RIGHT] = scale_vect(rotate_vect(dummy->dir, -app->fov_rad_half), d);
-	pos[LEFT] = add_vect(dummy->pos, scaled[LEFT]);
-	pos[RIGHT] = add_vect(dummy->pos, scaled[RIGHT]);
 }
 
 /**
@@ -232,51 +320,53 @@ void	calc_pos(const t_info *app, t_dummy *dummy, t_vect *pos, float d)
  * @param tex
  * @return
  */
+__attribute__((optnone, unused))
 void	draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy)
 {
-	const t_tex	*tex = &app->shtex->credits;
-	const t_img	overlay = app->overlay;
-	t_ivect3	it;
-	t_fvec256	weight;
-	t_vect		pos[2];
-	float		depth;
-	float		idx_y;
-	float		step_x;
-	int			y[2];
-	u_int		*dst;
-	__m256		id_xx;
+	const t_tex		*tex = &app->shtex->credits;
+	const t_img		overlay = app->overlay;
+	static t_params		params;
+	t_params_ptr	params_p = {
+		.idx_xs = params.idx_xs,
+		.y = params.y,
+		.start_x = params.start_x,
+		.stop_x = params.stop_x,
+		.weight_y = params.weight_y,
+		.weight_x = params.weight_x
+	};
+	t_ivect3		it;
+	t_fvec256		weight;
+	int				y[2];
+	u_int			*dst;
 
 	update_rocks(app, dummy);
-	it.y = 0;
-	while (++it.y < WIN_HEIGHT)
+	calc_idxs(app, *tex, dummy, params_p);
+	it.y = -1;
+	while (++it.y < WIN_HEIGHT - 1)
 	{
-		depth = app->dummy->row_depths[it.y - 1];
-		calc_pos(app, dummy, pos, depth);
-		idx_y = (-pos[LEFT].y) * tex->w;
-		weight.yy = _mm256_set1_ps(fmodf(idx_y, 1.0f));
-		if (pos[LEFT].y <= 0)
+		y[0] = params.y[it.y];
+		if (y[0] < 0)
+			continue;
+		if (y[0] >= tex->h)
+			break;
+		y[1] = y[0] + ((((tex->h - 1) - (y[0] + 1)) >> 31) ^ 1);
+		it.z = params.stop_x[it.y];
+		it.x = params.start_x[it.y];
+		dst = (u_int *) overlay.data + overlay.width * (it.y + 1);
+		weight.yy = _mm256_set1_ps(params.weight_y[it.y]);
+		while (it.x < it.z - 7)
 		{
-			y[0] = (int) idx_y;
-			y[1] = y[0] + ((((tex->h - 1) - (y[0] + 1)) >> 31) ^ 1);
-			if (y[0] < tex->h)
-			{
-				step_x = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
-				dst = (u_int *) overlay.data + overlay.width * it.y;
-				it.z = MIN(WIN_WIDTH, (0.48 - pos[LEFT].x) / step_x);
-				it.x = MAX(0, (-0.48 - pos[LEFT].x) / step_x);
-				while (it.x < it.z - 7)
-				{
-					id_xx = get_idxx(tex->w, pos[LEFT], get_fma(step_x, it.x));
-					weight.xx = calc_weights(id_xx);
-					_mm256_storeu_si256((__m256i_u *) & dst[it.x],
-						get_dimmed(weight, depth, (const int *[2]){
-							(int *)tex->data + y[0] * tex->w,
-							(int *)tex->data + y[1] * tex->w
-						}, get_xx(id_xx, tex->w)));
-					it.x += 8;
-				}
-			}
+			float *float_ptr = &params.weight_x[it.y * WIN_WIDTH + it.x];
+			weight.xx = _mm256_loadu_ps(float_ptr);
+			const int *rows[2] = (const int *[2]) {
+				(int *) tex->data + y[0] * tex->w,
+				(int *) tex->data + y[1] * tex->w
+			};
+			t_vec2i_avx xx = get_xx(it, params_p);
+			__m256i dimmed = get_dimmed(weight, dummy->row_depths[it.y], rows, xx);
+			_mm256_storeu_si256((__m256i_u *) & dst[it.x], dimmed);
+			it.x += 8;
 		}
 	}
-	place_img_alpha_avx2_soa(app->canvas, &overlay, (t_point){0, 0});
+	place_img_alpha_avx2_soa(app->canvas, &app->overlay, (t_point) {0, 0});
 }
