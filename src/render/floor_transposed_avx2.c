@@ -86,7 +86,7 @@ t_fvec256	div_vec256(t_fvec256 a, __m256 denom)
 }
 
 static inline
-void	calc_idxs_scalar(t_info *app, float *rd, int *idxs, t_img tex)
+void	calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex)
 {
 	t_ivect			it;
 	t_ivect			ix;
@@ -99,8 +99,8 @@ void	calc_idxs_scalar(t_info *app, float *rd, int *idxs, t_img tex)
 	it.y = WIN_HEIGHT / 2 - 7;
 	while (++it.y < WIN_HEIGHT / 2)
 	{
-		pos[CURR] = add_vect(player.pos, scale_vect(dir[LEFT], rd[it.y]));
-		pos[RIGHT] = add_vect(player.pos, scale_vect(dir[RIGHT], rd[it.y]));
+		pos[CURR] = add_vect(player.pos, scale_vect(dir[LEFT], depths[it.y]));
+		pos[RIGHT] = add_vect(player.pos, scale_vect(dir[RIGHT], depths[it.y]));
 		pos[STEP].x = (pos[RIGHT].x - pos[CURR].x) / WIN_WIDTH * 2;
 		pos[STEP].y = (pos[RIGHT].y - pos[CURR].y) / WIN_WIDTH * 2;
 		it.x = 0;
@@ -116,7 +116,7 @@ void	calc_idxs_scalar(t_info *app, float *rd, int *idxs, t_img tex)
 }
 
 static
-void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, int y_off, int x_off)
+void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, t_ivect it)
 {
 	__m256i			*ptr;
 	__m256i			idx;
@@ -133,49 +133,44 @@ void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, int y_off, int x_off)
 
 	idx = _mm256_add_epi32(_mm256_mullo_epi32(idxx.yy,
 				_mm256_set1_epi32(tex.width)), idxx.xx);
-	ptr = (__m256i_u *)(ixs + (x_off * (WIN_HEIGHT / 2) + y_off));
+	ptr = (__m256i_u *)(ixs + (it.x * (WIN_HEIGHT / 2) + it.y));
 	_mm256_storeu_si256(ptr, idx);
 }
 
 static
-t_ivect	calc_row_avx2(t_ivect it, float *depths, t_fvec256 *dir256,
-						t_fvec256 pl, t_img tex, int *idxs)
+t_ivect	calc_row_avx2(t_ivect it, t_fvec256 *lr, t_img tex, int *idxs)
 {
-	const t_fvec256	depth = load_depth_vec8(&depths[it.y]);
-	t_fvec256		lr[2];
-	t_fvec256		step;
-	t_fvec256		curr;
-
-	lr[LEFT] = scale_vec256(dir256[LEFT], depth);
-	lr[RIGHT] = scale_vec256(dir256[RIGHT], depth);
-	curr = add_vec256(pl, lr[LEFT]);
-	step = div_vec256(sub_vec256(add_vec256(pl, lr[RIGHT]), curr),
-			_mm256_set1_ps(WIN_WIDTH / 2.0f));
 	it.x = 0;
 	while (it.x < WIN_WIDTH - 1)
 	{
-		store_idx_row(idxs, curr, tex, it.y, it.x);
-		curr = add_vec256(curr, step);
+		store_idx_row(idxs, lr[CURR], tex, it);
+		lr[CURR] = add_vec256(lr[CURR], lr[STEP]);
 		it.x += 2;
 	}
 	return (it);
 }
 
 static
-void	calc_idxs_avx2(t_info *app, float *row_depths, int *idxs, t_img tex)
+void	calc_idxs_avx2(t_info *app, float *depths, int *idxs, t_img tex)
 {
 	t_ivect			it;
 	t_fvec256		dir256[2];
-	t_fvec256		pl;
+	t_fvec256		depth;
+	t_fvec256		lr[4];
 	t_player *const	player = app->player;
 
 	dir256[LEFT] = vect_to_256f(rotate_vect(player->dir, app->fov_rad_half));
 	dir256[RIGHT] = vect_to_256f(rotate_vect(player->dir, -app->fov_rad_half));
-	pl = vect_to_256f(player->pos);
+	lr[LEFT] = vect_to_256f(player->pos);
 	it.y = 0;
 	while (it.y < WIN_HEIGHT / 2 - 7)
 	{
-		it = calc_row_avx2(it, row_depths, dir256, pl, tex, idxs);
+		depth = load_depth_vec8(&depths[it.y]);
+		lr[RIGHT] = scale_vec256(dir256[RIGHT], depth);
+		lr[CURR] = add_vec256(lr[LEFT], scale_vec256(dir256[LEFT], depth));
+		lr[STEP] = div_vec256(sub_vec256(add_vec256(lr[LEFT], lr[RIGHT]),
+					lr[CURR]), _mm256_set1_ps(WIN_WIDTH / 2.0f));
+		it = calc_row_avx2(it, lr, tex, idxs);
 		it.y += 8;
 	}
 }
