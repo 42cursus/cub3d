@@ -16,11 +16,9 @@ char	*mlx_static_line(char **xpm_data, int *pos, int size)
 {
 	static char	*copy = 0;
 	static int	len = 0;
-	int			len2;
-	char		*str;
+	char *const	str = xpm_data[(*pos)++];
+	const int	len2 = (int)ft_strlen(str);
 
-	str = xpm_data[(*pos)++];
-	len2 = strlen(str);
 	if (len2 > len)
 	{
 		if (copy)
