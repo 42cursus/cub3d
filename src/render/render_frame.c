@@ -295,7 +295,9 @@ int	render_credits(void *param)
 	ft_memcpy_avx2((int *) app->canvas->data,
 				   (int *) bg->data, bg->size_line * bg->height);
 	fill_with_colour(&app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
-	draw_credits_avx2_unpacked(app, dummy);
+	update_rocks(app, dummy);
+	draw_credits_avx2_unpacked(app, dummy, &app->shtex->credits, app->overlay);
+	place_img_alpha_avx2_soa(app->canvas, &app->overlay, (t_point){0, 0});
 	while (get_time_us() - app->fr_last < app->fr_delay)
 		usleep(100);
 	time = get_time_us();

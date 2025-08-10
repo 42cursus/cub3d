@@ -100,23 +100,14 @@
 
 # define TEX_DIR "./resources/textures"
 
-typedef struct s_str_arr
+enum e_calc_idxs
 {
-	char	**arr;
-	int		size;
-	int		current;
-	int		longest_index;
-}	t_str_arr;
+	DEPTH = 0,
+	STEP_X,
+	IDX_Y,
+	CALC_IDXS_MAX
+};
 
-typedef struct s_font_metrics
-{
-	FT_Size_Metrics	metrics;
-	uint32_t		line_height;
-	uint32_t		spacing;
-	uint32_t		total_height;
-	uint32_t		width;
-	FT_Face			face;
-}	t_fnt;
 
 enum e_avx_modes
 {
@@ -247,6 +238,45 @@ enum e_channel
 	ch_player,
 	ch_MAX = MIX_CHANNELS
 };
+
+typedef struct s_str_arr
+{
+	char	**arr;
+	int		size;
+	int		current;
+	int		longest_index;
+}	t_str_arr;
+
+
+typedef struct s_font_metrics
+{
+	FT_Size_Metrics	metrics;
+	uint32_t		line_height;
+	uint32_t		spacing;
+	uint32_t		total_height;
+	uint32_t		width;
+	FT_Face			face;
+}	t_fnt;
+
+typedef struct s_params
+{
+	int			idx_xs[WIN_WIDTH * WIN_HEIGHT * 2];
+	int			y[WIN_HEIGHT];
+	int			start_x[WIN_HEIGHT];
+	int			stop_x[WIN_HEIGHT];
+	float		weight_y[WIN_HEIGHT];
+	float		weight_x[WIN_WIDTH * WIN_HEIGHT * 2];
+}	t_params;
+
+typedef struct s_params_ptr
+{
+	int			*idx_xs;
+	int			*y;
+	int			*start_x;
+	int			*stop_x;
+	float		*weight_y;
+	float		*weight_x;
+}	t_params_ptr;
 
 typedef struct s_ivect
 {
@@ -976,6 +1006,7 @@ struct s_info
 # define MAP_BOT_LEFT	0b01000000
 # define MAP_BOT_RIGHT	0b10000000
 
+# define WW WIN_WIDTH
 # define SMALL_MMAP_SCALE 8
 # define ALL_VALID_CHARS "NESW01DMLmsteZAHRPBb234789{"
 
@@ -1215,7 +1246,7 @@ void		update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
 int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 t_tex		draw_credits(t_info *app);
-void		draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy);
+void		draw_credits_avx2_unpacked(t_info *, t_dummy *, t_tex *, t_img);
 t_tex		*get_open_door_tex(t_anim *anim, t_info *app);
 t_tex		*get_close_door_tex(t_anim *anim, t_info *app);
 t_tex		*get_door_tex(t_anim *anim, t_info *app, char tile);
