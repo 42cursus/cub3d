@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/17 16:14:27 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/04 16:58:16 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:12:49 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	update_rocks(t_info *app, t_dummy *dummy)
 		place_tex_to_image_scale_safe(app->canvas, *rock->tex,
 			round_vect(rock->pos), rock->scale);
 		new.x = rock->pos.x;
-		new.x += rock->speed;
+		new.x += rock->speed / app->fr_scale;
 		rock->pos.x = fmod((new.x + app->canvas->width), app->canvas->width);
 		current = current->next;
 	}
