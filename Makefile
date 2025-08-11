@@ -70,6 +70,7 @@ CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
 
 SDL_MIX_LIB			:= -lSDL2_mixer
+SDL_HEADER			:= $(INC_DIR)/SDL_mixer.h
 
 ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
@@ -125,7 +126,7 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBS) $(OBJS)
+$(NAME): $(LIBS) $(SDL_mixer) $(OBJS)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
@@ -149,6 +150,10 @@ $(LIBFT) libft:
 $(LIBX_DIR)/Makefile.gen:
 		+$(MAKE) -C $(LIBX_DIR)
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
+
+$(SDL_HEADER):
+		@curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h > $@
+
 
 ## mlx
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen

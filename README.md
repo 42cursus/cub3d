@@ -143,7 +143,7 @@ export UBSAN_OPTIONS=print_stacktrace=1
 #### External libraries
 
 SDL_mixer 2.0.4:
-- curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h -O
+- curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h > include/SDL_mixer.h
 
 FreeType2 6.18.1:
 - /lib/x86_64-linux-gnu/libfreetype.so.6
