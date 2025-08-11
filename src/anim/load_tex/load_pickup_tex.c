@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 15:20:42 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 15:21:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 16:10:19 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,6 @@ void	load_key_tex(t_info *app)
 	while (++i < 6)
 	{
 		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/key%c.xpm", i + '0');
-		tex[i] = img_to_tex(app, buf);
-	}
-}
-
-void	load_decorative_tex(t_info *app)
-{
-	t_tex	*tex;
-	char	buf[BUFF_SIZE];
-	int		i;
-
-	tex = app->shtex->decorative;
-	i = -1;
-	while (++i < 9)
-	{
-		ft_snprintf(buf, BUFF_SIZE, TEX_DIR"/seaweed/seaweed_%c.xpm", i + '0');
 		tex[i] = img_to_tex(app, buf);
 	}
 }
