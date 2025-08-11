@@ -15,10 +15,17 @@ FILES   = colour.c \
 			credits_avx2.c \
 			draw.c \
 			draw_rays.c \
-			floor_transposed_avx2.c \
+			floor_transposed_avx2_1.c \
 			floor_transposed_avx2_2.c \
 			floor_transposed_avx2_3.c \
-			hud.c \
+			hud_1.c \
+			hud_2.c \
+			hud_3.c \
+			hud_4.c \
+			hud_5.c \
+			hud_6.c \
+			hud_7.c \
+			hud_8.c \
 			render.c \
 			render_frame.c \
 			img_to_tex.c \

@@ -1014,6 +1014,7 @@ enum e_mmap_tile
 # define MAP_BOT_RIGHT	0b10000000
 
 # define WW WIN_WIDTH
+# define WH WIN_HEIGHT
 # define SMALL_MMAP_SCALE 8
 # define ALL_VALID_CHARS "NESW01DMLmsteZAHRPBb234789{"
 
