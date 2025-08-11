@@ -21,6 +21,15 @@ int	main(int argc, char **argv)
 	};
 
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
+	printf("n_textures: %f\n", (double)sizeof(t_shtex) / sizeof(t_tex));
+	printf("tex_MAX: %d\n", TEX_MAX);
+	printf("sizeof entity: %lu Bytes\n", sizeof(t_obj));
+	printf("sizeof sobj: %lu Bytes\n", sizeof(t_sobj));
+	printf("sizeof sdoor: %lu Bytes\n", sizeof(t_sdoor));
+	printf("sizeof servermsg: %lu Bytes\n", sizeof(t_servermsg));
+	printf("sizeof combined servermsg: %lu Bytes\n", sizeof(t_sobj) * SRV_MAX_OBJECTS + sizeof(t_sdoor) * SRV_MAX_DOORS + 8);
+	printf("sizeof clientdata: %lu Bytes\n", sizeof(t_clientmsg));
+	// exit(0);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);
 	cleanup(app);

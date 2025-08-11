@@ -23,7 +23,7 @@ void	spawn_trigger(t_info *app, t_vect pos, t_subtype subtype)
 	trigger->pos = pos;
 	trigger->type = O_TRIGGER;
 	trigger->subtype = subtype;
-	trigger->texture = &app->shtex->empty;
+	trigger->tex_id = tex_EMPTY;
 	ft_lstadd_back(&lvl->triggers, ft_lstnew(trigger));
 }
 
@@ -49,24 +49,25 @@ int	handle_trigger(t_info *app, t_obj *obj, t_list **current)
 
 void	toggle_boss_doors(t_info *app)
 {
-	t_anim	**anims;
-	char	**map;
-	int		i;
-	int		j;
-
-	anims = app->lvl->anims;
-	map = app->lvl->map;
-	i = -1;
-	while (++i < app->lvl->height)
-	{
-		j = -1;
-		while (++j < app->lvl->width)
-		{
-			if (map[i][j] == 'B')
-			{
-				anims[i][j].active = 1;
-				anims[i][j].timestart = app->fr_last;
-			}
-		}
-	}
+	// t_anim	**anims;
+	// char	**map;
+	// int		i;
+	// int		j;
+	//
+	// anims = app->lvl->anims;
+	// map = app->lvl->map;
+	// i = -1;
+	// while (++i < app->lvl->height)
+	// {
+	// 	j = -1;
+	// 	while (++j < app->lvl->width)
+	// 	{
+	// 		if (map[i][j] == 'B')
+	// 		{
+	// 			anims[i][j].active = 1;
+	// 			anims[i][j].timestart = app->fr_last;
+	// 		}
+	// 	}
+	// }
+	(void)app;
 }

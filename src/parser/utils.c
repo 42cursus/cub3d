@@ -85,7 +85,8 @@ void	free_map(t_lvl *lvl)
 	free(lvl->sublvls[2]);
 	free(lvl->sublvls[3]);
 	free_split(lvl->map);
-	free_split((char **)lvl->anims);
+	// free_split((char **)lvl->anims);
+	free(lvl->door_tex);
 	ft_lstclear(&lvl->enemies, free);
 	ft_lstclear(&lvl->items, free);
 	ft_lstclear(&lvl->triggers, free);

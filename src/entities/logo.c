@@ -12,7 +12,9 @@
 
 #include "cub3d.h"
 
-void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture)
+void	add_serialobj(t_obj *obj, t_lvl *lvl);
+
+void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_etex tex_id)
 {
 	t_obj			*logo_piece;
 	t_lvl *const	lvl = app->lvl;
@@ -23,7 +25,7 @@ void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *texture)
 	logo_piece->end_pos = pos;
 	logo_piece->pos = subtract_vect(pos, scale_vect(dir, 150));
 	logo_piece->type = O_LOGO;
-	logo_piece->texture = texture;
+	logo_piece->tex_id = tex_id;
 	logo_piece->dir = dir;
 	ft_lstadd_back(&lvl->logo, ft_lstnew(logo_piece));
 }
@@ -53,9 +55,10 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl)
 	{
 		obj = (t_obj *)current->data;
 		stopped += handle_obj_logo(app, obj);
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
+		add_serialobj(obj, lvl);
 	}
 	if (player->dead == 0 && stopped == 14)
 	{
@@ -71,18 +74,18 @@ void	init_logo_pieces(t_info *app, t_vect pos)
 
 	pos2 = add_vect(pos, (t_vect){0.75, 0});
 	pos3 = add_vect(pos, (t_vect){1.6, 0});
-	spawn_logo_piece(app, pos, (t_vect){0, 1}, &app->shtex->logo_tex[0]);
-	spawn_logo_piece(app, pos, (t_vect){0, 1}, &app->shtex->logo_tex[1]);
-	spawn_logo_piece(app, pos, (t_vect){0, 1}, &app->shtex->logo_tex[2]);
-	spawn_logo_piece(app, pos2, (t_vect){0, 1}, &app->shtex->logo_tex[3]);
-	spawn_logo_piece(app, pos2, (t_vect){0, 1}, &app->shtex->logo_tex[4]);
-	spawn_logo_piece(app, pos2, (t_vect){0, 1}, &app->shtex->logo_tex[5]);
-	spawn_logo_piece(app, pos2, (t_vect){0, 1}, &app->shtex->logo_tex[6]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[7]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[8]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[9]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[10]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[11]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[12]);
-	spawn_logo_piece(app, pos3, (t_vect){0, 1}, &app->shtex->logo_tex[13]);
+	spawn_logo_piece(app, pos, (t_vect){0, 1}, tex_LOGO);
+	spawn_logo_piece(app, pos, (t_vect){0, 1}, tex_LOGO + 1);
+	spawn_logo_piece(app, pos, (t_vect){0, 1}, tex_LOGO + 2);
+	spawn_logo_piece(app, pos2, (t_vect){0, 1}, tex_LOGO + 3);
+	spawn_logo_piece(app, pos2, (t_vect){0, 1}, tex_LOGO + 4);
+	spawn_logo_piece(app, pos2, (t_vect){0, 1}, tex_LOGO + 5);
+	spawn_logo_piece(app, pos2, (t_vect){0, 1}, tex_LOGO + 6);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 7);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 8);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 9);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 10);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 11);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 12);
+	spawn_logo_piece(app, pos3, (t_vect){0, 1}, tex_LOGO + 13);
 }

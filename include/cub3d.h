@@ -6,15 +6,19 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 16:20:40 by fsmyth           ###   ########.fr       */
+/*   Updated: 2026/02/24 16:33:53 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CUB3D_H
 # define CUB3D_H
 # include <math.h>
+#include <stddef.h>
 # include <sys/types.h>
 # include <sys/param.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 # include <errno.h>
 # include "libft.h"
 # include "mlx.h"
@@ -72,7 +76,7 @@
 # endif //SKIP_INTRO
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
-# define GO_TO_FULLSCREEN_ON_LOAD 1
+# define GO_TO_FULLSCREEN_ON_LOAD 0
 # define RAY_POOL_SIZE 5000
 # define FIXED_SHIFT 32
 # ifndef FRAMERATE
@@ -102,6 +106,10 @@
 # define CANARY_VALUE 0xDEADC0DE
 
 # define LARGE_MMAP_SCALE 16
+
+# define SRV_MAX_OBJECTS 64
+# define SRV_MAX_DOORS 32
+# define SRV_MAX_PLAYERS 4
 
 # define TEX_DIR "./resources/textures"
 
@@ -243,6 +251,48 @@ enum e_channel
 	ch_MAX = MIX_CHANNELS
 };
 
+typedef enum e_shtex
+{
+	tex_DOOR = 0,
+	tex_DOOR_SUPER = 7,
+	tex_DOOR_MISSILE = 14,
+	tex_DOOR_BOSS = 21,
+	tex_CANNON = 28,
+	tex_CRAWLER = 30,
+	tex_ATOMIC = 36,
+	tex_HOLTZ = 42,
+	tex_REO = 48,
+	tex_PROJ = 52,
+	tex_PROJ_GREEN = 62,
+	tex_EXPLODE = 66,
+	tex_ENERGY = 83,
+	tex_ETANK = 86,
+	tex_MISSILE = 88,
+	tex_SUPER = 100,
+	tex_HEALTH_PU = 112,
+	tex_MISSILE_AMMO = 116,
+	tex_SUPER_AMMO = 118,
+	tex_TROPHY = 120,
+	tex_KEY = 122,
+	tex_PHANTOON = 128,
+	tex_PHANTOON_PROJ = 138,
+	tex_LOGO = 144,
+	tex_DMG = 158,
+	tex_TITLE = 166,
+	tex_SCOPE,
+	tex_ALPHABET,
+	tex_TELE,
+	tex_CREDITS,
+	tex_BOSS_BAR,
+	tex_ROCKS = 173,
+	tex_EMPTY = 180,
+	tex_PLAYERTILE,
+	tex_DECORATIVE,
+	tex_MESSAGES = 191,
+	tex_SQUARE = 198,
+	TEX_MAX
+}	t_etex;
+
 typedef struct s_str_arr
 {
 	char	**arr;
@@ -310,7 +360,7 @@ typedef struct s_animation
 	int			active;
 	int			loop;
 	size_t		timestart;
-	t_tex		*tex;
+	t_etex		tex_idx;
 	size_t		duration;
 	int			frames;
 }	t_anim;
@@ -668,24 +718,151 @@ typedef struct s_rock
 	t_tex	*tex;
 }	t_rock;
 
+typedef enum e_doors
+{
+	D_OPEN = 0,
+	D_NORMAL,
+	D_MISSILE,
+	D_SUPER,
+	D_MAX,
+}	t_edoor;
+
 typedef struct s_object
 {
 	t_etype		type;
-	t_subtype	subtype;
+	union
+	{
+		t_subtype	subtype;
+		t_edoor		doortype;
+	};
 	int			dead;
-	int			attacking;
+	union
+	{
+		int		attacking;
+		int		player_id;
+	};
 	int			health;
 	size_t		last_damaged;
-	t_vect		pos;
+	union
+	{
+		t_vect		pos;
+		t_ivect		coords;
+	};
 	t_vect		end_pos;
 	t_vect		norm;
 	t_vect		dir;
 	double		speed;
 	t_vect		p2;
-	t_tex		*texture;
+	t_etex		tex_id;
 	t_anim		anim;
 	t_anim		anim2;
 }	t_obj;
+
+typedef struct s_serialobj
+{
+	t_fvect	pos;
+	t_etex	tex_id;
+	uint8_t	damaged;
+	int8_t	id;
+} 	t_sobj;
+
+typedef struct s_serialdoor
+{
+	t_ivect	pos;
+	t_edoor	type;
+	t_etex	tex_id;
+	bool	open;
+} 	t_sdoor;
+
+typedef enum e_proj : uint8_t
+{
+	PROJ_BEAM,
+	PROJ_MISSILE,
+	PROJ_SUPER,
+	PROJ_MAX,
+}	t_eproj;
+
+enum cmsg_type : uint8_t
+{
+	CMT_CONNECT = 0,
+	CMT_POS,
+	CMT_PROJ,
+	CMT_DOOR,
+	CMT_DISCONNECT,
+};
+
+typedef struct
+{
+	enum cmsg_type	type;
+	int8_t			id;
+	union
+	{
+		struct
+		{
+			t_vect	pos;
+			t_vect	dir;
+			t_eproj type;
+		}	proj;
+		struct
+		{
+			t_ivect	pos;
+		}	door;
+		struct
+		{
+			t_vect	pos;
+			t_vect	dir;
+		}	player;
+	};
+}	t_clientmsg;
+
+enum smsg_type : uint8_t
+{
+	SMT_OBJS = 0,
+	SMT_DOORS,
+	SMT_PLAYER,
+	SMT_MAX,
+};
+
+typedef enum
+{
+	EVENT_NONE		= 1 << 0,
+	EVENT_DAMAGE	= 1 << 1,
+	EVENT_PU_HEALTH	= 1 << 2,
+	EVENT_PU_AMMO	= 1 << 3,
+}	t_event;
+
+typedef struct
+{
+	t_vect	pos;
+	t_vect	dir;
+	t_vect	dmg_dir;
+	int		health;
+	int		max_health;
+	int		ammo[3];
+	int		max_ammo[3];
+	size_t	dmg_time;
+	int		event;
+	int		dead;
+}	t_playermult;
+
+typedef struct
+{
+	enum smsg_type	type;
+	union
+	{
+		struct
+		{
+			t_sobj	serialobjs[SRV_MAX_OBJECTS];
+			int		n_serialobjs;
+		};
+		struct
+		{
+			t_sdoor	sdoors[SRV_MAX_DOORS];
+			int		n_serialdoors;
+		};
+		t_playermult	player;
+	}	payload;
+}	t_servermsg;
 
 typedef struct s_ray
 {
@@ -711,15 +888,6 @@ typedef struct s_dda
 	double		gradient;
 	double		c;
 }	t_dda;
-
-typedef enum e_doors
-{
-	D_OPEN = 0,
-	D_BLUE,
-	D_PINK,
-	D_GREEN,
-	D_MAX,
-}	t_edoor;
 
 typedef struct s_info			t_info;
 
@@ -747,11 +915,6 @@ struct s_mstate
 	t_ms_func	**select_funcs;
 };
 
-typedef enum e_shtex
-{
-	tex_DOOR = 0,
-	TEX_MAX
-}	t_etex;
 
 typedef enum e_msg
 {
@@ -767,44 +930,50 @@ typedef enum e_msg
 
 typedef struct s_shtex
 {
-	t_tex	door_tex[7];
-	t_tex	door_super_tex[7];
-	t_tex	door_missile_tex[7];
-	t_tex	door_boss_tex[7];
-	t_tex	cannon_tex[2];
-	t_tex	crawler_tex[6];
-	t_tex	atomic_tex[6];
-	t_tex	holtz_tex[6];
-	t_tex	reo_tex[4];
-	t_tex	proj_tex[10];
-	t_tex	proj_green_tex[4];
-	t_tex	explode_tex[17];
-	t_tex	energy_tex[3];
-	t_tex	etank_tex[2];
-	t_tex	missile_tex[12];
-	t_tex	super_tex[12];
-	t_tex	health_pu[4];
-	t_tex	missile_ammo[2];
-	t_tex	super_ammo[2];
-	t_tex	trophy_tex[2];
-	t_tex	key_tex[6];
-	t_tex	phantoon[10];
-	t_tex	phantoon_proj[6];
-	t_tex	logo_tex[14];
-	t_tex	dmg_tex[8];
-	t_tex	title;
-	t_tex	scope;
-	t_tex	alphabet;
-	t_tex	tele;
-	t_tex	credits;
-	t_tex	boss_bar[2];
-	t_tex	rocks[7];
-	t_tex	empty;
-	t_tex	playertile;
-	t_tex	decorative[9];
-	t_tex	square;
-	t_tex	messages[MSG_MAX];
-	t_tex	textures[TEX_MAX];
+	union
+	{
+		struct
+		{
+			t_tex	door_tex[7];
+			t_tex	door_super_tex[7];
+			t_tex	door_missile_tex[7];
+			t_tex	door_boss_tex[7];
+			t_tex	cannon_tex[2];
+			t_tex	crawler_tex[6];
+			t_tex	atomic_tex[6];
+			t_tex	holtz_tex[6];
+			t_tex	reo_tex[4];
+			t_tex	proj_tex[10];
+			t_tex	proj_green_tex[4];
+			t_tex	explode_tex[17];
+			t_tex	energy_tex[3];
+			t_tex	etank_tex[2];
+			t_tex	missile_tex[12];
+			t_tex	super_tex[12];
+			t_tex	health_pu[4];
+			t_tex	missile_ammo[2];
+			t_tex	super_ammo[2];
+			t_tex	trophy_tex[2];
+			t_tex	key_tex[6];
+			t_tex	phantoon[10];
+			t_tex	phantoon_proj[6];
+			t_tex	logo_tex[14];
+			t_tex	dmg_tex[8];
+			t_tex	title;
+			t_tex	scope;
+			t_tex	alphabet;
+			t_tex	tele;
+			t_tex	credits;
+			t_tex	boss_bar[2];
+			t_tex	rocks[7];
+			t_tex	empty;
+			t_tex	playertile;
+			t_tex	decorative[9];
+			t_tex	messages[MSG_MAX];
+			t_tex	square;
+		};
+		t_tex	textures[TEX_MAX];
+	};
 }	t_shtex;
 
 typedef enum e_textures
@@ -841,7 +1010,7 @@ typedef struct s_lvl
 	int			f_col;
 	int			c_col;
 	char		**map;
-	t_anim		**anims;
+	t_etex		*door_tex;
 	t_list		*enemies;
 	t_list		*items;
 	t_list		*doors;
@@ -857,6 +1026,7 @@ typedef struct s_lvl
 	int			width;
 	char		*sublvls[4];
 	t_img		*planes[NUM_TEXTURES];
+	t_servermsg	serialdata[SMT_MAX];
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -895,6 +1065,7 @@ typedef struct s_player
 	size_t	dmg_time;
 	int		total_pickups;
 	int		pickups_collected;
+	t_vect	obj_p2s[SRV_MAX_OBJECTS];
 }	t_player;
 
 typedef struct s_dummy
@@ -932,7 +1103,7 @@ enum e_type
 {
 	fnt_main = 0,
 	fnt_snes,
-	fnt_SansMono,
+	// fnt_SansMono,
 	FNT_MAX
 };
 
@@ -943,6 +1114,29 @@ typedef struct s_typing
 	const char	*files[FNT_MAX];
 	FT_Face		faces[FNT_MAX];
 }	t_typing;
+
+typedef struct s_packetin
+{
+	t_clientmsg				data;
+	struct sockaddr_in		sockbuf;
+}	packet_in;
+
+typedef struct s_server
+{
+	int					sockfd;
+	struct sockaddr_in	servaddr;
+	struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
+	t_playermult		clients[SRV_MAX_PLAYERS];
+	int					n_clients;
+}	t_server;
+
+typedef struct s_client
+{
+	int		sockfd;
+	int		id;
+	struct sockaddr_in	servaddr;
+	int		dropped;
+}	t_client;
 
 struct s_info
 {
@@ -993,6 +1187,9 @@ struct s_info
 	char		hint_shown;
 	int			msg_to_show;
 	size_t		msg_last_time;
+	t_client	client;
+	pid_t		srv_pid;
+	t_server	*srv;
 };
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
@@ -1037,6 +1234,7 @@ void		transpose_img_avx2_tiled_read(int *dst, int *src,
 int			expose_win(void *param);
 int			mouse_release_play(unsigned int button, int x, int y, void *param);
 int			mouse_press_play(unsigned int button, int x, int y, void *param);
+int			mouse_press_multi(unsigned int button, int x, int y, void *param);
 int			mouse_move_play(int x, int y, void *param);
 
 size_t		count_split_words(char **split);
@@ -1064,28 +1262,35 @@ void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
 void		move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data);
 void		rotate_player(t_info *app, t_player *player, int dir, double sens);
 void		handle_open_door(t_info *app, t_ray *ray);
+void		handle_open_door_client(t_info *app, t_ray *crosshair);
+void		handle_open_door_server(t_info *app, t_ivect pos);
 void		next_weapon(t_player *player);
 void		prev_weapon(t_player *player);
 
 void		spawn_projectile(t_info *app, t_player *player,
 				t_lvl *lvl, t_subtype subtype);
+void		spawn_projectile_client(t_info *app, t_player *player);
+void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype, int player_id);
 void		spawn_enemy_projectile(t_info *app, t_obj *obj,
 				t_vect dir, int subtype);
 t_obj		*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void		spawn_item(t_info *app, t_vect pos, t_subtype subtype);
-void		spawn_door(t_info *app, t_vect pos, int subtype);
+void		spawn_door(t_info *app, t_ivect pos, char subtype);
 void		spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void		spawn_teleporter(t_info *app, t_vect pos, int level);
 void		spawn_key(t_info *app, t_vect pos, int level);
 void		spawn_decorative(t_info *app, t_vect pos, t_subtype subtype);
-void		spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *tex);
+void		spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_etex tex_id);
 void		init_logo_pieces(t_info *app, t_vect pos);
 
 void		developer_console(t_info *app, t_player *player);
 void		subtract_health(t_info *app, t_player *player, int damage);
+void		subtract_health_mult(t_info *app, t_playermult *player, int damage);
 void		add_health(t_player *player, int health);
+void		add_health_mult(t_playermult *player, int health);
 void		damage_enemy(t_info *app, t_obj *enemy, int damage);
 void		add_ammo(t_player *player, int type);
+void		add_ammo_mult(t_playermult *player, int type);
 void		toggle_boss_doors(t_info *app);
 int			check_tile_open(char tile, t_lvl *lvl);
 
@@ -1096,11 +1301,13 @@ t_vect		get_horizontal_int(double y, double gradient, double c);
 double		get_cam_distance(t_vect pos, double angle, t_vect intcpt);
 void		add_in_front(t_ray *ray, int face, t_tex *texture);
 t_vect		get_line_intersect(t_vect, t_vect, t_vect, t_vect);
-t_ray		*check_obj_collision(t_obj *object, t_ray *ray, t_player *player);
+t_ray		*check_obj_collision(t_obj *object, t_ray *ray, t_player *player, t_info *app);
 void		order_obj_ray(t_ray *obj, t_ray *ray);
 void		calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
 
 t_vect		vect(double x, double y);
+t_fvect		vect_to_fvect(t_vect vect);
+t_vect		fvect_to_vect(t_fvect fvect);
 char		get_max_direction(t_vect vect);
 t_vect		scale_vect(t_vect vect, double scalar);
 t_ivect		scale_ivect(t_ivect vect, int scalar);
@@ -1144,6 +1351,7 @@ void		place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
 void		place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void		place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void		place_fps(t_info *app);
+void		place_dropped_packets(t_info *app);
 void		place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 t_tex		img_to_tex(t_info *app, const char *filename);
 t_tex		img_to_tex_static_rm(t_info *app, const char **xpm_data);
@@ -1173,6 +1381,7 @@ int			key_press_mmenu(KeySym key, void *param);
 int			key_release_mmenu(KeySym key, void *param);
 
 int			key_press_play(KeySym key, void *param);
+int			key_press_multi(KeySym key, void *param);
 int			key_release_play(KeySym key, void *param);
 
 int			key_press_pmenu(KeySym key, void *param);
@@ -1192,6 +1401,7 @@ int			render_intro(void *param);
 int			render_mmenu(void *param);
 int			render_pmenu(void *param);
 int			render_play(void *app);
+int			render_play_multi(void *param);
 int			render_load(void *app);
 int			render_lose(void *param);
 int			render_win(void *param);
@@ -1212,6 +1422,7 @@ void		menu_go_options(t_info *app, t_menustate *menu_state);
 void		menu_go_selectedlvl(t_info *app, t_menustate *menu_state);
 void		menu_go_prev(t_info *app, t_menustate *menu_state);
 void		menu_go_ok(t_info *app, t_menustate *menu_state);
+void		menu_go_multi(t_info *app, t_menustate *menu_state);
 void		menu_go_repeat(t_info *app, t_menustate *menu_state);
 void		menu_go_fail(t_info *app, t_menustate *menu_state);
 void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
@@ -1237,14 +1448,16 @@ void		calculate_credits_offset(t_info *app, t_dummy *dummy);
 void		start_obj_death(t_obj *obj, t_info *app);
 t_list		*delete_object(t_list **obj_list, t_list *obj_node);
 t_obj		*check_obj_proximity(t_vect pos, t_lvl *lvl);
+int 		check_player_proximity(t_vect pos, t_playermult *players, int n_players);
 int			point_oob_global(t_vect pos, t_lvl *lvl);
 void		select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
-t_tex		*handle_animation(t_info *app, t_anim anim);
+t_etex		handle_animation(t_info *app, t_anim anim);
 t_anim		**create_anim_arr(int x, int y);
 void		init_anims(t_info *app, t_lvl *lvl);
 void		reset_anims(t_info *app, t_lvl *lvl);
 int			count_collectables(t_lvl *lvl);
 int			handle_obj_projectile(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_projectile_mult(t_info *app, t_obj *obj, t_list **current);
 int			handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current);
 void		spawn_drops(t_info *app, t_obj *obj, int no);
 void		phantoon_ai(t_info *app, t_obj *obj);
@@ -1253,21 +1466,24 @@ void		atomic_ai(t_info *app, t_obj *enemy);
 void		holtz_ai(t_info *app, t_obj *enemy, t_player *player);
 void		zoomer_ai(t_info *app, t_obj *enemy);
 int			handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_entity_mult(t_info *app, t_obj *obj, t_list **current);
 int			handle_trigger(t_info *app, t_obj *obj, t_list **current);
 void		handle_tele(t_info *app, t_obj *tele);
 t_obj		*find_matching_tele(t_lvl *lvl, t_obj *key);
 int			handle_key(t_info *app, t_obj *key, t_list **current);
 int			handle_obj_item(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current);
 void		handle_decorative(t_info *app, t_obj *obj);
 void		update_objects(t_info *app, t_player *player, t_lvl *lvl);
+void		update_objects_mult(t_info *app, t_player *player, t_lvl *lvl);
 
 int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 t_tex		draw_credits(t_info *app);
 void		draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy,
 				t_tex *tex, t_img overlay);
-t_tex		*get_open_door_tex(t_anim *anim, t_info *app);
-t_tex		*get_close_door_tex(t_anim *anim, t_info *app);
-t_tex		*get_door_tex(t_anim *anim, t_info *app, char tile);
+t_etex		get_open_door_tex(t_anim *anim, t_info *app);
+t_etex		get_close_door_tex(t_anim *anim, t_info *app);
+t_etex		get_door_tex(t_anim *anim, t_info *app, char tile);
 void		toggle_fullscreen(t_info *app);
 int			get_key_index(KeySym key);
 
@@ -1283,5 +1499,20 @@ void		update_rocks(t_info *app, t_dummy *dummy);
 int			is_map_line(char *line);
 void		normalise_map(t_lvl *data);
 int			str_cmp_whitespace(void *data, void *ref);
+
+int			setup_server(t_server *srv);
+pid_t		launch_server(t_info *app);
+void		server_loop(t_info *app, t_server *srv);
+int			setup_client(t_client *client);
+void		client_send_msg(t_client *client, t_clientmsg *cmsg);
+void		client_send_pos(t_info *app);
+void		client_send_proj(t_info *app, t_eproj type);
+void		client_send_door(t_info *app, t_ivect pos);
+void		client_receive_msgs(t_info *app);
+
+void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
+void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
+void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
+void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 
 #endif //CUB3D_H

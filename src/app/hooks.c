@@ -92,6 +92,30 @@ int	key_press_play(KeySym key, void *param)
 	return (0);
 }
 
+int	key_press_multi(KeySym key, void *param)
+{
+	t_info *const	app = param;
+	t_player *const	player = app->player;
+	int				idx;
+
+	if (key == XK_5 || key == XK_Escape)
+		menu_go_repeat(app, NULL);
+	else
+	{
+		switch_weapons_hook(key, player);
+		if (key == XK_F11)
+			fullscreen_hook(app);
+		else if (key == XK_e)
+			handle_open_door_client(app, &player->rays[WIN_WIDTH / 2]);
+		else if (key == XK_x)
+			spawn_projectile_client(app, player);
+		idx = get_key_index(key);
+		if (idx != -1)
+			app->keys[idx] = true;
+	}
+	return (0);
+}
+
 int	key_release_play(KeySym key, void *param)
 {
 	t_info *const	app = param;

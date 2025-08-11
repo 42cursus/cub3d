@@ -25,7 +25,7 @@ void	spawn_teleporter(t_info *app, t_vect pos, int level)
 		tele->dead = 1;
 		tele->attacking = 0;
 		tele->subtype = level;
-		tele->texture = &app->shtex->tele;
+		tele->tex_id = tex_TELE;
 		ft_lstadd_back(&lvl->triggers, ft_lstnew(tele));
 	}
 }
@@ -61,7 +61,7 @@ void	spawn_key(t_info *app, t_vect pos, int level)
 		key->anim.loop = 1;
 		key->anim.frames = 6;
 		key->anim.duration = 600000;
-		key->anim.tex = app->shtex->key_tex;
+		key->anim.tex_idx = tex_KEY;
 		key->anim.timestart = app->fr_last;
 		ft_lstadd_back(&lvl->items, ft_lstnew(key));
 	}
@@ -71,7 +71,7 @@ int	handle_key(t_info *app, t_obj *key, t_list **current)
 {
 	t_obj	*tele;
 
-	key->texture = handle_animation(app, key->anim);
+	key->tex_id = handle_animation(app, key->anim);
 	if (vector_distance(app->player->pos, key->pos) < 0.4)
 	{
 		tele = find_matching_tele(app->lvl, key);

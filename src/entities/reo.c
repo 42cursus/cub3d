@@ -32,7 +32,7 @@ void	reo_ai(t_info *app, t_obj *enemy)
 	frames = ((app->fr_last / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)
 	{
-		enemy->anim.tex = app->shtex->reo_tex;
+		enemy->anim.tex_idx = tex_REO;
 		enemy->speed = 0.04;
 		if (frames % 25 == 0)
 			rotate_vect_inplace(&enemy->dir, rand_range(-M_PI, M_PI));
@@ -40,7 +40,7 @@ void	reo_ai(t_info *app, t_obj *enemy)
 	}
 	else
 	{
-		enemy->anim.tex = &app->shtex->reo_tex[2];
+		enemy->anim.tex_idx = tex_REO + 2;
 		norm_diff = normalise_vect(subtract_vect(app->player->pos, enemy->pos));
 		enemy->dir = norm_diff;
 		enemy->speed = 0.1;

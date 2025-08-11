@@ -29,14 +29,14 @@ void	spawn_enemy_projectile(t_info *app, t_obj *enemy,
 		projectile->anim.loop = 1;
 		projectile->anim.frames = 3;
 		projectile->anim.duration = 240000;
-		projectile->anim.tex = &app->shtex->phantoon_proj[0];
-		projectile->anim2.tex = &app->shtex->phantoon_proj[2];
+		projectile->anim.tex_idx = tex_PHANTOON_PROJ;
+		projectile->anim2.tex_idx = tex_PHANTOON_PROJ + 2;
 	}
 	else if (subtype == P_HOLTZ)
 	{
 		projectile->anim.frames = 1;
-		projectile->anim.tex = app->shtex->proj_green_tex;
-		projectile->anim2.tex = app->shtex->proj_green_tex;
+		projectile->anim.tex_idx = tex_PROJ_GREEN;
+		projectile->anim2.tex_idx = tex_PROJ_GREEN;
 	}
 	ft_lstadd_back(&app->lvl->projectiles, ft_lstnew(projectile));
 }
@@ -47,15 +47,15 @@ int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current)
 
 	if (obj->anim2.active == 1)
 	{
-		obj->texture = handle_animation(app, obj->anim2);
-		if (obj->texture == NULL)
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
 		{
 			*current = delete_object(&app->lvl->projectiles, *current);
 			return (1);
 		}
 		return (0);
 	}
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 	if (vector_distance(obj->pos, app->player->pos) < 0.2)
 	{
 		subtract_health(app, app->player, 20);

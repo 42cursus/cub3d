@@ -12,7 +12,8 @@
 
 #include "cub3d.h"
 
-void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray);
+void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray, t_info *app);
+t_ray	*check_serialobj_collision(t_info *app, t_sobj *object, t_ray *ray, int idx);
 
 t_ray	*get_pooled_ray(int flag)
 {
@@ -41,7 +42,7 @@ t_ray	*get_pooled_ray(int flag)
 	return (p_ray);
 }
 
-void	init_pooled_ray(t_ray *ray, t_obj *obj,
+void	init_pooled_ray(t_ray *ray, t_tex *tex,
 						t_player *player, t_vect intcpt)
 {
 	const double	angle = player->angle + M_PI_2;
@@ -50,7 +51,7 @@ void	init_pooled_ray(t_ray *ray, t_obj *obj,
 	ray->intcpt = intcpt;
 	ray->face = NONE;
 	ray->damaged = 0;
-	ray->tex = obj->texture;
+	ray->tex = tex;
 	ray->distance = get_cam_distance(player->pos, angle, intcpt);
 	if (ray->distance < 0.00001)
 		ray->distance = 0.00001;
@@ -75,11 +76,26 @@ void	add_in_front(t_ray *ray, int face, t_tex *texture)
 
 void	calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray)
 {
-	check_collision_list(lvl->items, player, ray);
-	check_collision_list(lvl->enemies, player, ray);
-	check_collision_list(lvl->projectiles, player, ray);
-	check_collision_list(lvl->triggers, player, ray);
-	check_collision_list(lvl->logo, player, ray);
+	check_collision_list(lvl->items, player, ray, lvl->app);
+	check_collision_list(lvl->enemies, player, ray, lvl->app);
+	check_collision_list(lvl->projectiles, player, ray, lvl->app);
+	check_collision_list(lvl->triggers, player, ray, lvl->app);
+	check_collision_list(lvl->logo, player, ray, lvl->app);
+}
+
+void calc_object_collisions_alt(t_lvl *lvl, t_ray *ray)
+{
+	for (int i = 0; i < lvl->serialdata[SMT_OBJS].payload.n_serialobjs; i++)
+	{
+		t_sobj *obj = &lvl->serialdata[SMT_OBJS].payload.serialobjs[i];
+		if (obj->id != lvl->app->client.id)
+		{
+			order_obj_ray(
+				check_serialobj_collision(lvl->app, obj, ray, i),
+				ray
+			);
+	  }
+	}
 }
 
 void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player)
@@ -91,6 +107,7 @@ void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player)
 	while (++i < WIN_WIDTH)
 	{
 		player->rays[i] = ray_dda(app, lvl, player, player->angle_offsets[i]);
-		calc_object_collisions(lvl, player, &player->rays[i]);
+		// calc_object_collisions(lvl, player, &player->rays[i]);
+		calc_object_collisions_alt(lvl, &player->rays[i]);
 	}
 }

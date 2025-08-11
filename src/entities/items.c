@@ -20,33 +20,48 @@
  */
 void	setup_item_tex(t_info *app, t_obj *item, t_subtype subtype)
 {
-	t_tex *const	lut[SUBT_MAX] = {
-	[I_SUPER] = app->shtex->super_tex,
-	[I_ETANK] = app->shtex->etank_tex,
-	[I_MISSILE] = app->shtex->missile_tex,
-	[I_TROPHY] = app->shtex->trophy_tex,
-	[I_AMMO_M] = app->shtex->missile_ammo,
-	[I_AMMO_S] = app->shtex->super_ammo,
-	[I_HEALTH] = app->shtex->health_pu,
+	t_etex const	lut[SUBT_MAX] = {
+	[I_SUPER] = tex_SUPER,
+	[I_ETANK] = tex_ETANK,
+	[I_MISSILE] = tex_MISSILE,
+	[I_TROPHY] = tex_TROPHY,
+	[I_AMMO_M] = tex_MISSILE_AMMO,
+	[I_AMMO_S] = tex_SUPER_AMMO,
+	[I_HEALTH] = tex_HEALTH_PU,
 	};
 
-	item->anim.tex = lut[subtype];
+	item->anim.tex_idx = lut[subtype];
 	if (subtype == I_HEALTH)
 	{
 		item->anim.frames = 4;
 		item->anim.duration = 400000;
 	}
+	(void)app;
 }
 
-void	spawn_door(t_info *app, t_vect pos, int subtype)
+void	spawn_door(t_info *app, t_ivect pos, char subtype)
 {
 	t_obj			*door;
 	t_lvl *const	lvl = app->lvl;
 
 	door = ft_calloc(1, sizeof(*door));
-	door->subtype = subtype;
-	door->pos = pos;
-	door->texture = (void *)&lvl->map[(int)pos.y][(int)pos.x];
+	if (subtype == 'D')
+	{
+		door->anim.tex_idx = tex_DOOR;
+		door->doortype = D_NORMAL;
+	}
+	else if (subtype == 'L')
+	{
+		door->anim.tex_idx = tex_DOOR_SUPER;
+		door->doortype = D_SUPER;
+	}
+	else if (subtype == 'M')
+	{
+		door->anim.tex_idx = tex_DOOR_MISSILE;
+		door->doortype = D_MISSILE;
+	}
+	door->coords = pos;
+	// door->last_damaged = (size_t)(void *)&lvl->map[(int)pos.y][(int)pos.x];
 	ft_lstadd_back(&lvl->doors, ft_lstnew(door));
 }
 
@@ -81,8 +96,8 @@ void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype)
 	dec->anim.loop = 1;
 	dec->anim.frames = 9;
 	dec->anim.duration = 1500000;
-	dec->anim.tex = app->shtex->decorative;
-	dec->texture = &app->shtex->decorative[0];
+	dec->anim.tex_idx = tex_DECORATIVE;
+	dec->tex_id = tex_DECORATIVE;
 	ft_lstadd_back(&lvl->items, ft_lstnew(dec));
 }
 // dec->anim.active = 1;
