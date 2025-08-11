@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 17:40:27 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/11 15:44:25 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:57:25 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	parse_texture(t_lvl *lvl, char *str, int identifier, t_info *app)
 		if (identifier == CEILING || identifier == FLOOR)
 		{
 			lvl->planes[identifier - 1] = mlx_xpm_file_to_image(app->mlx,
-				(char *) str, &tmp.width, &tmp.height);
+					(char *) str, &tmp.width, &tmp.height);
 			if (lvl->planes[identifier - 1] == NULL)
 				return (1);
 		}

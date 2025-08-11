@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:27:59 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/11 15:52:31 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:56:57 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ size_t	count_split_words(char **split);
 t_img	*create_col_tex(t_lvl *lvl, int col)
 {
 	t_img	*img;
-
 
 	img = mlx_new_image(lvl->app->mlx, 32, 32);
 	fill_with_colour(img, col, col);
