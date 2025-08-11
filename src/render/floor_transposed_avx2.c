@@ -12,6 +12,12 @@
 
 #include "cub3d.h"
 
+t_fvec256	add_vec256(t_fvec256 a, t_fvec256 b);
+t_fvec256	load_depth_vec8(const float *d);
+t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b);
+t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b);
+t_fvec256	div_vec256(t_fvec256 a, __m256 denom);
+
 t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
 {
 	while (it.y < WIN_HEIGHT / 2)
@@ -35,57 +41,7 @@ t_fvec256	vect_to_256f(t_vect v)
 	return (r);
 }
 
-static inline
-t_fvec256	load_depth_vec8(const float *d)
-{
-	t_fvec256	out;
-
-	out.xx = _mm256_loadu_ps(d);
-	out.yy = _mm256_loadu_ps(d);
-	return (out);
-}
-
-static inline
-t_fvec256	add_vec256(t_fvec256 a, t_fvec256 b)
-{
-	t_fvec256	r;
-
-	r.xx = _mm256_add_ps(a.xx, b.xx);
-	r.yy = _mm256_add_ps(a.yy, b.yy);
-	return (r);
-}
-
-static inline
-t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b)
-{
-	t_fvec256	r;
-
-	r.xx = _mm256_sub_ps(a.xx, b.xx);
-	r.yy = _mm256_sub_ps(a.yy, b.yy);
-	return (r);
-}
-
-static inline
-t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b)
-{
-	t_fvec256	r;
-
-	r.xx = _mm256_mul_ps(a.xx, b.xx);
-	r.yy = _mm256_mul_ps(a.yy, b.yy);
-	return (r);
-}
-
-static inline
-t_fvec256	div_vec256(t_fvec256 a, __m256 denom)
-{
-	t_fvec256	r;
-
-	r.xx = _mm256_div_ps(a.xx, denom);
-	r.yy = _mm256_div_ps(a.yy, denom);
-	return (r);
-}
-
-static inline
+inline __attribute__((always_inline, used))
 void	calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex)
 {
 	t_ivect			it;
@@ -115,7 +71,7 @@ void	calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex)
 	}
 }
 
-static
+inline __attribute__((always_inline, used))
 void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, t_ivect it)
 {
 	__m256i			*ptr;
@@ -137,7 +93,7 @@ void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, t_ivect it)
 	_mm256_storeu_si256(ptr, idx);
 }
 
-static
+inline __attribute__((always_inline, used))
 t_ivect	calc_row_avx2(t_ivect it, t_fvec256 *lr, t_img tex, int *idxs)
 {
 	it.x = 0;
@@ -148,93 +104,4 @@ t_ivect	calc_row_avx2(t_ivect it, t_fvec256 *lr, t_img tex, int *idxs)
 		it.x += 2;
 	}
 	return (it);
-}
-
-static
-void	calc_idxs_avx2(t_info *app, float *depths, int *idxs, t_img tex)
-{
-	t_ivect			it;
-	t_fvec256		dir256[2];
-	t_fvec256		depth;
-	t_fvec256		lr[4];
-	t_player *const	player = app->player;
-
-	dir256[LEFT] = vect_to_256f(rotate_vect(player->dir, app->fov_rad_half));
-	dir256[RIGHT] = vect_to_256f(rotate_vect(player->dir, -app->fov_rad_half));
-	lr[LEFT] = vect_to_256f(player->pos);
-	it.y = 0;
-	while (it.y < WIN_HEIGHT / 2 - 7)
-	{
-		depth = load_depth_vec8(&depths[it.y]);
-		lr[RIGHT] = scale_vec256(dir256[RIGHT], depth);
-		lr[CURR] = add_vec256(lr[LEFT], scale_vec256(dir256[LEFT], depth));
-		lr[STEP] = div_vec256(sub_vec256(add_vec256(lr[LEFT], lr[RIGHT]),
-					lr[CURR]), _mm256_set1_ps(WIN_WIDTH / 2.0f));
-		it = calc_row_avx2(it, lr, tex, idxs);
-		it.y += 8;
-	}
-}
-
-/**
- * int	idxs[WIN_WIDTH * WIN_HEIGHT / 2] __attribute__((aligned(32)));
- * @param app
- * @param player
- */
-inline __attribute__((always_inline))
-void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
-{
-	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
-	t_ivect3		it;
-	t_m256i2		mc;
-	const t_img		tex = *app->lvl->planes[T_FLOOR];
-	const t_cdata	row = {(int *) tex.data, (int *) app->canvas_r->data};
-
-	calc_idxs_avx2(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
-	calc_idxs_scalar(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
-	it.x = 0;
-	while (it.x < WIN_WIDTH - 1)
-	{
-		it.y = 0;
-		while (it.y < WIN_HEIGHT / 2 - 7)
-		{
-			it.z = it.x * WIN_HEIGHT / 2 + it.y;
-			mc.idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.z]);
-			mc.blend = _mm256_i32gather_epi32((int *) row.src, mc.idxs, 4);
-			mc.cd.dst = row.dst + (it.x * WIN_HEIGHT) + (it.y + WIN_HEIGHT / 2);
-			_mm256_storeu_si256((__m256i *)mc.cd.dst, mc.blend);
-			_mm256_storeu_si256((__m256i *)(mc.cd.dst + WIN_HEIGHT), mc.blend);
-			it.y += 8;
-		}
-		fill_floor_scalar(idxs, row, it, mc.cd);
-		it.x += 2;
-	}
-}
-
-void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
-{
-	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
-	t_ivect3		it;
-	t_m256i2		mc;
-	const t_img		tex = *app->lvl->planes[T_CEILING];
-	const t_cdata	row = {(int *) tex.data, (int *) app->canvas_r->data};
-
-	calc_idxs_avx2(app, player->row_depths, idxs, tex);
-	calc_idxs_scalar(app, player->row_depths, idxs, tex);
-	it.x = 0;
-	while (it.x < WIN_WIDTH - 1)
-	{
-		it.y = 0;
-		while (it.y < WIN_HEIGHT / 2 - 7)
-		{
-			it.z = it.x * WIN_HEIGHT / 2 + it.y;
-			mc.idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.z]);
-			mc.blend = _mm256_i32gather_epi32((int *)row.src, mc.idxs, 4);
-			mc.cd.dst = row.dst + it.x * WIN_HEIGHT + it.y;
-			_mm256_storeu_si256((__m256i *)mc.cd.dst, mc.blend);
-			_mm256_storeu_si256((__m256i *)(mc.cd.dst + WIN_HEIGHT), mc.blend);
-			it.y += 8;
-		}
-		fill_floor_scalar(idxs, row, it, mc.cd);
-		it.x += 2;
-	}
 }
