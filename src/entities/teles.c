@@ -80,7 +80,7 @@ int	handle_key(t_info *app, t_obj *key, t_list **current)
 		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
 		app->msg_to_show = MSG_FOUND_KEY_1 + key->subtype - 1;
 		app->msg_last_time = app->fr_last;
-		*current = delete_object(&app->lvl->triggers, *current);
+		*current = delete_object(&app->lvl->items, *current);
 		return (1);
 	}
 	return (0);

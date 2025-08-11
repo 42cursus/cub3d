@@ -126,7 +126,7 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBS) $(SDL_mixer) $(OBJS)
+$(NAME): $(LIBS) $(SDL_HEADER) $(OBJS)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
