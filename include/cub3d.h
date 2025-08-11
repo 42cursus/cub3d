@@ -751,7 +751,8 @@ typedef enum e_shtex
 
 typedef enum e_msg
 {
-	MSG_NOKEY_1 = 0,
+	MSG_HINT = 0,
+	MSG_NOKEY_1,
 	MSG_NOKEY_2,
 	MSG_NOKEY_3,
 	MSG_FOUND_KEY_1,
@@ -994,6 +995,11 @@ struct s_info
 # define CHAR_WIDTH 8
 # define MMAP_TILE_W 8
 # define MMAP_TILE_H 8
+
+enum e_mmap_tile
+{
+	MMAP_TILE_SL = MMAP_TILE_W * sizeof(int)
+};
 
 # define C3D_FORBIDDEN_CHAR -1
 

@@ -155,20 +155,28 @@ t_tex	draw_playertile(void)
 	return (out);
 }
 
+const char *const	*get_messages(void)
+{
+	static const char *const	str_arr[MSG_MAX] = {
+	[MSG_HINT] = "Press \"H\" for help",
+	[MSG_NOKEY_1] = "Teleporter ONE is inactive. Find the key.",
+	[MSG_NOKEY_2] = "Teleporter TWO is inactive. Find the key.",
+	[MSG_NOKEY_3] = "Teleporter THREE is inactive. Find the key.",
+	[MSG_FOUND_KEY_1] = "You found key for teleporter ONE.",
+	[MSG_FOUND_KEY_2] = "You found key for teleporter TWO.",
+	[MSG_FOUND_KEY_3] = "You found key for teleporter THREE."
+	};
+
+	return (str_arr);
+}
+
 void	generate_msg_text(t_info *app)
 {
 	int					i;
 	t_tex *const		msgs = app->shtex->messages;
 	FT_Face const		face = app->typ.faces[fnt_snes];
 	t_str_arr			str_arrs[MSG_MAX];
-	static const char	*str_arr[6] = {
-		"Teleporter ONE inactive. Find the key.",
-		"Teleporter TWO inactive. Find the key.",
-		"Teleporter THREE inactive. Find the key.",
-		"You found key for teleporter ONE.",
-		"You found key for teleporter TWO.",
-		"You found key for teleporter THREE."
-	};
+	const char *const	*str_arr = get_messages();
 
 	FT_Set_Pixel_Sizes(face, 0, 40);
 	i = -1;
