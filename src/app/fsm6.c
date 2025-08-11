@@ -74,7 +74,6 @@ void	do_credits_to_mmenu(void *param)
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
 	app->menu_state.no_items = 5;
-
 }
 
 void	do_load_to_mmenu(void *param)
