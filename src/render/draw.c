@@ -56,11 +56,11 @@ static inline int	angle_in_range(double angle, double start, double end)
 
 void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 {
-	t_point	point;
-	t_ivect	i;
-	double	dist;
-	double	frac;
-	u_int32_t *dst_row;
+	t_point		point;
+	t_ivect		i;
+	double		dist;
+	double		frac;
+	u_int32_t	*dst_row;
 
 	i.y = -r;
 	while (++i.y <= r)
@@ -74,16 +74,33 @@ void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 			point.x = c.x + i.x;
 			frac = r - dist;
 			frac = (dist <= r - 1.0) * 0.0 + (dist > r - 1.0) * (1.0 - frac);
-			if (dist <= r)
-			{
-				if (point.x >= 0 && point.y >= 0 && point.x < img->width && point.y < img->height)
-				{
-					u_int32_t alpha = ((int)(frac * 255.0) & 0xFF); // Clamp and convert to 0-255 range
-					dst_row[point.x] = (alpha << 24) | (color & MLX_WHITE); // Write RGB from base_color and new alpha
-				}
-			}
+			if (dist <= r && point.x >= 0 && point.y >= 0
+				&& point.x < img->width && point.y < img->height)
+				dst_row[point.x] = (((int)(frac * 255.0) & 0xFF) << 24)
+					| (color & MLX_WHITE);
 		}
 	}
+}
+
+double	draw_arch(t_ring_segment seg, double angle, double dist)
+{
+	t_vect	a_edge;
+	t_vect	da;
+	double	alpha;
+
+	da.x = angle - seg.in.a_start;
+	da.y = seg.in.a_end - angle;
+	da.x += (da.x < 0) * (2 * M_PI);
+	da.y += (da.y < 0) * (2 * M_PI);
+	a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
+	a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
+	alpha = 1.0;
+	if (dist < seg.in.r)
+		alpha = dist - (seg.in.r - 1.0);
+	else if (dist > seg.out.r - 1.0)
+		alpha = seg.out.r - dist;
+	alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
+	return (alpha);
 }
 
 /**
@@ -108,10 +125,7 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 {
 	t_ivect	i;
 	t_vect	f;
-	t_vect	da;
-	t_vect	a_edge;
 	t_point	cc;
-	double	alpha;
 	double	angle;
 	double	dist;
 
@@ -130,21 +144,8 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 				continue ;
 			angle = atan2(f.y, f.x);
 			angle += (angle < 0) * (2 * M_PI);
-			if (!angle_in_range(angle, seg.in.a_start, seg.in.a_end))
-				continue;
-			da.x = angle - seg.in.a_start;
-			da.y = seg.in.a_end - angle;
-			da.x += (da.x < 0) * (2 * M_PI);
-			da.y += (da.y < 0) * (2 * M_PI);
-			a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
-			a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
-			alpha = 1.0; // Linear radial edge AA
-			if (dist < seg.in.r)
-				alpha = dist - (seg.in.r - 1.0);
-			else if (dist > seg.out.r - 1.0)
-				alpha = seg.out.r - dist;
-			alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
-			put_pixel_alpha(img, cc, color, alpha);
+			if (angle_in_range(angle, seg.in.a_start, seg.in.a_end) != 0)
+				put_pixel_alpha(img, cc, color, draw_arch(seg, angle, dist));
 		}
 	}
 }
@@ -158,7 +159,7 @@ void	draw_nav(t_info *app)
 	t_arc *const	outer = &(t_arc){
 		.r = 25,
 		.a_start = normalize_angle(-app->player->angle - M_2_PI),
-		.a_end = normalize_angle(-app->player->angle +  M_2_PI),
+		.a_end = normalize_angle(-app->player->angle + M_2_PI),
 		.center = center
 	};
 
