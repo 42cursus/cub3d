@@ -6,19 +6,23 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/05/21 15:51:38 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/08/11 16:14:54 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FILES   = animations.c \
 		  map_anims.c \
+		  door_anim.c \
 		  load_tex/load_textures.c \
 		  load_tex/load_door_tex.c \
 		  load_tex/load_enemy_tex.c \
+		  load_tex/load_misc_tex.c \
 		  load_tex/load_proj_tex.c \
 		  load_tex/load_hud_tex.c \
+		  load_tex/load_hud_tex2.c \
 		  load_tex/load_pickup_tex.c \
 		  load_tex/load_explode_tex.c \
 		  load_tex/free_shtex.c \
+		  load_tex/draw_credits.c \
 
 CUB_SRCS    += $(FILES:%.c=$(dir $(lastword $(MAKEFILE_LIST)))%.c)

@@ -18,7 +18,7 @@ static int	load_fonts(t_typing *const typing, FT_Library ft)
 	FT_Face	*face;
 
 	i = -1;
-	while (++i < fnt_MAX)
+	while (++i < FNT_MAX)
 	{
 		face = &typing->faces[i];
 		if (FT_New_Face(ft, typing->files[i], 0, face))
@@ -34,9 +34,10 @@ static int	load_fonts(t_typing *const typing, FT_Library ft)
 int	init_fonts(t_info *const app)
 {
 	t_typing *const		typing = &app->typ;
-	FT_Library			*ft = &typing->ft;
-	int 				err;
+	FT_Library			*ft;
+	int					err;
 
+	ft = &typing->ft;
 	err = EXIT_FAILURE;
 	if (!FT_Init_FreeType(ft))
 		err = load_fonts(typing, *ft);

@@ -18,6 +18,9 @@ gdb.txt
 scratch/
 cmake_build
 gmon.out
+prof.dot
+perf.data
+perf.data.old
 *.coredump
 
 #for test
@@ -202,5 +205,4 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
-/prof.dot
+/resources/sprites/

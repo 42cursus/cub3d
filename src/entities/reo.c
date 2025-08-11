@@ -6,23 +6,29 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 17:43:59 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/19 15:40:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 17:49:36 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
+
+void	reo_check_attacking(t_info *app, t_player *player, t_obj *enemy)
+{
+	if (enemy->attacking == 0 && check_line_of_sight(app, enemy, player)
+		&& vector_distance(enemy->pos, player->pos) < 6)
+	{
+		enemy->attacking = 1;
+		Mix_PlayChannel(ch_enemies,
+			app->audio.chunks[snd_enemy_attack1 + (int)rand_range(0, 2)], 0);
+	}
+}
 
 void	reo_ai(t_info *app, t_obj *enemy)
 {
 	int		frames;
 	t_vect	norm_diff;
 
-	if (enemy->attacking == 0 && check_line_of_sight(app, enemy, app->player)
-		&& vector_distance(enemy->pos, app->player->pos) < 6)
-	{
-		enemy->attacking = 1;
-		Mix_PlayChannel(ch_enemies, app->audio.chunks[snd_enemy_attack1 + (int)rand_range(0, 2)], 0);
-	}
+	reo_check_attacking(app, app->player, enemy);
 	frames = ((app->fr_last / 20000) % 100);
 	if (enemy->attacking == 0 || app->player->dead == 1)
 	{

@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 void	init_pooled_ray(t_ray *ray, t_obj *obj,
-						t_player *player, t_vect intcpt);
+			t_player *player, t_vect intcpt);
 
 static inline __attribute__((always_inline))
 double	vector_distance2(t_vect v1, t_vect v2)
@@ -78,7 +78,6 @@ t_vect	get_line_intersect(t_vect l1p1, t_vect l1p2, t_vect l2p1, t_vect l2p2)
 	return (intersect);
 }
 
-__attribute__((optnone))
 t_ray	*check_obj_collision(t_obj *object, t_ray *ray, t_player *player)
 {
 	t_ray	*out;

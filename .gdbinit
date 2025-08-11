@@ -10,6 +10,10 @@
 #                                                                              #
 # **************************************************************************** #
 
+#layout reg
+set disassemble-next-line on
+set print static-members off
+set print pretty on
 set height unlimited
 set pagination off
 set confirm off
@@ -19,6 +23,7 @@ directory ~/staging/glibc-2.31
 directory ~/staging/glibc-2.31/elf
 directory ~/staging/glibc-2.31/nptl
 directory ~/staging/glibc-2.31/dlfcn
+directory ~/staging/glibc-2.31/libio
 directory ~/staging/glibc-2.31/misc
 directory ~/staging/glibc-2.31/csu
 directory ~/staging/glibc-2.31/ctype

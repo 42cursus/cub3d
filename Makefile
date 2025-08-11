@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 16:52:04 by abelov            #+#    #+#              #
-#    Updated: 2025/05/16 18:41:44 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/08/07 16:12:10 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,45 +25,80 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= clang
+#CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
-OPTIMIZE_FLAGS	:= -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer -march=native -fno-stack-protector #-fno-stack-protector-all
+# https://github.com/llvm/llvm-project/issues/61684
+# https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
+# https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
+OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
+						-march=native -mtune=native \
+						-flto \
+						-mllvm -inline-threshold=1000 -maes \
+						-mllvm -extra-vectorizer-passes \
+						-mllvm -enable-cond-stores-vec \
+						-mllvm -slp-vectorize-hor-store \
+						-mllvm -enable-loopinterchange \
+						-mllvm -enable-loop-distribute \
+						-mllvm -enable-unroll-and-jam \
+						-mllvm -enable-lto-internalization \
+						-mllvm --interleave-loops \
+						-mllvm -unroll-runtime-multi-exit \
+						-mllvm -aggressive-ext-opt \
+						-mllvm -enable-interleaved-mem-accesses \
+						-mllvm -enable-masked-interleaved-mem-accesses \
+						-mllvm -inline-threshold=900 \
+						-falign-functions=32 \
+						-fno-semantic-interposition \
+						-fcf-protection=none \
+						-fno-stack-protector \
+						-fomit-frame-pointer \
+						-fvectorize \
+						-mprefer-vector-width=256 \
+						-ftree-vectorize \
+						-fstrict-aliasing -fno-strict-overflow
+
+#DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
+#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
+
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					-ffast-math \
-					-mprefer-vector-width=256 \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
-#					-pg \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+					# -pg \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wwrite-strings -mavx2 #-Wno-missing-braces
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS)
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 
 ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
-	endif
-	ifeq ($(UNAME_R), 5.15.0-139-generic)
+	else ifeq ($(UNAME_R), 5.15.0-139-generic)
 #		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
 	else
 		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
 	endif
 endif
 
-
-LIBFT_LIB		=  $(LIBFT_DIR)/libft.a
+LIBFT			=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
-LIBS			:= $(LIBFT) $(LIBX)
+LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
+
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
-#					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
+						-march=native -maes \
+						-flto \
+						-Wl,-zmax-page-size=0x200000 \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+					# -pg \
 
 SRC_DIR			= src
 
-SUB_DIRS		= parser utils app audio player render rays entities anim fonts
+SUB_DIRS		= parser utils app audio player render rays entities anim fonts menus
 CUB_SRCS		:=
 TEXTURES		:=
 
@@ -90,7 +125,7 @@ endif
 all: $(NAME)
 
 ## cub3d
-$(NAME): $(LIBFT_LIB) $(LIBX) $(OBJS) $(LIBTEX)
+$(NAME): $(LIBS) $(OBJS)
 		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
@@ -108,15 +143,15 @@ $(LIBTEX): $(TEX_OBJ)
 		@$(AR) rcsP $@ $(TEX_OBJ)
 
 ## libft
-$(LIBFT_LIB):
-		+$(MAKE) -C $(LIBFT_DIR)
+$(LIBFT) libft:
+		+$(MAKE) -C $(LIBFT_DIR) BUILD_WITH_ASAN=1
 
 $(LIBX_DIR)/Makefile.gen:
 		+$(MAKE) -C $(LIBX_DIR)
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
 
 ## mlx
-$(LIBX): $(LIBX_DIR)/Makefile.gen
+$(LIBX) libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
 		@echo "LIBX BUILD COMPLETE!"
 
@@ -127,14 +162,20 @@ clean_libft:
 ## clean_libx
 clean_libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen clean
+		+$(MAKE) -C $(LIBX_DIR)/test -f Makefile.gen clean
 
 ## clean
 clean: clean_libft #clean_libx
 		@if [ -d $(BUILD_DIR) ]; then $(RM) $(RMFLAGS) $(BUILD_DIR); fi
 
-## clean_libft
+## fclean_libft
 fclean_libft:
 		+$(MAKE) -C $(LIBFT_DIR) fclean
+
+## fclean_libx
+fclean_libx: clean_libx
+		@$(RM) -f $(LIBX_DIR)/Makefile.gen
+		@$(RM) -f $(LIBX_DIR)/test/Makefile.gen
 
 ## fclean
 fclean: clean fclean_libft

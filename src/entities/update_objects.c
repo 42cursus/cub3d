@@ -16,7 +16,7 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl);
 
 void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->enemies;
@@ -33,7 +33,7 @@ void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->projectiles;
@@ -53,7 +53,7 @@ void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->items;
@@ -62,6 +62,8 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 		obj = (t_obj *)current->data;
 		if (obj->type == O_ITEM && handle_obj_item(app, obj, &current))
 			continue ;
+		else if (obj->type == O_DECORATIVE)
+			handle_decorative(app, obj);
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
@@ -70,7 +72,7 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 
 void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 {
-	t_list		*current;
+	t_list	*current;
 	t_obj	*obj;
 
 	current = lvl->triggers;
@@ -78,6 +80,8 @@ void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 	{
 		obj = (t_obj *)current->data;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
+			continue ;
+		if (obj->type == O_KEY && handle_key(app, obj, &current))
 			continue ;
 		if (obj->type == O_TELE)
 			handle_tele(app, obj);

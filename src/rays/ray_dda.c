@@ -40,23 +40,28 @@ void	calculate_ray_stuff(t_ray *ray, t_player *player,
 static inline __attribute__((always_inline))
 void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 {
+	t_anim	*anim;
+	t_ivect	maptile;
+
 	if (tile >= 'B')
 	{
+		maptile.x = (int)ray->intcpt.x;
+		maptile.y = (int)ray->intcpt.y;
+		anim = &app->lvl->anims[maptile.y][maptile.x];
 		if (tile == 'O')
-			add_in_front(ray, ray->face + 8, &app->shtex->door_tex[1]);
-		else if (tile == 'L')
-			add_in_front(ray, ray->face + 4, &app->shtex->door_super_tex[0]);
-		else if (tile == 'M')
-			add_in_front(ray, ray->face + 4, &app->shtex->door_missile_tex[0]);
+			add_in_front(ray, ray->face + 8, get_door_tex(anim, app, tile));
+		else if (tile == 'L' || tile == 'M')
+			add_in_front(ray, ray->face + 4, get_door_tex(anim, app, tile));
 		else if (tile == 'B')
+		{
 			add_in_front(ray, ray->face + 4 + (4 * !app->lvl->boss_active),
-				&app->shtex->door_boss_tex[!app->lvl->boss_active]);
+				get_door_tex(anim, app, tile));
+		}
 		else
-			add_in_front(ray, ray->face + 4, &app->shtex->door_tex[0]);
-		ray->in_front->maptile.x = (int)ray->intcpt.x;
-		ray->in_front->maptile.y = (int)ray->intcpt.y;
+			add_in_front(ray, ray->face + 4, get_close_door_tex(anim, app));
 		ray->in_front->intcpt.x += dda->norm.x;
 		ray->in_front->intcpt.y += dda->norm.y;
+		ray->in_front->maptile = maptile;
 		calculate_ray_stuff(ray->in_front, app->player, dda->gradient, dda->c);
 	}
 }

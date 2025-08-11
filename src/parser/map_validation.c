@@ -6,40 +6,40 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:04:55 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:17:46 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/07 16:44:07 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-int		is_map_line(char *line);
-void	normalise_map(t_lvl *data);
-int		str_cmp_whitespace(void *data, void *ref);
+void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j);
 
 int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 {
+	t_ivect		it;
+	const char	tiles[] = {
+		map[i - 1][j + 0],
+		map[i + 0][j - 1],
+		map[i + 0][j + 1],
+		map[i + 1][j + 0],
+		map[i - 1][j - 1],
+		map[i + 1][j - 1],
+		map[i - 1][j + 1],
+		map[i + 1][j + 1]
+	};
+
 	if (i == 0 || j == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
 	if (map[i + 1] == NULL)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (map[i][j + 1] == 0)
+	if (map[i + 0][j + 1] == 0)
 		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234", map[i - 1][j]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DLMmsteZAHRPBb234", map[i][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i - 1][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j - 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i - 1][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
-	if (!ft_strchr("NESW01DMLmsteZAHRPBb234", map[i + 1][j + 1]))
-		return (printf("Error: map not fully bounded\n"), 0);
+	it.x = -1;
+	while (++it.x < 8)
+	{
+		if (!ft_strchr(ALL_VALID_CHARS, tiles[it.x]))
+			return (printf("Error: map not fully bounded\n"), 0);
+	}
 	return (1);
 }
 
@@ -47,10 +47,10 @@ int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 {
 	char			tile;
 	t_vect const	lut[UCHAR_MAX] = {
-		['N'] = {0, 1},
-		['S'] = {0, -1},
-		['E'] = {1, 0},
-		['W'] = {-1, 0},
+	['N'] = {0, 1},
+	['S'] = {0, -1},
+	['E'] = {1, 0},
+	['W'] = {-1, 0},
 	};
 
 	tile = (lvl->map)[i][j];
@@ -67,20 +67,6 @@ int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 	return (1);
 }
 
-void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
-{
-	printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
-	printf("on line: %s\n", map[i]);
-	j = -1;
-	while (map[++j])
-	{
-		if (j >= i - 1 && j <= i + 1)
-			printf("\e[31m%s\e[m\n", map[j]);
-		else
-			printf("%s\n", map[j]);
-	}
-}
-
 int	validate_map_tiles(t_lvl *data, char **map)
 {
 	ssize_t	i;
@@ -94,11 +80,14 @@ int	validate_map_tiles(t_lvl *data, char **map)
 		j = -1;
 		while (map[i][++j])
 		{
-			if (ft_strchr("0NEWSDLMmsteZAHRPBb234", map[i][j]))
+			if (ft_strchr("0NEWSDLMmsteZAHRPBb234789{", map[i][j]))
 			{
 				if (!surrounding_tiles_valid(map, i, j)
 					|| !check_start_pos(data, i, j, &start_found))
-					return (print_invalid_tile_err(map, i, j), 0);
+				{
+					print_invalid_tile_err(map, i, j);
+					return (0);
+				}
 			}
 		}
 	}
@@ -128,8 +117,12 @@ int	map_is_valid(t_lvl *data)
 	if (!map_is_terminating(data->map))
 	{
 		if (errno == C3D_FORBIDDEN_CHAR)
-			ft_dprintf(STDERR_FILENO, "Error: forbidden character on the map\n");
-		ft_dprintf(STDERR_FILENO, "Error: map should be defined as the final section in the .cub file. No content should follow it.\n");
+			ft_dprintf(STDERR_FILENO,
+				"Error: forbidden character on the map\n");
+		ft_dprintf(STDERR_FILENO,
+			"Error: map should be defined as the final section in");
+		ft_dprintf(STDERR_FILENO,
+			" the .cub file. No content should follow it.\n");
 		return (0);
 	}
 	normalise_map(data);

@@ -21,25 +21,31 @@ void	set_sensitivity(t_info *app, int sensitivity)
 	app->sensitivity = sensitivity;
 }
 
-void set_fonts(t_info *const app)
+/**
+ * https://fontstruct.com/gallery/tag/27473/Super%20Metroid
+ * @param app
+ */
+void	set_fonts(t_info *const app)
 {
 	t_typing *const	typing = &app->typ;
 
 	typing->default_size = 50;
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
-//	typing->files[fnt_main] = "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
-	typing->files[fnt_SansMono] = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
+	typing->files[fnt_snes] = "resources/fonts/SuperMetroidLargeSNES.ttf";
+	typing->files[fnt_SansMono]
+		= "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
+//	typing->files[fnt_main]
+//	= "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";
 
-void set_audio(t_info *const app)
+void	set_audio(t_info *const app)
 {
-	t_aud	*aud = &app->audio;
+	t_aud *const	aud = &app->audio;
 
 	app->audio.frequency = 44100;
 	app->audio.nchannels = 2;
 	app->audio.chunk_size = 2048;
 	app->audio.format = MIX_DEFAULT_FORMAT;
-
 	aud->files[snd_door] = "resources/sound/cockchafer-gentleman-1.wav";
 	aud->files[snd_gun] = "resources/sound/beam_shot.wav";
 	aud->files[snd_hash] = "resources/sound/percussion-28.wav";
@@ -58,6 +64,7 @@ void set_audio(t_info *const app)
 	aud->files[snd_enemy_shot] = "resources/sound/enemy_damage.wav";
 	aud->files[snd_player_damage] = "resources/sound/samus_damage.wav";
 	aud->files[snd_win_music] = "resources/sound/win_music.wav";
+	aud->files[snd_credits_finale] = "resources/sound/credits_finale.wav";
 }
 
 void	set_fov(t_info *app, int fov)
@@ -80,30 +87,4 @@ void	set_framerate(t_info *app, size_t framerate)
 	app->fr_rate = framerate;
 	app->fr_delay = 1000000 / framerate;
 	app->fr_scale = framerate / 50.0;
-}
-
-void	set_sound_volume(t_info *app, int volume)
-{
-	int	i;
-	int	new_volume;
-
-	if (volume < 0)
-		volume = 0;
-	if (volume > 100)
-		volume = 100;
-	app->audio.snd_volume = volume;
-	new_volume = (int)((volume / 100.0) * 128 + 0.5);
-	i = 1;
-	while (i < MIX_CHANNELS)
-		Mix_Volume(i++, new_volume);
-}
-
-void	set_music_volume(t_info *app, int volume)
-{
-	if (volume < 0)
-		volume = 0;
-	if (volume > 100)
-		volume = 100;
-	app->audio.mus_volume = volume;
-	Mix_Volume(ch_music, volume);
 }

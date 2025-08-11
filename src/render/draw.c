@@ -6,61 +6,24 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/19 14:16:12 by abelov            #+#    #+#             */
-/*   Updated: 2025/05/19 14:16:13 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 16:01:00 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/types.h>
 #include "cub3d.h"
 
-static inline double	normalize_angle(double angle)
-{
-	angle = fmod(angle, 2 * M_PI);
-	if (angle < 0)
-		angle += 2 * M_PI;
-	return (angle);
-}
-
-/**
- * classical smooth step: x * x * (3 - 2 * x)
- *
- * @param edge0
- * @param edge1
- * @param x
- * @return
- */
-static inline double	smoothstep(double edge0, double edge1, double x)
-{
-	x = (x - edge0) / (edge1 - edge0);
-	if (x < 0.0)
-		x = 0.0;
-	if (x > 1.0)
-		x = 1.0;
-	return (x * x * (3 - 2 * x));
-}
-
-/**
- * wraps around 2π
- * @param angle
- * @param start
- * @param end
- * @return
- */
-static inline int	angle_in_range(double angle, double start, double end)
-{
-	if (start <= end)
-		return (angle >= start && angle <= end);
-	else
-		return (angle >= start || angle <= end);
-}
+double	normalize_angle(double angle);
+double	smoothstep(double edge0, double edge1, double x);
+int		angle_in_range(double angle, double start, double end);
 
 void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 {
-	t_point	point;
-	t_ivect	i;
-	double	dist;
-	double	frac;
-	u_int32_t *dst_row;
+	t_point		point;
+	t_ivect		i;
+	double		dist;
+	double		frac;
+	u_int32_t	*dst_row;
 
 	i.y = -r;
 	while (++i.y <= r)
@@ -74,16 +37,33 @@ void	draw_circle_filled(t_img *img, t_point c, int r, int color)
 			point.x = c.x + i.x;
 			frac = r - dist;
 			frac = (dist <= r - 1.0) * 0.0 + (dist > r - 1.0) * (1.0 - frac);
-			if (dist <= r)
-			{
-				if (point.x >= 0 && point.y >= 0 && point.x < img->width && point.y < img->height)
-				{
-					u_int32_t alpha = ((int)(frac * 255.0) & 0xFF); // Clamp and convert to 0-255 range
-					dst_row[point.x] = (alpha << 24) | (color & MLX_WHITE); // Write RGB from base_color and new alpha
-				}
-			}
+			if (dist <= r && point.x >= 0 && point.y >= 0
+				&& point.x < img->width && point.y < img->height)
+				dst_row[point.x] = (((int)(frac * 255.0) & 0xFF) << 24)
+					| (color & MLX_WHITE);
 		}
 	}
+}
+
+double	draw_arch(t_ring_segment seg, double angle, double dist)
+{
+	t_vect	a_edge;
+	t_vect	da;
+	double	alpha;
+
+	da.x = angle - seg.in.a_start;
+	da.y = seg.in.a_end - angle;
+	da.x += (da.x < 0) * (2 * M_PI);
+	da.y += (da.y < 0) * (2 * M_PI);
+	a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
+	a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
+	alpha = 1.0;
+	if (dist < seg.in.r)
+		alpha = dist - (seg.in.r - 1.0);
+	else if (dist > seg.out.r - 1.0)
+		alpha = seg.out.r - dist;
+	alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
+	return (alpha);
 }
 
 /**
@@ -108,10 +88,7 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 {
 	t_ivect	i;
 	t_vect	f;
-	t_vect	da;
-	t_vect	a_edge;
 	t_point	cc;
-	double	alpha;
 	double	angle;
 	double	dist;
 
@@ -130,21 +107,8 @@ void	draw_ring_segment(t_img *img, t_ring_segment seg, int color)
 				continue ;
 			angle = atan2(f.y, f.x);
 			angle += (angle < 0) * (2 * M_PI);
-			if (!angle_in_range(angle, seg.in.a_start, seg.in.a_end))
-				continue;
-			da.x = angle - seg.in.a_start;
-			da.y = seg.in.a_end - angle;
-			da.x += (da.x < 0) * (2 * M_PI);
-			da.y += (da.y < 0) * (2 * M_PI);
-			a_edge.x = smoothstep(0.0, ANGLE_EPSILON, da.x);
-			a_edge.y = smoothstep(0.0, ANGLE_EPSILON, da.y);
-			alpha = 1.0; // Linear radial edge AA
-			if (dist < seg.in.r)
-				alpha = dist - (seg.in.r - 1.0);
-			else if (dist > seg.out.r - 1.0)
-				alpha = seg.out.r - dist;
-			alpha = 1 - fmin(alpha, fmin(a_edge.x, a_edge.y));
-			put_pixel_alpha(img, cc, color, alpha);
+			if (angle_in_range(angle, seg.in.a_start, seg.in.a_end) != 0)
+				put_pixel_alpha(img, cc, color, draw_arch(seg, angle, dist));
 		}
 	}
 }
@@ -158,7 +122,7 @@ void	draw_nav(t_info *app)
 	t_arc *const	outer = &(t_arc){
 		.r = 25,
 		.a_start = normalize_angle(-app->player->angle - M_2_PI),
-		.a_end = normalize_angle(-app->player->angle +  M_2_PI),
+		.a_end = normalize_angle(-app->player->angle + M_2_PI),
 		.center = center
 	};
 
@@ -167,8 +131,8 @@ void	draw_nav(t_info *app)
 	seg.out = *outer;
 	seg.in = inner;
 	ft_bzero(ptr->data, ptr->size_line * ptr->height);
-	apply_alpha(ptr, 255);
+	apply_inverted_alpha(ptr, 255);
 	draw_ring_segment(ptr, seg, MLX_LIGHT_SLATE_GREY);
-	apply_alpha(ptr, 96);
+	apply_inverted_alpha(ptr, 96);
 	draw_circle_filled(ptr, center, 4, MLX_DTURQUOISE);
 }

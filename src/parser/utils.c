@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/21 16:31:28 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/05/21 16:32:21 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/08 14:59:55 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,79 +37,80 @@ int	valid_identifier(char *str)
 	return (NONE);
 }
 
-void	print_map(t_lvl *data)
+// void	print_map(t_lvl *data)
+// {
+// 	int	i;
+//
+// 	i = 0;
+// 	while (data->map[i] != NULL)
+// 		ft_printf("<%s>\n", data->map[i++]);
+// }
+
+// void	print_list(t_list *list)
+// {
+// 	t_list	*current;
+//
+// 	current = list;
+// 	while (current != NULL)
+// 	{
+// 		ft_printf("%s\n", current->data);
+// 		current = current->next;
+// 	}
+// }
+
+void	print_invalid_tile_err(char **map, ssize_t i, ssize_t j)
 {
-	int	i;
-
-	i = 0;
-	while (data->map[i] != NULL)
-		ft_printf("<%s>\n", data->map[i++]);
-}
-
-int	str_cmp_whitespace(void *data, void *ref)
-{
-	char	*line;
-	int		i;
-
-	line = (char *)data;
-	i = 0;
-	while (line[i])
+	printf("Invalid tile: (%ld, %ld) = %c\n", j, i, map[i][j]);
+	printf("on line: %s\n", map[i]);
+	j = -1;
+	while (map[++j])
 	{
-		if (!ft_isspace(line[i++]))
-			return (1);
+		if (j >= i - 1 && j <= i + 1)
+			printf("\e[31m%s\e[m\n", map[j]);
+		else
+			printf("%s\n", map[j]);
 	}
-	return (0);
-	(void)ref;
 }
 
-size_t	count_split_words(char **split)
+void	free_map(t_lvl *lvl)
 {
-	size_t	i;
-
-	i = 0;
-	while (split[i])
-		i++;
-	return (i);
+	free(lvl->n_tex.data);
+	free(lvl->s_tex.data);
+	free(lvl->e_tex.data);
+	free(lvl->w_tex.data);
+	free(lvl->floor_tex.data);
+	free(lvl->ceil_tex.data);
+	free(lvl->sublvls[0]);
+	free(lvl->sublvls[1]);
+	free(lvl->sublvls[2]);
+	free(lvl->sublvls[3]);
+	free_split(lvl->map);
+	free_split((char **)lvl->anims);
+	ft_lstclear(&lvl->enemies, free);
+	ft_lstclear(&lvl->items, free);
+	ft_lstclear(&lvl->triggers, free);
+	ft_lstclear(&lvl->doors, free);
+	ft_lstclear(&lvl->projectiles, free);
+	ft_lstclear(&lvl->logo, free);
+	ft_lstclear(&lvl->enemy_pos, free);
+	Mix_FreeChunk(lvl->music);
+	free(lvl);
 }
 
-void	print_list(t_list *list)
+int	count_collectables(t_lvl *lvl)
 {
 	t_list	*current;
+	t_obj	*cur_obj;
+	int		count;
 
-	current = list;
+	current = lvl->items;
+	count = 0;
 	while (current != NULL)
 	{
-		ft_printf("%s\n", current->data);
+		cur_obj = current->content;
+		if (cur_obj->subtype >= I_ETANK && cur_obj->subtype <= I_MISSILE)
+			count++;
 		current = current->next;
 	}
-}
-
-void	free_split(char **split)
-{
-	int	i;
-
-	i = 0;
-	if (split == NULL)
-		return ;
-	while (split[i])
-		free(split[i++]);
-	free(split);
-}
-
-void	**ft_lst_to_arr(t_list *list)
-{
-	void	**array;
-	t_list	*current;
-	int		i;
-
-	array = ft_calloc(ft_lstsize(list) + 1, sizeof(void *));
-	i = 0;
-	current = list;
-	while (current != NULL)
-	{
-		array[i++] = current->content;
-		current = current->next;
-	}
-	array[i] = NULL;
-	return (array);
+	return (count);
 }

@@ -28,8 +28,12 @@ set(FT_CFLAGS
         -march=native
         -O3 -fstrict-aliasing -fno-strict-overflow -fomit-frame-pointer
         -mprefer-vector-width=256
+        -ftree-vectorize
         -Wformat
         -Werror=format-security
+        -Wno-self-assign
+        -Wshadow
+        -msse4.1 -mavx2
 #        -Wstrict-prototypes
 #        -Wmissing-prototypes
         -include include/cub3d.h
@@ -39,8 +43,8 @@ set(FT_CFLAGS
 #        -pg
         -masm=att
         -g3 -gdwarf-3
-#        -fasynchronous-unwind-tables
-#        -fno-omit-frame-pointer
+        -fasynchronous-unwind-tables
+        -fno-omit-frame-pointer
 #        -fsanitize=address
 #        -fsanitize=undefined
 #        -fno-sanitize-recover=all

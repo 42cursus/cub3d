@@ -12,13 +12,13 @@
 
 #include "cub3d.h"
 
-static int load_sounds(t_aud *const aud)
+static int	load_sounds(t_aud *const aud)
 {
 	int			i;
 	Mix_Chunk	*chunk;
 
 	i = -1;
-	while (++i < snd_MAX)
+	while (++i < SND_MAX)
 	{
 		chunk = Mix_LoadWAV(aud->files[i]);
 		if (!chunk)
@@ -30,8 +30,8 @@ static int load_sounds(t_aud *const aud)
 
 int	init_audio(t_info *const app)
 {
-	int 	err;
-	t_aud	*const aud = &app->audio;
+	int				err;
+	t_aud *const	aud = &app->audio;
 
 	err = SDL_Init(SDL_INIT_AUDIO);
 	if (err < 0)
@@ -39,16 +39,17 @@ int	init_audio(t_info *const app)
 		ft_dprintf(STDERR_FILENO, "SDL_Init error: %s\n", SDL_GetError());
 		exit((cleanup(app), EXIT_FAILURE));
 	}
-
-	err = Mix_OpenAudio(aud->frequency, aud->format, aud->nchannels, aud->chunk_size);
+	err = Mix_OpenAudio(aud->frequency, aud->format,
+			aud->nchannels, aud->chunk_size);
 	if (err < 0)
 	{
 		ft_dprintf(STDERR_FILENO, "Mix_OpenAudio error: %s\n", Mix_GetError());
 		exit((cleanup(app), EXIT_FAILURE));
 	}
-
+	Mix_AllocateChannels(ch_MAX + 6);
+	Mix_ReserveChannels(ch_MAX);
 	load_sounds(aud);
-	// Mix_Volume(ch_music, 64);
-	// Mix_VolumeChunk(aud->chunks[snd_rocket], 32);
 	return (err);
 }
+// Mix_Volume(ch_music, 64);
+// Mix_VolumeChunk(aud->chunks[snd_rocket], 32);

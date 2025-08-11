@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 void	spawn_enemy_projectile(t_info *app, t_obj *enemy,
-							   t_vect dir, int subtype)
+			t_vect dir, int subtype)
 {
 	t_obj	*projectile;
 
@@ -21,7 +21,7 @@ void	spawn_enemy_projectile(t_info *app, t_obj *enemy,
 	projectile->type = O_EPROJ;
 	projectile->pos = enemy->pos;
 	projectile->dir = dir;
-	projectile->subtype = subtype; //FIXME: `int` subtype vs `t_pr_type` vs `t_subtype`
+	projectile->subtype = subtype;
 	projectile->anim2.frames = 4;
 	projectile->anim2.duration = 320000;
 	if (subtype == P_PHANTOON)
@@ -63,7 +63,7 @@ int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current)
 		return (start_obj_death(obj, app), 0);
 	}
 	new_pos = add_vect(obj->pos, obj->dir);
-	if (ft_strchr("1LDM", app->lvl->map[(int)new_pos.y][(int)new_pos.x]))
+	if (ft_strchr("1LDMB", app->lvl->map[(int)new_pos.y][(int)new_pos.x]))
 		return (start_obj_death(obj, app), 0);
 	obj->pos = new_pos;
 	return (0);
