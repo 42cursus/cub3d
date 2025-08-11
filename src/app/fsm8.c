@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/14 15:13:34 by abelov            #+#    #+#             */
-/*   Updated: 2025/07/14 15:13:35 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:11:28 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ t_ret_code	do_state_credits(void *param)
 	app->old_fov = app->fov_deg;
 	old_fps = app->fr_rate;
 	set_fov(app, 70);
-	set_framerate(app, 500);
+	set_framerate(app, 120);
 	calculate_credits_offset(app, app->dummy);
 	Mix_PlayChannel(ch_music1, app->audio.chunks[snd_credits_finale], 0);
 	mlx_mouse_hide(app->mlx, app->win);

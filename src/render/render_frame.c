@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 15:54:06 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:08:33 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,103 +14,6 @@
 #include <sys/time.h>
 #include <sysexits.h>
 #include <time.h>
-
-int	point_oob_global(t_vect pos, t_lvl *lvl)
-{
-	return ((pos.x < 0 || pos.x > lvl->width)
-		|| (pos.y < 0 || pos.y > lvl->height));
-}
-
-void	render_calc_time(t_info *const app)
-{
-	size_t	time;
-
-	while (get_time_us() - app->fr_last < app->fr_delay)
-		usleep(100);
-	time = get_time_us();
-	app->fr_time = time - app->fr_last;
-	app->fr_last = time;
-}
-
-void	render_play_calc_time(t_info *const app)
-{
-	size_t			now;
-	size_t			elapsed;
-	struct timespec	ts;
-
-	now = get_time_us();
-	elapsed = now - app->fr_last;
-	if (elapsed < app->fr_delay)
-	{
-		ts.tv_sec = 0;
-		ts.tv_nsec = (__syscall_slong_t)(app->fr_delay - elapsed) * 1000L;
-		nanosleep(&ts, NULL); //FIXME: use regular sleep instead
-	}
-	now = get_time_us();
-	app->fr_time = now - app->fr_last;
-	app->fr_last = now;
-}
-
-double	rand_range(double lower, double upper)
-{
-	const double	diff = upper - lower;
-	const double	output = (rand() / (RAND_MAX / diff)) + lower;
-
-	return (output);
-}
-
-void	fill_with_colour_r(t_img *img, int f_col, int c_col)
-{
-	const int	mid = img->width / 2;
-	int			i;
-	int			j;
-	int *const	pixels = (void *)img->data;
-	int			*row;
-
-	i = -1;
-	while (++i < img->height)
-	{
-		row = pixels + i * img->width;
-		j = -1;
-		while (++j <= mid)
-			row[j] = c_col;
-		j--;
-		while (++j < img->width)
-			row[j] = f_col;
-	}
-}
-
-void	fill_with_colour_tex(t_tex tex, int col)
-{
-	int	i;
-
-	i = -1;
-	while (++i < ((int)(tex.sl / sizeof(int))) * tex.h)
-		tex.data[i] = col;
-}
-
-void	fill_with_colour(t_img *img, int f_col, int c_col)
-{
-	const int	mid = img->height / 2;
-	int			i;
-	int			j;
-
-	u_int (*pixels)[img->height][img->width] = (void *)img->data;
-	i = -1;
-	while (++i <= mid)
-	{
-		j = -1;
-		while (++j < img->width)
-			(*pixels)[i][j] = c_col;
-	}
-	i--;
-	while (++i < img->height)
-	{
-		j = -1;
-		while (++j < img->width)
-			(*pixels)[i][j] = f_col;
-	}
-}
 
 int	render_win(void *param)
 {
@@ -203,114 +106,10 @@ int	render_play(void *param)
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
-	render_play_calc_time(app);
+	render_calc_time(app);
 	app->fr_scale = 20000.0 / app->fr_time;
 	app->fr_count++;
 	draw_hud(app);
-	on_expose(app);
-	return (0);
-}
-
-int	render_intro(void *param)
-{
-	size_t			diff;
-	t_info *const	app = param;
-
-	update_objects(app, app->player, app->lvl);
-	if (app->player->dead)
-	{
-		diff = get_time_ms() - app->timer.cur_lvl_start;
-		if (diff > 1000)
-			app->player->pos.y += 0.03;
-		if (diff > 2500)
-			app->mlx->end_loop = 1;
-	}
-	cast_all_rays_alt(app, app->lvl, app->player);
-	ft_memcpy_avx2((int *) app->canvas_r->data, (int *) app->bg_r->data,
-		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	draw_rays_transposed(app);
-	transpose_img_avx2_tiled_read((int *) app->canvas->data,
-		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
-	place_fps(app);
-	render_calc_time(app);
-	on_expose(app);
-	return (0);
-}
-
-int	render_mmenu(void *param)
-{
-	size_t			time;
-	t_info *const	app = param;
-	t_img *const	bg = app->bg;
-	t_tex *const	tex = &app->shtex->title;
-	int *const		dst = (int *) app->canvas->data;
-
-	ft_memcpy_avx2(dst, (int *)bg->data, bg->size_line * bg->height);
-	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
-	draw_menu_items(app);
-	while (get_time_us() - app->fr_last < app->fr_delay)
-		usleep(100);
-	time = get_time_us();
-	app->fr_time = time - app->fr_last;
-	app->fr_last = time;
-	on_expose(app);
-	return (0);
-}
-
-int	render_pmenu(void *param)
-{
-	size_t			time;
-	t_info *const	app = param;
-	t_img *const	sshot = app->stillshot;
-	t_tex *const	tex = &app->shtex->title;
-
-	ft_memcpy_avx2((int *) app->canvas->data, (int *) sshot->data,
-		sshot->size_line * sshot->height);
-	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
-	draw_menu_items(app);
-	while (get_time_us() - app->fr_last < app->fr_delay)
-		usleep(100);
-	time = get_time_us();
-	app->fr_time = time - app->fr_last;
-	app->fr_last = time;
-	on_expose(app);
-	return (0);
-}
-
-void	render_credits_chk_dummy(t_info *const app, t_dummy *dummy)
-{
-	int	aspect_ratio;
-
-	dummy->pos.y -= dummy->speed / app->fr_scale;
-	aspect_ratio = app->shtex->credits.h / app->shtex->credits.w;
-	if ((-dummy->pos.y) > ((double)aspect_ratio) + 2)
-	{
-		app->rc = ok;
-		app->mlx->end_loop = 1;
-	}
-}
-
-int	render_credits(void *param)
-{
-	t_info *const	app = param;
-	t_dummy			*dummy;
-	t_img *const	bg = app->bg;
-
-	dummy = app->dummy;
-	if (app->keys[idx_XK_Up])
-		dummy->pos.y += (dummy->speed * 5) / app->fr_scale;
-	if (app->keys[idx_XK_Down])
-		dummy->pos.y -= (dummy->speed * 3) / app->fr_scale;
-	render_credits_chk_dummy(app, dummy);
-	ft_memcpy_avx2((int *) app->canvas->data,
-		(int *) bg->data, bg->size_line * bg->height);
-	fill_with_colour(&app->overlay, XPM_TRANSPARENT, XPM_TRANSPARENT);
-	update_rocks(app, dummy);
-	draw_credits_avx2_unpacked(app, dummy, &app->shtex->credits, app->overlay);
-	place_img_alpha_avx2_soa(app->canvas, &app->overlay, (t_point){0, 0});
-	render_calc_time(app);
-	app->fr_scale = 20000.0 / app->fr_time;
-	place_fps(app);
 	on_expose(app);
 	return (0);
 }

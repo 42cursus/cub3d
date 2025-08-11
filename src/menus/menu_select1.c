@@ -39,11 +39,11 @@ void	construct_sf_array(t_info *app, t_menustate *menu_state)
 	if (app->no_maps > 6)
 		len = app->no_maps + 1;
 	menu_state->select_funcs = ft_calloc(MENUSTATE_MAX,
-			sizeof(t_menu_select_func *));
+			sizeof(t_ms_func *));
 	i = -1;
 	while (++i < MENUSTATE_MAX)
 		menu_state->select_funcs[i] = ft_calloc(len,
-				sizeof(t_menu_select_func));
+				sizeof(t_ms_func));
 }
 
 void	init_menu_select_funcs(t_info *app, t_menustate *menu_state)
@@ -69,7 +69,7 @@ void	init_menu_select_funcs(t_info *app, t_menustate *menu_state)
 	menu_state->select_funcs[WIN][1] = menu_go_repeat;
 	menu_state->select_funcs[WIN][2] = menu_go_fail;
 	ft_memmove(menu_state->select_funcs[LOSE],
-		menu_state->select_funcs[WIN], 3 * sizeof(t_menu_select_func));
+		menu_state->select_funcs[WIN], 3 * sizeof(t_ms_func));
 }
 
 void	free_select_funcs(t_menustate *menu_state)
