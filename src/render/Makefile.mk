@@ -6,7 +6,7 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/08/08 15:53:38 by fsmyth           ###   ########.fr        #
+#    Updated: 2025/08/11 15:09:00 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,8 @@ FILES   = colour.c \
 			hud.c \
 			render.c \
 			render_frame.c \
+			render_frame2.c \
+			render_frame_utils.c \
 			img_to_tex.c \
 			img_to_tex_static.c \
 			sky.c

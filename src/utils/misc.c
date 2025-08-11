@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 16:42:58 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:43:36 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:07:48 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,4 +66,12 @@ void	**ft_lst_to_arr(t_list *list)
 	}
 	array[i] = NULL;
 	return (array);
+}
+
+double	rand_range(double lower, double upper)
+{
+	const double	diff = upper - lower;
+	const double	output = (rand() / (RAND_MAX / diff)) + lower;
+
+	return (output);
 }

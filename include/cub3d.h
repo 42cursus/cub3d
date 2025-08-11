@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/08 14:55:47 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:05:26 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1182,6 +1182,7 @@ int			key_release_win(KeySym key, void *param);
 int			key_press_credits(KeySym key, void *param);
 int			key_release_credits(KeySym key, void *param);
 
+void		render_calc_time(t_info *const app);
 int			render_intro(void *param);
 int			render_mmenu(void *param);
 int			render_pmenu(void *param);
