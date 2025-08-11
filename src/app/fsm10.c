@@ -44,6 +44,53 @@ t_transition	*get_state_transitions(size_t *size)
 	return (transitions);
 }
 
+t_state_func *const	*get_state_table(void)
+{
+	static t_state_func *const	state_table[NUM_STATES] = {
+	[STATE_INITIAL] = (void *)do_state_initial,
+	[STATE_INTRO] = do_state_intro,
+	[STATE_MMENU] = do_state_mmenu,
+	[STATE_CREDITS] = do_state_credits,
+	[STATE_LOAD] = do_state_load,
+	[STATE_PLAY] = do_state_play,
+	[STATE_PMENU] = do_state_pmenu,
+	[STATE_LOSE] = do_state_lose,
+	[STATE_WIN] = do_state_win,
+	[NUM_STATES - 1] = NULL
+	};
+
+	return (state_table);
+}
+
+t_transition_func	**get_trans_table(void)
+{
+	static t_transition_func *const		t_table[NUM_STATES - 1][NUM_STATES] = {
+	[STATE_INITIAL] = {[STATE_INTRO] = do_initial_to_intro,
+	[STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
+	[STATE_INTRO] = {[STATE_MMENU] = do_intro_to_mmenu,
+	[STATE_END] = do_intro_to_end},
+	[STATE_MMENU] = {[STATE_INTRO] = do_mmenu_to_intro,
+	[STATE_LOAD] = do_mmenu_to_load,
+	[STATE_CREDITS] = do_mmenu_to_credits, [STATE_END] = do_mmenu_to_end},
+	[STATE_LOAD] = {[STATE_MMENU] = do_load_to_mmenu,
+	[STATE_PLAY] = do_load_to_play, [STATE_END] = do_load_to_end},
+	[STATE_PLAY] = {[STATE_PMENU] = do_play_to_pmenu,
+	[STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win,
+	[STATE_END] = do_play_to_end, [STATE_LOAD] = do_play_to_load},
+	[STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu,
+	[STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
+	[STATE_LOSE] = {[STATE_MMENU] = do_lose_to_mmenu,
+	[STATE_END] = do_lose_to_end, [STATE_LOAD] = do_lose_to_load},
+	[STATE_WIN] = {[STATE_LOAD] = do_win_to_load,
+	[STATE_MMENU] = do_win_to_mmenu,
+	[STATE_END] = do_win_to_end, [STATE_CREDITS] = do_win_to_credits},
+	[STATE_CREDITS] = {[STATE_MMENU] = do_credits_to_mmenu,
+	[STATE_END] = do_credits_to_end},
+	};
+
+	return ((t_transition_func **)t_table);
+}
+
 t_state	run_state(t_info *app, int argc, char **argv)
 {
 	t_transition_func	*transition_func;
@@ -55,7 +102,7 @@ t_state	run_state(t_info *app, int argc, char **argv)
 	if (app->state == STATE_INITIAL)
 		rc = do_state_initial(app, argc, argv);
 	else
-		rc = state_table[app->state](app);
+		rc = get_state_table()[app->state](app);
 	transition.dst_state = app->state;
 	while (size--)
 	{
@@ -63,7 +110,9 @@ t_state	run_state(t_info *app, int argc, char **argv)
 		if (transition.src_state == app->state && transition.ret_code == rc)
 			break ;
 	}
-	transition_func = transition_table[app->state][transition.dst_state];
+	transition_func = get_trans_table()[
+		(app->state * NUM_STATES) + transition.dst_state
+	];
 	if (transition_func)
 		transition_func(app);
 	return (transition.dst_state);

@@ -1019,7 +1019,7 @@ enum e_mmap_tile
 
 void		apply_inverted_alpha(t_img *img, u_char added_alpha);
 void		place_tile_on_image32(t_img *img, t_img *tile, t_point p);
-void		place_img_alpha_avx2_soa(t_img *image, const t_img *, t_point p);
+void		place_img_alpha_avx2_soa(t_img *image, const t_img *img, t_point p);
 void		place_img_alpha_avx2_fast_path_soa(t_img *, t_img *, t_point);
 void		place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps);
 void		on_expose(t_info *app);
