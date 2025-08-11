@@ -95,6 +95,7 @@
 # define MLX_PALE_GRAY 0xf8f8f8
 # define XPM_TRANSPARENT 0xff000000
 # define ALPHA_CHANNEL 0xFF000000
+# define CANARY_VALUE 0xDEADC0DE
 
 # define LARGE_MMAP_SCALE 16
 
@@ -1126,7 +1127,7 @@ t_img		*scale_image(t_info *app, t_img *img, int new_x, int new_y);
 t_tex		scale_texture(t_tex *tex, int scale);
 void		pix_dup(t_img *src, t_img *dst);
 void		fill_with_colour(t_img *img, int f_col, int c_col);
-void		fill_with_colour_tex(t_tex img, int col);
+void		fill_with_colour_tex(t_tex tex, int col);
 void		fill_with_colour_r(t_img *img, int f_col, int c_col);
 void		put_texture(t_info *app, t_tex *tex, int x, int y);
 void		place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
