@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 15:05:26 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 15:38:13 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,9 @@
 # endif
 # ifdef ft_strlen
 #  undef ft_strlen
+# endif
+# ifdef ft_strtol
+#  undef ft_strtol
 # endif
 # ifdef ft_strdup
 #  undef ft_strdup
