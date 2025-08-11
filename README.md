@@ -139,3 +139,11 @@ export LSAN_OPTIONS=verbosity=1:report_objects=1 ASAN_OPTIONS=fast_unwind_on_mal
 ```bash
 export UBSAN_OPTIONS=print_stacktrace=1
 ```
+
+#### External libraries
+
+SDL_mixer 2.0.4:
+- curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h -O
+
+FreeType2 6.18.1:
+- /lib/x86_64-linux-gnu/libfreetype.so.6

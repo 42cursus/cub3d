@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 15:38:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 16:20:40 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 
 # include <SDL2/SDL.h>
 # include "SDL_mixer.h" // <SDL2/SDL_mixer.h>
+// #include <SDL2/SDL_mixer.h>
 # include <ft2build.h>
 # include <freetype/freetype.h>
 # ifdef ft_snprintf

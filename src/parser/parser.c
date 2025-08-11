@@ -6,12 +6,11 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 15:16:24 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/08 14:57:18 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 16:19:09 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/param.h>
-#include "SDL_mixer.h"
 #include "cub3d.h"
 
 int	parse_cub(t_info *app, char *filename)
