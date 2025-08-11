@@ -70,7 +70,7 @@ void	lock_teles(t_lvl *lvl)
 	t_obj	*cur_obj;
 	t_obj	*tele;
 
-	curr = lvl->triggers;
+	curr = lvl->items;
 	while (curr != NULL)
 	{
 		cur_obj = curr->data;

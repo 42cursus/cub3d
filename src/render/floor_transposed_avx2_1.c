@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 17:35:07 by abelov            #+#    #+#             */
-/*   Updated: 2025/06/30 17:35:07 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 18:39:47 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@ t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	div_vec256(t_fvec256 a, __m256 denom);
 
+inline __attribute__((always_inline, used))
 t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
 {
 	while (it.y < WIN_HEIGHT / 2)
 	{
 		it.z = idxs[it.x * WIN_HEIGHT / 2 + it.y];
-		cd.dst = row.dst + it.x * WIN_HEIGHT + it.y + WIN_HEIGHT / 2;
+		cd.dst = row.dst + (it.x * WIN_HEIGHT) + (it.y);
 		cd.dst[0] = row.src[it.z];
 		cd.dst[WIN_HEIGHT] = row.src[it.z];
 		it.y++;

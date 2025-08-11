@@ -182,10 +182,10 @@ typedef enum e_subtype
 	I_ETANK,
 	I_SUPER,
 	I_MISSILE,
+	I_TROPHY,
 	I_AMMO_M,
 	I_AMMO_S,
 	I_HEALTH,
-	I_TROPHY,
 	T_BOSS,
 	D_SEAWEED,
 	SUBT_MAX

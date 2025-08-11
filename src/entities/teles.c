@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/08 17:49:58 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/08 17:51:13 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 18:33:28 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void	spawn_key(t_info *app, t_vect pos, int level)
 		key->anim.duration = 600000;
 		key->anim.tex = app->shtex->key_tex;
 		key->anim.timestart = app->fr_last;
-		ft_lstadd_back(&lvl->triggers, ft_lstnew(key));
+		ft_lstadd_back(&lvl->items, ft_lstnew(key));
 	}
 }
 

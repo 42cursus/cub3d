@@ -6,7 +6,7 @@
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/16 18:33:14 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/06/04 20:31:24 by fsmyth           ###   ########.fr       */
+/*   Updated: 2025/08/11 18:32:44 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 			continue ;
 		else if (obj->type == O_DECORATIVE)
 			handle_decorative(app, obj);
+		else if (obj->type == O_KEY && handle_key(app, obj, &current))
+			continue ;
 		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
@@ -80,8 +82,6 @@ void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 	{
 		obj = (t_obj *)current->data;
 		if (obj->type == O_TRIGGER && handle_trigger(app, obj, &current))
-			continue ;
-		if (obj->type == O_KEY && handle_key(app, obj, &current))
 			continue ;
 		if (obj->type == O_TELE)
 			handle_tele(app, obj);

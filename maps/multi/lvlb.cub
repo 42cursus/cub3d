@@ -4,7 +4,7 @@ WE resources/textures/norfair_wall2.xpm
 EA resources/textures/norfair_wall2.xpm
 
 F resources/textures/floor_norfair.xpm
-C 0x64,0x9d,0xfa
+C none
 
 MU resources/sound/lava_music.wav
 

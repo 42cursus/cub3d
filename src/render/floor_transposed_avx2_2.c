@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 13:57:30 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 13:57:30 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 18:51:11 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,11 +87,11 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
 	t_ivect3		it;
 	t_m256i2		mc;
-	const t_img		tex = *app->lvl->planes[T_FLOOR];
-	const t_cdata	row = {(int *) tex.data, (int *) app->canvas_r->data};
+	const t_img		tx = *app->lvl->planes[T_FLOOR];
+	const t_cdata	row = {(int *)tx.data, (int *)app->canvas_r->data + WH / 2};
 
-	calc_idxs_avx2(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
-	calc_idxs_scalar(app, player->row_depths + WIN_HEIGHT / 2, idxs, tex);
+	calc_idxs_avx2(app, player->row_depths + WIN_HEIGHT / 2, idxs, tx);
+	calc_idxs_scalar(app, player->row_depths + WIN_HEIGHT / 2, idxs, tx);
 	it.x = 0;
 	while (it.x < WIN_WIDTH - 1)
 	{
@@ -101,7 +101,7 @@ void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 			it.z = it.x * WIN_HEIGHT / 2 + it.y;
 			mc.idxs = _mm256_loadu_si256((const __m256i_u *) &idxs[it.z]);
 			mc.blend = _mm256_i32gather_epi32((int *) row.src, mc.idxs, 4);
-			mc.cd.dst = row.dst + (it.x * WIN_HEIGHT) + (it.y + WIN_HEIGHT / 2);
+			mc.cd.dst = row.dst + (it.x * WIN_HEIGHT) + (it.y);
 			_mm256_storeu_si256((__m256i *)mc.cd.dst, mc.blend);
 			_mm256_storeu_si256((__m256i *)(mc.cd.dst + WIN_HEIGHT), mc.blend);
 			it.y += 8;
