@@ -16,6 +16,8 @@ FILES   = colour.c \
 			draw.c \
 			draw_rays.c \
 			floor_transposed_avx2.c \
+			floor_transposed_avx2_2.c \
+			floor_transposed_avx2_3.c \
 			hud.c \
 			render.c \
 			render_frame.c \
