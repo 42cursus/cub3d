@@ -12,7 +12,10 @@
 
 FILES   = colour.c \
 			credits.c \
-			credits_avx2.c \
+			credits_avx2_1.c \
+			credits_avx2_2.c \
+			credits_avx2_3.c \
+			credits_avx2_4.c \
 			draw.c \
 			draw_utils.c \
 			draw_rays.c \
