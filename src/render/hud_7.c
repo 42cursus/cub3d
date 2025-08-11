@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/11 15:22:53 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 15:22:57 by abelov           ###   ########.fr       */
+/*   Updated: 2025/08/11 18:39:06 by abelov           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 	while (current != NULL)
 	{
 		curr_obj = current->content;
-		if (curr_obj->type == O_ITEM)
+		if ((curr_obj->type == O_ITEM && curr_obj->subtype <= I_TROPHY)
+			|| curr_obj->type == O_KEY)
 		{
 			p3.x = offset.x + curr_obj->pos.x * msf.x;
 			p3.y = offset.y - curr_obj->pos.y * msf.y;
