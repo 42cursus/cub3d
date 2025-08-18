@@ -42,6 +42,7 @@ t_tex	draw_credits(t_info *app)
 	if (fd == -1)
 		return (tex);
 	lines = read_file_stripped(fd);
+	close(fd);
 	str_arr.size = ft_list_size(lines);
 	str_arr.arr = ft_calloc(str_arr.size + 1, sizeof(char *));
 	str_arr.current = 0;

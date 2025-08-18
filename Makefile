@@ -24,6 +24,7 @@ INC_DIR			= ./include
 
 RMFLAGS			= -r
 
+CC				:= cc
 CC				:= clang
 #CC				:= gcc
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
@@ -61,8 +62,11 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
-					# -pg \
+#					-fsanitize-address-use-after-scope \
+#					-fsanitize=address,undefined,bounds,alignment,object-size \
+#					-fsanitize=shift,signed-integer-overflow,null,return \
+#					-fsanitize=float-divide-by-zero,float-cast-overflow \
+#                    -pg \
 #					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
@@ -87,15 +91,19 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 
-LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
+LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) \
+					-L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
 					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
 						-flto \
 						-Wl,-zmax-page-size=0x200000 \
-					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
-					# -pg \
+#					-fsanitize-address-use-after-scope \
+#					-fsanitize=address,undefined,bounds,alignment,object-size \
+#					-fsanitize=shift,signed-integer-overflow,null,return \
+#					-fsanitize=float-divide-by-zero,float-cast-overflow \
+#					-pg \
 
 SRC_DIR			= src
 
@@ -145,7 +153,7 @@ $(LIBTEX): $(TEX_OBJ)
 
 ## libft
 $(LIBFT) libft:
-		+$(MAKE) -C $(LIBFT_DIR) BUILD_WITH_ASAN=1
+		+$(MAKE) -C $(LIBFT_DIR) # BUILD_WITH_ASAN=1
 
 $(LIBX_DIR)/Makefile.gen:
 		+$(MAKE) -C $(LIBX_DIR)

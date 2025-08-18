@@ -140,6 +140,37 @@ export LSAN_OPTIONS=verbosity=1:report_objects=1 ASAN_OPTIONS=fast_unwind_on_mal
 export UBSAN_OPTIONS=print_stacktrace=1
 ```
 
+#### Valgrind
+
+https://courses.cs.washington.edu/courses/cse326/05wi/valgrind-doc/coregrind_core.html?utm_source=chatgpt.com
+
+- XOpenDisplay not zeroing _XDisplay.buffer is expected
+
+- SDL leaks memory, as reported by valgrind
+https://discourse.libsdl.org/t/sdl-leaks-memory-as-reported-by-valgrind/25722
+
+- Valgrind flags a “client switching stacks?” warning when SP moves by more than the default for --max-stackframe which is 2000000 bytes.
+
+```bash
+G_SLICE=always-malloc G_DEBUG=gc-friendly SDL_AUDIODRIVER=dummy \
+valgrind --max-stackframe=5000000 --tool=memcheck \
+  --track-origins=yes --read-var-info=yes \
+  --suppressions=/usr/share/glib-2.0/valgrind/glib.supp \
+  --suppressions=valgrind-local.supp \
+  --leak-check=full --show-leak-kinds=all -s \
+  --track-fds=yes \
+  --num-callers=30 \
+  --log-file=valgrind.%p.log \
+  --run-libc-freeres=yes \
+  ./cub3d maps/multi/
+```
+
+If you want errors only for real leaks, tighten reporting or hide the category:
+```bash
+valgrind --leak-check=full --show-possibly-lost=no ./cub3d maps/multi/
+```
+
+##### 
 #### External libraries
 
 SDL_mixer 2.0.4:

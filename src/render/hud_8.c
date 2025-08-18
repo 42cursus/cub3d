@@ -82,6 +82,7 @@ t_tex	get_tile(int idx)
 	t_tex			*tex;
 	u_int32_t		*row;
 	static t_tex	tiles[256] = {0x00};
+	static char		tiles_data[256][MMAP_TILE_SL * MMAP_TILE_H] = {0x00};
 
 	tex = &tiles[15];
 	if (idx < 0 || idx >= 0xFF)
@@ -90,7 +91,7 @@ t_tex	get_tile(int idx)
 		return (tiles[idx]);
 	tex = &tiles[idx];
 	*tex = (t_tex){.w = MMAP_TILE_W, .h = MMAP_TILE_H, .sl = MMAP_TILE_SL};
-	tex->data = malloc(MMAP_TILE_SL * MMAP_TILE_H);
+	tex->data = (u_int *) tiles_data[idx];
 	if (tex->data != NULL)
 	{
 		it.y = -1;
