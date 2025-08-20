@@ -15,7 +15,7 @@
 void	place_char(char c, t_info *app, t_ivect p, int scalar);
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
 									double scalar)
 {

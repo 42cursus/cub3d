@@ -25,15 +25,37 @@ INC_DIR			= ./include
 RMFLAGS			= -r
 
 CC				:= cc
-CC				:= clang
+#CC				:= clang
 #CC				:= gcc
-INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
+
+
+COMPILER		:= $(shell echo | $(CC) -dM -E - | grep -q '__clang__' && echo clang || echo gcc)
+
+INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
+					-I/usr/include \
+					-I/usr/include/SDL2 \
+					-I/usr/include/freetype2 \
+					-I/usr/include/libpng16
+DIAGNOSTIC_FLAGS :=
+
 # https://github.com/llvm/llvm-project/issues/61684
 # https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
 OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-march=native -mtune=native \
 						-flto \
+						-falign-functions=32 \
+						-fno-semantic-interposition \
+						-fcf-protection=none \
+						-fno-stack-protector \
+						-fomit-frame-pointer \
+						-mprefer-vector-width=256 \
+						-ftree-vectorize \
+						-fstrict-aliasing \
+						-fno-strict-overflow
+
+ifeq ($(COMPILER),clang)
+OPTIMIZE_FLAGS	+= -fvectorize -mllvm --interleave-loops \
 						-mllvm -inline-threshold=1000 -maes \
 						-mllvm -extra-vectorizer-passes \
 						-mllvm -enable-cond-stores-vec \
@@ -42,24 +64,27 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-mllvm -enable-loop-distribute \
 						-mllvm -enable-unroll-and-jam \
 						-mllvm -enable-lto-internalization \
-						-mllvm --interleave-loops \
 						-mllvm -unroll-runtime-multi-exit \
 						-mllvm -aggressive-ext-opt \
 						-mllvm -enable-interleaved-mem-accesses \
 						-mllvm -enable-masked-interleaved-mem-accesses \
-						-mllvm -inline-threshold=900 \
-						-falign-functions=32 \
-						-fno-semantic-interposition \
-						-fcf-protection=none \
-						-fno-stack-protector \
-						-fomit-frame-pointer \
-						-fvectorize \
-						-mprefer-vector-width=256 \
-						-ftree-vectorize \
-						-fstrict-aliasing -fno-strict-overflow
+						-mllvm -inline-threshold=900
 
-#DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
-#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
+#DIAGNOSTIC_FLAGS += -Rpass-missed=inline \
+#						-Rpass=inline \
+#						-Rpass-missed=inline \
+#						-Rpass-analysis=inline
+
+else
+OPTIMIZE_FLAGS	+= -fkeep-inline-functions -fgnu89-inline
+#DIAGNOSTIC_FLAGS += -fopt-info-inline-missed \
+#						-fopt-info-vec \
+#						-fopt-info-inline \
+#						-ftime-report \
+#						-fopt-info-inline-optimized
+
+endif
+
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #					-fsanitize-address-use-after-scope \
@@ -69,9 +94,13 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #                    -pg \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
 					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
+
+ifeq ($(COMPILER),clang)
+CFLAGS			+= -Wno-self-assign
+endif
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 SDL_HEADER			:= $(INC_DIR)/SDL_mixer.h
@@ -161,7 +190,6 @@ $(LIBX_DIR)/Makefile.gen:
 
 $(SDL_HEADER):
 		@curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h > $@
-
 
 ## mlx
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen

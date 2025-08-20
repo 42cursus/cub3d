@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 __m256	get_fma(float step_x, int x)
 {
 	t_fma_avx2	fma_var;
@@ -25,7 +25,7 @@ __m256	get_fma(float step_x, int x)
 	return (fma_var.offsets);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 __m256	calc_weights(__m256 idxx)
 {
 	t_fmodf_avx2	weight_xm;
@@ -37,7 +37,7 @@ __m256	calc_weights(__m256 idxx)
 	return (_mm256_sub_ps(idxx, weight_xm.prod));
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 __m256	get_idxx(const int tex_w, t_vect v, __m256 offsets)
 {
 	__m256			id_xx;
@@ -49,7 +49,7 @@ __m256	get_idxx(const int tex_w, t_vect v, __m256 offsets)
 	return (id_xx);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	calc_pos(const t_info *app, t_dummy *dummy, t_vect *pos, float d)
 {
 	t_vect	scaled[2];
@@ -60,7 +60,7 @@ void	calc_pos(const t_info *app, t_dummy *dummy, t_vect *pos, float d)
 	pos[RIGHT] = add_vect(dummy->pos, scaled[RIGHT]);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_vec2i_avx	calc_xx(__m256 id_xx, const int tex_w)
 {
 	t_vec2i_avx		xx;

@@ -48,7 +48,7 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_minimap_xl(t_info *app, t_lvl *const lvl, t_img *const canvas,
 							const t_player *player)
 {
@@ -67,7 +67,7 @@ void	place_minimap_xl(t_info *app, t_lvl *const lvl, t_img *const canvas,
 	place_doors_minimap(lvl, p1, 2);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_minimap_xs(t_info *app, t_lvl *const lvl, t_img *const canvas)
 {
 	t_point			p1;
@@ -85,7 +85,7 @@ void	place_minimap_xs(t_info *app, t_lvl *const lvl, t_img *const canvas)
 	put_texture(app, square, p2.x, p2.y);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_mmap(t_info *app)
 {
 	t_lvl *const	lvl = app->lvl;
@@ -98,7 +98,7 @@ void	place_mmap(t_info *app)
 		place_minimap_xs(app, lvl, canvas);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	put_texture(t_info *app, t_tex *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;

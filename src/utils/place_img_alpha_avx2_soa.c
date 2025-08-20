@@ -64,16 +64,14 @@ void	blend_8pixels_soa(int *src, int *dst)
 static inline __attribute__((always_inline, used))
 t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
 {
-	t_mcol		mc;
 	t_colour	src;
 	t_colour	dst;
 	double		transparency;
 
 	while (it.x < limit_x)
 	{
-		mc.colour = cd.src[it.x];
-		src = *(t_colour *) &mc.colour;
-		dst = *(t_colour *) &cd.dst[it.x];
+		src.raw = cd.src[it.x];
+		dst.raw = cd.dst[it.x];
 		transparency = src.a / 255.0;
 		if (src.raw != dst.raw)
 		{
@@ -81,7 +79,7 @@ t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
 			src.g = lround((dst.g - src.g) * transparency + src.g);
 			src.b = lround((dst.b - src.b) * transparency + src.b);
 		}
-		cd.dst[it.x] = src.raw;
+		cd.dst[it.x] = (int)src.raw;
 		it.x++;
 	}
 	return (it);
@@ -125,7 +123,7 @@ t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
  * @param tile
  * @param p
  */
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_img_alpha_avx2_soa(t_img *image, const t_img *tile, t_point p)
 {
 	t_point	it;

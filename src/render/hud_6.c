@@ -15,7 +15,7 @@
 int		get_tile_idx(char **map, int i, int j);
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	fill_minimap(int scale, t_img *img, t_lvl *const lvl)
 {
 	t_ivect3	it;
@@ -45,7 +45,7 @@ void	fill_minimap(int scale, t_img *img, t_lvl *const lvl)
 	place_triggers_minimap(lvl, img, scale);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img			*img;
@@ -59,7 +59,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	return (img);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_startup_overlay(t_info *app)
 {
 	t_img			im;
@@ -88,7 +88,7 @@ void	place_startup_overlay(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_help(t_info *app)
 {
 	t_point			p1;
@@ -104,7 +104,7 @@ void	place_help(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_point	calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 						const t_player *obj)
 {

@@ -27,7 +27,7 @@ __m256i	get_dimmed(t_fvec256 weight, float d, t_cdata cd, t_vec2i_avx xx);
  * @param blended
  * @return
  */
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 __m256i	repack_rgba_floats_to_bytes_avx2(t_rgba_ps256 blended)
 {
 	__m256i			out;
@@ -48,7 +48,7 @@ __m256i	repack_rgba_floats_to_bytes_avx2(t_rgba_ps256 blended)
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_vec2i_avx	get_xx(t_ivect3 it, int *idx_xs)
 {
 	t_vec2i_avx		xx;
@@ -60,7 +60,7 @@ t_vec2i_avx	get_xx(t_ivect3 it, int *idx_xs)
 	return (xx);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_params_ptr	get_params_p(t_params *params)
 {
 	const t_params_ptr	ptr = (t_params_ptr)
@@ -76,7 +76,7 @@ t_params_ptr	get_params_p(t_params *params)
 	return (ptr);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_cdata	get_rows(const t_tex *tex, const int y0)
 {
 	const int		y1 = y0 + ((((tex->h - 1) - (y0 + 1)) >> 31) ^ 1);

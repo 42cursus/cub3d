@@ -18,7 +18,7 @@ t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	div_vec256(t_fvec256 a, __m256 denom);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	load_depth_vec8(const float *d)
 {
 	t_fvec256	out;
@@ -28,7 +28,7 @@ t_fvec256	load_depth_vec8(const float *d)
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	add_vec256(t_fvec256 a, t_fvec256 b)
 {
 	t_fvec256	r;
@@ -38,7 +38,7 @@ t_fvec256	add_vec256(t_fvec256 a, t_fvec256 b)
 	return (r);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b)
 {
 	t_fvec256	r;
@@ -48,7 +48,7 @@ t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b)
 	return (r);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b)
 {
 	t_fvec256	r;
@@ -58,7 +58,7 @@ t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b)
 	return (r);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	div_vec256(t_fvec256 a, __m256 denom)
 {
 	t_fvec256	r;

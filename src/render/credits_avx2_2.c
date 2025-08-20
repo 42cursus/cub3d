@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_rgba_ps256	unpack_rgba_bytes_to_floats_avx(__m256i pixels)
 {
 	t_rgba_ps256	out;
@@ -32,7 +32,7 @@ t_rgba_ps256	unpack_rgba_bytes_to_floats_avx(__m256i pixels)
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_rgba_ps256	lerp_biased_unpvec(t_rgba_ps256 argb_a, t_rgba_ps256 argb_b,
 					__m256 tt)
 {
@@ -47,7 +47,7 @@ t_rgba_ps256	lerp_biased_unpvec(t_rgba_ps256 argb_a, t_rgba_ps256 argb_b,
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_rgba_ps256	dim_colour2_unpvec_avx2(t_rgba_ps256 in, float dim)
 {
 	t_rgba_ps256	out;
@@ -70,7 +70,7 @@ t_rgba_ps256	dim_colour2_unpvec_avx2(t_rgba_ps256 in, float dim)
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_rgba4_ps256	get_and_unpack(t_vec2i_avx xx, const int **row)
 {
 	t_vec4i_avx		source;
@@ -87,7 +87,7 @@ t_rgba4_ps256	get_and_unpack(t_vec2i_avx xx, const int **row)
 	return (out);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_rgba4_ps256	dim_avx2_unp4(float dim, t_rgba4_ps256 s)
 {
 	const t_rgba4_ps256	d = {

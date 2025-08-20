@@ -63,7 +63,7 @@ void	load_misc_graphics(t_info *app)
 	app->shtex->empty = img_to_tex_static_rm(app, empty_xpm);
 	app->shtex->tele = img_to_tex_static_cm(app, teleporter_xpm);
 	app->shtex->scope = img_to_tex_static_rm(app, scope_xpm);
-	app->shtex->credits = draw_credits(app);
+	app->shtex->credits = draw_credits(app, NULL);
 	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
 	app->shtex->playertile = draw_playertile();
 	app->shtex->square = get_tile(15);

@@ -14,18 +14,28 @@
 
 char	*mlx_static_line(char **xpm_data, int *pos, int size)
 {
-	static char	*copy = 0;
+	static char	*copy = NULL;
 	static int	len = 0;
-	char *const	str = xpm_data[(*pos)++];
-	const int	len2 = (int)ft_strlen(str);
+	char		*str;
+	int			len2;
 
+	if (!xpm_data)
+	{
+		if (copy)
+			free(copy);
+		copy = NULL;
+		len = 0;
+		return ((char *) NULL);
+	}
+	str = xpm_data[(*pos)++];
+	len2 = (int) ft_strlen(str);
 	if (len2 > len)
 	{
 		if (copy)
 			free(copy);
 		copy = malloc(len2 + 1);
 		if (!copy)
-			return ((char *) 0);
+			return ((char *) NULL);
 		len = len2;
 	}
 	ft_strlcpy(copy, str, len2 + 1);
@@ -104,6 +114,7 @@ t_tex	img_to_tex_static_rm(t_info *app, const char **xpm_data)
 	ft_memcpy_avx2((int *) tex.data, (int *) img->data,
 		img->height * img->size_line);
 	mlx_destroy_image(app->mlx, img);
+	mlx_static_line(NULL, &(int){0}, 0);
 	return (tex);
 }
 

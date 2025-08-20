@@ -40,6 +40,11 @@ directory ~/staging/gcc-9-9.4.0/src/libsanitizer/asan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 directory ~/staging/gcc-9-9.4.0/src/libsanitizer/ubsan
 directory ~/staging/libsdl2-mixer-2.0.4+dfsg1
+directory ~/staging/libsdl2-2.0.10+dfsg1/src
+directory ~/staging/libsdl2-2.0.10+dfsg1/src/audio
+directory ~/staging/libsdl2-2.0.10+dfsg1/src/audio/pulseaudio
+directory ~/staging/libsdl2-2.0.10+dfsg1/src/dynapi
+directory ~/staging/libsdl2-2.0.10+dfsg1/src/stdlib
 directory ~/staging/freetype-2.10.1/src/truetype
 directory ~/staging/freetype-2.10.1/src/autofit
 directory ~/staging/freetype-2.10.1/src/base

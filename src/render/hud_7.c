@@ -15,7 +15,7 @@
 #define THREE 3
 #define PTURQ MLX_PALETURQUOISE
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
@@ -42,7 +42,7 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	format_time(char *buf, int len, size_t time)
 {
 	int	minutes;
@@ -56,7 +56,7 @@ void	format_time(char *buf, int len, size_t time)
 	ft_snprintf(buf, len, "%w:%w:%w", minutes, seconds, ms / 10);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
@@ -83,7 +83,7 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 {
 	t_list			*current;
@@ -116,7 +116,7 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
  * @param idx
  * @return
  */
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 uint32_t	get_tile_pix(int x, int y, int idx)
 {
 	int			is_edge;

@@ -54,7 +54,7 @@ void	do_prep(int argc, t_info *const app)
 	app->no_maps = argc - 1;
 }
 
-void	do_load(t_info *const app)
+void do_load(t_info *const app, void *memptr)
 {
 	t_tex	tex;
 
@@ -70,11 +70,12 @@ void	do_load(t_info *const app)
 	tex.w = WIN_WIDTH;
 	tex.h = WIN_HEIGHT;
 	tex.sl = WIN_WIDTH * sizeof(int);
-	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+	if (posix_memalign(&memptr, 64, tex.h * tex.sl))
 	{
 		app->rc = (printf("Error: posix_memalign: %m\n"), fail);
 		return ;
 	}
+	tex.data = memptr;
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
 	app->overlay = cvttex_img(tex);
 }
@@ -107,7 +108,7 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	if (app->mlx == NULL)
 		return (printf("Error: failed to open map: %m\n"), fail);
 	init_menu_select_funcs(app, &app->menu_state);
-	do_load(app);
+	do_load(app, NULL);
 	replace_image(app, &app->bg, NULL);
 	replace_image_r(app, &app->bg_r, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)

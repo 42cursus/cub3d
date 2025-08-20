@@ -15,7 +15,7 @@
 t_mcol		get_mc(t_ivect3 p, int alpha, t_ivect3 it, t_cdata cd);
 uint32_t	get_tile_pix(int x, int y, int idx);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_img	cvttex_img(t_tex tex)
 {
 	t_img	img;
@@ -27,7 +27,7 @@ t_img	cvttex_img(t_tex tex)
 	return (img);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
 	t_img *const	cnvs = app->canvas;
@@ -58,7 +58,7 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
  * @param img
  * @param alpha
  */
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 {
 	t_ivect			it;
@@ -75,7 +75,7 @@ void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_tex	get_tile(int idx)
 {
 	t_ivect			it;
@@ -114,7 +114,7 @@ t_tex	get_tile(int idx)
  * @param j
  * @return
  */
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;

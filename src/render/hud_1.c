@@ -23,7 +23,7 @@ void	place_ammo(t_info *app, t_player *player);
 void	place_boss_health(t_info *app);
 void	place_dmg(t_info *app, t_player *player);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 {
 	t_ivect	it;
@@ -48,7 +48,7 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
 	t_img *const	cnvs = app->canvas;
@@ -76,15 +76,15 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_mcol	get_mc(t_ivect3 p, int alpha, t_ivect3 it, t_cdata cd)
 {
 	t_mcol	mc;
 
 	mc.colour = cd.src[it.x / p.z];
 	mc.mask = -(mc.colour != XPM_TRANSPARENT);
-	mc.src = *(t_colour *) &mc.colour;
-	mc.dst = *(t_colour *) &cd.dst[it.x];
+	mc.src.raw = mc.colour;
+	mc.dst.raw = cd.dst[it.x];
 	mc.transp = alpha / 255.0;
 	if (mc.src.raw != mc.dst.raw)
 	{

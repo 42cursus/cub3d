@@ -9,71 +9,18 @@
    fun:g_type_register_fundamental
    ...
 }
-{
-   xcursor-createbitmap-reachable
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:_XlcSetConverter
-   fun:_XlcDefaultLoader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   ...
-}
 
-
-{
-   g_hash_table_new_full
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:g_malloc
-   fun:g_slice_alloc
-   fun:g_hash_table_new_full
-   fun:g_quark_init
-   fun:call_init.part.0
-   fun:call_init
-   fun:_dl_init
-   obj:/lib/x86_64-linux-gnu/ld-2.31.so
-}
 {
    g_quark_init
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:malloc
-   fun:g_malloc
+   ...
    fun:g_quark_init
    fun:call_init.part.0
    fun:call_init
    fun:_dl_init
-   obj:/lib/x86_64-linux-gnu/ld-2.31.so
-}
-
-{
-   thread_memory_from_self
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:g_private_impl_new
-   fun:g_private_get_impl
-   fun:g_private_get
-   fun:thread_memory_from_self
-   fun:g_slice_alloc
-   fun:g_hash_table_new_full
-   fun:g_quark_init
-   fun:call_init.part.0
-   fun:call_init
-   fun:_dl_init
-   obj:/lib/x86_64-linux-gnu/ld-2.31.so
+   obj:/lib/*/ld-*.so
 }
 
 {
@@ -86,371 +33,88 @@
    fun:call_init.part.0
    fun:call_init
    fun:_dl_init
-   obj:/lib/x86_64-linux-gnu/ld-2.31.so
+   obj:/lib/*/ld-*.so
 }
 
 {
-   SDL_InitSubSystem_REAL_SDL_ClearError_REAL
+   mlx_mouse_hide
    Memcheck:Leak
    match-leak-kinds: reachable
-   fun:realloc
-   fun:SDL_realloc_REAL
-   fun:SDL_TLSSet_REAL
-   fun:SDL_TLSSet_REAL
-   fun:SDL_GetErrBuf
-   fun:SDL_ClearError_REAL
-   fun:SDL_InitSubSystem_REAL
-   fun:UnknownInlinedFun
-   fun:do_prep
-   fun:do_state_initial
-   fun:UnknownInlinedFun
-   fun:main
+   ...
+   fun:InitDefaults
+   fun:XGetDefault
+   obj:/usr/lib*/libXcursor.so*
+   obj:/usr/lib*/libXcursor.so*
+   obj:/usr/lib*/libXcursor.so*
+   fun:XCreatePixmap
+   fun:XCreateBitmapFromData
+   fun:mlx_mouse_hide
+   ...
 }
-{
-   SDL_AudioDetectDevices_Default
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:SDL_malloc_REAL
-   fun:SDL_AddEvent
-   fun:SDL_PeepEvents_REAL
-   fun:SDL_PushEvent_REAL
-   fun:SDL_AddAudioDevice
-   fun:SDL_AudioDetectDevices_Default
-   fun:SDL_AudioInit_REAL
-   fun:SDL_InitSubSystem_REAL
-   fun:UnknownInlinedFun
-   fun:do_prep
-   fun:do_state_initial
-   fun:UnknownInlinedFun
-   fun:main
-}
-{
-   SDL_AddAudioDevice
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:SDL_malloc_REAL
-   fun:SDL_AddEvent
-   fun:SDL_PeepEvents_REAL
-   fun:SDL_PushEvent_REAL
-   fun:SDL_AddAudioDevice
-   fun:SDL_AudioInit_REAL
-   fun:SDL_InitSubSystem_REAL
-   fun:UnknownInlinedFun
-   fun:do_prep
-   fun:do_state_initial
-   fun:UnknownInlinedFun
-   fun:main
-}
+
 {
    SDL_ClearError_REAL
    Memcheck:Leak
    match-leak-kinds: reachable
-   fun:malloc
-   fun:SDL_malloc_REAL
-   fun:SDL_GetErrBuf
+   fun:*alloc
+   ...
    fun:SDL_ClearError_REAL
    fun:SDL_InitSubSystem_REAL
-   fun:UnknownInlinedFun
-   fun:do_prep
-   fun:do_state_initial
-   fun:UnknownInlinedFun
-   fun:main
+   ...
 }
 
+{
+   SDL_InitSubSystem_REAL_PULSEAUDIO
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   fun:pa_xmalloc*
+   ...
+   fun:ConnectToPulseServer_Internal
+   fun:ConnectToPulseServer
+   fun:PULSEAUDIO_Init
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}
 
 {
-   XCreatePixmap_GetDatabase
+   open_audio_device_PULSEAUDIO
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:malloc
-   fun:PutEntry.isra.0.part.0
-   fun:PutEntry
-   fun:GetDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
+   fun:pa_xmalloc
+   ...
+   fun:ConnectToPulseServer_Internal
+   fun:ConnectToPulseServer
+   fun:PULSEAUDIO_OpenDevice
+   fun:open_audio_device
+   fun:Mix_OpenAudioDevice
+   ...
 }
+
 {
-   XCreatePixmap__XlcInitCTInfo
+   PULSEAUDIO_DetectDevices_pa_xmalloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   fun:pa_xmalloc*
+   ...
+   fun:PULSEAUDIO_DetectDevices
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}
+
+{
+   PULSEAUDIO_DetectDevices_SDL_malloc_REAL
    Memcheck:Leak
    match-leak-kinds: reachable
    fun:malloc
-   fun:_XlcAddCT
-   fun:_XlcInitCTInfo
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-
-
-{
-   XCreatePixmap_XlcSetConverter
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:_XlcSetConverter
-   fun:_XlcInitCTInfo
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-{
-   XCreatePixmap_XlcDefaultLoader
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:_XlcSetConverter
-   fun:_XlcAddUtf8Converters
-   fun:_XlcDefaultLoader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-
-
-
-{
-   XCreatePixmap_XlcCreateDefaultCharSet
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:_XlcCreateDefaultCharSet
-   fun:_XlcAddCT
-   fun:_XlcInitCTInfo
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-
-{
-   XCreatePixmap_XlcAddCharSet
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:_XlcAddCharSet
-   fun:_XlcAddCT
-   fun:_XlcInitCTInfo
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-{
-   XCreatePixmap_CreateDatabase
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:init_parse_info
-   fun:CreateDatabase
-   fun:_XlcCreateLocaleDataBase
-   fun:load_public
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-
-{
-   XCreatePixmap_XlcCreateDefaultCharSet_calloc
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:calloc
-   fun:_XlcCreateDefaultCharSet
-   fun:_XlcAddCT
-   fun:_XlcInitCTInfo
-   fun:initialize
-   fun:initialize
-   fun:_XlcCreateLC
-   fun:_XlcUtf8Loader
-   fun:_XOpenLC
-   fun:_XrmInitParseInfo
-   fun:NewDatabase
-   fun:XrmGetStringDatabase
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{
-   ExpandQuarkTable_calloc
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:calloc
-   fun:ExpandQuarkTable
-   fun:_XrmInternalStringToQuark
-   fun:XrmInitialize
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-{
-   ExpandQuarkTable_permalloc
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:permalloc
-   fun:ExpandQuarkTable
-   fun:_XrmInternalStringToQuark
-   fun:XrmInitialize
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
-}
-{
-   ExpandQuarkTable_malloc
-   Memcheck:Leak
-   match-leak-kinds: reachable
-   fun:malloc
-   fun:ExpandQuarkTable
-   fun:_XrmInternalStringToQuark
-   fun:XrmInitialize
-   fun:InitDefaults
-   fun:XGetDefault
-   fun:_XcursorGetDisplayInfo
-   fun:XcursorSupportsARGB
-   fun:XcursorNoticeCreateBitmap
-   fun:XCreatePixmap
-   fun:XCreateBitmapFromData
-   fun:mlx_mouse_hide
-   fun:do_state_play
-   fun:UnknownInlinedFun
-   fun:main
+   fun:SDL_malloc_REAL
+   ...
+   fun:PULSEAUDIO_DetectDevices
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
 }

@@ -24,7 +24,7 @@ __m256i			repack_rgba_floats_to_bytes_avx2(t_rgba_ps256 blended);
 t_rgba_ps256	lerp_biased_unpvec(t_rgba_ps256 argb_a, t_rgba_ps256 argb_b,
 					__m256 tt);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	calc_fvars(const t_info *app, t_ivect3 it, t_vect *pos, float *fvars)
 {
 	t_dummy *const	dummy = app->dummy;
@@ -36,7 +36,7 @@ void	calc_fvars(const t_info *app, t_ivect3 it, t_vect *pos, float *fvars)
 	fvars[STEP_X] = (pos[RIGHT].x - pos[LEFT].x) / WIN_WIDTH;
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	store_weights_idxs(const t_tex tex, t_params_ptr ptrs, t_ivect3 it,
 							__m256 id)
 {
@@ -52,7 +52,7 @@ void	store_weights_idxs(const t_tex tex, t_params_ptr ptrs, t_ivect3 it,
 	_mm256_storeu_si256(row_two, xx.r1);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	calc_idxs(const t_info *app, const t_tex tex, t_params_ptr ptrs)
 {
 	t_ivect3		it;
@@ -81,7 +81,7 @@ void	calc_idxs(const t_info *app, const t_tex tex, t_params_ptr ptrs)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 float	get_dim(float depth)
 {
 	const float	falloff = (depth - 1.5f) * 6.0f;
@@ -92,7 +92,7 @@ float	get_dim(float depth)
 	return (dim);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 __m256i	get_dimmed(t_fvec256 weight, float d, t_cdata cd, t_vec2i_avx xx)
 {
 	__m256i			ret;

@@ -14,7 +14,7 @@
 
 void	place_char(char c, t_info *app, t_ivect p, int scalar);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_ammo(t_info *app, t_player *player)
 {
 	char	buf[4];
@@ -41,7 +41,7 @@ void	place_ammo(t_info *app, t_player *player)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_fps(t_info *app)
 {
 	int			digit;
@@ -61,7 +61,7 @@ void	place_fps(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_scope(t_info *app)
 {
 	t_tex	*scope;
@@ -71,7 +71,7 @@ void	place_scope(t_info *app)
 		WIN_WIDTH / 2 - scope->w / 2, WIN_HEIGHT / 2 - scope->h / 2);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_dmg(t_info *app, t_player *player)
 {
 	t_tex	*tex;

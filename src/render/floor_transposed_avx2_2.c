@@ -22,7 +22,7 @@ t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd);
 t_ivect		calc_row_avx2(t_ivect it, t_fvec256 *lr, t_img tex, int *idxs);
 void		calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	calc_idxs_avx2(t_info *app, float *depths, int *idxs, t_img tex)
 {
 	t_ivect			it;

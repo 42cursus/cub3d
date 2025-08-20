@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	draw_help(t_lvl *lvl)
+void	draw_help(t_lvl *lvl, void *memptr)
 {
 	t_info *const		app = lvl->app;
 	t_img *const		h = &lvl->help;
@@ -28,8 +28,9 @@ void	draw_help(t_lvl *lvl)
 
 	*h = (t_img){.width = WIN_WIDTH * 0.7, .height = WIN_HEIGHT * 0.7};
 	h->size_line = (int)(h->width * sizeof(int));
-	if (posix_memalign((void **)&h->data, 64, h->height * h->size_line))
+	if (posix_memalign(&memptr, 64, h->height * h->size_line))
 		return ;
+	h->data = memptr;
 	fill_with_colour(h, (int)0xC0000000, (int)0xC0000000);
 	face = app->typ.faces[fnt_main];
 	FT_Set_Pixel_Sizes(face, 0, app->typ.default_size);
@@ -69,7 +70,7 @@ void	draw_large_minimap(t_lvl *lvl)
 	mlx_destroy_image(app->mlx, scaled);
 }
 
-void	draw_startup_overlay(t_lvl *lvl)
+void draw_startup_overlay(t_lvl *lvl, void *memptr)
 {
 	t_info *const	app = lvl->app;
 	t_point			p;
@@ -79,8 +80,9 @@ void	draw_startup_overlay(t_lvl *lvl)
 
 	tex = (t_tex){.w = WIN_WIDTH * 0.7, .h = WIN_HEIGHT * 0.7};
 	tex.sl = tex.w * sizeof(int);
-	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+	if (posix_memalign(&memptr, 64, tex.h * tex.sl))
 		return ;
+	tex.data = memptr;
 	overlay.data = (void *)tex.data;
 	overlay.width = tex.w;
 	overlay.height = tex.h;

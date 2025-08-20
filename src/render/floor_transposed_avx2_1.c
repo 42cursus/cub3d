@@ -18,7 +18,7 @@ t_fvec256	sub_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	scale_vec256(t_fvec256 a, t_fvec256 b);
 t_fvec256	div_vec256(t_fvec256 a, __m256 denom);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
 {
 	while (it.y < WIN_HEIGHT / 2)
@@ -32,7 +32,7 @@ t_ivect3	fill_floor_scalar(int *idxs, t_cdata row, t_ivect3 it, t_cdata cd)
 	return (it);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_fvec256	vect_to_256f(t_vect v)
 {
 	t_fvec256	r;
@@ -42,7 +42,7 @@ t_fvec256	vect_to_256f(t_vect v)
 	return (r);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex)
 {
 	t_ivect			it;
@@ -72,7 +72,7 @@ void	calc_idxs_scalar(t_info *app, float *depths, int *idxs, t_img tex)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, t_ivect it)
 {
 	__m256i			*ptr;
@@ -94,7 +94,7 @@ void	store_idx_row(int *ixs, t_fvec256 curr, t_img tex, t_ivect it)
 	_mm256_storeu_si256(ptr, idx);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 t_ivect	calc_row_avx2(t_ivect it, t_fvec256 *lr, t_img tex, int *idxs)
 {
 	it.x = 0;

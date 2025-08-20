@@ -1262,7 +1262,7 @@ void		handle_decorative(t_info *app, t_obj *obj);
 void		update_objects(t_info *app, t_player *player, t_lvl *lvl);
 
 int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
-t_tex		draw_credits(t_info *app);
+t_tex draw_credits(t_info *app, void *memptr);
 void		draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy,
 				t_tex *tex, t_img overlay);
 t_tex		*get_open_door_tex(t_anim *anim, t_info *app);

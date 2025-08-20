@@ -28,6 +28,18 @@ static int	load_sounds(t_aud *const aud)
 	return (EXIT_SUCCESS);
 }
 
+static inline __attribute__((always_inline))
+int	mix_open_audio(int frequency, Uint16 format, int nchannels, int chunksize)
+{
+	int	err;
+
+	err = Mix_OpenAudioDevice(frequency, format, nchannels,
+			chunksize, SDL_getenv("SDL_AUDIO_DEVICE_NAME"),
+			SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_CHANNELS_CHANGE);
+	return (err);
+}
+
+__attribute__((noinline))
 int	init_audio(t_info *const app)
 {
 	int				err;
@@ -39,7 +51,7 @@ int	init_audio(t_info *const app)
 		ft_dprintf(STDERR_FILENO, "SDL_Init error: %s\n", SDL_GetError());
 		exit((cleanup(app), EXIT_FAILURE));
 	}
-	err = Mix_OpenAudio(aud->frequency, aud->format,
+	err = mix_open_audio(aud->frequency, aud->format,
 			aud->nchannels, aud->chunk_size);
 	if (err < 0)
 	{
@@ -51,5 +63,3 @@ int	init_audio(t_info *const app)
 	load_sounds(aud);
 	return (err);
 }
-// Mix_Volume(ch_music, 64);
-// Mix_VolumeChunk(aud->chunks[snd_rocket], 32);

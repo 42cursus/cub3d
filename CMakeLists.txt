@@ -11,8 +11,8 @@
 # **************************************************************************** #
 
 cmake_minimum_required(VERSION 3.8)
-set(CMAKE_C_COMPILER clang)
-#set(CMAKE_C_COMPILER gcc)
+#set(CMAKE_C_COMPILER clang)
+set(CMAKE_C_COMPILER gcc)
 
 project(cub3d C)
 set(CMAKE_VERBOSE_MAKEFILE ON)

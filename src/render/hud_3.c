@@ -14,7 +14,7 @@
 
 void	format_time(char *buf, int len, size_t time);
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_energy_backup(t_info *app, t_player *player)
 {
 	const int		backup = player->health / 100;
@@ -39,7 +39,7 @@ void	place_energy_backup(t_info *app, t_player *player)
 	}
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_energy(t_info *app, t_player *player)
 {
 	int		health;
@@ -54,7 +54,7 @@ void	place_energy(t_info *app, t_player *player)
 	place_energy_backup(app, player);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_weapon(t_info *app)
 {
 	t_tex	*tex;
@@ -74,7 +74,7 @@ void	place_weapon(t_info *app)
 	put_texture(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->h);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_boss_health(t_info *app)
 {
 	t_ivect			it;
@@ -99,7 +99,7 @@ void	place_boss_health(t_info *app)
 	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2);
 }
 
-inline __attribute__((always_inline, used))
+inline __attribute__((always_inline, used, externally_visible))
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 {
 	char	buf[50];
