@@ -100,7 +100,6 @@
 # define XPM_TRANSPARENT 0xff000000
 # define ALPHA_CHANNEL 0xFF000000
 # define CANARY_VALUE 0xDEADC0DE
-
 # define LARGE_MMAP_SCALE 16
 
 # define TEX_DIR "./resources/textures"
@@ -985,7 +984,6 @@ struct s_info
 	size_t		fr_time;
 	size_t		fr_count;
 	t_list		*lvl_cache;
-	int			filter;
 	u_char		fullscreen;
 	t_timer		timer;
 	t_dummy		*dummy;

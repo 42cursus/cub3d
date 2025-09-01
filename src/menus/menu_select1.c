@@ -76,6 +76,8 @@ void	free_select_funcs(t_menustate *menu_state)
 {
 	int	i;
 
+	if (!menu_state || !menu_state->select_funcs)
+		return ;
 	i = -1;
 	while (++i < MENUSTATE_MAX)
 		free(menu_state->select_funcs[i]);

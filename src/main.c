@@ -20,7 +20,8 @@ int	main(int argc, char **argv)
 		.fullscreen = GO_TO_FULLSCREEN_ON_LOAD
 	};
 
-	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
+	if (argc < 2)
+		return (ft_printf("Usage: ./cub3D <map_name>.cub\n"), 1);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);
 	cleanup(app);

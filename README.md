@@ -123,7 +123,7 @@ Including one of these pulls in all previous ones
 #### Sanitizers
 
 ```bash
-export ASAN_OPTIONS=color=always:print_summary=1:verbosity=0:symbolize=1:detect_stack_use_after_return=true:malloc_context_size=20:detect_leaks=1:handle_segv=2:abort_on_error=1:fast_unwind_on_malloc=0
+export ASAN_OPTIONS=color=always:print_summary=1:verbosity=0:symbolize=1:detect_stack_use_after_return=true:malloc_context_size=20:detect_leaks=1:handle_segv=2:abort_on_error=1:fast_unwind_on_fatal=0:fast_unwind_on_malloc=0:disable_coredump=0:abort_on_error=1
 ```
 
 With Clang:

@@ -37,6 +37,8 @@ void	free_shtex_extra(t_info *app)
 
 void	free_shtex(t_info *app)
 {
+	if (!app || !app->shtex)
+		return ;
 	free(app->shtex->title.data);
 	free(app->shtex->credits.data);
 	free(app->shtex->tele.data);

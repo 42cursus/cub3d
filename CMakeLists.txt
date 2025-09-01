@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.8)
 #set(CMAKE_C_COMPILER clang)
 set(CMAKE_C_COMPILER gcc)
 
-project(cub3d C)
+project(cub3D C)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_C_STANDARD 99)
 include_directories(include)
@@ -22,6 +22,7 @@ include_directories(include)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(FT_CFLAGS
+		-fgnu89-inline
         -Wall -Wextra -Werror
         -Wwrite-strings
         -Wimplicit
@@ -44,7 +45,7 @@ set(FT_CFLAGS
         -masm=att
         -g3 -gdwarf-3
         -fasynchronous-unwind-tables
-        -fno-omit-frame-pointer
+		-fno-omit-frame-pointer -fno-optimize-sibling-calls
 #        -fsanitize=address
 #        -fsanitize=undefined
 #        -fno-sanitize-recover=all
@@ -53,7 +54,7 @@ set(FT_CFLAGS
 )
 
 set(COMMON_LDFLAGS
-        -pg
+#        -pg
 #        -fsanitize=address
 #        -fsanitize=undefined
 #        -fno-sanitize-recover=all

@@ -49,7 +49,7 @@ void	calc_idxs_avx2(t_info *app, float *depths, int *idxs, t_img tex)
 
 void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
-	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
+	static int		idxs[WIN_WIDTH * WIN_HEIGHT / 2] = {0x00};
 	t_ivect3		it;
 	t_m256i2		mc;
 	const t_img		tex = *app->lvl->planes[T_CEILING];
@@ -84,7 +84,7 @@ void	fill_ceil_transposed_cols_avx2x8(t_info *app, t_player *player)
 inline __attribute__((always_inline))
 void	fill_floor_transposed_cols_avx2x8(t_info *app, t_player *player)
 {
-	int				idxs[WIN_WIDTH * WIN_HEIGHT / 2];
+	static int		idxs[WIN_WIDTH * WIN_HEIGHT / 2] = {0x00};
 	t_ivect3		it;
 	t_m256i2		mc;
 	const t_img		tx = *app->lvl->planes[T_FLOOR];

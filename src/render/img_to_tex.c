@@ -28,8 +28,8 @@ t_tex	img_to_tex(t_info *app, const char *filename)
 		it.y = -1;
 		while (++it.y < new->h)
 		{
-			cd.dst = (int *)new->data + it.y;
-			cd.src = (int *)img->data + it.y * new->w;
+			cd.dst = (int *) new->data + it.y;
+			cd.src = (int *) img->data + it.y * new->w;
 			it.x = -1;
 			while (++it.x < new->w)
 				cd.dst[it.x * new->h] = cd.src[it.x];
@@ -37,7 +37,10 @@ t_tex	img_to_tex(t_info *app, const char *filename)
 		mlx_destroy_image(app->mlx, img);
 	}
 	else
+	{
 		ft_dprintf(STDERR_FILENO, "File not found: \"%s\"\n", filename);
+		cleanup(app);
+	}
 	return (*new);
 }
 

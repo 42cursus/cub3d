@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME			:= cub3d
+NAME			:= cub3D
 
 UNAME_S			= $(shell uname -s)
 UNAME_M			= $(shell uname -m)
@@ -36,7 +36,14 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
 					-I/usr/include/SDL2 \
 					-I/usr/include/freetype2 \
 					-I/usr/include/libpng16
-DIAGNOSTIC_FLAGS :=
+
+DIAGNOSTIC_FLAGS := -fstack-usage \
+					-Wframe-larger-than=4096 \
+					-Wstack-usage=4096 \
+					-Wvla \
+					-Wvla-larger-than=1024 \
+					-Walloca \
+					-Walloca-larger-than=1024
 
 # https://github.com/llvm/llvm-project/issues/61684
 # https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
@@ -96,7 +103,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -fstack-usage
 
 ifeq ($(COMPILER),clang)
 CFLAGS			+= -Wno-self-assign
@@ -164,7 +171,7 @@ all: $(NAME)
 
 ## cub3d
 $(NAME): $(LIBS) $(SDL_HEADER) $(OBJS)
-		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
+		$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) $(DIAGNOSTIC_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
 $(BUILD_DIR)/%.xpm.o: %.xpm

@@ -51,7 +51,7 @@ void	do_prep(int argc, t_info *const app)
 	set_music_volume(app, 100);
 	srand(get_time_ms());
 	app->map_ids = ft_calloc(argc, sizeof(char *));
-	app->no_maps = argc - 1;
+	app->no_maps = 0;
 }
 
 void do_load(t_info *const app, void *memptr)
@@ -92,21 +92,32 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 	int				i;
-	const char		*str;
+	int				no_maps;
+	const char		*id;
 	char			*end;
-	int				has_slash;
 
 	do_prep(argc, app);
+	no_maps = 0;
 	i = 0;
 	while (++i < argc)
 	{
 		end = ft_strchrnul(argv[i], '\0');
-		has_slash = (end != argv[i] && end[-1] == '/');
-		str = ({if (has_slash == true) str = "start.cub"; else str = ""; str;});
-		app->map_ids[i - 1] = ft_strjoin(argv[i], str);
+		if (end == argv[i] || (ft_strlen(argv[i]) < 5 && end[-1] != '/'))
+			printf("Error: map id is too short: %s\n", argv[i]);
+		else
+		{
+			id = ({if (end[-1] == '/') id = "start.cub"; else id = ""; id; });
+			id = ft_strjoin(argv[i], id);
+			if ((ft_strlen(argv[i]) > 5 && !ft_strncmp(".cub", &end[-4], 4)) || end[-1] == '/' )
+				app->map_ids[no_maps++] = (char *) id;
+			else
+				free((char *) id);
+		}
 	}
 	if (app->mlx == NULL)
-		return (printf("Error: failed to open map: %m\n"), fail);
+		return (printf("Error: failed to init mlx: %m\n"), fail);
+	if (!no_maps)
+		return (printf("Error: no valid maps provided\n"), fail);
 	init_menu_select_funcs(app, &app->menu_state);
 	do_load(app, NULL);
 	replace_image(app, &app->bg, NULL);

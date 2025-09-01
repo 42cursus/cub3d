@@ -40,10 +40,14 @@ int	cleanup(t_info *app)
 		if (app->skybox_r != NULL)
 			mlx_destroy_image(app->mlx, app->skybox_r);
 	}
-	if (app->pointer != NULL)
-		mlx_destroy_image(app->mlx, app->pointer);
-	mlx_destroy_window(app->mlx, app->win);
-	mlx_destroy_display(app->mlx);
-	free(app->mlx);
+	if (app->mlx != NULL)
+	{
+		if (app->pointer != NULL)
+			mlx_destroy_image(app->mlx, app->pointer);
+		if (app->win != NULL)
+			mlx_destroy_window(app->mlx, app->win);
+		mlx_destroy_display(app->mlx);
+		free(app->mlx);
+	}
 	return (0);
 }
