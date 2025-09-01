@@ -196,7 +196,7 @@ $(LIBX_DIR)/Makefile.gen:
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
 
 $(SDL_HEADER):
-		@curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h > $@
+		@curl -sS https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h -o $@
 
 ## mlx
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen
