@@ -46,11 +46,11 @@ set(FT_CFLAGS
         -g3 -gdwarf-3
         -fasynchronous-unwind-tables
 		-fno-omit-frame-pointer -fno-optimize-sibling-calls
-#        -fsanitize=address
-#        -fsanitize=undefined
-#        -fno-sanitize-recover=all
-#        -fsanitize=float-divide-by-zero
-#        -fsanitize=float-cast-overflow
+#		-fsanitize-address-use-after-scope \
+#		-fsanitize=address,undefined,bounds,alignment,object-size \
+#		-fsanitize=shift,signed-integer-overflow,null,return \
+#		-fsanitize=float-divide-by-zero,float-cast-overflow \
+#		-fno-sanitize-recover=all
 )
 
 set(COMMON_LDFLAGS
