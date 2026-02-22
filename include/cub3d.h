@@ -932,7 +932,7 @@ enum e_type
 {
 	fnt_main = 0,
 	fnt_snes,
-	fnt_SansMono,
+	// fnt_SansMono,
 	FNT_MAX
 };
 
