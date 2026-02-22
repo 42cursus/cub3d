@@ -21,6 +21,15 @@ void	menu_go_ok(t_info *app, t_menustate *menu_state)
 	(void)menu_state;
 }
 
+// void	menu_go_multi(t_info *app, t_menustate *menu_state)
+// {
+// 	app->rc = ok;
+// 	if (app->current_level == 0 && menu_state->state == WIN)
+// 		app->rc = extra;
+// 	app->mlx->end_loop = 1;
+// 	(void)menu_state;
+// }
+
 void	menu_go_repeat(t_info *app, t_menustate *menu_state)
 {
 	app->rc = repeat;
@@ -54,6 +63,6 @@ void	menu_go_prev(t_info *app, t_menustate *menu_state)
 	menu_state->selected = prev_pos;
 	menu_state->no_items = 4;
 	if (menu_state->state == MAIN)
-		menu_state->no_items = 5;
+		menu_state->no_items = 6;
 	(void)app;
 }

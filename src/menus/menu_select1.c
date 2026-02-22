@@ -57,10 +57,11 @@ void	init_menu_select_funcs(t_info *app, t_menustate *menu_state)
 	menu_state->select_funcs[LVL_SELECT][app->no_maps] = menu_go_prev;
 	menu_state->select_funcs[OPTIONS][6] = menu_go_prev;
 	menu_state->select_funcs[MAIN][0] = menu_go_ok;
-	menu_state->select_funcs[MAIN][1] = menu_go_lvlselect;
-	menu_state->select_funcs[MAIN][2] = menu_go_options;
-	menu_state->select_funcs[MAIN][3] = menu_go_repeat;
-	menu_state->select_funcs[MAIN][4] = menu_go_fail;
+	menu_state->select_funcs[MAIN][1] = menu_go_ok;
+	menu_state->select_funcs[MAIN][2] = menu_go_lvlselect;
+	menu_state->select_funcs[MAIN][3] = menu_go_options;
+	menu_state->select_funcs[MAIN][4] = menu_go_repeat;
+	menu_state->select_funcs[MAIN][5] = menu_go_fail;
 	menu_state->select_funcs[PAUSE][0] = menu_go_ok;
 	menu_state->select_funcs[PAUSE][1] = menu_go_repeat;
 	menu_state->select_funcs[PAUSE][2] = menu_go_options;

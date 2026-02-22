@@ -243,6 +243,48 @@ enum e_channel
 	ch_MAX = MIX_CHANNELS
 };
 
+typedef enum e_shtex
+{
+	tex_DOOR = 0,
+	tex_DOOR_SUPER = 7,
+	tex_DOOR_MISSILE = 14,
+	tex_DOOR_BOSS = 21,
+	tex_CANNON = 28,
+	tex_CRAWLER = 30,
+	tex_ATOMIC = 36,
+	tex_HOLTZ = 42,
+	tex_REO = 48,
+	tex_PROJ = 52,
+	tex_PROJ_GREEN = 62,
+	tex_EXPLODE = 66,
+	tex_ENERGY = 83,
+	tex_ETANK = 86,
+	tex_MISSILE = 88,
+	tex_SUPER = 100,
+	tex_HEALTH_PU = 112,
+	tex_MISSILE_AMMO = 116,
+	tex_SUPER_AMMO = 118,
+	tex_TROPHY = 120,
+	tex_KEY = 122,
+	tex_PHANTOON = 128,
+	tex_PHANTOON_PROJ = 138,
+	tex_LOGO = 144,
+	tex_DMG = 158,
+	tex_TITLE = 166,
+	tex_SCOPE,
+	tex_ALPHABET,
+	tex_TELE,
+	tex_CREDITS,
+	tex_BOSS_BAR,
+	tex_ROCKS = 173,
+	tex_EMPTY = 180,
+	tex_PLAYERTILE,
+	tex_DECORATIVE,
+	tex_MESSAGES = 191,
+	tex_SQUARE = 198,
+	TEX_MAX
+}	t_etex;
+
 typedef struct s_str_arr
 {
 	char	**arr;
@@ -310,7 +352,7 @@ typedef struct s_animation
 	int			active;
 	int			loop;
 	size_t		timestart;
-	t_tex		*tex;
+	t_etex		tex_idx;
 	size_t		duration;
 	int			frames;
 }	t_anim;
@@ -747,11 +789,6 @@ struct s_mstate
 	t_ms_func	**select_funcs;
 };
 
-typedef enum e_shtex
-{
-	tex_DOOR = 0,
-	TEX_MAX
-}	t_etex;
 
 typedef enum e_msg
 {
@@ -767,44 +804,50 @@ typedef enum e_msg
 
 typedef struct s_shtex
 {
-	t_tex	door_tex[7];
-	t_tex	door_super_tex[7];
-	t_tex	door_missile_tex[7];
-	t_tex	door_boss_tex[7];
-	t_tex	cannon_tex[2];
-	t_tex	crawler_tex[6];
-	t_tex	atomic_tex[6];
-	t_tex	holtz_tex[6];
-	t_tex	reo_tex[4];
-	t_tex	proj_tex[10];
-	t_tex	proj_green_tex[4];
-	t_tex	explode_tex[17];
-	t_tex	energy_tex[3];
-	t_tex	etank_tex[2];
-	t_tex	missile_tex[12];
-	t_tex	super_tex[12];
-	t_tex	health_pu[4];
-	t_tex	missile_ammo[2];
-	t_tex	super_ammo[2];
-	t_tex	trophy_tex[2];
-	t_tex	key_tex[6];
-	t_tex	phantoon[10];
-	t_tex	phantoon_proj[6];
-	t_tex	logo_tex[14];
-	t_tex	dmg_tex[8];
-	t_tex	title;
-	t_tex	scope;
-	t_tex	alphabet;
-	t_tex	tele;
-	t_tex	credits;
-	t_tex	boss_bar[2];
-	t_tex	rocks[7];
-	t_tex	empty;
-	t_tex	playertile;
-	t_tex	decorative[9];
-	t_tex	square;
-	t_tex	messages[MSG_MAX];
-	t_tex	textures[TEX_MAX];
+	union
+	{
+		struct
+		{
+			t_tex	door_tex[7];
+			t_tex	door_super_tex[7];
+			t_tex	door_missile_tex[7];
+			t_tex	door_boss_tex[7];
+			t_tex	cannon_tex[2];
+			t_tex	crawler_tex[6];
+			t_tex	atomic_tex[6];
+			t_tex	holtz_tex[6];
+			t_tex	reo_tex[4];
+			t_tex	proj_tex[10];
+			t_tex	proj_green_tex[4];
+			t_tex	explode_tex[17];
+			t_tex	energy_tex[3];
+			t_tex	etank_tex[2];
+			t_tex	missile_tex[12];
+			t_tex	super_tex[12];
+			t_tex	health_pu[4];
+			t_tex	missile_ammo[2];
+			t_tex	super_ammo[2];
+			t_tex	trophy_tex[2];
+			t_tex	key_tex[6];
+			t_tex	phantoon[10];
+			t_tex	phantoon_proj[6];
+			t_tex	logo_tex[14];
+			t_tex	dmg_tex[8];
+			t_tex	title;
+			t_tex	scope;
+			t_tex	alphabet;
+			t_tex	tele;
+			t_tex	credits;
+			t_tex	boss_bar[2];
+			t_tex	rocks[7];
+			t_tex	empty;
+			t_tex	playertile;
+			t_tex	decorative[9];
+			t_tex	messages[MSG_MAX];
+			t_tex	square;
+		};
+		t_tex	textures[TEX_MAX];
+	};
 }	t_shtex;
 
 typedef enum e_textures

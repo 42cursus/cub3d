@@ -21,6 +21,10 @@ int	main(int argc, char **argv)
 	};
 
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
+	printf("n_textures: %f\n", (double)sizeof(t_shtex) / sizeof(t_tex));
+	printf("tex_MAX: %d\n", TEX_MAX);
+	printf("sizeof entity: %lu Bytes\n", sizeof(t_obj));
+	// exit(0);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);
 	cleanup(app);

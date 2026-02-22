@@ -57,11 +57,12 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-ftree-vectorize \
 						-fstrict-aliasing -fno-strict-overflow
 
+
 #DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
 #DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
 					# -pg \
 #					-D FRAMERATE=60 \
 
@@ -89,12 +90,12 @@ LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -lX11 -lXext -lm \
-					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
+					$(SDL_MIX_LIB) -lSDL2 -lfreetype  \
 					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
 						-flto \
 						-Wl,-zmax-page-size=0x200000 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
+					-fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
 					# -pg \
 
 SRC_DIR			= src

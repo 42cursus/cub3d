@@ -33,7 +33,7 @@ void	set_fonts(t_info *const app)
 	typing->files[fnt_main] = "resources/fonts/ByteBounce.ttf";
 	typing->files[fnt_snes] = "resources/fonts/SuperMetroidLargeSNES.ttf";
 	// typing->files[fnt_SansMono]
-		// = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
+	// 	= "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf";
 }
 //	typing->files[fnt_main]
 //	= "/usr/share/fonts/truetype/malayalam/Rachana-Bold.ttf";

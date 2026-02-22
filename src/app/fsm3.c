@@ -50,7 +50,7 @@ void	do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_pmenu_to_end(void *param)
@@ -78,7 +78,7 @@ void	do_lose_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_lose_to_end(void *param)

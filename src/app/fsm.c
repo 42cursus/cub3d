@@ -12,6 +12,7 @@
 
 #include "cub3d.h"
 #include <X11/X.h>
+#include <stdlib.h>
 #include "fsm.h"
 
 void	destroy_map(t_lvl *lvl)
@@ -46,7 +47,12 @@ void	do_prep(int argc, t_info *const app)
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
 	init_audio(app);
-	init_fonts(app);
+	if (init_fonts(app) == EXIT_FAILURE)
+	{
+		printf("Failed to init fonts\n");
+		exit(1);
+	}
+
 	set_sound_volume(app, 100);
 	set_music_volume(app, 100);
 	srand(get_time_ms());

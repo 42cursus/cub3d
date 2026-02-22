@@ -32,7 +32,7 @@ void	do_initial_to_mmenu(void *param)
 		(void *)&key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 	XSetInputFocus(app->mlx->display, app->win->window,
 		RevertToPointerRoot, CurrentTime);
 	grab_result = XGrabKeyboard(app->mlx->display, app->win->window, True,
@@ -86,7 +86,7 @@ void	do_intro_to_mmenu(void *param)
 	app->mlx->end_loop = 0;
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_mmenu_to_load(void *param)

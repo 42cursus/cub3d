@@ -38,15 +38,16 @@ void	init_anims(t_info *app, t_lvl *lvl)
 		{
 			tile = lvl->map[i][j];
 			if (tile == 'D')
-				lvl->anims[i][j].tex = app->shtex->door_tex;
+				lvl->anims[i][j].tex_idx = tex_DOOR;
 			else if (tile == 'L')
-				lvl->anims[i][j].tex = app->shtex->door_super_tex;
+				lvl->anims[i][j].tex_idx = tex_DOOR_SUPER;
 			else if (tile == 'M')
-				lvl->anims[i][j].tex = app->shtex->door_missile_tex;
+				lvl->anims[i][j].tex_idx = tex_DOOR_MISSILE;
 			else if (tile == 'B')
-				lvl->anims[i][j].tex = app->shtex->door_boss_tex;
+				lvl->anims[i][j].tex_idx = tex_DOOR_BOSS;
 		}
 	}
+	(void)app;
 }
 
 void	reset_anims(t_info *app, t_lvl *lvl)

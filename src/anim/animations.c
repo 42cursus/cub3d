@@ -19,18 +19,18 @@ t_tex	*handle_animation(t_info *app, t_anim anim)
 	int			index;
 
 	if (anim.frames == 1)
-		return (anim.tex);
+		return (&app->shtex->textures[anim.tex_idx]);
 	if (anim.loop)
 	{
 		index = timediff % anim.duration / frame_len;
-		return (&anim.tex[index]);
+		return (&app->shtex->textures[anim.tex_idx + index]);
 	}
 	else
 	{
 		index = timediff / frame_len;
 		if (index >= anim.frames)
 			return (NULL);
-		return (&anim.tex[index]);
+		return (&app->shtex->textures[anim.tex_idx + index]);
 	}
 }
 

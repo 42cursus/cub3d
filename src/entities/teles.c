@@ -61,7 +61,7 @@ void	spawn_key(t_info *app, t_vect pos, int level)
 		key->anim.loop = 1;
 		key->anim.frames = 6;
 		key->anim.duration = 600000;
-		key->anim.tex = app->shtex->key_tex;
+		key->anim.tex_idx = tex_KEY;
 		key->anim.timestart = app->fr_last;
 		ft_lstadd_back(&lvl->items, ft_lstnew(key));
 	}
