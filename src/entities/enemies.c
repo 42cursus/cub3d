@@ -51,8 +51,8 @@ int	handle_enemy_death(t_info *app, t_obj *obj, t_list **current)
 {
 	if (obj->dead == 1)
 	{
-		obj->texture = handle_animation(app, obj->anim2);
-		if (obj->texture == NULL)
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
 		{
 			if (obj->subtype == E_PHANTOON)
 			{
@@ -93,7 +93,7 @@ int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current)
 	if (retval != -1)
 		return (retval);
 	handle_enemy_ai(app, obj);
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		if (obj->subtype != E_ATOMIC)

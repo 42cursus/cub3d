@@ -39,15 +39,29 @@ void	setup_item_tex(t_info *app, t_obj *item, t_subtype subtype)
 	(void)app;
 }
 
-void	spawn_door(t_info *app, t_vect pos, int subtype)
+void	spawn_door(t_info *app, t_ivect pos, char subtype)
 {
 	t_obj			*door;
 	t_lvl *const	lvl = app->lvl;
 
 	door = ft_calloc(1, sizeof(*door));
-	door->subtype = subtype;
-	door->pos = pos;
-	door->texture = (void *)&lvl->map[(int)pos.y][(int)pos.x];
+	if (subtype == 'D')
+	{
+		door->anim.tex_idx = tex_DOOR;
+		door->doortype = D_NORMAL;
+	}
+	else if (subtype == 'L')
+	{
+		door->anim.tex_idx = tex_DOOR_SUPER;
+		door->doortype = D_SUPER;
+	}
+	else if (subtype == 'M')
+	{
+		door->anim.tex_idx = tex_DOOR_MISSILE;
+		door->doortype = D_MISSILE;
+	}
+	door->coords = pos;
+	// door->last_damaged = (size_t)(void *)&lvl->map[(int)pos.y][(int)pos.x];
 	ft_lstadd_back(&lvl->doors, ft_lstnew(door));
 }
 
@@ -83,7 +97,7 @@ void	spawn_decorative(t_info *app, t_vect pos, t_subtype subtype)
 	dec->anim.frames = 9;
 	dec->anim.duration = 1500000;
 	dec->anim.tex_idx = tex_DECORATIVE;
-	dec->texture = &app->shtex->decorative[0];
+	dec->tex_id = tex_DECORATIVE;
 	ft_lstadd_back(&lvl->items, ft_lstnew(dec));
 }
 // dec->anim.active = 1;

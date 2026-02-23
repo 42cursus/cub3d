@@ -47,15 +47,15 @@ int	handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current)
 
 	if (obj->anim2.active == 1)
 	{
-		obj->texture = handle_animation(app, obj->anim2);
-		if (obj->texture == NULL)
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
 		{
 			*current = delete_object(&app->lvl->projectiles, *current);
 			return (1);
 		}
 		return (0);
 	}
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 	if (vector_distance(obj->pos, app->player->pos) < 0.2)
 	{
 		subtract_health(app, app->player, 20);

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <wchar.h>
 
 void	setup_projectile(t_obj *projectile, t_info *app,
 							t_player *player, int subtype)
@@ -46,7 +47,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 	projectile = ft_calloc(1, sizeof(*projectile));
 	projectile->subtype = subtype;
 	projectile->pos = add_vect(player->pos, scale_vect(player->dir, 0.2));
-	projectile->texture = &app->shtex->proj_tex[0];
+	projectile->tex_id = tex_PROJ;
 	projectile->anim2.duration = 350000;
 	setup_projectile(projectile, app, player, subtype);
 	projectile->type = O_PROJ;
@@ -62,8 +63,8 @@ int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 
 	if (obj->anim2.active == 1)
 	{
-		obj->texture = handle_animation(app, obj->anim2);
-		if (obj->texture == NULL)
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
 		{
 			*current = delete_object(&app->lvl->projectiles, *current);
 			return (1);
@@ -111,10 +112,28 @@ void	handle_door_projectile(t_info *app, t_obj *obj, char *tile,
 	}
 }
 
+void	handle_door_projectile_alt(t_info *app, t_obj *obj, char *tile,
+								t_obj *door)
+{
+	if (*tile == 'D')
+		*tile = 'O';
+	else if (*tile == 'L' && obj->subtype == P_SUPER)
+		*tile = 'O';
+	else if (*tile == 'M' && obj->subtype != P_BEAM)
+		*tile = 'O';
+	else
+		return ;
+	// *tile = 'D';
+	Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
+	door->dead = 1;
+	door->anim.active = 1;
+	door->anim.timestart = app->fr_last;
+}
+
 int	handle_obj_projectile(t_info *app, t_obj *obj, t_list **current)
 {
 	char		*tile;
-	t_anim		*anim;
+	// t_anim		*anim;
 	t_vect		new_pos;
 	int			retval;
 
@@ -128,8 +147,22 @@ int	handle_obj_projectile(t_info *app, t_obj *obj, t_list **current)
 		tile = &app->lvl->map[(int) new_pos.y][(int) new_pos.x];
 		if (!check_tile_open(*tile, app->lvl))
 		{
-			anim = &app->lvl->anims[(int) new_pos.y][(int) new_pos.x];
-			handle_door_projectile(app, obj, tile, anim);
+			t_list	*current = app->lvl->doors;
+			t_obj	*door;
+			while (current != NULL)
+			{
+				door = (t_obj *)current->data;
+				if (door->coords.x == (int)new_pos.x && door->coords.y == (int)new_pos.y)
+					break ;
+				current = current->next;
+			}
+			if (current == NULL)
+			{
+				// obj->pos = new_pos;
+				start_obj_death(obj, app);
+				return (0);
+			}
+			handle_door_projectile_alt(app, obj, tile, door);
 			start_obj_death(obj, app);
 		}
 		else

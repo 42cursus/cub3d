@@ -39,7 +39,7 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	while (current != NULL)
 	{
 		curr_obj = current->content;
-		tile->data = data[(u_char) *(char *)(curr_obj->texture)];
+		tile->data = data[(u_char) lvl->map[curr_obj->coords.y][curr_obj->coords.x]];
 		place_tex_to_image_scale(lvl->app->canvas, tile, (t_point){
 			.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar,
 			.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar},

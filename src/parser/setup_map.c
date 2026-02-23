@@ -99,7 +99,7 @@ void	spawn_map_objects(t_info *app, t_lvl *lvl)
 		{
 			el = map[it.y][it.x];
 			if (ft_strchr("ODLM", el))
-				spawn_door(app, (t_vect){it.x, it.y}, 0);
+				spawn_door(app, it, el);
 			else if (ft_strchr("mestZAHRPb234789{", el))
 			{
 				do_spawn_thing(app, el, it);
@@ -117,7 +117,8 @@ void	setup_lvl(t_info *app, t_lvl *lvl)
 	draw_large_minimap(lvl);
 	draw_help(lvl);
 	draw_startup_overlay(lvl);
-	lvl->anims = create_anim_arr(lvl->width, lvl->height);
+	// lvl->anims = create_anim_arr(lvl->width, lvl->height);
+	lvl->door_tex = ft_calloc(lvl->width * lvl->height, sizeof(t_etex));
 	init_anims(app, lvl);
 	ft_lstadd_back(&app->lvl_cache, ft_lstnew(app->lvl));
 }

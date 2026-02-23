@@ -74,7 +74,7 @@ int	handle_obj_item(t_info *app, t_obj *obj, t_list **current)
 	t_player *const	player = app->player;
 	t_lvl *const	lvl = app->lvl;
 
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 	if (vector_distance(player->pos, obj->pos) < 0.5)
 	{
 		retval = handle_pickups(obj, player);
@@ -90,5 +90,5 @@ int	handle_obj_item(t_info *app, t_obj *obj, t_list **current)
 
 void	handle_decorative(t_info *app, t_obj *obj)
 {
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 }

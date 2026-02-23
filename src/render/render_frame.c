@@ -15,6 +15,8 @@
 #include <sysexits.h>
 #include <time.h>
 
+void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
+
 int	render_win(void *param)
 {
 	t_info *const	app = param;
@@ -103,6 +105,7 @@ int	render_play(void *param)
 
 	render_play_handle_keys(app);
 	update_objects(app, app->player, app->lvl);
+	deserialise_doors(app->lvl->serialdoors, app->lvl->n_serialdoors, app->lvl);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);

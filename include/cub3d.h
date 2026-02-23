@@ -13,6 +13,7 @@
 #ifndef CUB3D_H
 # define CUB3D_H
 # include <math.h>
+#include <stddef.h>
 # include <sys/types.h>
 # include <sys/param.h>
 # include <errno.h>
@@ -710,24 +711,57 @@ typedef struct s_rock
 	t_tex	*tex;
 }	t_rock;
 
+typedef enum e_doors
+{
+	D_OPEN = 0,
+	D_NORMAL,
+	D_MISSILE,
+	D_SUPER,
+	D_MAX,
+}	t_edoor;
+
 typedef struct s_object
 {
 	t_etype		type;
-	t_subtype	subtype;
+	union
+	{
+		t_subtype	subtype;
+		t_edoor		doortype;
+	};
 	int			dead;
 	int			attacking;
 	int			health;
 	size_t		last_damaged;
-	t_vect		pos;
+	union
+	{
+		t_vect		pos;
+		t_ivect		coords;
+	};
 	t_vect		end_pos;
 	t_vect		norm;
 	t_vect		dir;
 	double		speed;
 	t_vect		p2;
-	t_tex		*texture;
+	t_etex		tex_id;
 	t_anim		anim;
 	t_anim		anim2;
 }	t_obj;
+
+typedef struct s_serialobj
+{
+	t_vect	pos;
+	t_vect	p2;
+	t_etex	tex_id;
+	size_t	last_damaged;
+} 	t_sobj;
+
+typedef struct s_serialdoor
+{
+	t_edoor	type;
+	t_ivect	pos;
+	t_etex	tex_id;
+	bool	open;
+} 	t_sdoor;
 
 typedef struct s_ray
 {
@@ -753,15 +787,6 @@ typedef struct s_dda
 	double		gradient;
 	double		c;
 }	t_dda;
-
-typedef enum e_doors
-{
-	D_OPEN = 0,
-	D_BLUE,
-	D_PINK,
-	D_GREEN,
-	D_MAX,
-}	t_edoor;
 
 typedef struct s_info			t_info;
 
@@ -884,7 +909,7 @@ typedef struct s_lvl
 	int			f_col;
 	int			c_col;
 	char		**map;
-	t_anim		**anims;
+	t_etex		*door_tex;
 	t_list		*enemies;
 	t_list		*items;
 	t_list		*doors;
@@ -900,6 +925,10 @@ typedef struct s_lvl
 	int			width;
 	char		*sublvls[4];
 	t_img		*planes[NUM_TEXTURES];
+	t_sobj		serialobjs[128];
+	int			n_serialobjs;
+	t_sdoor		serialdoors[64];
+	int			n_serialdoors;
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -1116,12 +1145,12 @@ void		spawn_enemy_projectile(t_info *app, t_obj *obj,
 				t_vect dir, int subtype);
 t_obj		*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
 void		spawn_item(t_info *app, t_vect pos, t_subtype subtype);
-void		spawn_door(t_info *app, t_vect pos, int subtype);
+void		spawn_door(t_info *app, t_ivect pos, char subtype);
 void		spawn_trigger(t_info *app, t_vect pos, t_subtype subtype);
 void		spawn_teleporter(t_info *app, t_vect pos, int level);
 void		spawn_key(t_info *app, t_vect pos, int level);
 void		spawn_decorative(t_info *app, t_vect pos, t_subtype subtype);
-void		spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_tex *tex);
+void		spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_etex tex_id);
 void		init_logo_pieces(t_info *app, t_vect pos);
 
 void		developer_console(t_info *app, t_player *player);
@@ -1139,7 +1168,7 @@ t_vect		get_horizontal_int(double y, double gradient, double c);
 double		get_cam_distance(t_vect pos, double angle, t_vect intcpt);
 void		add_in_front(t_ray *ray, int face, t_tex *texture);
 t_vect		get_line_intersect(t_vect, t_vect, t_vect, t_vect);
-t_ray		*check_obj_collision(t_obj *object, t_ray *ray, t_player *player);
+t_ray		*check_obj_collision(t_obj *object, t_ray *ray, t_player *player, t_info *app);
 void		order_obj_ray(t_ray *obj, t_ray *ray);
 void		calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
 
@@ -1282,7 +1311,7 @@ t_list		*delete_object(t_list **obj_list, t_list *obj_node);
 t_obj		*check_obj_proximity(t_vect pos, t_lvl *lvl);
 int			point_oob_global(t_vect pos, t_lvl *lvl);
 void		select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
-t_tex		*handle_animation(t_info *app, t_anim anim);
+t_etex		handle_animation(t_info *app, t_anim anim);
 t_anim		**create_anim_arr(int x, int y);
 void		init_anims(t_info *app, t_lvl *lvl);
 void		reset_anims(t_info *app, t_lvl *lvl);
@@ -1308,9 +1337,9 @@ int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 t_tex		draw_credits(t_info *app);
 void		draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy,
 				t_tex *tex, t_img overlay);
-t_tex		*get_open_door_tex(t_anim *anim, t_info *app);
-t_tex		*get_close_door_tex(t_anim *anim, t_info *app);
-t_tex		*get_door_tex(t_anim *anim, t_info *app, char tile);
+t_etex		get_open_door_tex(t_anim *anim, t_info *app);
+t_etex		get_close_door_tex(t_anim *anim, t_info *app);
+t_etex		get_door_tex(t_anim *anim, t_info *app, char tile);
 void		toggle_fullscreen(t_info *app);
 int			get_key_index(KeySym key);
 

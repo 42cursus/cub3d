@@ -29,28 +29,30 @@ void	rotate_player(t_info *app, t_player *player,
 
 void	handle_open_door(t_info *app, t_ray *crosshair)
 {
-	t_anim	*anim;
-	char	*doortile;
-
-	if (crosshair->distance < 1.0)
-	{
-		doortile = &app->lvl->map[crosshair->maptile.y][crosshair->maptile.x];
-		anim = &app->lvl->anims[crosshair->maptile.y][crosshair->maptile.x];
-		if (*doortile == 'D')
-		{
-			*doortile = 'O';
-			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
-		}
-		else if (*doortile == 'O')
-		{
-			*doortile = 'D';
-			Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_close], 0);
-		}
-		else
-			return ;
-		anim->active = 1;
-		anim->timestart = app->fr_last;
-	}
-	if (crosshair->in_front != NULL)
-		handle_open_door(app, crosshair->in_front);
+	// t_anim	*anim;
+	// char	*doortile;
+	//
+	// if (crosshair->distance < 1.0)
+	// {
+	// 	doortile = &app->lvl->map[crosshair->maptile.y][crosshair->maptile.x];
+	// 	anim = &app->lvl->anims[crosshair->maptile.y][crosshair->maptile.x];
+	// 	if (*doortile == 'D')
+	// 	{
+	// 		*doortile = 'O';
+	// 		Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_open], 0);
+	// 	}
+	// 	else if (*doortile == 'O')
+	// 	{
+	// 		*doortile = 'D';
+	// 		Mix_PlayChannel(ch_door, app->audio.chunks[snd_door_close], 0);
+	// 	}
+	// 	else
+	// 		return ;
+	// 	anim->active = 1;
+	// 	anim->timestart = app->fr_last;
+	// }
+	// if (crosshair->in_front != NULL)
+	// 	handle_open_door(app, crosshair->in_front);
+	(void)app;
+	(void)crosshair;
 }
