@@ -16,17 +16,17 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl);
 
 void	add_serialobj(t_obj *obj, t_lvl *lvl)
 {
-	t_sobj *sobj = &lvl->serialobjs[lvl->n_serialobjs++];
+	t_sobj *sobj = &lvl->serialdata.serialobjs[lvl->serialdata.n_serialobjs++];
 
-	sobj->pos = obj->pos;
-	sobj->p2 = obj->p2;
+	sobj->pos.x = obj->pos.x;
+	sobj->pos.y = obj->pos.y;
 	sobj->last_damaged = obj->last_damaged;
 	sobj->tex_id = obj->tex_id;
 }
 
 void	add_serialdoor(t_obj *obj, t_lvl *lvl)
 {
-	t_sdoor *sdoor = &lvl->serialdoors[lvl->n_serialdoors++];
+	t_sdoor *sdoor = &lvl->serialdata.sdoors[lvl->serialdata.n_serialdoors++];
 
 	sdoor->pos = obj->coords;
 	sdoor->tex_id = obj->tex_id;
@@ -52,9 +52,9 @@ void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 		obj = (t_obj *)current->data;
 		if (obj->type == O_ENTITY && handle_obj_entity(app, obj, &current))
 			continue ;
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		// obj->norm = rotate_vect((t_vect){0.5, 0}, M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		add_serialobj(obj, lvl);
 		current = current->next;
 	}
@@ -75,11 +75,12 @@ void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 		else if (obj->type == O_EPROJ
 			&& handle_enemy_projectile(app, obj, &current))
 			continue ;
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		add_serialobj(obj, lvl);
 		current = current->next;
 	}
+	(void)player;
 }
 
 void	update_items(t_info *app, t_player *player, t_lvl *lvl)
@@ -97,11 +98,12 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 			handle_decorative(app, obj);
 		else if (obj->type == O_KEY && handle_key(app, obj, &current))
 			continue ;
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		add_serialobj(obj, lvl);
 		current = current->next;
 	}
+	(void)player;
 }
 
 void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
@@ -117,11 +119,12 @@ void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
 			continue ;
 		if (obj->type == O_TELE)
 			handle_tele(app, obj);
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		add_serialobj(obj, lvl);
 		current = current->next;
 	}
+	(void)player;
 }
 
 void update_doors(t_info *app, t_lvl *lvl)
@@ -146,8 +149,8 @@ void update_doors(t_info *app, t_lvl *lvl)
 
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl)
 {
-	lvl->n_serialobjs = 0;
-	lvl->n_serialdoors = 0;
+	lvl->serialdata.n_serialobjs = 0;
+	lvl->serialdata.n_serialdoors = 0;
 
 	update_enemies(app, player, lvl);
 	update_projectiles(app, player, lvl);
@@ -182,5 +185,15 @@ void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl)
 					break;
 			}
 		}
+	}
+}
+
+void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player)
+{
+	for (int i = 0; i < n_sobjs; i++)
+	{
+		t_sobj	*obj = &serialobjs[i];
+		t_vect	norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		obj->p2 = add_vect(obj->pos, norm);
 	}
 }

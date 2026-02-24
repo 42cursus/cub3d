@@ -6,7 +6,7 @@
 /*   By: fsmyth <marvin@42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 18:07:08 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/11 15:08:33 by fsmyth           ###   ########.fr       */
+/*   Updated: 2026/02/24 16:33:33 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <time.h>
 
 void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
+void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 
 int	render_win(void *param)
 {
@@ -105,7 +106,30 @@ int	render_play(void *param)
 
 	render_play_handle_keys(app);
 	update_objects(app, app->player, app->lvl);
-	deserialise_doors(app->lvl->serialdoors, app->lvl->n_serialdoors, app->lvl);
+	deserialise_doors(app->lvl->serialdata.sdoors, app->lvl->serialdata.n_serialdoors, app->lvl);
+	deserialise_objs(app->lvl->serialdata.serialobjs, app->lvl->serialdata.n_serialobjs, app->player);
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *)app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	render_calc_time(app);
+	app->fr_scale = 20000.0 / app->fr_time;
+	app->fr_count++;
+	draw_hud(app);
+	on_expose(app);
+	return (0);
+}
+
+int	render_play_multi(void *param)
+{
+	t_info *const	app = param;
+
+	render_play_handle_keys(app);
+	client_send_msg(app);
+	app->cdata.proj = PROJ_NONE;
+	client_receive_msg(app);
+	// update_objects(app, app->player, app->lvl);
+	deserialise_doors(app->lvl->serialdata.sdoors, app->lvl->serialdata.n_serialdoors, app->lvl);
+	deserialise_objs(app->lvl->serialdata.serialobjs, app->lvl->serialdata.n_serialobjs, app->player);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);

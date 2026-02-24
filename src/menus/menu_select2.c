@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   menu_select_funcs2.c                               :+:      :+:    :+:   */
+/*   menu_select2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: fsmyth <fsmyth@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/07 13:30:32 by fsmyth            #+#    #+#             */
-/*   Updated: 2025/08/07 16:03:20 by fsmyth           ###   ########.fr       */
+/*   Updated: 2026/02/23 21:43:03 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,12 @@ void	menu_go_ok(t_info *app, t_menustate *menu_state)
 	(void)menu_state;
 }
 
-// void	menu_go_multi(t_info *app, t_menustate *menu_state)
-// {
-// 	app->rc = ok;
-// 	if (app->current_level == 0 && menu_state->state == WIN)
-// 		app->rc = extra;
-// 	app->mlx->end_loop = 1;
-// 	(void)menu_state;
-// }
+void	menu_go_multi(t_info *app, t_menustate *menu_state)
+{
+	app->rc = extra;
+	app->mlx->end_loop = 1;
+	(void)menu_state;
+}
 
 void	menu_go_repeat(t_info *app, t_menustate *menu_state)
 {

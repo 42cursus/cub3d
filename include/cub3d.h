@@ -6,7 +6,7 @@
 /*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/08 19:54:08 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 16:20:40 by fsmyth           ###   ########.fr       */
+/*   Updated: 2026/02/24 16:33:53 by fsmyth           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,9 @@
 #include <stddef.h>
 # include <sys/types.h>
 # include <sys/param.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 # include <errno.h>
 # include "libft.h"
 # include "mlx.h"
@@ -757,11 +760,35 @@ typedef struct s_serialobj
 
 typedef struct s_serialdoor
 {
-	t_edoor	type;
 	t_ivect	pos;
+	t_edoor	type;
 	t_etex	tex_id;
 	bool	open;
 } 	t_sdoor;
+
+typedef struct
+{
+	t_sobj	serialobjs[64];
+	int		n_serialobjs;
+	t_sdoor	sdoors[32];
+	int		n_serialdoors;
+}	t_serialdata;
+
+typedef enum e_proj
+{
+	PROJ_NONE,
+	PROJ_BEAM,
+	PROJ_MISSILE,
+	PROJ_SUPER,
+	PROJ_MAX,
+}	t_eproj;
+
+typedef struct
+{
+	t_vect	pos;
+	t_vect	dir;
+	t_eproj	proj;
+}	t_clientdata;
 
 typedef struct s_ray
 {
@@ -925,10 +952,7 @@ typedef struct s_lvl
 	int			width;
 	char		*sublvls[4];
 	t_img		*planes[NUM_TEXTURES];
-	t_sobj		serialobjs[128];
-	int			n_serialobjs;
-	t_sdoor		serialdoors[64];
-	int			n_serialdoors;
+	t_serialdata serialdata;
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -1016,6 +1040,21 @@ typedef struct s_typing
 	FT_Face		faces[FNT_MAX];
 }	t_typing;
 
+typedef struct s_server
+{
+	int		sockfd;
+	char	recvbuf[1024];
+	struct sockaddr_in	servaddr;
+	struct sockaddr_in	clients[4];
+}	t_server;
+
+typedef struct s_client
+{
+	int		sockfd;
+	char	recvbuf[1024];
+	struct sockaddr_in	servaddr;
+}	t_client;
+
 struct s_info
 {
 	t_xvar		*mlx;
@@ -1065,6 +1104,9 @@ struct s_info
 	char		hint_shown;
 	int			msg_to_show;
 	size_t		msg_last_time;
+	t_client	client;
+	t_clientdata cdata;
+	pid_t		srv_pid;
 };
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
@@ -1141,6 +1183,8 @@ void		prev_weapon(t_player *player);
 
 void		spawn_projectile(t_info *app, t_player *player,
 				t_lvl *lvl, t_subtype subtype);
+void		spawn_projectile_client(t_info *app, t_player *player);
+void		spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype);
 void		spawn_enemy_projectile(t_info *app, t_obj *obj,
 				t_vect dir, int subtype);
 t_obj		*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
@@ -1245,6 +1289,7 @@ int			key_press_mmenu(KeySym key, void *param);
 int			key_release_mmenu(KeySym key, void *param);
 
 int			key_press_play(KeySym key, void *param);
+int			key_press_multi(KeySym key, void *param);
 int			key_release_play(KeySym key, void *param);
 
 int			key_press_pmenu(KeySym key, void *param);
@@ -1264,6 +1309,7 @@ int			render_intro(void *param);
 int			render_mmenu(void *param);
 int			render_pmenu(void *param);
 int			render_play(void *app);
+int			render_play_multi(void *param);
 int			render_load(void *app);
 int			render_lose(void *param);
 int			render_win(void *param);
@@ -1284,6 +1330,7 @@ void		menu_go_options(t_info *app, t_menustate *menu_state);
 void		menu_go_selectedlvl(t_info *app, t_menustate *menu_state);
 void		menu_go_prev(t_info *app, t_menustate *menu_state);
 void		menu_go_ok(t_info *app, t_menustate *menu_state);
+void		menu_go_multi(t_info *app, t_menustate *menu_state);
 void		menu_go_repeat(t_info *app, t_menustate *menu_state);
 void		menu_go_fail(t_info *app, t_menustate *menu_state);
 void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
@@ -1355,5 +1402,12 @@ void		update_rocks(t_info *app, t_dummy *dummy);
 int			is_map_line(char *line);
 void		normalise_map(t_lvl *data);
 int			str_cmp_whitespace(void *data, void *ref);
+
+int			setup_server(t_server *srv);
+pid_t		launch_server(t_info *app);
+void		server_loop(t_info *app, t_server *srv);
+int			setup_client(t_client *client);
+void		client_send_msg(t_info *app);
+void		client_receive_msg(t_info *app);
 
 #endif //CUB3D_H

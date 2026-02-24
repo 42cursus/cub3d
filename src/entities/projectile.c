@@ -57,6 +57,56 @@ void	spawn_projectile(t_info *app, t_player *player,
 	Mix_PlayChannel(-1, aud->chunks[snd], 0);
 }
 
+void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype)
+{
+	t_obj			*projectile;
+
+	projectile = ft_calloc(1, sizeof(*projectile));
+	projectile->subtype = subtype;
+	projectile->pos = add_vect(pos, scale_vect(dir, 0.2));
+	projectile->tex_id = tex_PROJ;
+	projectile->anim2.duration = 350000;
+	if (subtype == P_BEAM)
+	{
+		projectile->dir = scale_vect(dir, 0.5 / app->fr_scale);
+		projectile->anim2.tex_idx = tex_PROJ + 1;
+		projectile->anim2.frames = 4;
+	}
+	else
+	{
+		projectile->dir = scale_vect(dir, 0.2 / app->fr_scale);
+		projectile->anim2.tex_idx = tex_PROJ + 5;
+		projectile->anim2.frames = 5;
+		if (subtype == P_MISSILE)
+			projectile->anim2.tex_idx = tex_EXPLODE + 12;
+	}
+	projectile->type = O_PROJ;
+	projectile->anim.active = 0;
+	ft_lstadd_back(&lvl->projectiles, ft_lstnew(projectile));
+}
+
+void	spawn_projectile_client(t_info *app, t_player *player)
+{
+	t_aud *const	aud = &app->audio;
+	t_snd			snd;
+	t_eproj			proj;
+
+	switch (player->equipped) {
+		case (P_BEAM):
+			proj = PROJ_BEAM;
+			break;
+		case (P_MISSILE):
+			proj = PROJ_MISSILE;
+			break;
+		case (P_SUPER):
+			proj = PROJ_SUPER;
+			break;
+	}
+	app->cdata.proj = proj;
+	snd = ({if (proj == PROJ_BEAM) snd = snd_gun; else snd = snd_rocket; snd;});
+	Mix_PlayChannel(-1, aud->chunks[snd], 0);
+}
+
 int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 {
 	t_obj	*closest;

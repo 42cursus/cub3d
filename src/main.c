@@ -24,6 +24,9 @@ int	main(int argc, char **argv)
 	printf("n_textures: %f\n", (double)sizeof(t_shtex) / sizeof(t_tex));
 	printf("tex_MAX: %d\n", TEX_MAX);
 	printf("sizeof entity: %lu Bytes\n", sizeof(t_obj));
+	printf("sizeof sobj: %lu Bytes\n", sizeof(t_sobj));
+	printf("sizeof sdoor: %lu Bytes\n", sizeof(t_sdoor));
+	printf("sizeof serialdata: %lu Bytes\n", sizeof(t_serialdata));
 	// exit(0);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);

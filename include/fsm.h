@@ -19,7 +19,9 @@ typedef enum e_game_state
 	STATE_INTRO,
 	STATE_MMENU,
 	STATE_LOAD,
+	STATE_MULTILOAD,
 	STATE_PLAY,
+	STATE_MULTI,
 	STATE_CREDITS,
 	STATE_PMENU,
 	STATE_LOSE,
@@ -49,38 +51,53 @@ typedef void		t_transition_func(void *param);
 void		do_initial_to_mmenu(void *param);
 void		do_initial_to_end(void *param);
 void		do_initial_to_intro(void *param);
+
 void		do_mmenu_to_load(void *param);
 void		do_mmenu_to_credits(void *param);
 void		do_mmenu_to_intro(void *param);
 void		do_mmenu_to_end(void *param);
+void		do_mmenu_to_multiload(void *param);
+
 void		do_intro_to_end(void *param);
 void		do_intro_to_mmenu(void *param);
+
 void		do_credits_to_mmenu(void *param);
 void		do_credits_to_end(void *param);
+
 void		do_load_to_play(void *param);
 void		do_load_to_mmenu(void *param);
 void		do_load_to_end(void *param);
+
+void		do_multiload_to_multi(void *param);
+void		do_multiload_to_mmenu(void *param);
+
 void		do_play_to_pmenu(void *param);
 void		do_play_to_win(void *param);
 void		do_play_to_lose(void *param);
 void		do_play_to_end(void *param);
 void		do_play_to_load(void *param);
+
 void		do_pmenu_to_play(void *param);
 void		do_pmenu_to_end(void *param);
 void		do_pmenu_to_mmenu(void *param);
+
 void		do_lose_to_mmenu(void *param);
 void		do_lose_to_end(void *param);
+void		do_lose_to_load(void *param);
+
 void		do_win_to_mmenu(void *param);
 void		do_win_to_end(void *param);
 void		do_win_to_load(void *param);
 void		do_win_to_credits(void *param);
-void		do_lose_to_load(void *param);
+
 
 t_ret_code	do_state_initial(void *param, int argc, char **argv);
 t_ret_code	do_state_intro(void *param);
 t_ret_code	do_state_mmenu(void *param);
 t_ret_code	do_state_load(void *param);
+t_ret_code	do_state_multiload(void *param);
 t_ret_code	do_state_play(void *param);
+t_ret_code	do_state_multi(void *param);
 t_ret_code	do_state_pmenu(void *param);
 t_ret_code	do_state_win(void *param);
 t_ret_code	do_state_lose(void *param);

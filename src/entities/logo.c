@@ -55,8 +55,8 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl)
 	{
 		obj = (t_obj *)current->data;
 		stopped += handle_obj_logo(app, obj);
-		obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
-		obj->p2 = add_vect(obj->pos, obj->norm);
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
 		add_serialobj(obj, lvl);
 	}
