@@ -220,8 +220,11 @@ void	server_handle_msgs(t_info *app, t_server *srv, int n_msgs)
 {
 	for (int i = 0; i < n_msgs; i++)
 	{
-		server_handle_projectiles(app, &srv->clientmsgs[i].cdata);
-		add_serialplayer(&srv->clientmsgs[i].cdata, app->lvl);
+		t_clientdata *cdata = &srv->clientmsgs[i].cdata;
+
+		server_handle_projectiles(app, cdata);
+		if (cdata->id >= 0)
+			add_serialplayer(cdata, app->lvl);
 	}
 }
 

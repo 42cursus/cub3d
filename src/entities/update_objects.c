@@ -27,7 +27,7 @@ void	add_serialobj(t_obj *obj, t_lvl *lvl)
 
 void	add_serialplayer(t_clientdata *cdata, t_lvl *lvl)
 {
-	t_sobj *sobj = &lvl->serialdata.serialobjs[lvl->serialdata.n_serialobjs++];
+	t_sobj *sobj = &lvl->serialdata.serialobjs[cdata->id];
 
 	sobj->pos.x = cdata->pos.x;
 	sobj->pos.y = cdata->pos.y;
@@ -161,16 +161,9 @@ void update_doors(t_info *app, t_lvl *lvl)
 
 void	update_objects(t_info *app, t_player *player, t_lvl *lvl)
 {
-	lvl->serialdata.n_serialobjs = 0;
+	lvl->serialdata.n_serialobjs = app->srv == NULL ? 0 : app->srv->n_clients;
 	lvl->serialdata.n_serialdoors = 0;
 
-	if (app->srv)
-	{
-		for (int i = 0; i < app->srv->n_clients; i++)
-		{
-			add_serialplayer(&app->srv->clientmsgs[i].cdata, lvl);
-		}
-	}
 	update_enemies(app, player, lvl);
 	update_projectiles(app, player, lvl);
 	update_items(app, player, lvl);
