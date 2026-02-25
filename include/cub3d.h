@@ -1049,7 +1049,7 @@ typedef struct s_server
 	struct {
 		t_clientdata			cdata;
 		struct sockaddr_in		sockbuf;
-	}					clientmsgs[4];
+	}					clientmsgs[5];
 	int					n_clients;
 }	t_server;
 

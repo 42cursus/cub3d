@@ -153,7 +153,7 @@ int	server_receive_messages(t_info *app, t_server *srv)
 		0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
 	);
 
-	while (n > 0 && errno == 0)
+	while (n_msgs <= 4 && errno == 0)
 	{
 		if (srv->clientmsgs[n_msgs].cdata.id < 0)
 		{
