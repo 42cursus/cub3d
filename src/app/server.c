@@ -12,8 +12,10 @@
 
 #include "cub3d.h"
 #include <fcntl.h>
+#include <netinet/in.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/socket.h>
 
 int	setup_server(t_server *srv)
@@ -49,7 +51,7 @@ int	setup_server(t_server *srv)
 		// exit(1);
 		return (2);
 	}
-
+	srv->n_clients = 0;
 	return (0);
 }
 
@@ -82,6 +84,25 @@ int	setup_client(t_client *client)
 	return (0);
 }
 
+int	client_handle_handshake(t_info *app, t_client *client)
+{
+	socklen_t	len = sizeof(struct sockaddr_in);
+
+	memset(&app->cdata, 0, sizeof(t_clientdata));
+	app->cdata.id = -1;
+
+	sendto(client->sockfd, (char *)&app->cdata, sizeof(t_clientdata), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
+
+	// usleep(100000);
+	int	id = -1;
+	recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
+	if (id < 0 || id > 3)
+		return (1);
+	printf("client id: %d\n", id);
+	app->cdata.id = id;
+	return (0);
+}
+
 pid_t	launch_server(t_info *app)
 {
 	pid_t	pid = 0;
@@ -102,55 +123,98 @@ pid_t	launch_server(t_info *app)
 	}
 	if (setup_client(&app->client))
 		return -1;
+	if (client_handle_handshake(app, &app->client))
+		return (-1);
 	return (pid);
+}
+
+void	server_handle_handshake(t_info *app, t_server *srv, int n_msgs)
+{
+	int	id = srv->n_clients;
+	memcpy(&srv->clientaddr[srv->n_clients++], &srv->clientmsgs[n_msgs].sockbuf, sizeof(struct sockaddr_in));
+
+	sendto(
+		srv->sockfd, (char *)&id, sizeof(id), 0,
+		(const struct sockaddr *) &srv->clientaddr[id], sizeof(srv->clientaddr[id])
+	);
+	printf("server response sent.\n");
+	(void)app;
 }
 
 int	server_receive_messages(t_info *app, t_server *srv)
 {
 	int		n_msgs = 0;
+	errno = 0;
 	size_t	n;
-	socklen_t	len = sizeof(srv->clientaddr[0]);
+	socklen_t	len = sizeof(struct sockaddr_in);
 
 	n = recvfrom(
-		srv->sockfd, (char *)&srv->clientdata[n_msgs], sizeof(t_clientdata),
-		0, (struct sockaddr *)&srv->clientaddr[n_msgs], &len
+		srv->sockfd, (char *)&srv->clientmsgs[n_msgs].cdata, sizeof(t_clientdata),
+		0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
 	);
 
-	while (n > 0)
+	while (n > 0 && errno == 0)
 	{
+		if (srv->clientmsgs[n_msgs].cdata.id < 0)
+		{
+			printf("server receiving connection handshake...\n");
+			server_handle_handshake(app, srv, n_msgs);
+			// continue ;
+		}
 		n_msgs++;
 		n = recvfrom(
-			srv->sockfd, (char *)&srv->clientdata[n_msgs], sizeof(t_clientdata),
-			0, (struct sockaddr *)&srv->clientaddr[n_msgs], &len
+			srv->sockfd, (char *)&srv->clientmsgs[n_msgs].cdata, sizeof(t_clientdata),
+			0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
 		);
 	}
 
 	return (n_msgs);
+	(void)app;
 }
 
-void	server_apply_clientdata(t_info *app, t_server *srv, int n_msgs)
+void	server_handle_projectiles(t_info *app, t_clientdata *cdata)
 {
-	for (int i = 0; i < n_msgs; i++)
-	{
-		switch (srv->clientdata[i].proj) {
-			case (PROJ_BEAM):
-				spawn_projectile_server(app, srv->clientdata[i].pos, srv->clientdata[i].dir, app->lvl, P_BEAM);
-				break;
-			case (PROJ_MISSILE):
-				spawn_projectile_server(app, srv->clientdata[i].pos, srv->clientdata[i].dir, app->lvl, P_MISSILE);
-				break;
-			case (PROJ_SUPER):
-				spawn_projectile_server(app, srv->clientdata[i].pos, srv->clientdata[i].dir, app->lvl, P_SUPER);
-				break;
-			default:
-				break;
-		}
+	switch (cdata->proj) {
+		case (PROJ_BEAM):
+			spawn_projectile_server(
+				app,
+				cdata->pos,
+				cdata->dir,
+				app->lvl, P_BEAM
+			);
+			break;
+		case (PROJ_MISSILE):
+			spawn_projectile_server(
+				app,
+				cdata->pos,
+				cdata->dir,
+				app->lvl, P_MISSILE
+			);
+			break;
+		case (PROJ_SUPER):
+			spawn_projectile_server(
+				app,
+				cdata->pos,
+				cdata->dir,
+				app->lvl, P_SUPER
+			);
+			break;
+		default:
+			break;
 	}
 }
 
-void	server_send_messages(t_info *app, t_server *srv, int n_msgs, socklen_t len)
+void	server_handle_msgs(t_info *app, t_server *srv, int n_msgs)
 {
 	for (int i = 0; i < n_msgs; i++)
+	{
+		server_handle_projectiles(app, &srv->clientmsgs[i].cdata);
+	}
+}
+
+void	server_send_messages(t_info *app, t_server *srv, socklen_t len)
+{
+	for (int i = 0; i < srv->n_clients; i++)
 	{
 		sendto(
 			srv->sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0,
@@ -161,7 +225,7 @@ void	server_send_messages(t_info *app, t_server *srv, int n_msgs, socklen_t len)
 
 void	server_loop(t_info *app, t_server *srv)
 {
-	size_t		start = get_time_us();
+	// size_t		start = get_time_us();
 	socklen_t	len = sizeof(srv->clientaddr[0]);
 
 	while (true)
@@ -169,19 +233,19 @@ void	server_loop(t_info *app, t_server *srv)
 		app->cdata.proj = PROJ_NONE;
 		app->fr_last = get_time_us();
 		int	n_msgs = server_receive_messages(app, srv);
-		server_apply_clientdata(app, srv, n_msgs);
+		server_handle_msgs(app, srv, n_msgs);
 
 		update_objects(app, app->player, app->lvl);
 		render_calc_time(app);
 
 
-		printf("%7lu\tpos: (%.1f, %.1f) dir: (%.1f, %.1f)\n",
-			(app->fr_last - start) / 1000,
-			app->player->pos.x, app->player->pos.y,
-			app->player->dir.x, app->player->dir.y
-		);
+		// printf("%7lu\tpos: (%.1f, %.1f) dir: (%.1f, %.1f)\n",
+		// 	(app->fr_last - start) / 1000,
+		// 	app->player->pos.x, app->player->pos.y,
+		// 	app->player->dir.x, app->player->dir.y
+		// );
 
-		server_send_messages(app, srv, n_msgs, len);
+		server_send_messages(app, srv, len);
 	}
 	(void)app;
 	(void)srv;
