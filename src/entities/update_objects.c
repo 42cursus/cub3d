@@ -18,8 +18,7 @@ void	add_serialobj(t_obj *obj, t_lvl *lvl)
 {
 	t_sobj *sobj = &lvl->serialdata.serialobjs[lvl->serialdata.n_serialobjs++];
 
-	sobj->pos.x = obj->pos.x;
-	sobj->pos.y = obj->pos.y;
+	sobj->pos = obj->pos;
 	sobj->last_damaged = obj->last_damaged;
 	sobj->tex_id = obj->tex_id;
 	sobj->id = -1;
@@ -29,8 +28,8 @@ void	add_serialplayer(t_clientdata *cdata, t_lvl *lvl)
 {
 	t_sobj *sobj = &lvl->serialdata.serialobjs[cdata->id];
 
-	sobj->pos.x = cdata->pos.x;
-	sobj->pos.y = cdata->pos.y;
+	sobj->pos = cdata->pos;
+	sobj->p2 = cdata->dir;
 	sobj->last_damaged = 0;
 	sobj->tex_id = tex_PHANTOON;
 	sobj->id = cdata->id;
@@ -205,7 +204,11 @@ void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player)
 	for (int i = 0; i < n_sobjs; i++)
 	{
 		t_sobj	*obj = &serialobjs[i];
-		t_vect	norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		t_vect	norm;
+		if (obj->id == -1)
+			norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		else
+			norm = rotate_vect(scale_vect(obj->p2, 0.5), M_PI_2);
 		obj->p2 = add_vect(obj->pos, norm);
 	}
 }
