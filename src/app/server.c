@@ -126,7 +126,7 @@ pid_t	launch_server(t_info *app)
 		pid = fork();
 		if (pid == 0)
 		{
-			set_framerate(app, 60);
+			set_framerate(app, 120);
 			server_loop(app, &srv);
 			exit(0);
 		}
@@ -220,6 +220,7 @@ void	server_handle_msgs(t_info *app, t_server *srv, int n_msgs)
 	for (int i = 0; i < n_msgs; i++)
 	{
 		server_handle_projectiles(app, &srv->clientmsgs[i].cdata);
+		add_serialplayer(&srv->clientmsgs[i].cdata, app->lvl);
 	}
 }
 

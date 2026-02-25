@@ -756,6 +756,7 @@ typedef struct s_serialobj
 	t_vect	p2;
 	t_etex	tex_id;
 	size_t	last_damaged;
+	int		id;
 } 	t_sobj;
 
 typedef struct s_serialdoor
@@ -770,7 +771,7 @@ typedef struct
 {
 	t_sobj	serialobjs[64];
 	int		n_serialobjs;
-	t_sdoor	sdoors[32];
+	t_sdoor	sdoors[16];
 	int		n_serialdoors;
 }	t_serialdata;
 
@@ -1415,5 +1416,7 @@ void		server_loop(t_info *app, t_server *srv);
 int			setup_client(t_client *client);
 void		client_send_msg(t_info *app);
 void		client_receive_msg(t_info *app);
+
+void		add_serialplayer(t_clientdata *cdata, t_lvl *lvl);
 
 #endif //CUB3D_H

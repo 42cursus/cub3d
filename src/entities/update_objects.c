@@ -22,6 +22,18 @@ void	add_serialobj(t_obj *obj, t_lvl *lvl)
 	sobj->pos.y = obj->pos.y;
 	sobj->last_damaged = obj->last_damaged;
 	sobj->tex_id = obj->tex_id;
+	sobj->id = -1;
+}
+
+void	add_serialplayer(t_clientdata *cdata, t_lvl *lvl)
+{
+	t_sobj *sobj = &lvl->serialdata.serialobjs[lvl->serialdata.n_serialobjs++];
+
+	sobj->pos.x = cdata->pos.x;
+	sobj->pos.y = cdata->pos.y;
+	sobj->last_damaged = 0;
+	sobj->tex_id = tex_PHANTOON;
+	sobj->id = cdata->id;
 }
 
 void	add_serialdoor(t_obj *obj, t_lvl *lvl)

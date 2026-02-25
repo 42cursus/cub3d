@@ -46,8 +46,8 @@ t_ret_code	do_state_multiload(void *param)
 	printf("do_state_multiload\n");
 	if (app->rc != ok)
 		return (app->rc);
-	if (app->lvl && app->lvl->music)
-		Mix_PlayChannel(ch_music1, app->lvl->music, -1);
+	// if (app->lvl && app->lvl->music)
+	// 	Mix_PlayChannel(ch_music1, app->lvl->music, -1);
 	app->srv_pid = launch_server(app);
 	if (app->srv_pid == -1)
 		return (fail);
