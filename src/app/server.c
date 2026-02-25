@@ -52,9 +52,20 @@ int	setup_client(t_client *client)
 		return (1);
 	}
 
+	// int flags = fcntl(client->sockfd, F_GETFL, 0);
+	//    if (flags == -1) {
+	//        perror("fcntl F_GETFL");
+	//        return 1;
+	//    }
+	//
+	//    if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+	//        perror("fcntl F_SETFL");
+	// }
+
 	memset(&client->servaddr, 0, sizeof(client->servaddr));
     client->servaddr.sin_family = AF_INET;
     client->servaddr.sin_port = htons(8080);
+    // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
     client->servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	return (0);
@@ -66,6 +77,7 @@ pid_t	launch_server(t_info *app)
 	t_server srv;
 
 	int retval = setup_server(&srv);
+	// int retval = 1;
 	if (!retval)
 	{
 		pid = fork();
