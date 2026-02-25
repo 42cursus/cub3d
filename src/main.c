@@ -27,6 +27,7 @@ int	main(int argc, char **argv)
 	printf("sizeof sobj: %lu Bytes\n", sizeof(t_sobj));
 	printf("sizeof sdoor: %lu Bytes\n", sizeof(t_sdoor));
 	printf("sizeof serialdata: %lu Bytes\n", sizeof(t_serialdata));
+	printf("sizeof clientdata: %lu Bytes\n", sizeof(t_clientdata));
 	// exit(0);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);

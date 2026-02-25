@@ -1046,7 +1046,10 @@ typedef struct s_server
 	int					sockfd;
 	struct sockaddr_in	servaddr;
 	struct sockaddr_in	clientaddr[4];
-	t_clientdata		clientdata[4];
+	struct {
+		t_clientdata			cdata;
+		struct sockaddr_in		sockbuf;
+	}					clientmsgs[4];
 	int					n_clients;
 }	t_server;
 
