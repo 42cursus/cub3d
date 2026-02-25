@@ -20,7 +20,7 @@ FILES   = cleanup.c \
 			fsm7.c \
 			fsm8.c \
 			fsm9.c \
-			fsm10.c \
+			fsm_setup.c \
 			server.c \
 			fsm_multi.c \
 			hooks.c \
