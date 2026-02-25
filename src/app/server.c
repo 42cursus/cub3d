@@ -247,8 +247,8 @@ void	server_loop(t_info *app, t_server *srv)
 		server_handle_msgs(app, srv, n_msgs);
 
 		update_objects(app, app->player, app->lvl);
-		render_calc_time(app);
 
+		render_calc_time(app);
 
 		// printf("%7lu\tpos: (%.1f, %.1f) dir: (%.1f, %.1f)\n",
 		// 	(app->fr_last - start) / 1000,
@@ -275,8 +275,9 @@ void	client_send_msg(t_info *app)
 void	client_receive_msg(t_info *app)
 {
 	socklen_t	len = sizeof(app->client.servaddr);
+	errno = 0;
 
-	size_t n = recvfrom(app->client.sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0, (struct sockaddr *)&app->client.servaddr, &len);
-	printf("msg received! %lu\n", app->fr_last);
-	(void)n;
+	while (errno == 0)
+		recvfrom(app->client.sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0, (struct sockaddr *)&app->client.servaddr, &len);
+	// printf("msg received! %lu\n", app->fr_last);
 }

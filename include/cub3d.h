@@ -1156,6 +1156,7 @@ void		transpose_img_avx2_tiled_read(int *dst, int *src,
 int			expose_win(void *param);
 int			mouse_release_play(unsigned int button, int x, int y, void *param);
 int			mouse_press_play(unsigned int button, int x, int y, void *param);
+int			mouse_press_multi(unsigned int button, int x, int y, void *param);
 int			mouse_move_play(int x, int y, void *param);
 
 size_t		count_split_words(char **split);

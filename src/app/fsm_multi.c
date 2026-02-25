@@ -70,7 +70,7 @@ void	do_multiload_to_multi(void *param)
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
 		(void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, ButtonPressMask,
-		(void *)&mouse_press_play, app);
+		(void *)&mouse_press_multi, app);
 	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
 		(void *)&mouse_release_play, app);
 	mlx_hook(app->win, MotionNotify, PointerMotionMask,
