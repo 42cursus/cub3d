@@ -281,8 +281,19 @@ void	client_receive_msg(t_info *app)
 {
 	socklen_t	len = sizeof(app->client.servaddr);
 	errno = 0;
+	int			count = -1;
 
 	while (errno == 0)
-		recvfrom(app->client.sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0, (struct sockaddr *)&app->client.servaddr, &len);
+	{
+		count++;
+		recvfrom(
+			app->client.sockfd,
+			(char *)&app->lvl->serialdata,
+			sizeof(t_serialdata), 0,
+			(struct sockaddr *)&app->client.servaddr, &len
+		);
+	}
+	if (count == 0)
+		printf("no packets received!\n");
 	// printf("msg received! %lu\n", app->fr_last);
 }
