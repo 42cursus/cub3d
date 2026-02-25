@@ -52,15 +52,15 @@ int	setup_client(t_client *client)
 		return (1);
 	}
 
-	// int flags = fcntl(client->sockfd, F_GETFL, 0);
-	//    if (flags == -1) {
-	//        perror("fcntl F_GETFL");
-	//        return 1;
-	//    }
-	//
-	//    if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-	//        perror("fcntl F_SETFL");
-	// }
+	int flags = fcntl(client->sockfd, F_GETFL, 0);
+	   if (flags == -1) {
+	       perror("fcntl F_GETFL");
+	       return 1;
+	   }
+
+	   if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+	       perror("fcntl F_SETFL");
+	}
 
 	memset(&client->servaddr, 0, sizeof(client->servaddr));
     client->servaddr.sin_family = AF_INET;
