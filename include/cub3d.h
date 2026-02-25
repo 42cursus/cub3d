@@ -788,6 +788,7 @@ typedef struct
 	t_vect	pos;
 	t_vect	dir;
 	t_eproj	proj;
+	int		id;
 }	t_clientdata;
 
 typedef struct s_ray
@@ -1042,10 +1043,11 @@ typedef struct s_typing
 
 typedef struct s_server
 {
-	int		sockfd;
-	char	recvbuf[1024];
+	int					sockfd;
 	struct sockaddr_in	servaddr;
-	struct sockaddr_in	clients[4];
+	struct sockaddr_in	clientaddr[4];
+	t_clientdata		clientdata[4];
+	int					n_clients;
 }	t_server;
 
 typedef struct s_client
