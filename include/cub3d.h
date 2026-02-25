@@ -76,7 +76,7 @@
 # endif //SKIP_INTRO
 
 //#define GO_TO_FULLSCREEN_ON_LOAD 0
-# define GO_TO_FULLSCREEN_ON_LOAD 1
+# define GO_TO_FULLSCREEN_ON_LOAD 0
 # define RAY_POOL_SIZE 5000
 # define FIXED_SHIFT 32
 # ifndef FRAMERATE
