@@ -33,6 +33,7 @@ COMPILER		:= $(shell echo | $(CC) -dM -E - | grep -q '__clang__' && echo clang |
 
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
 					-I/usr/include \
+					-I/usr/include/libevdev-1.0 \
 					-I/usr/include/SDL2 \
 					-I/usr/include/freetype2 \
 					-I/usr/include/libpng16
@@ -98,7 +99,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 #					-fsanitize=address,undefined,bounds,alignment,object-size \
 #					-fsanitize=shift,signed-integer-overflow,null,return \
 #					-fsanitize=float-divide-by-zero,float-cast-overflow \
-#                    -pg \
+#                   -pg \
 #					-D FRAMERATE=60 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
@@ -111,14 +112,18 @@ endif
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 SDL_HEADER			:= $(INC_DIR)/SDL_mixer.h
+SDL_HEADER_URL		:= https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h
 
 ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
 	else ifeq ($(UNAME_R), 5.15.0-139-generic)
-#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1200
 	else
-		CFLAGS += -DWIN_WIDTH=3840 -DWIN_HEIGHT=2160 #-DSKIP_INTRO=1
+#		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1200
+#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+		CFLAGS += -DWIN_WIDTH=1680 -DWIN_HEIGHT=1050
+		#CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
 	endif
 endif
 
@@ -129,7 +134,7 @@ LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) \
 					-L/usr/lib/x86_64-linux-gnu \
-					-ltextures -lmlx -lft -lX11 -lXext -lm \
+					-ltextures -lmlx -lft -levdev -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
 					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
@@ -196,7 +201,7 @@ $(LIBX_DIR)/Makefile.gen:
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
 
 $(SDL_HEADER):
-		@curl -sS https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h -o $@
+		@curl -sS $(SDL_HEADER_URL) -o $@
 
 ## mlx
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen

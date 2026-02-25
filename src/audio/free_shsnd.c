@@ -24,7 +24,7 @@ void	free_shsnd(t_info *const app)
 
 	Mix_HaltChannel(-1);
 	i = -1;
-	while (++i < SND_MAX)
+	while (++i < snd_MAX)
 	{
 		Mix_FreeChunk(aud->chunks[i]);
 		aud->chunks[i] = NULL;

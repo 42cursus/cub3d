@@ -12,16 +12,11 @@
 
 FILES   = colour.c \
 			credits.c \
-			credits_avx2_1.c \
-			credits_avx2_2.c \
-			credits_avx2_3.c \
-			credits_avx2_4.c \
+			credits_avx2.c \
 			draw.c \
 			draw_utils.c \
 			draw_rays.c \
-			floor_transposed_avx2_1.c \
-			floor_transposed_avx2_2.c \
-			floor_transposed_avx2_3.c \
+			floor_transposed_avx2.c \
 			hud.c \
 			render.c \
 			render_frame.c \

@@ -23,7 +23,7 @@ void	place_ammo(t_info *app, t_player *player);
 void	place_boss_health(t_info *app);
 void	place_dmg(t_info *app, t_player *player);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 {
 	t_ivect	it;
@@ -48,7 +48,7 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_char(char c, t_info *app, t_ivect p, int scalar)
 {
 	t_img *const	cnvs = app->canvas;
@@ -76,7 +76,7 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 t_mcol	get_mc(t_ivect3 p, int alpha, t_ivect3 it, t_cdata cd)
 {
 	t_mcol	mc;
@@ -140,7 +140,7 @@ void	draw_hud(t_info *app)
 
 void	place_char(char c, t_info *app, t_ivect p, int scalar);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_ammo(t_info *app, t_player *player)
 {
 	char	buf[4];
@@ -167,7 +167,7 @@ void	place_ammo(t_info *app, t_player *player)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_fps(t_info *app)
 {
 	int			digit;
@@ -187,7 +187,7 @@ void	place_fps(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_scope(t_info *app)
 {
 	t_tex	*scope;
@@ -197,7 +197,7 @@ void	place_scope(t_info *app)
 		WIN_WIDTH / 2 - scope->w / 2, WIN_HEIGHT / 2 - scope->h / 2);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_dmg(t_info *app, t_player *player)
 {
 	t_tex	*tex;
@@ -215,23 +215,10 @@ void	place_dmg(t_info *app, t_player *player)
 	coords.y = offset.y - (tex->h / 2) + WIN_HEIGHT / 2;
 	put_texture(app, tex, coords.x, coords.y);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_3.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 14:43:34 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 14:43:35 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 void	format_time(char *buf, int len, size_t time);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_energy_backup(t_info *app, t_player *player)
 {
 	const int		backup = player->health / 100;
@@ -256,7 +243,7 @@ void	place_energy_backup(t_info *app, t_player *player)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_energy(t_info *app, t_player *player)
 {
 	int		health;
@@ -271,7 +258,7 @@ void	place_energy(t_info *app, t_player *player)
 	place_energy_backup(app, player);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_weapon(t_info *app)
 {
 	t_tex	*tex;
@@ -291,7 +278,7 @@ void	place_weapon(t_info *app)
 	put_texture(app, tex, WIN_WIDTH / 2, WIN_HEIGHT - tex->h);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_boss_health(t_info *app)
 {
 	t_ivect			it;
@@ -316,7 +303,7 @@ void	place_boss_health(t_info *app)
 	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 {
 	char	buf[50];
@@ -324,19 +311,6 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 	format_time(buf, 50, time);
 	place_str(buf, app, pos, scalar);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_4.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 14:56:36 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 14:56:37 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 #define THIRTY_FIVE 35
 
@@ -374,7 +348,7 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_minimap_xl(t_info *app, t_lvl *const lvl, t_img *const canvas,
 							const t_player *player)
 {
@@ -393,7 +367,7 @@ void	place_minimap_xl(t_info *app, t_lvl *const lvl, t_img *const canvas,
 	place_doors_minimap(lvl, p1, 2);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_minimap_xs(t_info *app, t_lvl *const lvl, t_img *const canvas)
 {
 	t_point			p1;
@@ -411,7 +385,7 @@ void	place_minimap_xs(t_info *app, t_lvl *const lvl, t_img *const canvas)
 	put_texture(app, square, p2.x, p2.y);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_mmap(t_info *app)
 {
 	t_lvl *const	lvl = app->lvl;
@@ -424,7 +398,7 @@ void	place_mmap(t_info *app)
 		place_minimap_xs(app, lvl, canvas);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	put_texture(t_info *app, t_tex *tex, int x, int y)
 {
 	t_img *const	canvas = app->canvas;
@@ -449,24 +423,11 @@ void	put_texture(t_info *app, t_tex *tex, int x, int y)
 		}
 	}
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_5.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 14:56:43 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 14:56:44 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 void	place_char(char c, t_info *app, t_ivect p, int scalar);
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
 									double scalar)
 {
@@ -600,24 +561,11 @@ void	place_menu(const char **strs, t_ivect pos, int scalar, t_info *app)
 	iy.y = start.y + (menustate.selected * 16 * scalar) - 24;
 	put_texture(app, &app->shtex->trophy_tex[0], start.x, iy.y);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_6.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 14:58:06 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 14:58:06 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 int		get_tile_idx(char **map, int i, int j);
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	fill_minimap(int scale, t_img *img, t_lvl *const lvl)
 {
 	t_ivect3	it;
@@ -647,7 +595,7 @@ void	fill_minimap(int scale, t_img *img, t_lvl *const lvl)
 	place_triggers_minimap(lvl, img, scale);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 t_img	*build_minimap(t_info *app, int scale)
 {
 	t_img			*img;
@@ -661,7 +609,7 @@ t_img	*build_minimap(t_info *app, int scale)
 	return (img);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_startup_overlay(t_info *app)
 {
 	t_img			im;
@@ -690,7 +638,7 @@ void	place_startup_overlay(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_help(t_info *app)
 {
 	t_point			p1;
@@ -706,7 +654,7 @@ void	place_help(t_info *app)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 t_point	calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 						const t_player *obj)
 {
@@ -721,24 +669,11 @@ t_point	calc_player_pos(t_lvl *const lvl, t_point offset, const t_img *pointer,
 	p3.y -= pointer->height / 2;
 	return (p3);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_7.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 15:22:53 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 18:39:06 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 #define THREE 3
 #define PTURQ MLX_PALETURQUOISE
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
@@ -765,7 +700,7 @@ void	place_items_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	format_time(char *buf, int len, size_t time)
 {
 	int	minutes;
@@ -779,7 +714,7 @@ void	format_time(char *buf, int len, size_t time)
 	ft_snprintf(buf, len, "%w:%w:%w", minutes, seconds, ms / 10);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 {
 	t_list			*current;
@@ -806,7 +741,7 @@ void	place_enemies_minimap(t_lvl *lvl, t_point offset, int scalar)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
 {
 	t_list			*current;
@@ -839,7 +774,7 @@ void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale)
  * @param idx
  * @return
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 uint32_t	get_tile_pix(int x, int y, int idx)
 {
 	int			is_edge;
@@ -865,24 +800,11 @@ uint32_t	get_tile_pix(int x, int y, int idx)
 	out = (-(is_edge) & MLX_PALE_GRAY) | (MLX_PINK & ~(-(is_edge)));
 	return (out);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_8.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 15:26:49 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 15:26:50 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 t_mcol		get_mc(t_ivect3 p, int alpha, t_ivect3 it, t_cdata cd);
 uint32_t	get_tile_pix(int x, int y, int idx);
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 t_img	cvttex_img(t_tex tex)
 {
 	t_img	img;
@@ -894,7 +816,7 @@ t_img	cvttex_img(t_tex tex)
 	return (img);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
 {
 	t_img *const	cnvs = app->canvas;
@@ -925,7 +847,7 @@ void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
  * @param img
  * @param alpha
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 {
 	t_ivect			it;
@@ -942,7 +864,7 @@ void	apply_inverted_alpha(t_img *img, u_char added_alpha)
 	}
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 t_tex	get_tile(int idx)
 {
 	t_ivect			it;
@@ -981,7 +903,7 @@ t_tex	get_tile(int idx)
  * @param j
  * @return
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 int	get_tile_idx(char **map, int i, int j)
 {
 	int	index;

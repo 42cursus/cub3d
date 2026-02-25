@@ -142,7 +142,7 @@ export UBSAN_OPTIONS=print_stacktrace=1
 
 #### Valgrind
 
-https://courses.cs.washington.edu/courses/cse326/05wi/valgrind-doc/coregrind_core.html?utm_source=chatgpt.com
+https://courses.cs.washington.edu/courses/cse326/05wi/valgrind-doc/coregrind_core.html
 
 - XOpenDisplay not zeroing _XDisplay.buffer is expected
 

@@ -18,7 +18,7 @@ static int	load_sounds(t_aud *const aud)
 	Mix_Chunk	*chunk;
 
 	i = -1;
-	while (++i < SND_MAX)
+	while (++i < snd_MAX)
 	{
 		chunk = Mix_LoadWAV(aud->files[i]);
 		if (!chunk)

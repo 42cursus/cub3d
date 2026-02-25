@@ -19,3 +19,6 @@ for help with fixed point math
 
 Margarita Gancheva
 for help with full screen mode
+
+Sean Kirwan
+for the best beta-tesing

@@ -18,6 +18,7 @@ int	point_oob_global(t_vect pos, t_lvl *lvl)
 		|| (pos.y < 0 || pos.y > lvl->height));
 }
 
+
 void	render_calc_time(t_info *const app)
 {
 	size_t			now;

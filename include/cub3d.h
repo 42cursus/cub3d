@@ -202,6 +202,10 @@ enum e_idx
 	idx_XK_Up,
 	idx_XK_Right,
 	idx_XK_Down,
+	idx_XK_Escape,
+	idx_XK_Return,
+	idx_XK_F5,
+	idx_XK_BackSpace,
 };
 
 typedef enum e_snd
@@ -225,7 +229,7 @@ typedef enum e_snd
 	snd_player_damage,
 	snd_win_music,
 	snd_credits_finale,
-	SND_MAX
+	snd_MAX
 }	t_snd;
 
 enum e_channel
@@ -923,8 +927,8 @@ typedef struct s_aud
 	int			chunk_size;
 	int			snd_volume;
 	int			mus_volume;
-	const char	*files[SND_MAX];
-	Mix_Chunk	*chunks[SND_MAX];
+	const char	*files[snd_MAX];
+	Mix_Chunk	*chunks[snd_MAX];
 }	t_aud;
 
 enum e_type
@@ -942,6 +946,21 @@ typedef struct s_typing
 	const char	*files[FNT_MAX];
 	FT_Face		faces[FNT_MAX];
 }	t_typing;
+
+typedef struct pad_state
+{
+	int fd;
+	struct libevdev *dev;
+	int ax_min, ax_max, ay_min, ay_max;
+	int rx_min, rx_max;    /* right stick X range */
+	int dead, hyst;
+
+	int left, right, up, down;
+
+	int ax, ay;            /* left stick raw */
+	int rx;                /* right stick X raw */
+	int have_ax, have_ay, have_rx;
+}	pad_state;
 
 struct s_info
 {
@@ -991,6 +1010,7 @@ struct s_info
 	char		hint_shown;
 	int			msg_to_show;
 	size_t		msg_last_time;
+	pad_state	pad;
 };
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
@@ -1281,5 +1301,6 @@ void		update_rocks(t_info *app, t_dummy *dummy);
 int			is_map_line(char *line);
 void		normalise_map(t_lvl *data);
 int			str_cmp_whitespace(void *data, void *ref);
-
+int			pad_init(pad_state *ps, const char *path);
+void		pad_poll(pad_state *ps, t_info *app);
 #endif //CUB3D_H

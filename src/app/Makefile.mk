@@ -13,6 +13,7 @@
 FILES   = cleanup.c \
 			fsm.c \
 			hooks.c \
+			joypad.c \
 			mouse_hooks.c \
 			fullscreen.c \
 			on_expose.c

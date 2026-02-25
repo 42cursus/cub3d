@@ -45,8 +45,8 @@ int	surrounding_tiles_valid(char **map, size_t i, size_t j)
 
 int	check_start_pos(t_lvl *lvl, size_t i, size_t j, int *start_found)
 {
-	char			tile;
-	t_vect const	lut[UCHAR_MAX] = {
+	char				tile;
+	static t_vect const	lut[UCHAR_MAX] = {
 	['N'] = {0, 1},
 	['S'] = {0, -1},
 	['E'] = {1, 0},

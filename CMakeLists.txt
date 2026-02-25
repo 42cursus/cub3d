@@ -130,7 +130,7 @@ add_library(${TEX_LIB_NAME} STATIC)
 
 file(GLOB TEX_LIB_SOURCES "${PROJECT_SOURCE_DIR}/resources/textures/*.xpm")
 file(GLOB TEX_LIB_SOURCES_EXTRA "${PROJECT_SOURCE_DIR}/resources/textures/mmap/*.xpm")
-list (APPEND TEX_LIB_SOURCES ${TEX_LIB_SOURCES_EXTRA})
+list(APPEND TEX_LIB_SOURCES ${TEX_LIB_SOURCES_EXTRA})
 
 set_source_files_properties(${TEX_LIB_SOURCES}
         PROPERTIES
@@ -164,6 +164,7 @@ find_library(XM_LIBRARY Xm REQUIRED)
 find_library(MRM_LIBRARY Mrm REQUIRED)
 find_library(XPM_LIBRARY Xpm REQUIRED)
 
+pkg_check_modules(EVDEV REQUIRED sdl2)
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2_MIXER QUIET SDL2_mixer)
 pkg_check_modules(FREETYPE2 REQUIRED freetype2)
@@ -174,6 +175,7 @@ set(TARGET_LIBRARIES
         ${FT_LIB_NAME}
         ${TEX_LIB_NAME}
         ${SDL2_LIBRARIES}
+        ${EVDEV_LIBRARIES}
         ${SDL2_MIXER_LIBRARIES}
         ${FREETYPE2_LIBRARIES}
         Threads::Threads
@@ -193,7 +195,9 @@ add_executable(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PRIVATE
         ${PROJECT_SOURCE_DIR}
         /usr/include
+		/usr/include/libevdev-1.0
         ${SDL2_INCLUDE_DIRS}
+        ${EVDEV_INCLUDE_DIRS}
         ${SDL2_MIXER_INCLUDE_DIRS}
         ${FREETYPE2_INCLUDE_DIRS}
         /usr/include/x86_64-linux-gnu)
