@@ -100,6 +100,17 @@ int	client_handle_handshake(t_info *app, t_client *client)
 		return (1);
 	printf("client id: %d\n", id);
 	app->cdata.id = id;
+
+	int flags = fcntl(client->sockfd, F_GETFL, 0);
+	if (flags == -1) {
+		perror("fcntl F_GETFL");
+		return 1;
+	}
+
+	if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("fcntl F_SETFL");
+	}
+
 	return (0);
 }
 
@@ -115,7 +126,7 @@ pid_t	launch_server(t_info *app)
 		pid = fork();
 		if (pid == 0)
 		{
-			set_framerate(app, 120);
+			set_framerate(app, 60);
 			server_loop(app, &srv);
 			exit(0);
 		}
@@ -153,7 +164,7 @@ int	server_receive_messages(t_info *app, t_server *srv)
 		0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
 	);
 
-	while (n_msgs <= 4 && errno == 0)
+	while (n_msgs < 4 && errno == 0)
 	{
 		if (srv->clientmsgs[n_msgs].cdata.id < 0)
 		{
@@ -266,5 +277,6 @@ void	client_receive_msg(t_info *app)
 	socklen_t	len = sizeof(app->client.servaddr);
 
 	size_t n = recvfrom(app->client.sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0, (struct sockaddr *)&app->client.servaddr, &len);
+	printf("msg received! %lu\n", app->fr_last);
 	(void)n;
 }
