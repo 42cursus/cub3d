@@ -164,6 +164,13 @@ void	update_objects(t_info *app, t_player *player, t_lvl *lvl)
 	lvl->serialdata.n_serialobjs = 0;
 	lvl->serialdata.n_serialdoors = 0;
 
+	if (app->srv)
+	{
+		for (int i = 0; i < app->srv->n_clients; i++)
+		{
+			add_serialplayer(&app->srv->clientmsgs[i].cdata, lvl);
+		}
+	}
 	update_enemies(app, player, lvl);
 	update_projectiles(app, player, lvl);
 	update_items(app, player, lvl);

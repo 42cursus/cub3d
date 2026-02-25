@@ -87,8 +87,13 @@ void calc_object_collisions_alt(t_lvl *lvl, t_player *player, t_ray *ray)
 {
 	for (int i = 0; i < lvl->serialdata.n_serialobjs; i++)
 	{
-		order_obj_ray(check_serialobj_collision(lvl->app, &lvl->serialdata.serialobjs[i], ray, player),
-				ray);
+		if (lvl->serialdata.serialobjs[i].id != lvl->app->cdata.id)
+		{
+			order_obj_ray(
+				check_serialobj_collision(lvl->app, &lvl->serialdata.serialobjs[i], ray, player),
+				ray
+			);
+	  }
 	}
 }
 

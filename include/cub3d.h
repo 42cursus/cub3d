@@ -1113,6 +1113,7 @@ struct s_info
 	t_client	client;
 	t_clientdata cdata;
 	pid_t		srv_pid;
+	t_server	*srv;
 };
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)

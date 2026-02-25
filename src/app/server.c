@@ -126,6 +126,7 @@ pid_t	launch_server(t_info *app)
 		pid = fork();
 		if (pid == 0)
 		{
+			app->srv = &srv;
 			set_framerate(app, 120);
 			server_loop(app, &srv);
 			exit(0);
