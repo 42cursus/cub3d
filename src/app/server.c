@@ -448,6 +448,6 @@ void	client_receive_msgs(t_info *app)
 			(struct sockaddr *)&app->client.servaddr, &len
 		);
 	}
-	printf("Packets received this tick: %d\n", count);
+	// printf("Packets received this tick: %d\n", count);
 	(void)count;
 }
