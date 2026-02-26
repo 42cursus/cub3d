@@ -33,7 +33,39 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 	player->dmg_time = app->fr_last;
 }
 
+void	subtract_health_mult(t_info *app, t_playermult *player, int damage)
+{
+	int	new_health;
+
+	if (player->dead == 1)
+		return ;
+	if (app->fr_last - player->dmg_time < 350000)
+		return ;
+	new_health = player->health - damage;
+	if (new_health < 0)
+	{
+		new_health = 0;
+		player->dead = 1;
+		// app->rc = fail;
+		// app->mlx->end_loop = 1;
+	}
+	// Mix_PlayChannel(ch_player, app->audio.chunks[snd_player_damage], 0);
+	player->health = new_health;
+	player->dmg_time = app->fr_last;
+	player->event |= EVENT_DAMAGE;
+}
+
 void	add_health(t_player *player, int health)
+{
+	int	new_health;
+
+	new_health = player->health + health;
+	if (new_health > player->max_health)
+		new_health = player->max_health;
+	player->health = new_health;
+}
+
+void	add_health_mult(t_playermult *player, int health)
 {
 	int	new_health;
 

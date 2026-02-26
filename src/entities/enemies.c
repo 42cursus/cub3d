@@ -109,3 +109,32 @@ int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current)
 	}
 	return (0);
 }
+
+int	handle_obj_entity_mult(t_info *app, t_obj *obj, t_list **current)
+{
+	int	retval;
+
+	retval = handle_enemy_death(app, obj, current);
+	if (retval != -1)
+		return (retval);
+	handle_enemy_ai(app, obj);
+	obj->tex_id = handle_animation(app, obj->anim);
+	for (int i = 0; i < app->srv->n_clients; i++)
+	{
+		t_playermult *player = &app->srv->clients[i];
+		if (vector_distance(obj->pos, player->pos) < 0.5 && !player->dead)
+		{
+			if (obj->subtype != E_ATOMIC)
+				subtract_health_mult(app, player, 35);
+			else
+			{
+				subtract_health_mult(app, player, 80);
+				damage_enemy(app, obj, 100);
+			}
+			move_entity(&app->player->pos, app->lvl,
+				scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
+			player->dmg_dir = (subtract_vect(obj->pos, app->player->pos));
+		}
+	}
+	return (0);
+}

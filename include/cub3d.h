@@ -109,6 +109,7 @@
 
 # define SRV_MAX_OBJECTS 64
 # define SRV_MAX_DOORS 32
+# define SRV_MAX_PLAYERS 4
 
 # define TEX_DIR "./resources/textures"
 
@@ -735,7 +736,11 @@ typedef struct s_object
 		t_edoor		doortype;
 	};
 	int			dead;
-	int			attacking;
+	union
+	{
+		int		attacking;
+		int		player_id;
+	};
 	int			health;
 	size_t		last_damaged;
 	union
@@ -814,9 +819,31 @@ enum smsg_type : uint8_t
 {
 	SMT_OBJS = 0,
 	SMT_DOORS,
-	SMT_EVENT,
+	SMT_PLAYER,
 	SMT_MAX,
 };
+
+typedef enum
+{
+	EVENT_NONE		= 1 << 0,
+	EVENT_DAMAGE	= 1 << 1,
+	EVENT_PU_HEALTH	= 1 << 2,
+	EVENT_PU_AMMO	= 1 << 3,
+}	t_event;
+
+typedef struct
+{
+	t_vect	pos;
+	t_vect	dir;
+	t_vect	dmg_dir;
+	int		health;
+	int		max_health;
+	int		ammo[3];
+	int		max_ammo[3];
+	size_t	dmg_time;
+	int		event;
+	int		dead;
+}	t_playermult;
 
 typedef struct
 {
@@ -833,10 +860,7 @@ typedef struct
 			t_sdoor	sdoors[SRV_MAX_DOORS];
 			int		n_serialdoors;
 		};
-		// struct
-		// {
-		//
-		// };
+		t_playermult	player;
 	}	payload;
 }	t_servermsg;
 
@@ -1093,7 +1117,7 @@ typedef struct s_typing
 
 typedef struct s_packetin
 {
-	t_clientmsg			data;
+	t_clientmsg				data;
 	struct sockaddr_in		sockbuf;
 }	packet_in;
 
@@ -1101,8 +1125,8 @@ typedef struct s_server
 {
 	int					sockfd;
 	struct sockaddr_in	servaddr;
-	struct sockaddr_in	clientaddr[4];
-	t_clientmsg			clientdata[4];
+	struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
+	t_playermult		clients[SRV_MAX_PLAYERS];
 	int					n_clients;
 }	t_server;
 
@@ -1246,7 +1270,7 @@ void		prev_weapon(t_player *player);
 void		spawn_projectile(t_info *app, t_player *player,
 				t_lvl *lvl, t_subtype subtype);
 void		spawn_projectile_client(t_info *app, t_player *player);
-void		spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype);
+void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype, int player_id);
 void		spawn_enemy_projectile(t_info *app, t_obj *obj,
 				t_vect dir, int subtype);
 t_obj		*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype);
@@ -1261,9 +1285,12 @@ void		init_logo_pieces(t_info *app, t_vect pos);
 
 void		developer_console(t_info *app, t_player *player);
 void		subtract_health(t_info *app, t_player *player, int damage);
+void		subtract_health_mult(t_info *app, t_playermult *player, int damage);
 void		add_health(t_player *player, int health);
+void		add_health_mult(t_playermult *player, int health);
 void		damage_enemy(t_info *app, t_obj *enemy, int damage);
 void		add_ammo(t_player *player, int type);
+void		add_ammo_mult(t_playermult *player, int type);
 void		toggle_boss_doors(t_info *app);
 int			check_tile_open(char tile, t_lvl *lvl);
 
@@ -1421,6 +1448,7 @@ void		calculate_credits_offset(t_info *app, t_dummy *dummy);
 void		start_obj_death(t_obj *obj, t_info *app);
 t_list		*delete_object(t_list **obj_list, t_list *obj_node);
 t_obj		*check_obj_proximity(t_vect pos, t_lvl *lvl);
+int 		check_player_proximity(t_vect pos, t_playermult *players, int n_players);
 int			point_oob_global(t_vect pos, t_lvl *lvl);
 void		select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
 t_etex		handle_animation(t_info *app, t_anim anim);
@@ -1429,6 +1457,7 @@ void		init_anims(t_info *app, t_lvl *lvl);
 void		reset_anims(t_info *app, t_lvl *lvl);
 int			count_collectables(t_lvl *lvl);
 int			handle_obj_projectile(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_projectile_mult(t_info *app, t_obj *obj, t_list **current);
 int			handle_enemy_projectile(t_info *app, t_obj *obj, t_list **current);
 void		spawn_drops(t_info *app, t_obj *obj, int no);
 void		phantoon_ai(t_info *app, t_obj *obj);
@@ -1437,13 +1466,16 @@ void		atomic_ai(t_info *app, t_obj *enemy);
 void		holtz_ai(t_info *app, t_obj *enemy, t_player *player);
 void		zoomer_ai(t_info *app, t_obj *enemy);
 int			handle_obj_entity(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_entity_mult(t_info *app, t_obj *obj, t_list **current);
 int			handle_trigger(t_info *app, t_obj *obj, t_list **current);
 void		handle_tele(t_info *app, t_obj *tele);
 t_obj		*find_matching_tele(t_lvl *lvl, t_obj *key);
 int			handle_key(t_info *app, t_obj *key, t_list **current);
 int			handle_obj_item(t_info *app, t_obj *obj, t_list **current);
+int			handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current);
 void		handle_decorative(t_info *app, t_obj *obj);
 void		update_objects(t_info *app, t_player *player, t_lvl *lvl);
+void		update_objects_mult(t_info *app, t_player *player, t_lvl *lvl);
 
 int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
 t_tex		draw_credits(t_info *app);
@@ -1481,5 +1513,6 @@ void		client_receive_msgs(t_info *app);
 void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
 void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
 void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
+void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 
 #endif //CUB3D_H

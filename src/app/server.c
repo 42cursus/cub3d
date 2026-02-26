@@ -100,7 +100,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	// usleep(100000);
 	int	id = -1;
 	recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
-	if (id < 0 || id > 3)
+	if (id < 0 || id >= SRV_MAX_PLAYERS)
 		return (1);
 	printf("client id: %d\n", id);
 	client->id = id;
@@ -118,6 +118,23 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	return (0);
 }
 
+void	init_server_state(t_info *app, t_server *srv)
+{
+	app->srv = srv;
+	app->lvl->serialdata[SMT_OBJS].type = SMT_OBJS;
+	app->lvl->serialdata[SMT_DOORS].type = SMT_DOORS;
+	app->lvl->serialdata[SMT_PLAYER].type = SMT_PLAYER;
+	set_framerate(app, 120);
+
+	for (int i = 0; i < SRV_MAX_PLAYERS; i++)
+	{
+		srv->clients[i].health = 99;
+		srv->clients[i].max_health = 99;
+		srv->clients[i].max_ammo[P_BEAM] = -1;
+		srv->clients[i].pos = app->lvl->starting_pos;
+	}
+}
+
 pid_t	launch_server(t_info *app)
 {
 	pid_t	pid = 0;
@@ -130,11 +147,7 @@ pid_t	launch_server(t_info *app)
 		pid = fork();
 		if (pid == 0)
 		{
-			app->srv = &srv;
-			app->lvl->serialdata[SMT_OBJS].type = SMT_OBJS;
-			app->lvl->serialdata[SMT_DOORS].type = SMT_DOORS;
-			app->lvl->serialdata[SMT_EVENT].type = SMT_EVENT;
-			set_framerate(app, 120);
+			init_server_state(app, &srv);
 			server_loop(app, &srv);
 			exit(0);
 		}
@@ -149,8 +162,14 @@ pid_t	launch_server(t_info *app)
 
 void	server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
 {
-	int	id = srv->n_clients;
-	memcpy(&srv->clientaddr[srv->n_clients++], &packet->sockbuf, sizeof(packet->sockbuf));
+	int	id;
+	if (srv->n_clients == SRV_MAX_PLAYERS)
+		id = -1;
+	else
+	{
+		id = srv->n_clients;
+		memcpy(&srv->clientaddr[srv->n_clients++], &packet->sockbuf, sizeof(packet->sockbuf));
+	}
 
 	sendto(
 		srv->sockfd, (char *)&id, sizeof(id), 0,
@@ -168,7 +187,7 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 				app,
 				cdata->proj.pos,
 				cdata->proj.dir,
-				app->lvl, P_BEAM
+				app->lvl, P_BEAM, cdata->id
 			);
 			break;
 		case (PROJ_MISSILE):
@@ -176,20 +195,32 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 				app,
 				cdata->proj.pos,
 				cdata->proj.dir,
-				app->lvl, P_MISSILE
+				app->lvl, P_MISSILE, cdata->id
 			);
+			app->srv->clients[cdata->id].ammo[P_MISSILE] -= 1;
+			if (app->srv->clients[cdata->id].ammo[P_MISSILE] == -1)
+				app->srv->clients[cdata->id].ammo[P_MISSILE] = 0;
 			break;
 		case (PROJ_SUPER):
 			spawn_projectile_server(
 				app,
 				cdata->proj.pos,
 				cdata->proj.dir,
-				app->lvl, P_SUPER
+				app->lvl, P_SUPER, cdata->id
 			);
+			app->srv->clients[cdata->id].ammo[P_SUPER] -= 1;
+			if (app->srv->clients[cdata->id].ammo[P_SUPER] == -1)
+				app->srv->clients[cdata->id].ammo[P_SUPER] = 0;
 			break;
 		default:
 			break;
 	}
+}
+
+void	server_handle_player(t_server *srv, t_clientmsg *cmsg)
+{
+	srv->clients[cmsg->id].pos = cmsg->player.pos;
+	srv->clients[cmsg->id].dir = cmsg->player.dir;
 }
 
 const char *stringify_cmsg_type(enum cmsg_type type)
@@ -222,7 +253,7 @@ const char *stringify_smsg_type(enum smsg_type type)
 		case (SMT_DOORS):
 			return ("SMT_DOORS");
 			break;
-		case (SMT_EVENT):
+		case (SMT_PLAYER):
 			return ("SMT_EVENT");
 			break;
 		default:
@@ -242,7 +273,7 @@ void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 			server_handle_projectiles(app, cmsg);
 			break;
 		case (CMT_POS):
-			add_serialplayer(cmsg, app->lvl);
+			server_handle_player(srv, cmsg);
 			break;
 		case (CMT_DOOR):
 			handle_open_door_server(app, cmsg->door.pos);
@@ -293,8 +324,10 @@ void	server_send_messages(t_info *app, t_server *srv)
 {
 	for (int i = 0; i < srv->n_clients; i++)
 	{
+		memcpy(&app->lvl->serialdata[SMT_PLAYER].payload, &srv->clients[i], sizeof(t_playermult));
 		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_OBJS]);
 		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_DOORS]);
+		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_PLAYER]);
 	}
 }
 
@@ -307,7 +340,7 @@ void	server_loop(t_info *app, t_server *srv)
 		// size_t	ts1 = get_time_us();
 		// printf("\n\e[32;1m## LOOP TIME ##\e[m\nreceive: %luus\n", ts1 - app->fr_last);
 		
-		update_objects(app, app->player, app->lvl);
+		update_objects_mult(app, app->player, app->lvl);
 		// size_t ts2 = get_time_us();
 		// printf("update: %luus\n", ts2 - ts1);
 
@@ -377,6 +410,10 @@ void	client_process_msg(t_info *app, t_servermsg *smsg)
 		case (SMT_DOORS):
 			// printf("n_serialdoors: %d\n", smsg->payload.n_serialdoors);
 			deserialise_doors(smsg->payload.sdoors, smsg->payload.n_serialdoors, app->lvl);
+			break;
+		case (SMT_PLAYER):
+			// printf("n_serialdoors: %d\n", smsg->payload.n_serialdoors);
+			deserialise_player_state(app, smsg);
 			break;
 		default:
 			break;

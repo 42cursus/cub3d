@@ -73,6 +73,25 @@ void	update_enemies(t_info *app, t_player *player, t_lvl *lvl)
 	(void)player;
 }
 
+void	update_enemies_mult(t_info *app, t_lvl *lvl)
+{
+	t_list	*current;
+	t_obj	*obj;
+
+	current = lvl->enemies;
+	while (current != NULL)
+	{
+		obj = (t_obj *)current->data;
+		if (obj->type == O_ENTITY && handle_obj_entity_mult(app, obj, &current))
+			continue ;
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->norm = rotate_vect((t_vect){0.5, 0}, M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
+		add_serialobj(app, obj, lvl);
+		current = current->next;
+	}
+}
+
 void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 {
 	t_list	*current;
@@ -83,6 +102,28 @@ void	update_projectiles(t_info *app, t_player *player, t_lvl *lvl)
 	{
 		obj = (t_obj *)current->data;
 		if (obj->type == O_PROJ && handle_obj_projectile(app, obj, &current))
+			continue ;
+		else if (obj->type == O_EPROJ
+			&& handle_enemy_projectile(app, obj, &current))
+			continue ;
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
+		add_serialobj(app, obj, lvl);
+		current = current->next;
+	}
+	(void)player;
+}
+
+void	update_projectiles_mult(t_info *app, t_player *player, t_lvl *lvl)
+{
+	t_list	*current;
+	t_obj	*obj;
+
+	current = lvl->projectiles;
+	while (current != NULL)
+	{
+		obj = (t_obj *)current->data;
+		if (obj->type == O_PROJ && handle_obj_projectile_mult(app, obj, &current))
 			continue ;
 		else if (obj->type == O_EPROJ
 			&& handle_enemy_projectile(app, obj, &current))
@@ -116,6 +157,28 @@ void	update_items(t_info *app, t_player *player, t_lvl *lvl)
 		current = current->next;
 	}
 	(void)player;
+}
+
+void	update_items_mult(t_info *app, t_lvl *lvl)
+{
+	t_list	*current;
+	t_obj	*obj;
+
+	current = lvl->items;
+	while (current != NULL)
+	{
+		obj = (t_obj *)current->data;
+		if (obj->type == O_ITEM && handle_obj_item_mult(app, obj, &current))
+			continue ;
+		else if (obj->type == O_DECORATIVE)
+			handle_decorative(app, obj);
+		// else if (obj->type == O_KEY && handle_key(app, obj, &current))
+		// 	continue ;
+		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
+		// obj->p2 = add_vect(obj->pos, obj->norm);
+		add_serialobj(app, obj, lvl);
+		current = current->next;
+	}
 }
 
 void	update_triggers(t_info *app, t_player *player, t_lvl *lvl)
@@ -172,6 +235,21 @@ void	update_objects(t_info *app, t_player *player, t_lvl *lvl)
 	update_doors(app, lvl);
 }
 
+void	update_objects_mult(t_info *app, t_player *player, t_lvl *lvl)
+{
+	lvl->serialdata[SMT_OBJS].payload.n_serialobjs = app->srv == NULL ? 0 : app->srv->n_clients;
+	lvl->serialdata[SMT_DOORS].payload.n_serialdoors = 0;
+	for (int i = 0; i < app->srv->n_clients; i++)
+		app->srv->clients[i].event = EVENT_NONE;
+
+	update_enemies_mult(app, lvl);
+	update_projectiles(app, player, lvl);
+	update_items_mult(app, lvl);
+	// update_triggers(app, player, lvl);
+	update_logo_pieces(app, player, lvl);
+	update_doors(app, lvl);
+}
+
 void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl)
 {
 	for (int i = 0; i < n_sdoors; i++)
@@ -212,5 +290,25 @@ void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player)
 		// else
 		// 	norm = rotate_vect(scale_vect(fvect_to_vect(obj->p2), 0.5), M_PI_2);
 		player->obj_p2s[i] = add_vect(fvect_to_vect(obj->pos), norm);
+	}
+}
+
+void deserialise_player_state(t_info *app, t_servermsg *smsg)
+{
+	t_player	*player = app->player;
+
+	player->health = smsg->payload.player.health;
+	player->max_health = smsg->payload.player.max_health;
+	player->ammo[P_MISSILE] = smsg->payload.player.ammo[P_MISSILE];
+	player->ammo[P_SUPER] = smsg->payload.player.ammo[P_SUPER];
+	player->max_ammo[P_MISSILE] = smsg->payload.player.max_ammo[P_MISSILE];
+	player->max_ammo[P_SUPER] = smsg->payload.player.max_ammo[P_SUPER];
+	if (player->ammo[player->equipped] == 0)
+		player->equipped = P_BEAM;
+	if (smsg->payload.player.event & EVENT_DAMAGE)
+	{
+		player->dmg_dir = smsg->payload.player.dmg_dir;
+		player->dmg_time = app->fr_last;
+		Mix_PlayChannel(ch_player, app->audio.chunks[snd_player_damage], 0);
 	}
 }

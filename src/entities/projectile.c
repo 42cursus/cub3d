@@ -57,7 +57,7 @@ void	spawn_projectile(t_info *app, t_player *player,
 	Mix_PlayChannel(-1, aud->chunks[snd], 0);
 }
 
-void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype)
+void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_subtype subtype, int player_id)
 {
 	t_obj			*projectile;
 
@@ -81,6 +81,7 @@ void	spawn_projectile_server(t_info *app, t_vect pos, t_vect dir, t_lvl *lvl, t_
 			projectile->anim2.tex_idx = tex_EXPLODE + 12;
 	}
 	projectile->type = O_PROJ;
+	projectile->player_id = player_id;
 	projectile->anim.active = 0;
 	ft_lstadd_back(&lvl->projectiles, ft_lstnew(projectile));
 }
@@ -131,6 +132,61 @@ int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 			damage_enemy(app, closest, 50);
 		else if (obj->subtype == P_MISSILE)
 			damage_enemy(app, closest, 30);
+		return (0);
+	}
+	return (-1);
+}
+
+int	check_player_proximity(t_vect pos, t_playermult *players, int n_players)
+{
+	for (int i = 0; i < n_players; i++)
+	{
+		if (players[i].dead != 1)
+		{
+			if (vector_distance(pos, players[i].pos) < 0.3)
+				return (i);
+		}
+	}
+	return (-1);
+}
+
+int	handle_projectile_death_mult(t_info *app, t_obj *obj, t_list **current)
+{
+	t_obj	*closest_obj;
+
+	if (obj->anim2.active == 1)
+	{
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
+		{
+			*current = delete_object(&app->lvl->projectiles, *current);
+			return (1);
+		}
+		return (0);
+	}
+	closest_obj = check_obj_proximity(obj->pos, app->lvl);
+	if (closest_obj != NULL)
+	{
+		start_obj_death(obj, app);
+		if (obj->subtype == P_BEAM)
+			damage_enemy(app, closest_obj, 10);
+		else if (obj->subtype == P_SUPER)
+			damage_enemy(app, closest_obj, 50);
+		else if (obj->subtype == P_MISSILE)
+			damage_enemy(app, closest_obj, 30);
+		return (0);
+	}
+
+	int player_id = check_player_proximity(obj->pos, app->srv->clients, app->srv->n_clients);
+	if (player_id != -1 && player_id != obj->player_id)
+	{
+		start_obj_death(obj, app);
+		if (obj->subtype == P_BEAM)
+			subtract_health_mult(app, &app->srv->clients[player_id], 10);
+		else if (obj->subtype == P_SUPER)
+			subtract_health_mult(app, &app->srv->clients[player_id], 50);
+		else if (obj->subtype == P_MISSILE)
+			subtract_health_mult(app, &app->srv->clients[player_id], 30);
 		return (0);
 	}
 	return (-1);
@@ -188,6 +244,46 @@ int	handle_obj_projectile(t_info *app, t_obj *obj, t_list **current)
 	int			retval;
 
 	retval = handle_projectile_death(app, obj, current);
+	if (retval != -1)
+		return (retval);
+	select_projectile_tex(obj, app->player, app);
+	new_pos = add_vect(obj->pos, obj->dir);
+	if (!point_oob_global(new_pos, app->lvl))
+	{
+		tile = &app->lvl->map[(int) new_pos.y][(int) new_pos.x];
+		if (!check_tile_open(*tile, app->lvl))
+		{
+			t_list	*current = app->lvl->doors;
+			t_obj	*door;
+			while (current != NULL)
+			{
+				door = (t_obj *)current->data;
+				if (door->coords.x == (int)new_pos.x && door->coords.y == (int)new_pos.y)
+					break ;
+				current = current->next;
+			}
+			if (current == NULL)
+			{
+				// obj->pos = new_pos;
+				start_obj_death(obj, app);
+				return (0);
+			}
+			handle_door_projectile_alt(app, obj, tile, door);
+			start_obj_death(obj, app);
+		}
+		else
+			obj->pos = new_pos;
+	}
+	return (0);
+}
+
+int	handle_obj_projectile_mult(t_info *app, t_obj *obj, t_list **current)
+{
+	char		*tile;
+	t_vect		new_pos;
+	int			retval;
+
+	retval = handle_projectile_death_mult(app, obj, current);
 	if (retval != -1)
 		return (retval);
 	select_projectile_tex(obj, app->player, app);
