@@ -107,6 +107,9 @@
 
 # define LARGE_MMAP_SCALE 16
 
+# define SRV_MAX_OBJECTS 64
+# define SRV_MAX_DOORS 32
+
 # define TEX_DIR "./resources/textures"
 
 enum e_calc_idxs
@@ -752,11 +755,10 @@ typedef struct s_object
 
 typedef struct s_serialobj
 {
-	t_vect	pos;
-	t_vect	p2;
+	t_fvect	pos;
 	t_etex	tex_id;
-	size_t	last_damaged;
-	int		id;
+	uint8_t	damaged;
+	int8_t	id;
 } 	t_sobj;
 
 typedef struct s_serialdoor
@@ -767,30 +769,76 @@ typedef struct s_serialdoor
 	bool	open;
 } 	t_sdoor;
 
-typedef struct
+typedef enum e_proj : uint8_t
 {
-	t_sobj	serialobjs[64];
-	int		n_serialobjs;
-	t_sdoor	sdoors[16];
-	int		n_serialdoors;
-}	t_serialdata;
-
-typedef enum e_proj
-{
-	PROJ_NONE,
 	PROJ_BEAM,
 	PROJ_MISSILE,
 	PROJ_SUPER,
 	PROJ_MAX,
 }	t_eproj;
 
+enum cmsg_type : uint8_t
+{
+	CMT_CONNECT = 0,
+	CMT_POS,
+	CMT_PROJ,
+	CMT_DOOR,
+	CMT_DISCONNECT,
+};
+
 typedef struct
 {
-	t_vect	pos;
-	t_vect	dir;
-	t_eproj	proj;
-	int		id;
-}	t_clientdata;
+	enum cmsg_type	type;
+	int8_t			id;
+	union
+	{
+		struct
+		{
+			t_vect	pos;
+			t_vect	dir;
+			t_eproj type;
+		}	proj;
+		struct
+		{
+			t_ivect	pos;
+		}	door;
+		struct
+		{
+			t_vect	pos;
+			t_vect	dir;
+		}	player;
+	};
+}	t_clientmsg;
+
+enum smsg_type : uint8_t
+{
+	SMT_OBJS = 0,
+	SMT_DOORS,
+	SMT_EVENT,
+	SMT_MAX,
+};
+
+typedef struct
+{
+	enum smsg_type	type;
+	union
+	{
+		struct
+		{
+			t_sobj	serialobjs[SRV_MAX_OBJECTS];
+			int		n_serialobjs;
+		};
+		struct
+		{
+			t_sdoor	sdoors[SRV_MAX_DOORS];
+			int		n_serialdoors;
+		};
+		// struct
+		// {
+		//
+		// };
+	}	payload;
+}	t_servermsg;
 
 typedef struct s_ray
 {
@@ -954,7 +1002,7 @@ typedef struct s_lvl
 	int			width;
 	char		*sublvls[4];
 	t_img		*planes[NUM_TEXTURES];
-	t_serialdata serialdata;
+	t_servermsg	serialdata[SMT_MAX];
 }	t_lvl;
 
 typedef struct s_poolnode
@@ -993,6 +1041,7 @@ typedef struct s_player
 	size_t	dmg_time;
 	int		total_pickups;
 	int		pickups_collected;
+	t_vect	obj_p2s[SRV_MAX_OBJECTS];
 }	t_player;
 
 typedef struct s_dummy
@@ -1042,22 +1091,25 @@ typedef struct s_typing
 	FT_Face		faces[FNT_MAX];
 }	t_typing;
 
+typedef struct s_packetin
+{
+	t_clientmsg			data;
+	struct sockaddr_in		sockbuf;
+}	packet_in;
+
 typedef struct s_server
 {
 	int					sockfd;
 	struct sockaddr_in	servaddr;
 	struct sockaddr_in	clientaddr[4];
-	struct {
-		t_clientdata			cdata;
-		struct sockaddr_in		sockbuf;
-	}					clientmsgs[5];
+	t_clientmsg			clientdata[4];
 	int					n_clients;
 }	t_server;
 
 typedef struct s_client
 {
 	int		sockfd;
-	char	recvbuf[1024];
+	int		id;
 	struct sockaddr_in	servaddr;
 }	t_client;
 
@@ -1111,7 +1163,6 @@ struct s_info
 	int			msg_to_show;
 	size_t		msg_last_time;
 	t_client	client;
-	t_clientdata cdata;
 	pid_t		srv_pid;
 	t_server	*srv;
 };
@@ -1186,6 +1237,8 @@ void		move_entity(t_vect *pos, t_lvl *lvl, t_vect dir);
 void		move_obj_bounce(t_info *app, t_obj *obj, t_lvl *data);
 void		rotate_player(t_info *app, t_player *player, int dir, double sens);
 void		handle_open_door(t_info *app, t_ray *ray);
+void		handle_open_door_client(t_info *app, t_ray *crosshair);
+void		handle_open_door_server(t_info *app, t_ivect pos);
 void		next_weapon(t_player *player);
 void		prev_weapon(t_player *player);
 
@@ -1225,6 +1278,8 @@ void		order_obj_ray(t_ray *obj, t_ray *ray);
 void		calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray);
 
 t_vect		vect(double x, double y);
+t_fvect		vect_to_fvect(t_vect vect);
+t_vect		fvect_to_vect(t_fvect fvect);
 char		get_max_direction(t_vect vect);
 t_vect		scale_vect(t_vect vect, double scalar);
 t_ivect		scale_ivect(t_ivect vect, int scalar);
@@ -1415,9 +1470,14 @@ int			setup_server(t_server *srv);
 pid_t		launch_server(t_info *app);
 void		server_loop(t_info *app, t_server *srv);
 int			setup_client(t_client *client);
-void		client_send_msg(t_info *app);
-void		client_receive_msg(t_info *app);
+void		client_send_msg(t_client *client, t_clientmsg *cmsg);
+void		client_send_pos(t_info *app);
+void		client_send_proj(t_info *app, t_eproj type);
+void		client_send_door(t_info *app, t_ivect pos);
+void		client_receive_msgs(t_info *app);
 
-void		add_serialplayer(t_clientdata *cdata, t_lvl *lvl);
+void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
+void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
+void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 
 #endif //CUB3D_H

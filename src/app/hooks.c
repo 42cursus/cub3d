@@ -106,7 +106,7 @@ int	key_press_multi(KeySym key, void *param)
 		if (key == XK_F11)
 			fullscreen_hook(app);
 		else if (key == XK_e)
-			handle_open_door(app, &player->rays[WIN_WIDTH / 2]);
+			handle_open_door_client(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
 			spawn_projectile_client(app, player);
 		idx = get_key_index(key);

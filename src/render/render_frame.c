@@ -11,12 +11,11 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <stdio.h>
 #include <sys/time.h>
 #include <sysexits.h>
 #include <time.h>
 
-void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
-void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 
 int	render_win(void *param)
 {
@@ -106,8 +105,6 @@ int	render_play(void *param)
 
 	render_play_handle_keys(app);
 	update_objects(app, app->player, app->lvl);
-	deserialise_doors(app->lvl->serialdata.sdoors, app->lvl->serialdata.n_serialdoors, app->lvl);
-	deserialise_objs(app->lvl->serialdata.serialobjs, app->lvl->serialdata.n_serialobjs, app->player);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
@@ -124,12 +121,16 @@ int	render_play_multi(void *param)
 	t_info *const	app = param;
 
 	render_play_handle_keys(app);
-	client_send_msg(app);
-	app->cdata.proj = PROJ_NONE;
-	client_receive_msg(app);
+	printf("\n\e[32;1m## CONNECTION HANDLING TIME ##\e[m\n");
+	size_t start = get_time_us();
+	client_send_pos(app);
+	size_t ts1 = get_time_us();
+	printf("send: %luus\n", ts1 - start);
+	client_receive_msgs(app);
+	size_t ts2 = get_time_us();
+	printf("receive: %luus\n", ts2 - ts1);
+	printf("total: %luus\n", ts2 - start);
 	// update_objects(app, app->player, app->lvl);
-	deserialise_doors(app->lvl->serialdata.sdoors, app->lvl->serialdata.n_serialdoors, app->lvl);
-	deserialise_objs(app->lvl->serialdata.serialobjs, app->lvl->serialdata.n_serialobjs, app->player);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);

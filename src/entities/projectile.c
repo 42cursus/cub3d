@@ -102,8 +102,8 @@ void	spawn_projectile_client(t_info *app, t_player *player)
 			proj = PROJ_SUPER;
 			break;
 	}
-	app->cdata.proj = proj;
 	snd = ({if (proj == PROJ_BEAM) snd = snd_gun; else snd = snd_rocket; snd;});
+	client_send_proj(app, proj);
 	Mix_PlayChannel(-1, aud->chunks[snd], 0);
 }
 

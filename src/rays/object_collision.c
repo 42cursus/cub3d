@@ -104,28 +104,29 @@ t_ray	*check_obj_collision(t_obj *object, t_ray *ray, t_player *player, t_info *
 	return (out);
 }
 
-t_ray	*check_serialobj_collision(t_info *app, t_sobj *object, t_ray *ray, t_player *player)
+t_ray	*check_serialobj_collision(t_info *app, t_sobj *object, t_ray *ray, int idx)
 {
-	t_ray	*out;
-	t_vect	intcpt;
-	double	dist;
+	t_ray		*out;
+	t_vect		intcpt;
+	t_player	*player = app->player;
+	t_vect		p2 = player->obj_p2s[idx];
+	double		dist;
 
-	intcpt = get_line_intersect(object->pos, object->p2,
+	intcpt = get_line_intersect(fvect_to_vect(object->pos), p2,
 			ray->intcpt, player->pos);
 	if (vector_distance2(intcpt, ray->intcpt)
 		> vector_distance2(player->pos, ray->intcpt))
 		return (NULL);
-	dist = vector_distance2(object->pos, intcpt);
+	dist = vector_distance2(fvect_to_vect(object->pos), intcpt);
 	if (dist > 0.5)
 		return (NULL);
 	out = get_pooled_ray(0);
 	init_pooled_ray(out, &app->shtex->textures[object->tex_id], player, intcpt);
 	if (out->distance > ray->distance)
 		return (NULL);
-	out->pos = vector_distance2(intcpt, object->p2) * out->tex->w;
+	out->pos = vector_distance2(intcpt, p2) * out->tex->w;
 	if (out->pos >= out->tex->w)
 		out->pos = out->tex->w - 1;
-	if (get_time_us() - object->last_damaged < 100000)
-		out->damaged = 1;
+	out->damaged = object->damaged;
 	return (out);
 }

@@ -79,6 +79,7 @@ int	setup_client(t_client *client)
     client->servaddr.sin_family = AF_INET;
     client->servaddr.sin_port = htons(8080);
     // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
+    // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
     client->servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	return (0);
@@ -87,11 +88,12 @@ int	setup_client(t_client *client)
 int	client_handle_handshake(t_info *app, t_client *client)
 {
 	socklen_t	len = sizeof(struct sockaddr_in);
+	t_clientmsg	cmsg;
 
-	memset(&app->cdata, 0, sizeof(t_clientdata));
-	app->cdata.id = -1;
+	cmsg.id = -1;
+	cmsg.type = CMT_CONNECT;
 
-	sendto(client->sockfd, (char *)&app->cdata, sizeof(t_clientdata), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
+	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
 
 	// usleep(100000);
 	int	id = -1;
@@ -99,7 +101,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	if (id < 0 || id > 3)
 		return (1);
 	printf("client id: %d\n", id);
-	app->cdata.id = id;
+	client->id = id;
 
 	int flags = fcntl(client->sockfd, F_GETFL, 0);
 	if (flags == -1) {
@@ -117,7 +119,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 pid_t	launch_server(t_info *app)
 {
 	pid_t	pid = 0;
-	t_server srv;
+	t_server srv = {0};
 
 	int retval = setup_server(&srv);
 	// int retval = 1;
@@ -127,6 +129,9 @@ pid_t	launch_server(t_info *app)
 		if (pid == 0)
 		{
 			app->srv = &srv;
+			app->lvl->serialdata[SMT_OBJS].type = SMT_OBJS;
+			app->lvl->serialdata[SMT_DOORS].type = SMT_DOORS;
+			app->lvl->serialdata[SMT_EVENT].type = SMT_EVENT;
 			set_framerate(app, 120);
 			server_loop(app, &srv);
 			exit(0);
@@ -140,74 +145,43 @@ pid_t	launch_server(t_info *app)
 	return (pid);
 }
 
-void	server_handle_handshake(t_info *app, t_server *srv, int n_msgs)
+void	server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
 {
 	int	id = srv->n_clients;
-	memcpy(&srv->clientaddr[srv->n_clients++], &srv->clientmsgs[n_msgs].sockbuf, sizeof(struct sockaddr_in));
+	memcpy(&srv->clientaddr[srv->n_clients++], &packet->sockbuf, sizeof(packet->sockbuf));
 
 	sendto(
 		srv->sockfd, (char *)&id, sizeof(id), 0,
 		(const struct sockaddr *) &srv->clientaddr[id], sizeof(srv->clientaddr[id])
 	);
-	printf("server response sent.\n");
+	printf("server response sent. n_clients: %d\n", srv->n_clients);
 	(void)app;
 }
 
-int	server_receive_messages(t_info *app, t_server *srv)
+void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 {
-	int		n_msgs = 0;
-	errno = 0;
-	size_t	n;
-	socklen_t	len = sizeof(struct sockaddr_in);
-
-	n = recvfrom(
-		srv->sockfd, (char *)&srv->clientmsgs[n_msgs].cdata, sizeof(t_clientdata),
-		0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
-	);
-
-	while (n_msgs < 4 && errno == 0)
-	{
-		if (srv->clientmsgs[n_msgs].cdata.id < 0)
-		{
-			printf("server receiving connection handshake...\n");
-			server_handle_handshake(app, srv, n_msgs);
-			// continue ;
-		}
-		n_msgs++;
-		n = recvfrom(
-			srv->sockfd, (char *)&srv->clientmsgs[n_msgs].cdata, sizeof(t_clientdata),
-			0, (struct sockaddr *)&srv->clientmsgs[n_msgs].sockbuf, &len
-		);
-	}
-
-	return (n_msgs);
-	(void)app;
-}
-
-void	server_handle_projectiles(t_info *app, t_clientdata *cdata)
-{
-	switch (cdata->proj) {
+	switch (cdata->proj.type) {
 		case (PROJ_BEAM):
 			spawn_projectile_server(
 				app,
-				cdata->pos,
-				cdata->dir,
+				cdata->proj.pos,
+				cdata->proj.dir,
 				app->lvl, P_BEAM
 			);
 			break;
 		case (PROJ_MISSILE):
 			spawn_projectile_server(
 				app,
-				cdata->pos,
-				cdata->dir,
+				cdata->proj.pos,
+				cdata->proj.dir,
 				app->lvl, P_MISSILE
 			);
 			break;
 		case (PROJ_SUPER):
 			spawn_projectile_server(
 				app,
-				cdata->pos,
-				cdata->dir,
+				cdata->proj.pos,
+				cdata->proj.dir,
 				app->lvl, P_SUPER
 			);
 			break;
@@ -216,84 +190,225 @@ void	server_handle_projectiles(t_info *app, t_clientdata *cdata)
 	}
 }
 
-void	server_handle_msgs(t_info *app, t_server *srv, int n_msgs)
+const char *stringify_cmsg_type(enum cmsg_type type)
 {
-	for (int i = 0; i < n_msgs; i++)
-	{
-		t_clientdata *cdata = &srv->clientmsgs[i].cdata;
-
-		server_handle_projectiles(app, cdata);
-		if (cdata->id >= 0)
-			add_serialplayer(cdata, app->lvl);
+	switch (type) {
+		case (CMT_CONNECT):
+			return ("CMT_CONNECT");
+			break;
+		case (CMT_PROJ):
+			return ("CMT_PROJ");
+			break;
+		case (CMT_POS):
+			return ("CMT_POS");
+			break;
+		case (CMT_DOOR):
+			return ("CMT_DOOR");
+			break;
+		default:
+			return NULL;
+			break;
 	}
 }
 
-void	server_send_messages(t_info *app, t_server *srv, socklen_t len)
+const char *stringify_smsg_type(enum smsg_type type)
+{
+	switch (type) {
+		case (SMT_OBJS):
+			return ("SMT_OBJS");
+			break;
+		case (SMT_DOORS):
+			return ("SMT_DOORS");
+			break;
+		case (SMT_EVENT):
+			return ("SMT_EVENT");
+			break;
+		default:
+			return ("OTHER");
+			break;
+	}
+}
+
+void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
+{
+	t_clientmsg *cmsg = &packet->data;
+	switch (packet->data.type) {
+		case (CMT_CONNECT):
+			server_handle_handshake(app, srv, packet);
+			break;
+		case (CMT_PROJ):
+			server_handle_projectiles(app, cmsg);
+			break;
+		case (CMT_POS):
+			add_serialplayer(cmsg, app->lvl);
+			break;
+		case (CMT_DOOR):
+			handle_open_door_server(app, cmsg->door.pos);
+			break;
+		default:
+			break;
+	}
+	// printf("\e[34;1mserver\e[m received msg: %s\n", stringify_cmsg_type(cmsg->type));
+}
+
+int	server_receive_messages(t_info *app, t_server *srv)
+{
+	int		n_msgs = 0;
+	errno = 0;
+	packet_in	packet;
+	socklen_t	len = sizeof(packet.sockbuf);
+
+	recvfrom(
+		srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
+		0, (struct sockaddr *)&packet.sockbuf, &len
+	);
+
+	while (errno == 0)
+	{
+		// srv->clientdata[packet.data.id] = packet.data;
+		server_handle_msg(app, srv, &packet);
+		n_msgs++;
+
+		recvfrom(
+			srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
+			0, (struct sockaddr *)&packet.sockbuf, &len
+		);
+		// printf("after receive: %d\n", n_msgs);
+		// perror(strerror(errno));
+	}
+
+	// printf("messages received: %d\n", n_msgs);
+	return (n_msgs);
+	(void)app;
+}
+
+void	server_send_msg(t_server *srv, struct sockaddr_in *client, t_servermsg *smsg)
+{
+	sendto(
+		srv->sockfd, (char *)smsg, sizeof(t_servermsg), 0,
+		(const struct sockaddr *) client, sizeof(*client)
+	);
+}
+
+void	server_send_messages(t_info *app, t_server *srv)
 {
 	for (int i = 0; i < srv->n_clients; i++)
 	{
-		sendto(
-			srv->sockfd, (char *)&app->lvl->serialdata, sizeof(t_serialdata), 0,
-			(const struct sockaddr *) &srv->clientaddr[i], len
-		);
+		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_OBJS]);
+		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_DOORS]);
 	}
 }
 
 void	server_loop(t_info *app, t_server *srv)
 {
-	// size_t		start = get_time_us();
-	socklen_t	len = sizeof(srv->clientaddr[0]);
-
 	while (true)
 	{
-		app->cdata.proj = PROJ_NONE;
 		app->fr_last = get_time_us();
-		int	n_msgs = server_receive_messages(app, srv);
-		server_handle_msgs(app, srv, n_msgs);
-
+		server_receive_messages(app, srv);
+		// size_t	ts1 = get_time_us();
+		// printf("\n\e[32;1m## LOOP TIME ##\e[m\nreceive: %luus\n", ts1 - app->fr_last);
+		
 		update_objects(app, app->player, app->lvl);
+		// size_t ts2 = get_time_us();
+		// printf("update: %luus\n", ts2 - ts1);
 
+		server_send_messages(app, srv);
+		// ts1 = get_time_us();
+		// printf("send: %luus\n", ts1 - ts2);
+		// printf("total: %luus\n", ts1 - app->fr_last);
 		render_calc_time(app);
-
-		// printf("%7lu\tpos: (%.1f, %.1f) dir: (%.1f, %.1f)\n",
-		// 	(app->fr_last - start) / 1000,
-		// 	app->player->pos.x, app->player->pos.y,
-		// 	app->player->dir.x, app->player->dir.y
-		// );
-
-		server_send_messages(app, srv, len);
+		// printf("wait: %luus\n", get_time_us() - ts1);
 	}
 	(void)app;
 	(void)srv;
-	(void)len;
 }
 
-void	client_send_msg(t_info *app)
+void	client_send_msg(t_client *client, t_clientmsg *cmsg)
 {
-	t_client *client = &app->client;
-	app->cdata.pos = app->player->pos;
-	app->cdata.dir = app->player->dir;
-
-	sendto(client->sockfd, (char *)&app->cdata, sizeof(t_clientdata), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
+	sendto(client->sockfd, (char *)cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
 }
 
-void	client_receive_msg(t_info *app)
+void	client_send_pos(t_info *app)
+{
+	t_client 	*client = &app->client;
+	t_clientmsg	cmsg = {
+		.id = app->client.id,
+		.type = CMT_POS,
+		.player.pos = app->player->pos,
+		.player.dir = app->player->dir,
+	};
+
+	client_send_msg(client, &cmsg);
+}
+
+void	client_send_proj(t_info *app, t_eproj type)
+{
+	t_client 	*client = &app->client;
+	t_clientmsg	cmsg = {
+		.id = app->client.id,
+		.type = CMT_PROJ,
+		.proj.type = type,
+		.proj.pos = app->player->pos,
+		.proj.dir = app->player->dir,
+	};
+
+	client_send_msg(client, &cmsg);
+}
+
+void	client_send_door(t_info *app, t_ivect pos)
+{
+	t_client 	*client = &app->client;
+	t_clientmsg	cmsg = {
+		.id = app->client.id,
+		.type = CMT_DOOR,
+		.door.pos = pos,
+	};
+
+	client_send_msg(client, &cmsg);
+}
+
+void	client_process_msg(t_info *app, t_servermsg *smsg)
+{
+	switch (smsg->type) {
+		case (SMT_OBJS):
+			// printf("n_serialobjs: %d\n", smsg->payload.n_serialobjs);
+			deserialise_objs(smsg->payload.serialobjs, smsg->payload.n_serialobjs, app->player);
+			memcpy(&app->lvl->serialdata[SMT_OBJS], smsg, sizeof(*smsg));
+			break;
+		case (SMT_DOORS):
+			// printf("n_serialdoors: %d\n", smsg->payload.n_serialdoors);
+			deserialise_doors(smsg->payload.sdoors, smsg->payload.n_serialdoors, app->lvl);
+			break;
+		default:
+			break;
+	}
+}
+
+void	client_receive_msgs(t_info *app)
 {
 	socklen_t	len = sizeof(app->client.servaddr);
 	errno = 0;
-	int			count = -1;
+	int			count = 0;
+	t_servermsg smsg;
 
+	recvfrom(
+		app->client.sockfd,
+		(char *)&smsg,
+		sizeof(t_servermsg), 0,
+		(struct sockaddr *)&app->client.servaddr, &len
+	);
 	while (errno == 0)
 	{
 		count++;
+		// printf("\e[32;1mclient\e[m received msg: %s\n", stringify_smsg_type(smsg.type));
+		client_process_msg(app, &smsg);
 		recvfrom(
 			app->client.sockfd,
-			(char *)&app->lvl->serialdata,
-			sizeof(t_serialdata), 0,
+			(char *)&smsg,
+			sizeof(t_servermsg), 0,
 			(struct sockaddr *)&app->client.servaddr, &len
 		);
 	}
-	if (count == 0)
-		printf("no packets received!\n");
-	// printf("msg received! %lu\n", app->fr_last);
+	// printf("Packets received this tick: %d\n", count);
+	(void)count;
 }

@@ -61,7 +61,7 @@ void	add_door_rays(t_dda *dda, t_ray *ray, t_info *app, char tile)
 		// }
 		// else
 		// 	add_in_front(ray, ray->face + 4, get_close_door_tex(anim, app));
-		add_in_front(ray, ray->face + 4, &app->shtex->textures[tex_id]);
+		add_in_front(ray, ray->face + 8, &app->shtex->textures[tex_id]);
 		ray->in_front->intcpt.x += dda->norm.x;
 		ray->in_front->intcpt.y += dda->norm.y;
 		ray->in_front->maptile = maptile;

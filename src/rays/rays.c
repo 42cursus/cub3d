@@ -13,7 +13,7 @@
 #include "cub3d.h"
 
 void	check_collision_list(t_list *obj_list, t_player *player, t_ray *ray, t_info *app);
-t_ray	*check_serialobj_collision(t_info *app, t_sobj *object, t_ray *ray, t_player *player);
+t_ray	*check_serialobj_collision(t_info *app, t_sobj *object, t_ray *ray, int idx);
 
 t_ray	*get_pooled_ray(int flag)
 {
@@ -83,14 +83,15 @@ void	calc_object_collisions(t_lvl *lvl, t_player *player, t_ray *ray)
 	check_collision_list(lvl->logo, player, ray, lvl->app);
 }
 
-void calc_object_collisions_alt(t_lvl *lvl, t_player *player, t_ray *ray)
+void calc_object_collisions_alt(t_lvl *lvl, t_ray *ray)
 {
-	for (int i = 0; i < lvl->serialdata.n_serialobjs; i++)
+	for (int i = 0; i < lvl->serialdata[SMT_OBJS].payload.n_serialobjs; i++)
 	{
-		if (lvl->serialdata.serialobjs[i].id != lvl->app->cdata.id)
+		t_sobj *obj = &lvl->serialdata[SMT_OBJS].payload.serialobjs[i];
+		if (obj->id != lvl->app->client.id)
 		{
 			order_obj_ray(
-				check_serialobj_collision(lvl->app, &lvl->serialdata.serialobjs[i], ray, player),
+				check_serialobj_collision(lvl->app, obj, ray, i),
 				ray
 			);
 	  }
@@ -107,6 +108,6 @@ void	cast_all_rays_alt(t_info *app, t_lvl *lvl, t_player *player)
 	{
 		player->rays[i] = ray_dda(app, lvl, player, player->angle_offsets[i]);
 		// calc_object_collisions(lvl, player, &player->rays[i]);
-		calc_object_collisions_alt(lvl, player, &player->rays[i]);
+		calc_object_collisions_alt(lvl, &player->rays[i]);
 	}
 }
