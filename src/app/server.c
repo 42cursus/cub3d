@@ -219,6 +219,7 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 
 void	server_handle_player(t_server *srv, t_clientmsg *cmsg)
 {
+	printf("msg id: %d pos: (%f, %f)\n", cmsg->id, cmsg->player.pos.x, cmsg->player.pos.y);
 	srv->clients[cmsg->id].pos = cmsg->player.pos;
 	srv->clients[cmsg->id].dir = cmsg->player.dir;
 }
