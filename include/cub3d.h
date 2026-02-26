@@ -1111,6 +1111,7 @@ typedef struct s_client
 	int		sockfd;
 	int		id;
 	struct sockaddr_in	servaddr;
+	int		dropped;
 }	t_client;
 
 struct s_info
@@ -1323,6 +1324,7 @@ void		place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
 void		place_str(char *str, t_info *app, t_ivect spos, int scalar);
 void		place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void		place_fps(t_info *app);
+void		place_dropped_packets(t_info *app);
 void		place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
 t_tex		img_to_tex(t_info *app, const char *filename);
 t_tex		img_to_tex_static_rm(t_info *app, const char **xpm_data);

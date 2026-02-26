@@ -121,15 +121,15 @@ int	render_play_multi(void *param)
 	t_info *const	app = param;
 
 	render_play_handle_keys(app);
-	printf("\n\e[32;1m## CONNECTION HANDLING TIME ##\e[m\n");
-	size_t start = get_time_us();
+	// printf("\n\e[32;1m## CONNECTION HANDLING TIME ##\e[m\n");
+	// size_t start = get_time_us();
 	client_send_pos(app);
-	size_t ts1 = get_time_us();
-	printf("send: %luus\n", ts1 - start);
+	// size_t ts1 = get_time_us();
+	// printf("send: %luus\n", ts1 - start);
 	client_receive_msgs(app);
-	size_t ts2 = get_time_us();
-	printf("receive: %luus\n", ts2 - ts1);
-	printf("total: %luus\n", ts2 - start);
+	// size_t ts2 = get_time_us();
+	// printf("receive: %luus\n", ts2 - ts1);
+	// printf("total: %luus\n", ts2 - start);
 	// update_objects(app, app->player, app->lvl);
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
@@ -138,6 +138,7 @@ int	render_play_multi(void *param)
 	app->fr_scale = 20000.0 / app->fr_time;
 	app->fr_count++;
 	draw_hud(app);
+	place_dropped_packets(app);
 	on_expose(app);
 	return (0);
 }

@@ -82,6 +82,8 @@ int	setup_client(t_client *client)
     // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
     client->servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
+	client->dropped = 0;
+
 	return (0);
 }
 
@@ -265,7 +267,6 @@ int	server_receive_messages(t_info *app, t_server *srv)
 
 	while (errno == 0)
 	{
-		// srv->clientdata[packet.data.id] = packet.data;
 		server_handle_msg(app, srv, &packet);
 		n_msgs++;
 
@@ -273,8 +274,6 @@ int	server_receive_messages(t_info *app, t_server *srv)
 			srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
 			0, (struct sockaddr *)&packet.sockbuf, &len
 		);
-		// printf("after receive: %d\n", n_msgs);
-		// perror(strerror(errno));
 	}
 
 	// printf("messages received: %d\n", n_msgs);
@@ -391,6 +390,7 @@ void	client_receive_msgs(t_info *app)
 	int			count = 0;
 	t_servermsg smsg;
 
+	app->client.dropped++;
 	recvfrom(
 		app->client.sockfd,
 		(char *)&smsg,
@@ -399,6 +399,7 @@ void	client_receive_msgs(t_info *app)
 	);
 	while (errno == 0)
 	{
+		app->client.dropped = 0;
 		count++;
 		// printf("\e[32;1mclient\e[m received msg: %s\n", stringify_smsg_type(smsg.type));
 		client_process_msg(app, &smsg);
@@ -409,6 +410,6 @@ void	client_receive_msgs(t_info *app)
 			(struct sockaddr *)&app->client.servaddr, &len
 		);
 	}
-	// printf("Packets received this tick: %d\n", count);
+	printf("Packets received this tick: %d\n", count);
 	(void)count;
 }

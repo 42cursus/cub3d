@@ -62,6 +62,27 @@ void	place_fps(t_info *app)
 }
 
 inline __attribute__((always_inline, used))
+void	place_dropped_packets(t_info *app)
+{
+	int			digit;
+	int			dropped = app->client.dropped;
+	int			x;
+	int			y;
+
+	y = WIN_HEIGHT - 32;
+	x = 64;
+	if (dropped == 0)
+		return place_char('0', app, (t_ivect){x, y}, 2);
+	while (dropped > 0)
+	{
+		digit = dropped % 10;
+		dropped /= 10;
+		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		x -= 16;
+	}
+}
+
+inline __attribute__((always_inline, used))
 void	place_scope(t_info *app)
 {
 	t_tex	*scope;
