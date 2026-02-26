@@ -243,7 +243,7 @@ void	update_objects_mult(t_info *app, t_player *player, t_lvl *lvl)
 		app->srv->clients[i].event = EVENT_NONE;
 
 	update_enemies_mult(app, lvl);
-	update_projectiles(app, player, lvl);
+	update_projectiles_mult(app, player, lvl);
 	update_items_mult(app, lvl);
 	// update_triggers(app, player, lvl);
 	update_logo_pieces(app, player, lvl);
