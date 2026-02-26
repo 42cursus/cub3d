@@ -274,6 +274,7 @@ void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 			break;
 		case (CMT_POS):
 			server_handle_player(srv, cmsg);
+			add_serialplayer(cmsg, app->lvl);
 			break;
 		case (CMT_DOOR):
 			handle_open_door_server(app, cmsg->door.pos);
