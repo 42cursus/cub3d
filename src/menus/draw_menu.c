@@ -125,4 +125,6 @@ void	draw_menu_items(t_info *app)
 		draw_menu_multi_connect(app);
 	if (app->menu_state.state == OPTIONS)
 		draw_menu_options(app);
+	if (app->menu_state.state == CONNECTING)
+		place_str_centred("Connecting...", app, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4);
 }

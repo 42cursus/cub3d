@@ -902,6 +902,7 @@ typedef enum e_menustate
 	OPTIONS,
 	WIN,
 	LOSE,
+	CONNECTING,
 	MENUSTATE_MAX,
 }	t_emenus;
 
