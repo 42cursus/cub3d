@@ -102,7 +102,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -fstack-usage
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -fstack-usage -DSKIP_INTRO=1
 
 ifeq ($(COMPILER),clang)
 CFLAGS			+= -Wno-self-assign
