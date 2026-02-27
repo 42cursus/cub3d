@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <stdio.h>
 
 void	draw_menu_lvlselect(t_info *app)
 {
@@ -26,6 +27,22 @@ void	draw_menu_lvlselect(t_info *app)
 	pos.x = WIN_WIDTH / 2 - 320;
 	pos.y = 330 + (app->menu_state.selected * 48);
 	put_texture(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
+}
+
+void	draw_menu_multi(t_info *app)
+{
+	place_menu((const char *[]){"HOST", "CONNECT", "BACK"},
+		(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
+}
+
+void	draw_menu_multi_connect(t_info *app)
+{
+	char	buf[1024];
+	char	cursor = app->prev_key_hook == NULL ? ' ' : '_';
+
+	snprintf(buf, 1024, "ip: %s%c", app->inputbuf, cursor);
+	place_menu((const char *[]){buf, "JOIN", "BACK"},
+		(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 }
 
 void	draw_menu_win(t_info *app)
@@ -102,6 +119,10 @@ void	draw_menu_items(t_info *app)
 		place_menu((const char *[]){"resume", "MAIN MENU", "options", "EXIT"},
 			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
+	if (app->menu_state.state == MULTI)
+		draw_menu_multi(app);
+	if (app->menu_state.state == MULTI_CONNECT)
+		draw_menu_multi_connect(app);
 	if (app->menu_state.state == OPTIONS)
 		draw_menu_options(app);
 }
