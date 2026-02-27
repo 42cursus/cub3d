@@ -6,12 +6,15 @@
 #    By: abelov <abelov@student.42london.com>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/03/08 17:02:06 by abelov            #+#    #+#              #
-#    Updated: 2025/08/08 16:50:32 by fsmyth           ###   ########.fr        #
+#    Updated: 2026/02/24 14:35:22 by fsmyth           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 FILES   = cleanup.c \
 			fsm.c \
+			fsm_setup.c \
+			server.c \
+			fsm_multi.c \
 			hooks.c \
 			joypad.c \
 			mouse_hooks.c \

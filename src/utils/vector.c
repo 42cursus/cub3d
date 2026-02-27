@@ -84,6 +84,26 @@ void	*ft_memcpy_avx2(void *dst, const void *src, size_t count)
 	return (dst);
 }
 
+t_fvect	vect_to_fvect(t_vect vect)
+{
+	t_fvect out = {
+		.x = (float)vect.x,
+		.y = (float)vect.y,
+	};
+	
+	return out;
+}
+
+t_vect	fvect_to_vect(t_fvect fvect)
+{
+	t_vect out = {
+		.x = (double)fvect.x,
+		.y = (double)fvect.y,
+	};
+	
+	return out;
+}
+
 //void *fast_memcpy_test(void *dst, const void *src, size_t size)
 //{
 //	if (__builtin_cpu_supports("avx2"))

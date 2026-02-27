@@ -80,6 +80,7 @@ void	draw_menu_items(t_info *app)
 {
 	if (app->menu_state.state == MAIN)
 		place_menu((const char *[]){"START",
+			"MULTIPLAYER",
 			"LEVEL SELECT",
 			"options",
 			"credits",

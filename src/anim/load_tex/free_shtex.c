@@ -45,7 +45,7 @@ void	free_shtex(t_info *app)
 	free(app->shtex->scope.data);
 	free(app->shtex->empty.data);
 	free(app->shtex->alphabet.data);
-	free(app->shtex->textures[tex_DOOR].data);
+	// free(app->shtex->textures[tex_DOOR].data);
 	free_tex_arr_arr(app->shtex->trophy_tex, 2);
 	free_tex_arr_arr(app->shtex->super_ammo, 2);
 	free_tex_arr_arr(app->shtex->missile_ammo, 2);

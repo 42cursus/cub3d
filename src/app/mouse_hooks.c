@@ -74,3 +74,20 @@ int	mouse_press_play(unsigned int button, int x, int y, void *param)
 	return (0);
 	((void) x, (void) y);
 }
+
+int	mouse_press_multi(unsigned int button, int x, int y, void *param)
+{
+	t_info *const	app = param;
+
+	app->mouse[button] = true;
+	if (button == 1)
+		spawn_projectile_client(app, app->player);
+	else if (button == 3)
+		app->player->equipped = 0;
+	else if (button == 4)
+		next_weapon(app->player);
+	else if (button == 5)
+		prev_weapon(app->player);
+	return (0);
+	((void) x, (void) y);
+}

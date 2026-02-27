@@ -12,6 +12,7 @@
 
 #include "cub3d.h"
 #include <X11/X.h>
+#include <stdlib.h>
 #include "fsm.h"
 
 void	destroy_map(t_lvl *lvl)
@@ -46,7 +47,12 @@ void	do_prep(int argc, t_info *const app)
 	set_framerate(app, FRAMERATE);
 	set_sensitivity(app, 7);
 	init_audio(app);
-	init_fonts(app);
+	if (init_fonts(app) == EXIT_FAILURE)
+	{
+		printf("Failed to init fonts\n");
+		exit(1);
+	}
+
 	set_sound_volume(app, 100);
 	set_music_volume(app, 100);
 	srand(get_time_ms());
@@ -172,7 +178,7 @@ void	do_win_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_win_to_load(void *param)
@@ -277,7 +283,7 @@ void	do_pmenu_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_pmenu_to_end(void *param)
@@ -305,7 +311,7 @@ void	do_lose_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_lose_to_end(void *param)
@@ -420,43 +426,43 @@ void	do_play_to_lose(void *param)
 
 void	do_load_to_play(void *param)
 {
-	t_info *const	app = param;
+    t_info *const	app = param;
 
-	replace_image(app, &app->bg, NULL);
-	replace_image_r(app, &app->bg_r, NULL);
+    replace_image(app, &app->bg, NULL);
+    replace_image_r(app, &app->bg_r, NULL);
 
-	const char *path[] = {
-			"/dev/input/by-id/usb-8BitDo_Controller_E417D8409A46-event-joystick",
-			"/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D8409A46-event-joystick",
-			"/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D81DB211-event-joystick",
-			"/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D852BEA7-event-joystick",
-			"/dev/input/by-id/usb-Sony_PLAYSTATION_R_3_Controller-event-joystick",
-	};
+    const char *path[] = {
+            "/dev/input/by-id/usb-8BitDo_Controller_E417D8409A46-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D8409A46-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D81DB211-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D852BEA7-event-joystick",
+            "/dev/input/by-id/usb-Sony_PLAYSTATION_R_3_Controller-event-joystick",
+    };
 
-	int i = 0;
-	int init = pad_init(&app->pad, path[i++]);
-	while (init != 0 && i < (int)(sizeof(path) / sizeof(path[0])))
-		init = pad_init(&app->pad, path[i++]);
-	if (init != 0)
-		dprintf(STDERR_FILENO, "warning: no pad, continuing without it\n");
-	mlx_loop_hook(app->mlx, &render_play, app);
-	app->mlx->end_loop = 0;
-	mlx_hook(app->win, KeyPress, KeyPressMask,
-		(void *)&key_press_play, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
-		(void *)&key_release_play, app);
-	mlx_hook(app->win, ButtonPress, ButtonPressMask,
-		(void *)&mouse_press_play, app);
-	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
-		(void *)&mouse_release_play, app);
-	mlx_hook(app->win, MotionNotify, PointerMotionMask,
-		(void *)&mouse_move_play, app);
-	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
-	app->timer.cur_lvl_start = get_time_ms();
-	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
-		GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
-	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
-	XUngrabPointer(app->mlx->display, CurrentTime);
+    int i = 0;
+    int init = pad_init(&app->pad, path[i++]);
+    while (init != 0 && i < (int)(sizeof(path) / sizeof(path[0])))
+        init = pad_init(&app->pad, path[i++]);
+    if (init != 0)
+        dprintf(STDERR_FILENO, "warning: no pad, continuing without it\n");
+    mlx_loop_hook(app->mlx, &render_play, app);
+    app->mlx->end_loop = 0;
+    mlx_hook(app->win, KeyPress, KeyPressMask,
+             (void *)&key_press_play, app);
+    mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+             (void *)&key_release_play, app);
+    mlx_hook(app->win, ButtonPress, ButtonPressMask,
+             (void *)&mouse_press_play, app);
+    mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
+             (void *)&mouse_release_play, app);
+    mlx_hook(app->win, MotionNotify, PointerMotionMask,
+             (void *)&mouse_move_play, app);
+    app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+    app->timer.cur_lvl_start = get_time_ms();
+    XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
+                 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+    mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+    XUngrabPointer(app->mlx->display, CurrentTime);
 }
 
 void	do_credits_to_end(void *param)
@@ -568,7 +574,7 @@ void	do_credits_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_load_to_mmenu(void *param)
@@ -587,7 +593,7 @@ void	do_load_to_mmenu(void *param)
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 int	exit_win(t_info *const	app)
@@ -608,7 +614,7 @@ void	do_initial_to_mmenu(void *param)
 		(void *)&key_press_mmenu, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 	XSetInputFocus(app->mlx->display, app->win->window,
 		RevertToPointerRoot, CurrentTime);
 	grab_result = XGrabKeyboard(app->mlx->display, app->win->window, True,
@@ -662,7 +668,7 @@ void	do_intro_to_mmenu(void *param)
 	app->mlx->end_loop = 0;
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 5;
+	app->menu_state.no_items = 6;
 }
 
 void	do_mmenu_to_load(void *param)
@@ -813,24 +819,33 @@ t_transition	*get_state_transitions(size_t *size)
 {
     static t_transition	transitions[] = {
         {STATE_INITIAL, ok, STATE_MMENU},
-        {STATE_INITIAL, fail, STATE_END},
-        {STATE_INITIAL, extra, STATE_INTRO},
-        {STATE_INTRO, ok, STATE_MMENU},
-        {STATE_INTRO, fail, STATE_END},
-        {STATE_MMENU, ok, STATE_LOAD},
-        {STATE_MMENU, repeat, STATE_CREDITS},
-        {STATE_MMENU, fail, STATE_END},
-        {STATE_CREDITS, ok, STATE_MMENU},
-        {STATE_LOAD, ok, STATE_PLAY},
-        {STATE_LOAD, fail, STATE_MMENU},
-        {STATE_PLAY, ok, STATE_WIN},
-        {STATE_PLAY, fail, STATE_LOSE}, {STATE_PLAY, repeat, STATE_PMENU},
-        {STATE_PLAY, extra, STATE_LOAD}, {STATE_PMENU, ok, STATE_PLAY},
-        {STATE_PMENU, repeat, STATE_MMENU}, {STATE_PMENU, fail, STATE_END},
-        {STATE_LOSE, ok, STATE_LOAD}, {STATE_LOSE, repeat, STATE_MMENU},
-        {STATE_LOSE, fail, STATE_END}, {STATE_WIN, ok, STATE_LOAD},
-        {STATE_WIN, fail, STATE_END}, {STATE_WIN, repeat, STATE_MMENU},
-        {STATE_WIN, extra, STATE_CREDITS},
+		{STATE_INITIAL, fail, STATE_END},
+		{STATE_INITIAL, extra, STATE_INTRO},
+		{STATE_INTRO, ok, STATE_MMENU},
+		{STATE_INTRO, fail, STATE_END},
+		{STATE_MMENU, ok, STATE_LOAD},
+		{STATE_MMENU, repeat, STATE_CREDITS},
+		{STATE_MMENU, fail, STATE_END},
+		{STATE_MMENU, extra, STATE_MULTILOAD},
+		{STATE_CREDITS, ok, STATE_MMENU},
+		{STATE_LOAD, ok, STATE_PLAY},
+		{STATE_LOAD, fail, STATE_MMENU},
+		{STATE_MULTILOAD, ok, STATE_MULTI},
+		{STATE_MULTILOAD, fail, STATE_MMENU},
+		{STATE_PLAY, ok, STATE_WIN},
+		{STATE_PLAY, fail, STATE_LOSE},
+		{STATE_PLAY, repeat, STATE_PMENU},
+		{STATE_PLAY, extra, STATE_LOAD},
+		{STATE_PMENU, ok, STATE_PLAY},
+		{STATE_PMENU, repeat, STATE_MMENU},
+		{STATE_PMENU, fail, STATE_END},
+		{STATE_LOSE, ok, STATE_LOAD},
+		{STATE_LOSE, repeat, STATE_MMENU},
+		{STATE_LOSE, fail, STATE_END},
+		{STATE_WIN, ok, STATE_LOAD},
+		{STATE_WIN, fail, STATE_END},
+		{STATE_WIN, repeat, STATE_MMENU},
+		{STATE_WIN, extra, STATE_CREDITS},
     };
     static size_t		transitions_size = SDL_TABLESIZE(transitions);
 
@@ -841,16 +856,18 @@ t_transition	*get_state_transitions(size_t *size)
 t_state_func *const	*get_state_table(void)
 {
     static t_state_func *const	state_table[NUM_STATES] = {
-        [STATE_INITIAL] = (void *)do_state_initial,
-        [STATE_INTRO] = do_state_intro,
-        [STATE_MMENU] = do_state_mmenu,
-        [STATE_CREDITS] = do_state_credits,
-        [STATE_LOAD] = do_state_load,
-        [STATE_PLAY] = do_state_play,
-        [STATE_PMENU] = do_state_pmenu,
-        [STATE_LOSE] = do_state_lose,
-        [STATE_WIN] = do_state_win,
-        [NUM_STATES - 1] = NULL
+            [STATE_INITIAL] = (void *)do_state_initial,
+            [STATE_INTRO] = do_state_intro,
+            [STATE_MMENU] = do_state_mmenu,
+            [STATE_CREDITS] = do_state_credits,
+            [STATE_LOAD] = do_state_load,
+            [STATE_MULTILOAD] = do_state_multiload,
+            [STATE_PLAY] = do_state_play,
+            [STATE_MULTI] = do_state_multi,
+            [STATE_PMENU] = do_state_pmenu,
+            [STATE_LOSE] = do_state_lose,
+            [STATE_WIN] = do_state_win,
+            [NUM_STATES - 1] = NULL
     };
 
     return (state_table);
@@ -859,27 +876,58 @@ t_state_func *const	*get_state_table(void)
 t_transition_func	**get_trans_table(void)
 {
     static t_transition_func *const		t_table[NUM_STATES - 1][NUM_STATES] = {
-        [STATE_INITIAL] = {[STATE_INTRO] = do_initial_to_intro,
-                [STATE_MMENU] = do_initial_to_mmenu, [STATE_END] = do_initial_to_end},
-        [STATE_INTRO] = {[STATE_MMENU] = do_intro_to_mmenu,
-                [STATE_END] = do_intro_to_end},
-        [STATE_MMENU] = {[STATE_INTRO] = do_mmenu_to_intro,
-                [STATE_LOAD] = do_mmenu_to_load,
-                [STATE_CREDITS] = do_mmenu_to_credits, [STATE_END] = do_mmenu_to_end},
-        [STATE_LOAD] = {[STATE_MMENU] = do_load_to_mmenu,
-                [STATE_PLAY] = do_load_to_play, [STATE_END] = do_load_to_end},
-        [STATE_PLAY] = {[STATE_PMENU] = do_play_to_pmenu,
-                [STATE_LOSE] = do_play_to_lose, [STATE_WIN] = do_play_to_win,
-                [STATE_END] = do_play_to_end, [STATE_LOAD] = do_play_to_load},
-        [STATE_PMENU] = {[STATE_MMENU] = do_pmenu_to_mmenu,
-                [STATE_PLAY] = do_pmenu_to_play, [STATE_END] = do_pmenu_to_end},
-        [STATE_LOSE] = {[STATE_MMENU] = do_lose_to_mmenu,
-                [STATE_END] = do_lose_to_end, [STATE_LOAD] = do_lose_to_load},
-        [STATE_WIN] = {[STATE_LOAD] = do_win_to_load,
-                [STATE_MMENU] = do_win_to_mmenu,
-                [STATE_END] = do_win_to_end, [STATE_CREDITS] = do_win_to_credits},
-        [STATE_CREDITS] = {[STATE_MMENU] = do_credits_to_mmenu,
-                [STATE_END] = do_credits_to_end},
+            [STATE_INITIAL] = {
+                    [STATE_INTRO] = do_initial_to_intro,
+                    [STATE_MMENU] = do_initial_to_mmenu,
+                    [STATE_END] = do_initial_to_end
+            },
+            [STATE_INTRO] = {
+                    [STATE_MMENU] = do_intro_to_mmenu,
+                    [STATE_END] = do_intro_to_end
+            },
+            [STATE_MMENU] = {
+                    [STATE_INTRO] = do_mmenu_to_intro,
+                    [STATE_LOAD] = do_mmenu_to_load,
+                    [STATE_CREDITS] = do_mmenu_to_credits,
+                    [STATE_END] = do_mmenu_to_end,
+                    [STATE_MULTILOAD] = do_mmenu_to_multiload
+            },
+            [STATE_LOAD] = {
+                    [STATE_MMENU] = do_load_to_mmenu,
+                    [STATE_PLAY] = do_load_to_play,
+                    [STATE_END] = do_load_to_end
+            },
+            [STATE_MULTILOAD] = {
+                    [STATE_MMENU] = do_multiload_to_mmenu,
+                    [STATE_MULTI] = do_multiload_to_multi,
+            },
+            [STATE_PLAY] = {
+                    [STATE_PMENU] = do_play_to_pmenu,
+                    [STATE_LOSE] = do_play_to_lose,
+                    [STATE_WIN] = do_play_to_win,
+                    [STATE_END] = do_play_to_end,
+                    [STATE_LOAD] = do_play_to_load
+            },
+            [STATE_PMENU] = {
+                    [STATE_MMENU] = do_pmenu_to_mmenu,
+                    [STATE_PLAY] = do_pmenu_to_play,
+                    [STATE_END] = do_pmenu_to_end
+            },
+            [STATE_LOSE] = {
+                    [STATE_MMENU] = do_lose_to_mmenu,
+                    [STATE_END] = do_lose_to_end,
+                    [STATE_LOAD] = do_lose_to_load
+            },
+            [STATE_WIN] = {
+                    [STATE_LOAD] = do_win_to_load,
+                    [STATE_MMENU] = do_win_to_mmenu,
+                    [STATE_END] = do_win_to_end,
+                    [STATE_CREDITS] = do_win_to_credits
+            },
+            [STATE_CREDITS] = {
+                    [STATE_MMENU] = do_credits_to_mmenu,
+                    [STATE_END] = do_credits_to_end
+            },
     };
 
     return ((t_transition_func **)t_table);
@@ -910,4 +958,114 @@ t_state	run_state(t_info *app, int argc, char **argv)
     if (transition_func)
         transition_func(app);
     return (transition.dst_state);
+}
+
+void	do_mmenu_to_multiload(void *param)
+{
+	t_info *const	app = param;
+
+	printf("do_mmenu_to_multiload\n");
+	app->fr_count = 0;
+	app->lvl = init_map();
+	if (parse_cub(app, "./maps/multi.cub"))
+	{
+		free_map(app->lvl);
+		app->lvl = NULL;
+		app->player = NULL;
+		app->rc = fail;
+		return ;
+	}
+	app->rc = ok;
+	app->player = init_player(app);
+	mlx_loop_hook(app->mlx, &render_load, app);
+	app->mlx->end_loop = 0;
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
+	return ;
+}
+
+
+t_ret_code	do_state_multiload(void *param)
+{
+	t_info *const	app = param;
+
+	printf("do_state_multiload\n");
+	if (app->rc != ok)
+		return (app->rc);
+	// if (app->lvl && app->lvl->music)
+	// 	Mix_PlayChannel(ch_music1, app->lvl->music, -1);
+	app->srv_pid = launch_server(app);
+	if (app->srv_pid == -1)
+		return (fail);
+	mlx_loop(app->mlx);
+	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
+	return (ok);
+}
+
+void	do_multiload_to_multi(void *param)
+{
+	t_info *const	app = param;
+
+	printf("do_multiload_to_multi\n");
+	replace_image(app, &app->bg, NULL);
+	replace_image_r(app, &app->bg_r, NULL);
+	mlx_loop_hook(app->mlx, &render_play_multi, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *)&key_press_multi, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+		(void *)&key_release_play, app);
+	mlx_hook(app->win, ButtonPress, ButtonPressMask,
+		(void *)&mouse_press_multi, app);
+	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
+		(void *)&mouse_release_play, app);
+	mlx_hook(app->win, MotionNotify, PointerMotionMask,
+		(void *)&mouse_move_play, app);
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+	app->timer.cur_lvl_start = get_time_ms();
+	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
+		GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	XUngrabPointer(app->mlx->display, CurrentTime);
+}
+
+void	do_multiload_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	printf("do_multiload_to_mmenu\n");
+	cleanup_maps(app);
+	app->player = (free(app->player), NULL);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+t_ret_code do_state_multi(void *param)
+{
+	t_info *const	app = param;
+
+	printf("do_state_multi\n");
+	mlx_mouse_hide(app->mlx, app->win);
+	replace_sky_r(app, (char *)TEX_DIR"/fog_sky.xpm");
+	replace_sky(app, (char *)TEX_DIR"/fog_sky.xpm");
+	draw_sky_alt(app);
+	draw_sky_transposed_avx2(app);
+	draw_nav(app);
+	calculate_offsets(app, app->player);
+	app->fr_last = get_time_us();
+	app->msg_to_show = -1;
+	app->msg_last_time = app->fr_last;
+	mlx_loop(app->mlx);
+	mlx_mouse_show(app->mlx, app->win);
+	return (app->rc);
 }

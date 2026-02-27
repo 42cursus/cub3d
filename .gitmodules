@@ -1,6 +1,3 @@
 [submodule "lib/ft"]
 	path = lib/ft
 	url = git@github.com:42cursus/libft.git
-[submodule "lib/mlx"]
-	path = lib/mlx
-	url = git@github.com:42cursus/minilibx-linux.git

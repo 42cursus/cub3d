@@ -124,19 +124,6 @@ void	draw_hud(t_info *app)
 	if (app->fr_last - app->player->dmg_time < 500000)
 		place_dmg(app, app->player);
 }
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   hud_2.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: abelov <abelov@student.42london.com>       +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/08/11 14:43:13 by abelov            #+#    #+#             */
-/*   Updated: 2025/08/11 14:43:14 by abelov           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-#include "cub3d.h"
 
 void	place_char(char c, t_info *app, t_ivect p, int scalar);
 
@@ -182,6 +169,27 @@ void	place_fps(t_info *app)
 	{
 		digit = fps % 10;
 		fps /= 10;
+		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		x -= 16;
+	}
+}
+
+inline __attribute__((always_inline, used))
+void	place_dropped_packets(t_info *app)
+{
+	int			digit;
+	int			dropped = app->client.dropped;
+	int			x;
+	int			y;
+
+	y = WIN_HEIGHT - 32;
+	x = 64;
+	if (dropped == 0)
+		return place_char('0', app, (t_ivect){x, y}, 2);
+	while (dropped > 0)
+	{
+		digit = dropped % 10;
+		dropped /= 10;
 		place_char(digit + '0', app, (t_ivect){x, y}, 2);
 		x -= 16;
 	}
@@ -339,7 +347,8 @@ void	place_doors_minimap(t_lvl *lvl, t_point offset, int scalar)
 	while (current != NULL)
 	{
 		curr_obj = current->content;
-		tile->data = data[(u_char) *(char *)(curr_obj->texture)];
+//		tile->data = data[(u_char) *(char *)(curr_obj->texture)];
+		tile->data = data[(u_char) lvl->map[curr_obj->coords.y][curr_obj->coords.x]];
 		place_tex_to_image_scale(lvl->app->canvas, tile, (t_point){
 			.x = offset.x + floor(curr_obj->pos.x) * msf.x + 4 * scalar,
 			.y = offset.y - floor(curr_obj->pos.y) * msf.y - 4 * scalar},
@@ -880,7 +889,8 @@ t_tex	get_tile(int idx)
 		return (tiles[idx]);
 	tex = &tiles[idx];
 	*tex = (t_tex){.w = MMAP_TILE_W, .h = MMAP_TILE_H, .sl = MMAP_TILE_SL};
-	tex->data = (u_int *) tiles_data[idx];
+	tex->data = malloc(MMAP_TILE_SL * MMAP_TILE_H);
+//	tex->data = (u_int *) tiles_data[idx];
 	if (tex->data != NULL)
 	{
 		it.y = -1;

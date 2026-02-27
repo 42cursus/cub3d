@@ -29,7 +29,7 @@ t_obj	*spawn_enemy(t_info *app, t_vect pos, t_vect dir, int subtype)
 	enemy->subtype = subtype;
 	enemy->anim2.frames = 6;
 	enemy->anim2.duration = 420000;
-	enemy->anim2.tex = &app->shtex->explode_tex[6];
+	enemy->anim2.tex_idx = tex_EXPLODE + 6;
 	if (subtype == E_ZOOMER)
 		init_zoomer(enemy, app);
 	if (subtype == E_ATOMIC)
@@ -51,8 +51,8 @@ int	handle_enemy_death(t_info *app, t_obj *obj, t_list **current)
 {
 	if (obj->dead == 1)
 	{
-		obj->texture = handle_animation(app, obj->anim2);
-		if (obj->texture == NULL)
+		obj->tex_id = handle_animation(app, obj->anim2);
+		if (obj->tex_id == tex_EMPTY)
 		{
 			if (obj->subtype == E_PHANTOON)
 			{
@@ -93,7 +93,7 @@ int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current)
 	if (retval != -1)
 		return (retval);
 	handle_enemy_ai(app, obj);
-	obj->texture = handle_animation(app, obj->anim);
+	obj->tex_id = handle_animation(app, obj->anim);
 	if (vector_distance(obj->pos, app->player->pos) < 0.5 && !app->player->dead)
 	{
 		if (obj->subtype != E_ATOMIC)
@@ -106,6 +106,35 @@ int	handle_obj_entity(t_info *app, t_obj *obj, t_list **current)
 		move_entity(&app->player->pos, app->lvl,
 			scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
 		app->player->dmg_dir = (subtract_vect(obj->pos, app->player->pos));
+	}
+	return (0);
+}
+
+int	handle_obj_entity_mult(t_info *app, t_obj *obj, t_list **current)
+{
+	int	retval;
+
+	retval = handle_enemy_death(app, obj, current);
+	if (retval != -1)
+		return (retval);
+	handle_enemy_ai(app, obj);
+	obj->tex_id = handle_animation(app, obj->anim);
+	for (int i = 0; i < app->srv->n_clients; i++)
+	{
+		t_playermult *player = &app->srv->clients[i];
+		if (vector_distance(obj->pos, player->pos) < 0.5 && !player->dead)
+		{
+			if (obj->subtype != E_ATOMIC)
+				subtract_health_mult(app, player, 35);
+			else
+			{
+				subtract_health_mult(app, player, 80);
+				damage_enemy(app, obj, 100);
+			}
+			move_entity(&app->player->pos, app->lvl,
+				scale_vect(subtract_vect(app->player->pos, obj->pos), 1));
+			player->dmg_dir = (subtract_vect(obj->pos, app->player->pos));
+		}
 	}
 	return (0);
 }
