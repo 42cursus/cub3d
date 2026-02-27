@@ -32,6 +32,8 @@ void	menu_go_multi(t_info *app, t_menustate *menu_state)
 
 void	menu_go_multi_connect(t_info *app, t_menustate *menu_state)
 {
+	app->inputbuf[0] = '\0';
+	app->inputlen = 0;
 	menu_state->prev = menu_state->state;
 	menu_state->state = MULTI_CONNECT;
 	menu_state->selected = 0;
@@ -76,8 +78,6 @@ void	menu_go_mmenu(t_info *app, t_menustate *menu_state)
 void	menu_go_input(t_info *app, t_menustate *menu_state)
 {
 	app->prev_key_hook = key_press_mmenu;
-	app->inputbuf[0] = '\0';
-	app->inputlen = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)key_press_input_ip, app);
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)key_release_play, app);
 	(void)menu_state;

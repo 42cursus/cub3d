@@ -193,8 +193,11 @@ int	key_press_input_ip(KeySym key, void *param)
 	}
 	else if ((key >= XK_0 && key <= XK_9) || key == XK_period)
 	{
-		if (app->inputlen < 512)
+		if (app->inputlen < 511)
+		{
 			app->inputbuf[app->inputlen++] = key - XK_space + ' ';
+			app->inputbuf[app->inputlen] = '\0';
+		}
 	}
 	else if (key == XK_BackSpace && app->inputlen > 0)
 	{
