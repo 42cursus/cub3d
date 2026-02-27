@@ -68,7 +68,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -DSKIP_INTRO=1
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 SDL_HEADER			:= $(INC_DIR)/SDL_mixer.h
