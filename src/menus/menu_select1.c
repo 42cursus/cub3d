@@ -52,6 +52,7 @@ void	menu_start_multi_client(t_info *app, t_menustate *menu_state)
 	app->client.hosting = 0;
 	app->rc = extra;
 	app->mlx->end_loop = 1;
+	app->menu_state.state = CONNECTING;
 	(void)menu_state;
 }
 
