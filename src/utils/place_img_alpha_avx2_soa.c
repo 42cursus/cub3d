@@ -123,7 +123,7 @@ t_point	blend_pixels_scalar(int limit_x, t_point it, t_cdata cd)
  * @param tile
  * @param p
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	place_img_alpha_avx2_soa(t_img *image, const t_img *tile, t_point p)
 {
 	t_point	it;

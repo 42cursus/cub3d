@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 double	normalize_angle(double angle)
 {
 	angle = fmod(angle, 2 * M_PI);
@@ -29,7 +29,7 @@ double	normalize_angle(double angle)
  * @param x
  * @return
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 double	smoothstep(double edge0, double edge1, double x)
 {
 	x = (x - edge0) / (edge1 - edge0);
@@ -47,7 +47,7 @@ double	smoothstep(double edge0, double edge1, double x)
  * @param end
  * @return
  */
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 int	angle_in_range(double angle, double start, double end)
 {
 	if (start <= end)

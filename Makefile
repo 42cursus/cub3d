@@ -24,8 +24,8 @@ INC_DIR			= ./include
 
 RMFLAGS			= -r
 
-CC				:= cc
-#CC				:= clang
+#CC				:= cc
+CC				:= clang
 #CC				:= gcc
 
 
@@ -37,14 +37,6 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
 					-I/usr/include/SDL2 \
 					-I/usr/include/freetype2 \
 					-I/usr/include/libpng16
-
-DIAGNOSTIC_FLAGS := -fstack-usage \
-					-Wframe-larger-than=4096 \
-					-Wstack-usage=4096 \
-					-Wvla \
-					-Wvla-larger-than=1024 \
-					-Walloca \
-					-Walloca-larger-than=1024
 
 # https://github.com/llvm/llvm-project/issues/61684
 # https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
@@ -90,7 +82,13 @@ OPTIMIZE_FLAGS	+= -fkeep-inline-functions -fgnu89-inline
 #						-fopt-info-inline \
 #						-ftime-report \
 #						-fopt-info-inline-optimized
-
+DIAGNOSTIC_FLAGS := -fstack-usage \
+					-Wframe-larger-than=4096 \
+					-Wstack-usage=4096 \
+					-Wvla \
+					-Wvla-larger-than=1024 \
+					-Walloca \
+					-Walloca-larger-than=1024
 endif
 
 

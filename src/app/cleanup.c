@@ -49,8 +49,8 @@ int	cleanup(t_info *app)
             mlx_destroy_window(app->mlx, app->win);
         mlx_destroy_display(app->mlx);
         free(app->mlx);
-        if (app->srv_pid > 0)
-            kill(app->srv_pid, SIGKILL);
     }
+	if (app->srv_pid > 0)
+		kill(app->srv_pid, SIGKILL);
 	return (0);
 }

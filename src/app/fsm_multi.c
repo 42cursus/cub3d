@@ -20,7 +20,7 @@ void	do_mmenu_to_multiload(void *param)
 	printf("do_mmenu_to_multiload\n");
 	app->fr_count = 0;
 	app->lvl = init_map();
-	if (parse_cub(app, "./maps/multi.cub"))
+	if (parse_cub(app, (char *)"./maps/multi.cub"))
 	{
 		free_map(app->lvl);
 		app->lvl = NULL;

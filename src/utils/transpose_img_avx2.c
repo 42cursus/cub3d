@@ -14,7 +14,7 @@
 
 #define TILE 32
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	transpose8x8_u32_avx2(__m256i *out, const __m256i *i)
 {
 	const __m256i	v[8] = {
@@ -83,7 +83,7 @@ t_ivect	main_loop(t_ivect tile, const t_cdata cd, const t_tex t, t_ivect max)
 	return (it.xy);
 }
 
-inline __attribute__((always_inline, used, externally_visible))
+inline __attribute__((always_inline, used))
 void	transpose_img_avx2_tiled_read(int *dst, int *src, int width, int height)
 {
 	t_ivect			t;
