@@ -55,6 +55,7 @@ int	render_mmenu(void *param)
 	app->fr_time = time - app->fr_last;
 	app->fr_last = time;
 	on_expose(app);
+	// printf("%s\n", app->inputbuf);
 	return (0);
 }
 

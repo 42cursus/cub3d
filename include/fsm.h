@@ -71,6 +71,8 @@ void		do_load_to_end(void *param);
 void		do_multiload_to_multi(void *param);
 void		do_multiload_to_mmenu(void *param);
 
+void		do_multi_to_mmenu(void *param);
+
 void		do_play_to_pmenu(void *param);
 void		do_play_to_win(void *param);
 void		do_play_to_lose(void *param);

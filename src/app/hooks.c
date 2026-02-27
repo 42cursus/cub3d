@@ -13,6 +13,7 @@
 #include "cub3d.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+#include <signal.h>
 #include <sysexits.h>
 
 void	replace_frame_transposed(t_info *app)
@@ -98,8 +99,17 @@ int	key_press_multi(KeySym key, void *param)
 	t_player *const	player = app->player;
 	int				idx;
 
-	if (key == XK_5 || key == XK_Escape)
-		menu_go_repeat(app, NULL);
+	if (key == XK_Escape)
+	{
+		app->rc = ok;
+		app->mlx->end_loop = 1;
+		if (app->srv_pid > 0)
+		{
+			printf("pid: %d\n", app->srv_pid);
+			kill(app->srv_pid, SIGKILL);
+			app->srv_pid = 0;
+		}
+	}
 	else
 	{
 		switch_weapons_hook(key, player);
@@ -124,6 +134,28 @@ int	key_release_play(KeySym key, void *param)
 	idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
+	return (0);
+}
+
+int	key_press_input(KeySym key, void *param)
+{
+	t_info *const	app = param;
+	// t_player *const	player = app->player;
+	// int				idx;
+
+	if (key == XK_Escape)
+	{
+		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
+	}
+	else if (key >= XK_space && key <= XK_asciitilde)
+	{
+		if (app->inputlen < 512)
+			app->inputbuf[app->inputlen++] = key - XK_space + ' ';
+	}
+	else if (key == XK_BackSpace && app->inputlen > 0)
+	{
+		app->inputbuf[--app->inputlen] = '\0';
+	}
 	return (0);
 }
 

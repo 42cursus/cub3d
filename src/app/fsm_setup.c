@@ -32,6 +32,7 @@ t_transition	*get_state_transitions(size_t *size)
 	{STATE_LOAD, fail, STATE_MMENU},
 	{STATE_MULTILOAD, ok, STATE_MULTI},
 	{STATE_MULTILOAD, fail, STATE_MMENU},
+	{STATE_MULTI, ok, STATE_MMENU},
 	{STATE_PLAY, ok, STATE_WIN},
 	{STATE_PLAY, fail, STATE_LOSE},
 	{STATE_PLAY, repeat, STATE_PMENU},
@@ -100,6 +101,9 @@ t_transition_func	**get_trans_table(void)
 		[STATE_MULTILOAD] = {
 			[STATE_MMENU] = do_multiload_to_mmenu,
 			[STATE_MULTI] = do_multiload_to_multi,
+		},
+		[STATE_MULTI] = {
+			[STATE_MMENU] = do_multi_to_mmenu,
 		},
 		[STATE_PLAY] = {
 			[STATE_PMENU] = do_play_to_pmenu,
