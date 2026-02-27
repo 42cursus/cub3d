@@ -136,7 +136,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	while (n <= 0)
 	{
 		n = recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
-		if (get_time_ms() - start_time > 5000)
+		if (get_time_ms() - start_time > 2000)
 			return 1;
 	}
 	if (id < 0 || id >= SRV_MAX_PLAYERS)

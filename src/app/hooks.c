@@ -186,12 +186,7 @@ int	key_press_input_ip(KeySym key, void *param)
 	if (idx != -1)
 		app->keys[idx] = true;
 
-	if (key == XK_Escape)
-	{
-		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
-		app->prev_key_hook = NULL;
-	}
-	else if (key == XK_Return)
+	else if (key == XK_Return || key == XK_Escape)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
@@ -199,7 +194,7 @@ int	key_press_input_ip(KeySym key, void *param)
 	}
 	else if ((key >= XK_0 && key <= XK_9) || key == XK_period)
 	{
-		if (app->inputlen < 511)
+		if (app->inputlen < 32)
 		{
 			app->inputbuf[app->inputlen++] = key - XK_space + ' ';
 			app->inputbuf[app->inputlen] = '\0';
