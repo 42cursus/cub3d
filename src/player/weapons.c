@@ -56,6 +56,7 @@ void	add_ammo_mult(t_playermult *player, int type)
 	if (new_ammo > player->max_ammo[type])
 		new_ammo = player->max_ammo[type];
 	player->ammo[type] = new_ammo;
+	player->event |= EVENT_PU_AMMO;
 }
 
 void	damage_enemy(t_info *app, t_obj *enemy, int damage)
