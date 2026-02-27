@@ -1189,6 +1189,9 @@ struct s_info
 	size_t		msg_last_time;
 	t_client	client;
 	pid_t		srv_pid;
+	int			(*prev_key_hook)(KeySym, void *);
+	char		inputbuf[512];
+	int			inputlen;
 	t_server	*srv;
 };
 
@@ -1374,6 +1377,7 @@ size_t		get_time_us(void);
 double		rand_range(double lower, double upper);
 void		cleanup_maps(t_info *app);
 
+int			key_press_input(KeySym key, void *param);
 int			key_press_intro(KeySym key, void *param);
 int			key_release_intro(KeySym key, void *param);
 

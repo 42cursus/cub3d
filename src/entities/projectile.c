@@ -187,6 +187,7 @@ int	handle_projectile_death_mult(t_info *app, t_obj *obj, t_list **current)
 			subtract_health_mult(app, &app->srv->clients[player_id], 50);
 		else if (obj->subtype == P_MISSILE)
 			subtract_health_mult(app, &app->srv->clients[player_id], 30);
+		app->srv->clients[player_id].dmg_dir = scale_vect(obj->dir, -1);
 		return (0);
 	}
 	return (-1);

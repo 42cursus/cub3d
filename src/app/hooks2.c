@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "cub3d.h"
+#include <X11/Xutil.h>
 
 int	key_press_mmenu(KeySym key, void *param)
 {
@@ -38,6 +39,11 @@ int	key_press_mmenu(KeySym key, void *param)
 		menu_change_option(app, 1);
 	else if ((key == XK_space) | (key == XK_Return))
 		menu_select_current(app);
+	// else if (key == XK_i)
+	// {
+	// 	app->prev_key_hook = key_press_mmenu;
+	// 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)key_press_input, app);
+	// }
 	return (0);
 }
 
