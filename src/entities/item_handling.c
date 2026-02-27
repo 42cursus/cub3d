@@ -66,6 +66,7 @@ void	handle_collectables_mult(t_obj *obj, t_playermult *player)
 		player->max_ammo[P_MISSILE] += 10;
 		player->ammo[P_MISSILE] += 10;
 	}
+	player->event |= EVENT_PU_AMMO;
 }
 
 int	handle_pickups(t_obj *obj, t_player *player)

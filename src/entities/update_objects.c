@@ -311,4 +311,12 @@ void deserialise_player_state(t_info *app, t_servermsg *smsg)
 		player->dmg_time = app->fr_last;
 		Mix_PlayChannel(ch_player, app->audio.chunks[snd_player_damage], 0);
 	}
+	if (smsg->payload.player.event & EVENT_PU_AMMO)
+	{
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_ammo], 0);
+	}
+	if (smsg->payload.player.event & EVENT_PU_HEALTH)
+	{
+		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_health], 0);
+	}
 }

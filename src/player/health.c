@@ -73,4 +73,5 @@ void	add_health_mult(t_playermult *player, int health)
 	if (new_health > player->max_health)
 		new_health = player->max_health;
 	player->health = new_health;
+	player->event |= EVENT_PU_HEALTH;
 }
