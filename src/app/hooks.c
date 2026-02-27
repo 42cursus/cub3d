@@ -191,6 +191,12 @@ int	key_press_input_ip(KeySym key, void *param)
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
 	}
+	else if (key == XK_Return)
+	{
+		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
+		app->prev_key_hook = NULL;
+		app->menu_state.selected++;
+	}
 	else if ((key >= XK_0 && key <= XK_9) || key == XK_period)
 	{
 		if (app->inputlen < 511)

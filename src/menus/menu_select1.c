@@ -21,6 +21,14 @@ void	menu_go_lvlselect(t_info *app, t_menustate *menu_state)
 	menu_state->no_items = app->no_maps + 1;
 }
 
+void	menu_go_input(t_info *app, t_menustate *menu_state)
+{
+	app->prev_key_hook = key_press_mmenu;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)key_press_input_ip, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)key_release_play, app);
+	(void)menu_state;
+}
+
 void	menu_go_multi(t_info *app, t_menustate *menu_state)
 {
 	menu_state->prev = menu_state->state;
@@ -38,6 +46,7 @@ void	menu_go_multi_connect(t_info *app, t_menustate *menu_state)
 	menu_state->state = MULTI_CONNECT;
 	menu_state->selected = 0;
 	menu_state->no_items = 3;
+	menu_go_input(app, NULL);
 	(void)app;
 }
 
@@ -73,14 +82,6 @@ void	menu_go_mmenu(t_info *app, t_menustate *menu_state)
 	menu_state->selected = 0;
 	menu_state->no_items = 6;
 	(void)app;
-}
-
-void	menu_go_input(t_info *app, t_menustate *menu_state)
-{
-	app->prev_key_hook = key_press_mmenu;
-	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)key_press_input_ip, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)key_release_play, app);
-	(void)menu_state;
 }
 
 void	construct_sf_array(t_info *app, t_menustate *menu_state)
