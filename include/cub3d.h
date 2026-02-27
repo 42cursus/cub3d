@@ -214,6 +214,7 @@ enum e_idx
 	idx_XK_Return,
 	idx_XK_F5,
 	idx_XK_BackSpace,
+	idx_XK_Shift,
 };
 
 typedef enum e_snd
@@ -898,6 +899,8 @@ typedef enum e_menustate
 {
 	MAIN,
 	LVL_SELECT,
+	MULTI,
+	MULTI_CONNECT,
 	PAUSE,
 	OPTIONS,
 	WIN,
@@ -1154,6 +1157,7 @@ typedef struct s_client
 	int		id;
 	struct sockaddr_in	servaddr;
 	int		dropped;
+	int		hosting;
 }	t_client;
 
 struct s_info
@@ -1396,6 +1400,8 @@ double		rand_range(double lower, double upper);
 void		cleanup_maps(t_info *app);
 
 int			key_press_input(KeySym key, void *param);
+int			key_press_input_ip(KeySym key, void *param);
+
 int			key_press_intro(KeySym key, void *param);
 int			key_release_intro(KeySym key, void *param);
 
@@ -1447,6 +1453,7 @@ void		menu_go_ok(t_info *app, t_menustate *menu_state);
 void		menu_go_multi(t_info *app, t_menustate *menu_state);
 void		menu_go_repeat(t_info *app, t_menustate *menu_state);
 void		menu_go_fail(t_info *app, t_menustate *menu_state);
+void		menu_go_mmenu(t_info *app, t_menustate *menu_state);
 void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
 void		place_menu(const char **strs, t_ivect pos, int scalar, t_info *app);
 void		draw_menu_options(t_info *app);
@@ -1525,7 +1532,8 @@ int			str_cmp_whitespace(void *data, void *ref);
 int			setup_server(t_server *srv);
 pid_t		launch_server(t_info *app);
 void		server_loop(t_info *app, t_server *srv);
-int			setup_client(t_client *client);
+int			setup_client_host(t_client *client);
+int			setup_client_client(t_client *client, char *ip);
 void		client_send_msg(t_client *client, t_clientmsg *cmsg);
 void		client_send_pos(t_info *app);
 void		client_send_proj(t_info *app, t_eproj type);

@@ -55,7 +55,7 @@ int	setup_server(t_server *srv)
 	return (0);
 }
 
-int	setup_client(t_client *client)
+int	setup_client_host(t_client *client)
 {
 	client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -65,15 +65,15 @@ int	setup_client(t_client *client)
 		return (1);
 	}
 
-	// int flags = fcntl(client->sockfd, F_GETFL, 0);
-	//    if (flags == -1) {
-	//        perror("fcntl F_GETFL");
-	//        return 1;
-	//    }
-	//
-	//    if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-	//        perror("fcntl F_SETFL");
-	// }
+	int flags = fcntl(client->sockfd, F_GETFL, 0);
+	if (flags == -1) {
+		perror("fcntl F_GETFL");
+		return 1;
+	}
+
+	if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("fcntl F_SETFL");
+	}
 
 	memset(&client->servaddr, 0, sizeof(client->servaddr));
     client->servaddr.sin_family = AF_INET;
@@ -81,6 +81,38 @@ int	setup_client(t_client *client)
     // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
     // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
     client->servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+	client->dropped = 0;
+
+	return (0);
+}
+
+int	setup_client_client(t_client *client, char *ip)
+{
+	client->sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+
+	if (client->sockfd < 0)
+	{
+		printf("Failed to initiate client socket\n");
+		return (1);
+	}
+
+	int flags = fcntl(client->sockfd, F_GETFL, 0);
+	if (flags == -1) {
+		perror("fcntl F_GETFL");
+		return 1;
+	}
+
+	if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+		perror("fcntl F_SETFL");
+	}
+
+	memset(&client->servaddr, 0, sizeof(client->servaddr));
+    client->servaddr.sin_family = AF_INET;
+    client->servaddr.sin_port = htons(8080);
+    // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
+    // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
+    client->servaddr.sin_addr.s_addr = inet_addr(ip);
 
 	client->dropped = 0;
 
@@ -99,21 +131,18 @@ int	client_handle_handshake(t_info *app, t_client *client)
 
 	// usleep(100000);
 	int	id = -1;
-	recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
+	size_t start_time = get_time_ms();
+	ssize_t	n = 0;
+	while (n <= 0)
+	{
+		n = recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
+		if (get_time_ms() - start_time > 5000)
+			return 1;
+	}
 	if (id < 0 || id >= SRV_MAX_PLAYERS)
 		return (1);
 	printf("client id: %d\n", id);
 	client->id = id;
-
-	int flags = fcntl(client->sockfd, F_GETFL, 0);
-	if (flags == -1) {
-		perror("fcntl F_GETFL");
-		return 1;
-	}
-
-	if (fcntl(client->sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
-		perror("fcntl F_SETFL");
-	}
 
 	return (0);
 }
@@ -138,22 +167,26 @@ void	init_server_state(t_info *app, t_server *srv)
 pid_t	launch_server(t_info *app)
 {
 	pid_t	pid = 0;
-	t_server srv = {0};
 
-	int retval = setup_server(&srv);
-	// int retval = 1;
-	if (!retval)
+	t_server srv = {0};
+	if (app->client.hosting)
 	{
-		pid = fork();
-		if (pid == 0)
+		int retval = setup_server(&srv);
+		if (!retval)
 		{
-			init_server_state(app, &srv);
-			server_loop(app, &srv);
-			exit(0);
+			pid = fork();
+			if (pid == 0)
+			{
+				init_server_state(app, &srv);
+				server_loop(app, &srv);
+				exit(0);
+			}
+			close(srv.sockfd);
 		}
-		close(srv.sockfd);
 	}
-	if (setup_client(&app->client))
+	if (app->client.hosting && setup_client_host(&app->client))
+		return -1;
+	else if (!app->client.hosting && setup_client_client(&app->client, app->inputbuf))
 		return -1;
 	if (client_handle_handshake(app, &app->client))
 		return (-1);
