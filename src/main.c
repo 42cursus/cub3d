@@ -28,7 +28,7 @@ int	main(int argc, char **argv)
 	printf("sizeof sdoor: %lu Bytes\n", sizeof(t_sdoor));
 	printf("sizeof servermsg: %lu Bytes\n", sizeof(t_servermsg));
 	printf("sizeof combined servermsg: %lu Bytes\n", sizeof(t_sobj) * SRV_MAX_OBJECTS + sizeof(t_sdoor) * SRV_MAX_DOORS + 8);
-	printf("sizeof clientdata: %lu Bytes\n", sizeof(t_clientmsg));
+	printf("sizeof clientmsg: %lu Bytes\n", sizeof(t_clientmsg));
 	// exit(0);
 	while (app->state != STATE_END)
 		app->state = run_state(app, argc, argv);

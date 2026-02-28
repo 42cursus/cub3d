@@ -33,6 +33,16 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 	player->dmg_time = app->fr_last;
 }
 
+void	add_dead_message(t_server *srv, int player_id)
+{
+	char	buf[256];
+	t_list	*msg;
+
+	snprintf(buf, 256, "Player %d died :(", player_id);
+	msg = ft_lstnew(strdup(buf));
+	ft_lstadd_back(&srv->msg_queue, msg);
+}
+
 void	subtract_health_mult(t_info *app, t_playermult *player, int damage)
 {
 	int	new_health;
@@ -46,6 +56,7 @@ void	subtract_health_mult(t_info *app, t_playermult *player, int damage)
 	{
 		new_health = 0;
 		player->dead = 1;
+		add_dead_message(app->srv, player->id + 1);
 		// app->rc = fail;
 		// app->mlx->end_loop = 1;
 	}

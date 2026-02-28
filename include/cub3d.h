@@ -837,6 +837,7 @@ typedef struct
 	size_t	dmg_time;
 	int		event;
 	int		dead;
+	int		id;
 }	t_playermult;
 
 enum smsg_type : uint8_t

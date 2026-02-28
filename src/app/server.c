@@ -162,6 +162,7 @@ void	init_server_state(t_info *app, t_server *srv)
 		srv->clients[i].max_health = 99;
 		srv->clients[i].max_ammo[P_BEAM] = -1;
 		srv->clients[i].pos = app->lvl->starting_pos;
+		srv->clients[i].id = i;
 	}
 }
 
