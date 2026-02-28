@@ -104,7 +104,6 @@
 # define XPM_TRANSPARENT 0xff000000
 # define ALPHA_CHANNEL 0xFF000000
 # define CANARY_VALUE 0xDEADC0DE
-
 # define LARGE_MMAP_SCALE 16
 
 # define SRV_MAX_OBJECTS 64
@@ -211,6 +210,10 @@ enum e_idx
 	idx_XK_Up,
 	idx_XK_Right,
 	idx_XK_Down,
+	idx_XK_Escape,
+	idx_XK_Return,
+	idx_XK_F5,
+	idx_XK_BackSpace,
 	idx_XK_Shift,
 };
 
@@ -235,7 +238,7 @@ typedef enum e_snd
 	snd_player_damage,
 	snd_win_music,
 	snd_credits_finale,
-	SND_MAX
+	snd_MAX
 }	t_snd;
 
 enum e_channel
@@ -919,7 +922,6 @@ struct s_mstate
 	t_ms_func	**select_funcs;
 };
 
-
 typedef enum e_msg
 {
 	MSG_HINT = 0,
@@ -1099,8 +1101,8 @@ typedef struct s_aud
 	int			chunk_size;
 	int			snd_volume;
 	int			mus_volume;
-	const char	*files[SND_MAX];
-	Mix_Chunk	*chunks[SND_MAX];
+	const char	*files[snd_MAX];
+	Mix_Chunk	*chunks[snd_MAX];
 }	t_aud;
 
 enum e_type
@@ -1118,6 +1120,22 @@ typedef struct s_typing
 	const char	*files[FNT_MAX];
 	FT_Face		faces[FNT_MAX];
 }	t_typing;
+
+typedef struct pad_state
+{
+    int fd;
+    struct libevdev *dev;
+    int ax_min, ax_max, ay_min, ay_max;
+    int rx_min, rx_max;    /* right stick X range */
+    int dead, hyst;
+
+    int left, right, up, down;
+
+    int ax, ay;            /* left stick raw */
+    int rx;                /* right stick X raw */
+    int have_ax, have_ay, have_rx;
+}	pad_state;
+
 
 typedef struct s_packetin
 {
@@ -1184,7 +1202,6 @@ struct s_info
 	size_t		fr_time;
 	size_t		fr_count;
 	t_list		*lvl_cache;
-	int			filter;
 	u_char		fullscreen;
 	t_timer		timer;
 	t_dummy		*dummy;
@@ -1192,6 +1209,7 @@ struct s_info
 	char		hint_shown;
 	int			msg_to_show;
 	size_t		msg_last_time;
+	pad_state	pad;
 	t_client	client;
 	pid_t		srv_pid;
 	int			(*prev_key_hook)(KeySym, void *);
@@ -1490,7 +1508,7 @@ void		update_objects(t_info *app, t_player *player, t_lvl *lvl);
 void		update_objects_mult(t_info *app, t_player *player, t_lvl *lvl);
 
 int			check_line_of_sight(t_info *app, t_obj *obj, t_player *player);
-t_tex		draw_credits(t_info *app);
+t_tex		draw_credits(t_info *app, void *memptr);
 void		draw_credits_avx2_unpacked(t_info *app, t_dummy *dummy,
 				t_tex *tex, t_img overlay);
 t_etex		get_open_door_tex(t_anim *anim, t_info *app);
@@ -1528,4 +1546,6 @@ void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
 void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 
+int			pad_init(pad_state *ps, const char *path);
+void		pad_poll(pad_state *ps, t_info *app);
 #endif //CUB3D_H

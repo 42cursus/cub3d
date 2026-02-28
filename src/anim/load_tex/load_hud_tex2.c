@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
+t_tex create_ft_string(FT_Face face, t_str_arr str_arr, void *memptr)
 {
 	t_tex	tex;
 	t_fnt	fnt;
@@ -24,8 +24,9 @@ t_tex	create_ft_string(FT_Face face, t_str_arr str_arr)
 	fnt.width = compute_text_width(face, str_arr.arr[str_arr.longest_index]);
 	tex = (t_tex){.w = (int)fnt.width, .h = (int)fnt.total_height * 2};
 	tex.sl = tex.w * sizeof(int);
-	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+	if (posix_memalign(&memptr, 64, tex.h * tex.sl))
 		return (tex);
+	tex.data = memptr;
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
 	draw_multiline_text_centered(face, tex, str_arr.arr, str_arr.size);
 	return (tex);
@@ -80,5 +81,5 @@ void	generate_msg_text(t_info *app)
 	}
 	i = -1;
 	while (++i < MSG_MAX)
-		msgs[i] = create_ft_string(face, str_arrs[i]);
+		msgs[i] = create_ft_string(face, str_arrs[i], NULL);
 }

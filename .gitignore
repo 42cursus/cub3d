@@ -11,6 +11,7 @@
 # **************************************************************************** #
 
 cub3d
+cub3D
 hello
 world
 log.txt
@@ -31,6 +32,7 @@ args.txt
 input_tmp
 memcheck.log
 readline.supp
+valgrind.*.log
 
 # From https://stackoverflow.com/questions/15606955/:
 # If you want to list all the files currently being tracked:

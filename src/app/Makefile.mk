@@ -12,19 +12,11 @@
 
 FILES   = cleanup.c \
 			fsm.c \
-			fsm2.c \
-			fsm3.c \
-			fsm4.c \
-			fsm5.c \
-			fsm6.c \
-			fsm7.c \
-			fsm8.c \
-			fsm9.c \
 			fsm_setup.c \
 			server.c \
 			fsm_multi.c \
 			hooks.c \
-			hooks2.c \
+			joypad.c \
 			mouse_hooks.c \
 			fullscreen.c \
 			on_expose.c

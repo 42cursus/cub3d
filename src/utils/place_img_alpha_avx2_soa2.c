@@ -22,7 +22,7 @@ inline __attribute__((always_inline, used))
 t_rgba_ps256	unpack_rgba_bytes_to_floats_avx2_soa(__m256i pixels)
 {
 	const __m256i	mask_8 = _mm256_set1_epi32(0xFF);
-	t_rgba_ps256	in;
+	t_rgba_si256	in;
 	t_rgba_ps256	out;
 
 	in.b = _mm256_and_si256(pixels, mask_8);
@@ -39,7 +39,7 @@ t_rgba_ps256	unpack_rgba_bytes_to_floats_avx2_soa(__m256i pixels)
 inline __attribute__((always_inline, used))
 __m256i	repack_floats_to_bytes_avx2_soa(t_rgba_ps256 blended)
 {
-	t_rgba_ps256	rgba;
+	t_rgba_si256	rgba;
 	t_repack_256	rp;
 
 	rp.zero = _mm256_setzero_si256();

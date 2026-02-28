@@ -18,6 +18,7 @@ int	point_oob_global(t_vect pos, t_lvl *lvl)
 		|| (pos.y < 0 || pos.y > lvl->height));
 }
 
+
 void	render_calc_time(t_info *const app)
 {
 	size_t			now;
@@ -71,20 +72,23 @@ void	fill_with_colour(t_img *img, int f_col, int c_col)
 	const int	mid = img->height / 2;
 	int			i;
 	int			j;
+	int *const	pixels = (void *)img->data;
+	int			*dst_row;
 
-	u_int (*pixels)[img->height][img->width] = (void *)img->data;
 	i = -1;
 	while (++i <= mid)
 	{
+		dst_row = pixels + (i * img->width);
 		j = -1;
 		while (++j < img->width)
-			(*pixels)[i][j] = c_col;
+			dst_row[j] = c_col;
 	}
 	i--;
 	while (++i < img->height)
 	{
+		dst_row = pixels + (i * img->width);
 		j = -1;
 		while (++j < img->width)
-			(*pixels)[i][j] = f_col;
+			dst_row[j] = f_col;
 	}
 }

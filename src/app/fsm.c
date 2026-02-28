@@ -57,10 +57,10 @@ void	do_prep(int argc, t_info *const app)
 	set_music_volume(app, 100);
 	srand(get_time_ms());
 	app->map_ids = ft_calloc(argc, sizeof(char *));
-	app->no_maps = argc - 1;
+	app->no_maps = 0;
 }
 
-void	do_load(t_info *const app)
+void do_load(t_info *const app, void *memptr)
 {
 	t_tex	tex;
 
@@ -76,11 +76,12 @@ void	do_load(t_info *const app)
 	tex.w = WIN_WIDTH;
 	tex.h = WIN_HEIGHT;
 	tex.sl = WIN_WIDTH * sizeof(int);
-	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+	if (posix_memalign(&memptr, 64, tex.h * tex.sl))
 	{
 		app->rc = (printf("Error: posix_memalign: %m\n"), fail);
 		return ;
 	}
+	tex.data = memptr;
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
 	app->overlay = cvttex_img(tex);
 }
@@ -97,27 +98,718 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 {
 	t_info *const	app = param;
 	int				i;
-	const char		*str;
+	int				no_maps;
+	const char		*id;
 	char			*end;
-	int				has_slash;
 
 	do_prep(argc, app);
+	no_maps = 0;
 	i = 0;
 	while (++i < argc)
 	{
 		end = ft_strchrnul(argv[i], '\0');
-		has_slash = (end != argv[i] && end[-1] == '/');
-		str = ({if (has_slash == true) str = "start.cub"; else str = ""; str;});
-		app->map_ids[i - 1] = ft_strjoin(argv[i], str);
+		if (end == argv[i] || (ft_strlen(argv[i]) < 5 && end[-1] != '/'))
+			printf("Error: map id is too short: %s\n", argv[i]);
+		else
+		{
+			id = ({if (end[-1] == '/') id = "start.cub"; else id = ""; id; });
+			id = ft_strjoin(argv[i], id);
+			if ((ft_strlen(argv[i]) > 5 && !ft_strncmp(".cub", &end[-4], 4)) || end[-1] == '/' )
+				app->map_ids[no_maps++] = (char *) id;
+			else
+				free((char *) id);
+		}
 	}
 	if (app->mlx == NULL)
-		return (printf("Error: failed to open map: %m\n"), fail);
+		return (printf("Error: failed to init mlx: %m\n"), fail);
+	if (!no_maps)
+		return (printf("Error: no valid maps provided\n"), fail);
 	init_menu_select_funcs(app, &app->menu_state);
-	do_load(app);
+	do_load(app, NULL);
 	replace_image(app, &app->bg, NULL);
 	replace_image_r(app, &app->bg_r, NULL);
 	if (!app->canvas || !app->stillshot || !app->pointer)
 		exit(((void) ft_printf(" !! KO !!\n"), cleanup(app), EXIT_FAILURE));
 	toggle_fullscreen(app);
 	return ((ok & -(SKIP_INTRO)) | (extra & ~(-(SKIP_INTRO))));
+}
+
+void	do_win_to_credits(void *param)
+{
+	t_info *const	app = param;
+	t_dummy			*dummy;
+	int				i;
+
+	cleanup_maps(app);
+	free(app->player);
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	mlx_loop_hook(app->mlx, &render_credits, app);
+	app->mlx->end_loop = 0;
+	dummy = ft_calloc(1, sizeof(*dummy));
+	app->dummy = dummy;
+	dummy->dir = (t_vect){0.0, 1.0};
+	dummy->pos = (t_vect){0.0, -0.6};
+	dummy->speed = 0.002;
+	i = -1;
+	while (++i < 12)
+		spawn_random_rock(app, 0);
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *) &key_press_credits, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+		(void *) &key_release_credits, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+}
+
+void	do_win_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+void	do_win_to_load(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	app->fr_count = 0;
+	app->lvl = init_map();
+	if (parse_cub(app, app->map_ids[app->current_level]))
+	{
+		free_map(app->lvl);
+		app->rc = fail;
+		return ;
+	}
+	app->rc = ok;
+	refresh_player(app, app->player);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->win, KeyPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
+}
+
+void	do_lose_to_load(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+	app->lvl = init_map();
+	app->fr_count = 0;
+	if (parse_cub(app, app->map_ids[app->current_level]))
+	{
+		app->rc = fail;
+		return (free_map(app->lvl));
+	}
+	app->rc = ok;
+	app->player = init_player(app);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	mlx_hook(app->win, KeyPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
+}
+
+void	do_win_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+}
+
+void	do_pmenu_to_play(void *param)
+{
+	t_info *const	app = param;
+
+	replace_image(app, &app->bg, NULL);
+	mlx_loop_hook(app->mlx, &render_play, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_play, app);
+	mlx_hook(app->win, ButtonPress, ButtonPressMask,
+		(void *) &mouse_press_play, app);
+	mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
+		(void *) &mouse_release_play, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+		(void *) &key_release_play, app);
+	mlx_hook(app->win, MotionNotify, PointerMotionMask,
+		(void *) &mouse_move_play, app);
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+	app->timer.cur_lvl_start = get_time_ms();
+}
+
+void	do_pmenu_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+void	do_pmenu_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+}
+
+void	do_lose_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+void	do_lose_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+}
+
+int	load_lvl(t_info *const app, char *next_lvl)
+{
+	int	retcode;
+
+	retcode = 0;
+	app->lvl = init_map();
+	if (parse_cub(app, next_lvl) != 0)
+	{
+		free_map(app->lvl);
+		app->lvl = NULL;
+		app->rc = fail;
+		retcode = -1;
+	}
+	else
+		app->player->total_pickups += count_collectables(app->lvl);
+	return (retcode);
+}
+
+void	clean_hooks(t_info *const app)
+{
+	mlx_hook(app->win, KeyPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+}
+
+void	do_play_to_load(void *param)
+{
+	t_info *const	app = param;
+	char			*next_lvl;
+
+	app->timer.stop_time = get_time_ms();
+	next_lvl = app->lvl->sublvls[app->current_sublevel];
+	app->fr_count = 0;
+	app->lvl->starting_pos = app->player->tele_pos;
+	move_entity(&app->lvl->starting_pos, app->lvl,
+		subtract_vect(app->player->pos, app->player->tele_pos));
+	app->lvl->starting_dir = rotate_vect(app->player->dir, M_PI);
+	refresh_map(app, app->lvl);
+	app->lvl = get_cached_lvl(app, next_lvl);
+	if (app->lvl == NULL && load_lvl(app, next_lvl))
+		return ;
+	app->rc = ok;
+	refresh_player(app, app->player);
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->pad.left = app->pad.right = app->pad.up = app->pad.down = 0;
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_load, app);
+	clean_hooks(app);
+}
+
+void	do_play_to_win(void *param)
+{
+	t_info *const	app = param;
+	t_player *const	player = app->player;
+
+	app->timer.stop_time = get_time_ms();
+	app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, NULL);
+	fill_with_colour(app->bg, MLX_LIME, MLX_GREEN);
+	mlx_loop_hook(app->mlx, &render_win, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	if (app->current_level < app->no_maps - 1)
+		app->current_level++;
+	else
+		app->current_level = 0;
+	app->menu_state.state = WIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
+	printf("collected: %d total: %d pcnt: %d%%\n",
+		player->pickups_collected, player->total_pickups,
+		(player->pickups_collected * 100) / player->total_pickups);
+}
+
+void	do_play_to_lose(void *param)
+{
+	t_info *const	app = param;
+
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	app->mlx->end_loop = 0;
+	replace_image(app, &app->bg, NULL);
+	fill_with_colour(app->bg, MLX_RED, MLX_LIGHT_RED);
+	mlx_loop_hook(app->mlx, &render_lose, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = LOSE;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 3;
+}
+
+void	do_load_to_play(void *param)
+{
+    t_info *const	app = param;
+
+    replace_image(app, &app->bg, NULL);
+    replace_image_r(app, &app->bg_r, NULL);
+
+    const char *path[] = {
+            "/dev/input/by-id/usb-8BitDo_Controller_E417D8409A46-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D8409A46-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D81DB211-event-joystick",
+            "/dev/input/by-id/usb-8BitDo_8BitDo_Receiver_E417D852BEA7-event-joystick",
+            "/dev/input/by-id/usb-Sony_PLAYSTATION_R_3_Controller-event-joystick",
+    };
+
+    int i = 0;
+    int init = pad_init(&app->pad, path[i++]);
+    while (init != 0 && i < (int)(sizeof(path) / sizeof(path[0])))
+        init = pad_init(&app->pad, path[i++]);
+    if (init != 0)
+        dprintf(STDERR_FILENO, "warning: no pad, continuing without it\n");
+    mlx_loop_hook(app->mlx, &render_play, app);
+    app->mlx->end_loop = 0;
+    mlx_hook(app->win, KeyPress, KeyPressMask,
+             (void *)&key_press_play, app);
+    mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+             (void *)&key_release_play, app);
+    mlx_hook(app->win, ButtonPress, ButtonPressMask,
+             (void *)&mouse_press_play, app);
+    mlx_hook(app->win, ButtonRelease, ButtonReleaseMask,
+             (void *)&mouse_release_play, app);
+    mlx_hook(app->win, MotionNotify, PointerMotionMask,
+             (void *)&mouse_move_play, app);
+    app->timer.total_ms += app->timer.stop_time - app->timer.cur_lvl_start;
+    app->timer.cur_lvl_start = get_time_ms();
+    XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
+                 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+    mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+    XUngrabPointer(app->mlx->display, CurrentTime);
+}
+
+void	do_credits_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	ft_lstclear(&app->dummy->rocks, free);
+	app->dummy = (free(app->dummy), NULL);
+	return ;
+	(void)app;
+}
+
+void	do_load_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	return ;
+	(void)app;
+}
+
+void	do_play_to_pmenu(void *param)
+{
+	t_info *const	app = param;
+
+	app->mlx->end_loop = 0;
+	app->timer.stop_time = get_time_ms();
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *) app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	ft_memcpy_avx2((int *) app->stillshot->data, (int *) app->canvas->data,
+		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
+	mlx_loop_hook(app->mlx, &render_pmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = PAUSE;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 4;
+}
+
+void	do_play_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+}
+
+void	do_mmenu_to_credits(void *param)
+{
+	t_info *const	app = param;
+	t_dummy			*dummy;
+	int				i;
+
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	dummy = ft_calloc(1, sizeof(*dummy));
+	dummy->dir = (t_vect){0.0, 1.0};
+	dummy->pos = (t_vect){0.0, -0.6};
+	dummy->speed = 0.002;
+	app->dummy = dummy;
+	i = -1;
+	while (++i < 12)
+		spawn_random_rock(app, 0);
+	app->mlx->end_loop = 0;
+	mlx_loop_hook(app->mlx, &render_credits, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *)&key_press_credits, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask,
+		(void *)&key_release_credits, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+}
+
+void	do_mmenu_to_intro(void *param)
+{
+	t_info *const	app = param;
+
+	return ;
+	(void)app;
+}
+
+void	do_mmenu_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	return ;
+	(void)app;
+}
+
+void	do_credits_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	ft_lstclear(&app->dummy->rocks, free);
+	app->dummy = (free(app->dummy), NULL);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	ft_memset(app->keys, 0, sizeof(bool) * 16);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)&key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 3;
+	app->menu_state.no_items = 6;
+}
+
+void	do_load_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	app->player = (free(app->player), NULL);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	app->mlx->end_loop = 0;
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+int	exit_win(t_info *const	app)
+{
+	exit(cleanup(app));
+}
+
+void	do_initial_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+	int				grab_result;
+
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_hook(app->win, DestroyNotify, NoEventMask, (void *)&exit_win, app);
+	mlx_expose_hook(app->win, &expose_win, app);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask,
+		(void *)&key_press_mmenu, app);
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+	XSetInputFocus(app->mlx->display, app->win->window,
+		RevertToPointerRoot, CurrentTime);
+	grab_result = XGrabKeyboard(app->mlx->display, app->win->window, True,
+			GrabModeAsync, GrabModeAsync, CurrentTime);
+	if (grab_result != GrabSuccess)
+		ft_dprintf(STDERR_FILENO, "XGrabKeyboard failed: %d\n", grab_result);
+	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
+		GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
+	XUngrabPointer(app->mlx->display, CurrentTime);
+	XUngrabKeyboard(app->mlx->display, CurrentTime);
+}
+
+void	do_initial_to_intro(void *param)
+{
+	t_info *const	app = param;
+
+	app->fr_count = 0;
+	app->lvl = init_map();
+	if (parse_cub(app, (char *)"./maps/logo_test.cub"))
+	{
+		free_map(app->lvl);
+		app->rc = fail;
+		return ;
+	}
+	init_logo_pieces(app, (t_vect){14.7, 10});
+	app->player = init_player(app);
+	fill_with_colour(app->bg, 0x000000, 0x000000);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, NULL, app);
+	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
+	mlx_hook(app->win, DestroyNotify, NoEventMask, (void *)&exit_win, app);
+	mlx_loop_hook(app->mlx, &render_intro, app);
+	app->mlx->end_loop = 0;
+}
+
+void	do_intro_to_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	cleanup_maps(app);
+	free(app->player);
+	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
+	mlx_hook(app->win, DestroyNotify, NoEventMask, (void *)&exit_win, app);
+	mlx_expose_hook(app->win, &expose_win, app);
+	mlx_loop_hook(app->mlx, &render_mmenu, app);
+	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	app->mlx->end_loop = 0;
+	app->menu_state.state = MAIN;
+	app->menu_state.selected = 0;
+	app->menu_state.no_items = 6;
+}
+
+void	do_mmenu_to_load(void *param)
+{
+	t_info *const	app = param;
+
+	app->fr_count = 0;
+	app->lvl = init_map();
+	if (parse_cub(app, app->map_ids[app->current_level]))
+	{
+		free_map(app->lvl);
+		app->lvl = NULL;
+		app->player = NULL;
+		app->rc = fail;
+		return ;
+	}
+	app->rc = ok;
+	app->player = init_player(app);
+	mlx_loop_hook(app->mlx, &render_load, app);
+	app->mlx->end_loop = 0;
+	app->timer.total_ms = 0;
+	app->timer.cur_lvl_start = 0;
+	app->timer.stop_time = 0;
+	return ;
+}
+
+void	do_initial_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	return ;
+	(void)app;
+}
+
+void	do_intro_to_end(void *param)
+{
+	t_info *const	app = param;
+
+	return ;
+	(void)app;
+}
+
+t_ret_code	do_state_win(void *param)
+{
+	t_info *const	app = param;
+
+	replace_sky(app, (char *)TEX_DIR"/skybox1.xpm");
+	draw_sky_alt(app);
+	mlx_loop(app->mlx);
+	return (app->rc);
+}
+
+t_ret_code	do_state_lose(void *param)
+{
+	t_info *const	app = param;
+
+	replace_sky(app, (char *)TEX_DIR"/skybox1.xpm");
+	draw_sky_alt(app);
+	mlx_loop(app->mlx);
+	return (app->rc);
+}
+
+t_ret_code	do_state_credits(void *param)
+{
+	t_info *const	app = param;
+	int				old_fps;
+
+	app->old_fov = app->fov_deg;
+	old_fps = app->fr_rate;
+	set_fov(app, 70);
+	set_framerate(app, 120);
+	calculate_credits_offset(app, app->dummy);
+	Mix_PlayChannel(ch_music1, app->audio.chunks[snd_credits_finale], 0);
+	mlx_mouse_hide(app->mlx, app->win);
+	app->fr_last = get_time_us();
+	mlx_loop(app->mlx);
+	set_fov(app, app->old_fov);
+	set_framerate(app, old_fps);
+	mlx_mouse_show(app->mlx, app->win);
+	return (app->rc);
+}
+
+t_ret_code	do_state_intro(void *param)
+{
+	t_info *const	app = param;
+	t_aud *const	aud = &app->audio;
+	int				old_fps;
+
+	Mix_PlayChannel(ch_music2, aud->chunks[snd_intro], 0);
+	old_fps = app->fr_rate;
+	set_framerate(app, 60);
+	app->fr_last = get_time_us();
+	mlx_loop(app->mlx);
+	set_framerate(app, old_fps);
+	return (ok);
+}
+
+t_ret_code	do_state_mmenu(void *param)
+{
+	t_info *const	app = param;
+
+	mlx_loop(app->mlx);
+	return (app->rc);
+}
+
+t_ret_code	do_state_load(void *param)
+{
+	t_info *const	app = param;
+
+	if (app->rc != ok)
+		return (app->rc);
+	if (app->lvl && app->lvl->music)
+		Mix_PlayChannel(ch_music1, app->lvl->music, -1);
+	mlx_loop(app->mlx);
+	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");
+	return (ok);
+}
+
+t_ret_code	do_state_play(void *param)
+{
+	t_info *const	app = param;
+
+	mlx_mouse_hide(app->mlx, app->win);
+	replace_sky_r(app, (char *)TEX_DIR"/fog_sky.xpm");
+	replace_sky(app, (char *)TEX_DIR"/fog_sky.xpm");
+	draw_sky_alt(app);
+	draw_sky_transposed_avx2(app);
+	draw_nav(app);
+	calculate_offsets(app, app->player);
+	app->fr_last = get_time_us();
+	app->msg_to_show = -1;
+	app->msg_last_time = app->fr_last;
+	mlx_loop(app->mlx);
+	mlx_mouse_show(app->mlx, app->win);
+	return (app->rc);
+}
+
+t_ret_code	do_state_pmenu(void *param)
+{
+	t_info *const	app = param;
+
+	mlx_loop(app->mlx);
+	return (app->rc);
 }

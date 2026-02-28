@@ -123,7 +123,7 @@ Including one of these pulls in all previous ones
 #### Sanitizers
 
 ```bash
-export ASAN_OPTIONS=color=always:print_summary=1:verbosity=0:symbolize=1:detect_stack_use_after_return=true:malloc_context_size=20:detect_leaks=1:handle_segv=2:abort_on_error=1:fast_unwind_on_malloc=0
+export ASAN_OPTIONS=color=always:print_summary=1:verbosity=0:symbolize=1:detect_stack_use_after_return=true:malloc_context_size=20:detect_leaks=1:handle_segv=2:abort_on_error=1:fast_unwind_on_fatal=0:fast_unwind_on_malloc=0:disable_coredump=0:abort_on_error=1
 ```
 
 With Clang:
@@ -140,6 +140,37 @@ export LSAN_OPTIONS=verbosity=1:report_objects=1 ASAN_OPTIONS=fast_unwind_on_mal
 export UBSAN_OPTIONS=print_stacktrace=1
 ```
 
+#### Valgrind
+
+https://courses.cs.washington.edu/courses/cse326/05wi/valgrind-doc/coregrind_core.html
+
+- XOpenDisplay not zeroing _XDisplay.buffer is expected
+
+- SDL leaks memory, as reported by valgrind
+https://discourse.libsdl.org/t/sdl-leaks-memory-as-reported-by-valgrind/25722
+
+- Valgrind flags a “client switching stacks?” warning when SP moves by more than the default for --max-stackframe which is 2000000 bytes.
+
+```bash
+G_SLICE=always-malloc G_DEBUG=gc-friendly SDL_AUDIODRIVER=dummy \
+valgrind --max-stackframe=5000000 --tool=memcheck \
+  --track-origins=yes --read-var-info=yes \
+  --suppressions=/usr/share/glib-2.0/valgrind/glib.supp \
+  --suppressions=valgrind-local.supp \
+  --leak-check=full --show-leak-kinds=all -s \
+  --track-fds=yes \
+  --num-callers=30 \
+  --log-file=valgrind.%p.log \
+  --run-libc-freeres=yes \
+  ./cub3d maps/multi/
+```
+
+If you want errors only for real leaks, tighten reporting or hide the category:
+```bash
+valgrind --leak-check=full --show-possibly-lost=no ./cub3d maps/multi/
+```
+
+##### 
 #### External libraries
 
 SDL_mixer 2.0.4:

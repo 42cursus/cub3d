@@ -119,6 +119,7 @@ void	draw_slice_transposed(int x, t_ray *ray, t_info *app, t_tex *canvas)
 	slice_drawing_avx2x8(cd, ray, ts, line);
 }
 
+__attribute__((__noinline__))
 void	draw_rays_transposed(t_info *app)
 {
 	int				i;

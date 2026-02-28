@@ -102,7 +102,7 @@ void	render_play_handle_keys(t_info *const app)
 int	render_play(void *param)
 {
 	t_info *const	app = param;
-
+	pad_poll(&app->pad, app);
 	render_play_handle_keys(app);
 	update_objects(app, app->player, app->lvl);
 	replace_frame_transposed(app);

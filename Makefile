@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME			:= cub3d
+NAME			:= cub3D
 
 UNAME_S			= $(shell uname -s)
 UNAME_M			= $(shell uname -m)
@@ -24,15 +24,38 @@ INC_DIR			= ./include
 
 RMFLAGS			= -r
 
+#CC				:= cc
 CC				:= clang
 #CC				:= gcc
-INCLUDE_FLAGS	:= -I. -I$(INC_DIR) -I/usr/include -I/usr/include/SDL2 -I/usr/include/freetype2 -I/usr/include/libpng16
+
+
+COMPILER		:= $(shell echo | $(CC) -dM -E - | grep -q '__clang__' && echo clang || echo gcc)
+
+INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
+					-I/usr/include \
+					-I/usr/include/libevdev-1.0 \
+					-I/usr/include/SDL2 \
+					-I/usr/include/freetype2 \
+					-I/usr/include/libpng16
+
 # https://github.com/llvm/llvm-project/issues/61684
 # https://gcc.gnu.org/onlinedocs/gcc/Developer-Options.html
 # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
 OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-march=native -mtune=native \
 						-flto \
+						-falign-functions=32 \
+						-fno-semantic-interposition \
+						-fcf-protection=none \
+						-fno-stack-protector \
+						-fomit-frame-pointer \
+						-mprefer-vector-width=256 \
+						-ftree-vectorize \
+						-fstrict-aliasing \
+						-fno-strict-overflow
+
+ifeq ($(COMPILER),clang)
+OPTIMIZE_FLAGS	+= -fvectorize -mllvm --interleave-loops \
 						-mllvm -inline-threshold=1000 -maes \
 						-mllvm -extra-vectorizer-passes \
 						-mllvm -enable-cond-stores-vec \
@@ -41,45 +64,65 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-mllvm -enable-loop-distribute \
 						-mllvm -enable-unroll-and-jam \
 						-mllvm -enable-lto-internalization \
-						-mllvm --interleave-loops \
 						-mllvm -unroll-runtime-multi-exit \
 						-mllvm -aggressive-ext-opt \
 						-mllvm -enable-interleaved-mem-accesses \
 						-mllvm -enable-masked-interleaved-mem-accesses \
-						-mllvm -inline-threshold=900 \
-						-falign-functions=32 \
-						-fno-semantic-interposition \
-						-fcf-protection=none \
-						-fno-stack-protector \
-						-fomit-frame-pointer \
-						-fvectorize \
-						-mprefer-vector-width=256 \
-						-ftree-vectorize \
-						-fstrict-aliasing -fno-strict-overflow
+						-mllvm -inline-threshold=900
 
+#DIAGNOSTIC_FLAGS += -Rpass-missed=inline \
+#						-Rpass=inline \
+#						-Rpass-missed=inline \
+#						-Rpass-analysis=inline
 
-#DIAGNOSTIC_FLAGS := -Rpass-missed=inline #-Rpass=inline -Rpass-missed=inline -Rpass-analysis=inline # clang
-#DIAGNOSTIC_FLAGS := -fopt-info-inline-missed #-fopt-info-vec -fopt-info-inline -ftime-report -fopt-info-inline-optimized  # gcc
+else
+OPTIMIZE_FLAGS	+= -fkeep-inline-functions -fgnu89-inline
+#DIAGNOSTIC_FLAGS += -fopt-info-inline-missed \
+#						-fopt-info-vec \
+#						-fopt-info-inline \
+#						-ftime-report \
+#						-fopt-info-inline-optimized
+DIAGNOSTIC_FLAGS := -fstack-usage \
+					-Wframe-larger-than=4096 \
+					-Wstack-usage=4096 \
+					-Wvla \
+					-Wvla-larger-than=1024 \
+					-Walloca \
+					-Walloca-larger-than=1024
+endif
+
 
 DEBUG_FLAGS		:= -g3 -gdwarf-3 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow \
-					# -pg \
+#					-fsanitize-address-use-after-scope \
+#					-fsanitize=address,undefined,bounds,alignment,object-size \
+#					-fsanitize=shift,signed-integer-overflow,null,return \
+#					-fsanitize=float-divide-by-zero,float-cast-overflow \
+#                   -pg \
 #					-D FRAMERATE=60 \
 
-MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wno-self-assign -Wstrict-aliasing=2 -mavx2
+MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -DSKIP_INTRO=1
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -fstack-usage -DSKIP_INTRO=1
+
+ifeq ($(COMPILER),clang)
+CFLAGS			+= -Wno-self-assign
+endif
 
 SDL_MIX_LIB			:= -lSDL2_mixer
 SDL_HEADER			:= $(INC_DIR)/SDL_mixer.h
+SDL_HEADER_URL		:= https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h
 
 ifeq ($(UNAME_M),x86_64)
 	ifeq ($(DOMAIN), 42london.com)
 		SDL_MIX_LIB := -l:libSDL2_mixer-2.0.so.0.2.2
 	else ifeq ($(UNAME_R), 5.15.0-139-generic)
-#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1200
 	else
 		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900 -DSKIP_INTRO=1
+#		CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1200
+#		CFLAGS += -DWIN_WIDTH=1600 -DWIN_HEIGHT=900
+#		CFLAGS += -DWIN_WIDTH=1680 -DWIN_HEIGHT=1050
+		#CFLAGS += -DWIN_WIDTH=1920 -DWIN_HEIGHT=1080 #-DSKIP_INTRO=1
 	endif
 endif
 
@@ -88,15 +131,19 @@ LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
 LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
 
-LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) -L/usr/lib/x86_64-linux-gnu \
-					-ltextures -lmlx -lft -lX11 -lXext -lm \
-					$(SDL_MIX_LIB) -lSDL2 -lfreetype  \
+LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) \
+					-L/usr/lib/x86_64-linux-gnu \
+					-ltextures -lmlx -lft -levdev -lX11 -lXext -lm \
+					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
 					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
 						-flto \
 						-Wl,-zmax-page-size=0x200000 \
-					# -fsanitize=address,undefined,float-divide-by-zero,float-cast-overflow
-					# -pg \
+#					-fsanitize-address-use-after-scope \
+#					-fsanitize=address,undefined,bounds,alignment,object-size \
+#					-fsanitize=shift,signed-integer-overflow,null,return \
+#					-fsanitize=float-divide-by-zero,float-cast-overflow \
+#					-pg \
 
 SRC_DIR			= src
 
@@ -128,7 +175,7 @@ all: $(NAME)
 
 ## cub3d
 $(NAME): $(LIBS) $(SDL_HEADER) $(OBJS)
-		@$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) -o $@ $(LINK_FLAGS)
+		$(CC) $(TEX_OBJ) $(OBJS) $(DEBUG_FLAGS) $(DIAGNOSTIC_FLAGS) -o $@ $(LINK_FLAGS)
 		@echo "CUB3D BUILD COMPLETE!"
 
 $(BUILD_DIR)/%.xpm.o: %.xpm
@@ -146,15 +193,14 @@ $(LIBTEX): $(TEX_OBJ)
 
 ## libft
 $(LIBFT) libft:
-		+$(MAKE) -C $(LIBFT_DIR) #BUILD_WITH_ASAN=1
+		+$(MAKE) -C $(LIBFT_DIR) # BUILD_WITH_ASAN=1
 
 $(LIBX_DIR)/Makefile.gen:
 		+$(MAKE) -C $(LIBX_DIR)
 		@echo "$(LIBX_DIR)/Makefile.gen BUILD COMPLETE!"
 
 $(SDL_HEADER):
-		@curl https://raw.githubusercontent.com/libsdl-org/SDL_mixer/refs/tags/release-2.0.4/SDL_mixer.h > $@
-
+		@curl -sS $(SDL_HEADER_URL) -o $@
 
 ## mlx
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen

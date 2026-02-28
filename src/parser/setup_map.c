@@ -12,9 +12,9 @@
 
 #include "cub3d.h"
 
-void	draw_help(t_lvl *lvl);
+void	draw_help(t_lvl *lvl, void *memptr);
 void	draw_large_minimap(t_lvl *lvl);
-void	draw_startup_overlay(t_lvl *lvl);
+void draw_startup_overlay(t_lvl *lvl, void *memptr);
 
 void	do_spawn_thing_enemies(t_info *app, const t_vect pos,
 			char el, int subtype)
@@ -115,8 +115,8 @@ void	setup_lvl(t_info *app, t_lvl *lvl)
 	spawn_map_objects(app, lvl);
 	lvl->minimap_xs = build_minimap(app, SMALL_MMAP_SCALE);
 	draw_large_minimap(lvl);
-	draw_help(lvl);
-	draw_startup_overlay(lvl);
+	draw_help(lvl, NULL);
+	draw_startup_overlay(lvl, NULL);
 	// lvl->anims = create_anim_arr(lvl->width, lvl->height);
 	lvl->door_tex = ft_calloc(lvl->width * lvl->height, sizeof(t_etex));
 	init_anims(app, lvl);

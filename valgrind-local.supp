@@ -1,0 +1,120 @@
+{
+   glib-gtype-qdata-1
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:realloc
+   fun:g_realloc
+   fun:type_set_qdata_W
+   fun:type_add_flags_W
+   fun:g_type_register_fundamental
+   ...
+}
+
+{
+   g_quark_init
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   ...
+   fun:g_quark_init
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/*/ld-*.so
+}
+
+{
+   JackGlobals_static_initialization_and_destruction
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:_Znwm
+   fun:__static_initialization_and_destruction_0
+   fun:_GLOBAL__sub_I_JackGlobals.cpp
+   fun:call_init.part.0
+   fun:call_init
+   fun:_dl_init
+   obj:/lib/*/ld-*.so
+}
+
+{
+   mlx_mouse_hide
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:InitDefaults
+   fun:XGetDefault
+   obj:/usr/lib*/libXcursor.so*
+   obj:/usr/lib*/libXcursor.so*
+   obj:/usr/lib*/libXcursor.so*
+   fun:XCreatePixmap
+   fun:XCreateBitmapFromData
+   fun:mlx_mouse_hide
+   ...
+}
+
+{
+   SDL_ClearError_REAL
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   ...
+   fun:SDL_ClearError_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}
+
+{
+   SDL_InitSubSystem_REAL_PULSEAUDIO
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   fun:pa_xmalloc*
+   ...
+   fun:ConnectToPulseServer_Internal
+   fun:ConnectToPulseServer
+   fun:PULSEAUDIO_Init
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}
+
+{
+   open_audio_device_PULSEAUDIO
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:pa_xmalloc
+   ...
+   fun:ConnectToPulseServer_Internal
+   fun:ConnectToPulseServer
+   fun:PULSEAUDIO_OpenDevice
+   fun:open_audio_device
+   fun:Mix_OpenAudioDevice
+   ...
+}
+
+{
+   PULSEAUDIO_DetectDevices_pa_xmalloc
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:*alloc
+   fun:pa_xmalloc*
+   ...
+   fun:PULSEAUDIO_DetectDevices
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}
+
+{
+   PULSEAUDIO_DetectDevices_SDL_malloc_REAL
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   fun:malloc
+   fun:SDL_malloc_REAL
+   ...
+   fun:PULSEAUDIO_DetectDevices
+   fun:SDL_AudioInit_REAL
+   fun:SDL_InitSubSystem_REAL
+   ...
+}

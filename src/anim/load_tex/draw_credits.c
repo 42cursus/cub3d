@@ -29,7 +29,7 @@ void	draw_credits_setup_font(t_info *app, t_fnt *fnt, int size)
 	fnt->total_height = size * (fnt->line_height + fnt->spacing);
 }
 
-t_tex	draw_credits(t_info *app)
+t_tex draw_credits(t_info *app, void *memptr)
 {
 	int			fd;
 	t_tex		tex;
@@ -42,6 +42,7 @@ t_tex	draw_credits(t_info *app)
 	if (fd == -1)
 		return (tex);
 	lines = read_file_stripped(fd);
+	close(fd);
 	str_arr.size = ft_list_size(lines);
 	str_arr.arr = ft_calloc(str_arr.size + 1, sizeof(char *));
 	str_arr.current = 0;
@@ -50,8 +51,9 @@ t_tex	draw_credits(t_info *app)
 	draw_credits_setup_font(app, &fnt, str_arr.size);
 	tex = (t_tex){.w = 1000, .h = (int)fnt.total_height + 50};
 	tex.sl = tex.w * sizeof(int);
-	if (posix_memalign((void **) &tex.data, 64, tex.h * tex.sl))
+	if (posix_memalign(&memptr, 64, tex.h * tex.sl))
 		return (tex);
+	tex.data = memptr;
 	fill_with_colour_tex(tex, XPM_TRANSPARENT);
 	draw_multiline_text_centered(fnt.face, tex, str_arr.arr, str_arr.size);
 	ft_tab_str_free(str_arr.arr);

@@ -12,9 +12,6 @@
 
 FILES   = time.c \
 			vector.c \
-			vector2.c \
-			vector3.c \
-			vector4.c \
 			transpose_img_avx2.c \
 			place_img_alpha_avx2_soa.c \
 			place_img_alpha_avx2_soa2.c \
