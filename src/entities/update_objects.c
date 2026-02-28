@@ -278,6 +278,36 @@ void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl)
 	}
 }
 
+char	*stringify_item_type(t_subtype item)
+{
+	switch (item) {
+		case (I_HEALTH):
+			return "Health";
+		case (I_AMMO_M):
+			return "Missile Ammo";
+		case (I_AMMO_S):
+			return "Super Missile Ammo";
+		case (I_ETANK):
+			return "E-tank";
+		case (I_MISSILE):
+			return "Missiles";
+		case (I_SUPER):
+			return "Super Missiles";
+		default:
+			return "<Invalid Type>";
+	}
+}
+
+void	add_pickup_message(t_server *srv, int player_id, t_subtype item)
+{
+	char	buf[256];
+	t_list	*msg;
+
+	snprintf(buf, 256, "Player %d picked up %s", player_id + 1, stringify_item_type(item));
+	msg = ft_lstnew(strdup(buf));
+	ft_lstadd_back(&srv->msg_queue, msg);
+}
+
 void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player)
 {
 	for (int i = 0; i < n_sobjs; i++)
@@ -319,4 +349,10 @@ void deserialise_player_state(t_info *app, t_servermsg *smsg)
 	{
 		Mix_PlayChannel(ch_item, app->audio.chunks[snd_pickup_health], 0);
 	}
+}
+
+void	deserialise_text(t_info *app, t_servermsg *smsg)
+{
+	t_textqueue *message = textqueue_new(app, strdup(smsg->payload.text));
+	textqueue_add_back(&app->client.msg_queue, message);
 }

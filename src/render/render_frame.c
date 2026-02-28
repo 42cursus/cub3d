@@ -134,11 +134,19 @@ int	render_play_multi(void *param)
 	replace_frame_transposed(app);
 	transpose_img_avx2_tiled_read((int *)app->canvas->data,
 		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	// t_textqueue *current = app->client.msg_queue;
+	// while (current != NULL)
+	// {
+	// 	printf("%lu %s\n", current->arrival_time, current->text);
+	// 	current = current->next;
+	// }
 	render_calc_time(app);
 	app->fr_scale = 20000.0 / app->fr_time;
 	app->fr_count++;
 	draw_hud(app);
 	place_dropped_packets(app);
+	draw_textqueue(app, app->client.msg_queue);
+	cull_textqueue(&app->client.msg_queue, app->fr_last);
 	on_expose(app);
 	return (0);
 }

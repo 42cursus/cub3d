@@ -146,6 +146,7 @@ int	handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current)
 			if (!retval)
 				return (0);
 			// play_pickup_sound(app, obj);
+			add_pickup_message(app->srv, i, obj->subtype);
 			handle_collectables_mult(obj, player);
 			*current = delete_object(&lvl->items, *current);
 			return (1);

@@ -110,6 +110,7 @@
 # define SRV_MAX_OBJECTS 64
 # define SRV_MAX_DOORS 32
 # define SRV_MAX_PLAYERS 4
+# define SRV_TEXT_TIMEOUT 6000000
 
 # define TEX_DIR "./resources/textures"
 
@@ -816,14 +817,6 @@ typedef struct
 	};
 }	t_clientmsg;
 
-enum smsg_type : uint8_t
-{
-	SMT_OBJS = 0,
-	SMT_DOORS,
-	SMT_PLAYER,
-	SMT_MAX,
-};
-
 typedef enum
 {
 	EVENT_NONE		= 1 << 0,
@@ -846,6 +839,15 @@ typedef struct
 	int		dead;
 }	t_playermult;
 
+enum smsg_type : uint8_t
+{
+	SMT_OBJS = 0,
+	SMT_DOORS,
+	SMT_PLAYER,
+	SMT_TEXT,
+	SMT_MAX,
+};
+
 typedef struct
 {
 	enum smsg_type	type;
@@ -862,6 +864,7 @@ typedef struct
 			int		n_serialdoors;
 		};
 		t_playermult	player;
+		char			text[512];
 	}	payload;
 }	t_servermsg;
 
@@ -1132,15 +1135,24 @@ typedef struct s_server
 	struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
 	t_playermult		clients[SRV_MAX_PLAYERS];
 	int					n_clients;
+	t_list				*msg_queue;
 }	t_server;
+
+typedef struct s_textmsg
+{
+	char				*str;
+	size_t				arrival_time;
+	struct s_textmsg	*next;
+}	t_textqueue;
 
 typedef struct s_client
 {
-	int		sockfd;
-	int		id;
+	int					sockfd;
+	int					id;
 	struct sockaddr_in	servaddr;
-	int		dropped;
-	int		hosting;
+	int					dropped;
+	int					hosting;
+	t_textqueue			*msg_queue;
 }	t_client;
 
 struct s_info
@@ -1523,9 +1535,17 @@ void		client_send_proj(t_info *app, t_eproj type);
 void		client_send_door(t_info *app, t_ivect pos);
 void		client_receive_msgs(t_info *app);
 
+void		add_pickup_message(t_server *srv, int player_id, t_subtype item);
 void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
 void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
 void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
+void		deserialise_text(t_info *app, t_servermsg *smsg);
+
+t_textqueue	*textqueue_new(t_info *app, char *text);
+void		textqueue_add_back(t_textqueue **queue, t_textqueue *msg);
+int			textqueue_len(t_textqueue *queue);
+void		draw_textqueue(t_info *app, t_textqueue *queue);
+void		cull_textqueue(t_textqueue **queue, size_t time);
 
 #endif //CUB3D_H
