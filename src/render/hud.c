@@ -195,6 +195,21 @@ void	place_dropped_packets(t_info *app)
 	}
 }
 
+void	draw_textqueue(t_info *app, t_textqueue *queue)
+{
+	t_ivect	pos = {
+		.x = 32,
+		.y = WIN_HEIGHT - 48 - (textqueue_len(queue) * 24),
+	};
+
+	while (queue != NULL)
+	{
+		place_str(queue->str, app, pos, 2);
+		pos.y += 24;
+		queue = queue->next;
+	}
+}
+
 inline __attribute__((always_inline, used))
 void	place_scope(t_info *app)
 {
