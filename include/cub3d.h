@@ -1424,6 +1424,7 @@ void		render_calc_time(t_info *const app);
 int			render_intro(void *param);
 int			render_mmenu(void *param);
 int			render_pmenu(void *param);
+int			render_pmenu_mult(void *param);
 int			render_play(void *app);
 int			render_play_multi(void *param);
 int			render_load(void *app);
@@ -1548,5 +1549,6 @@ void		textqueue_add_back(t_textqueue **queue, t_textqueue *msg);
 int			textqueue_len(t_textqueue *queue);
 void		draw_textqueue(t_info *app, t_textqueue *queue);
 void		cull_textqueue(t_textqueue **queue, size_t time);
+void		clear_textqueue(t_textqueue **queue);
 
 #endif //CUB3D_H

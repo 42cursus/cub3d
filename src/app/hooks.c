@@ -103,12 +103,6 @@ int	key_press_multi(KeySym key, void *param)
 	{
 		app->rc = ok;
 		app->mlx->end_loop = 1;
-		if (app->srv_pid > 0)
-		{
-			printf("pid: %d\n", app->srv_pid);
-			kill(app->srv_pid, SIGKILL);
-			app->srv_pid = 0;
-		}
 	}
 	else
 	{

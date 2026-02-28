@@ -574,12 +574,20 @@ void	cull_textqueue(t_textqueue **queue, size_t time)
 		free(tmp);
 	}
 	*queue = current;
-	// while (time - current->next->arrival_time > 1000000)
-	// {
-	// 	tmp = current->next;
-	// 	current->next = tmp->next;
-	// 	free(tmp->str);
-	// 	free(tmp);
-	// }
 }
 
+void	clear_textqueue(t_textqueue **queue)
+{
+	if (queue == NULL)
+		return ;
+
+	t_textqueue *current = *queue;
+	while (current != NULL)
+	{
+		t_textqueue *tmp = current;
+		current = current->next;
+		free(tmp->str);
+		free(tmp);
+	}
+	*queue = NULL;
+}

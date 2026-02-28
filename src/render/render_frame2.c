@@ -79,6 +79,33 @@ int	render_pmenu(void *param)
 	return (0);
 }
 
+int	render_pmenu_mult(void *param)
+{
+	size_t			time;
+	t_info *const	app = param;
+	t_tex *const	tex = &app->shtex->title;
+
+	client_send_pos(app);
+	client_receive_msgs(app);
+	replace_frame_transposed(app);
+	transpose_img_avx2_tiled_read((int *)app->canvas->data,
+		(int *) app->canvas_r->data, WIN_WIDTH, WIN_HEIGHT);
+	render_calc_time(app);
+	app->fr_scale = 20000.0 / app->fr_time;
+	app->fr_count++;
+	// draw_textqueue(app, app->client.msg_queue);
+	cull_textqueue(&app->client.msg_queue, app->fr_last);
+	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
+	draw_menu_items(app);
+	while (get_time_us() - app->fr_last < app->fr_delay)
+		usleep(100);
+	time = get_time_us();
+	app->fr_time = time - app->fr_last;
+	app->fr_last = time;
+	on_expose(app);
+	return (0);
+}
+
 void	render_credits_chk_dummy(t_info *const app, t_dummy *dummy)
 {
 	int	aspect_ratio;
