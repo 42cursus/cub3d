@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <wchar.h>
 
 int	setup_server(t_server *srv)
 {
@@ -161,6 +162,7 @@ void	init_server_state(t_info *app, t_server *srv)
 		srv->clients[i].max_health = 99;
 		srv->clients[i].max_ammo[P_BEAM] = -1;
 		srv->clients[i].pos = app->lvl->starting_pos;
+		srv->clients[i].id = i;
 	}
 }
 
@@ -252,7 +254,7 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 
 void	server_handle_player(t_server *srv, t_clientmsg *cmsg)
 {
-	printf("msg id: %d pos: (%f, %f)\n", cmsg->id, cmsg->player.pos.x, cmsg->player.pos.y);
+	// printf("msg id: %d pos: (%f, %f)\n", cmsg->id, cmsg->player.pos.x, cmsg->player.pos.y);
 	srv->clients[cmsg->id].pos = cmsg->player.pos;
 	srv->clients[cmsg->id].dir = cmsg->player.dir;
 }
@@ -296,12 +298,23 @@ const char *stringify_smsg_type(enum smsg_type type)
 	}
 }
 
+void	add_connection_message(t_server *srv, int player_id)
+{
+	char	buf[256];
+	t_list	*msg;
+
+	snprintf(buf, 256, "Player %d connected", player_id);
+	msg = ft_lstnew(strdup(buf));
+	ft_lstadd_back(&srv->msg_queue, msg);
+}
+
 void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 {
 	t_clientmsg *cmsg = &packet->data;
 	switch (packet->data.type) {
 		case (CMT_CONNECT):
 			server_handle_handshake(app, srv, packet);
+			add_connection_message(srv, srv->n_clients);
 			break;
 		case (CMT_PROJ):
 			server_handle_projectiles(app, cmsg);
@@ -355,6 +368,22 @@ void	server_send_msg(t_server *srv, struct sockaddr_in *client, t_servermsg *sms
 	);
 }
 
+void	server_send_text_queue(t_server *srv)
+{
+	t_list		*current = srv->msg_queue;
+	t_servermsg	msg = {
+		.type = SMT_TEXT,
+	};
+
+	while (current != NULL)
+	{
+		strncpy(msg.payload.text, current->str, 511);
+		for (int i = 0; i < srv->n_clients; i++)
+			server_send_msg(srv, &srv->clientaddr[i], &msg);
+		current = current->next;
+	}
+}
+
 void	server_send_messages(t_info *app, t_server *srv)
 {
 	for (int i = 0; i < srv->n_clients; i++)
@@ -364,6 +393,9 @@ void	server_send_messages(t_info *app, t_server *srv)
 		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_DOORS]);
 		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_PLAYER]);
 	}
+	server_send_text_queue(srv);
+	ft_lstclear(&srv->msg_queue, free);
+	srv->msg_queue = NULL;
 }
 
 void	server_loop(t_info *app, t_server *srv)
@@ -450,6 +482,10 @@ void	client_process_msg(t_info *app, t_servermsg *smsg)
 			// printf("n_serialdoors: %d\n", smsg->payload.n_serialdoors);
 			deserialise_player_state(app, smsg);
 			break;
+		case (SMT_TEXT):
+			// printf("n_serialdoors: %d\n", smsg->payload.n_serialdoors);
+			deserialise_text(app, smsg);
+			break;
 		default:
 			break;
 	}
@@ -485,3 +521,65 @@ void	client_receive_msgs(t_info *app)
 	// printf("Packets received this tick: %d\n", count);
 	(void)count;
 }
+
+t_textqueue	*textqueue_new(t_info *app, char *text)
+{
+	t_textqueue *new = calloc(1, sizeof(*new));
+
+	new->next = NULL;
+	new->str = text;
+	new->arrival_time = app->fr_last;
+	return new;
+}
+
+void	textqueue_add_back(t_textqueue **queue, t_textqueue *msg)
+{
+	if (queue == NULL)
+		return ;
+	if (*queue == NULL)
+	{
+		*queue = msg;
+		return ;
+	}
+
+	t_textqueue *current = *queue;
+	while (current->next != NULL)
+		current = current->next;
+	current->next = msg;
+}
+
+int	textqueue_len(t_textqueue *queue)
+{
+	int len = 0;
+	while (queue != NULL)
+	{
+		len++;
+		queue = queue->next;
+	}
+	return (len);
+}
+
+void	cull_textqueue(t_textqueue **queue, size_t time)
+{
+	if (queue == NULL || *queue == NULL)
+		return ;
+
+	t_textqueue *current = *queue;
+	t_textqueue *tmp;
+	while (current != NULL && time - current->arrival_time > SRV_TEXT_TIMEOUT)
+	{
+		tmp = current;
+		current = tmp->next;
+		free(tmp->str);
+		free(tmp);
+	}
+	*queue = current;
+	// while (time - current->next->arrival_time > 1000000)
+	// {
+	// 	tmp = current->next;
+	// 	current->next = tmp->next;
+	// 	free(tmp->str);
+	// 	free(tmp);
+	// }
+}
+
