@@ -57,14 +57,26 @@ void	load_misc_graphics(t_info *app)
 	extern const char	*empty_xpm[];
 	extern const char	*teleporter_xpm[];
 	extern const char	*scope_xpm[];
-	extern const char	*small_font_xpm[];
+	extern const char	*small_font_black_xpm[];
+	extern const char	*small_font_red_xpm[];
+	extern const char	*small_font_green_xpm[];
+	extern const char	*small_font_yellow_xpm[];
+	extern const char	*small_font_blue_xpm[];
+	extern const char	*small_font_magenta_xpm[];
+	extern const char	*small_font_cyan_xpm[];
 
 	app->shtex->title = img_to_tex_static_rm(app, title_card_xpm);
 	app->shtex->empty = img_to_tex_static_rm(app, empty_xpm);
 	app->shtex->tele = img_to_tex_static_cm(app, teleporter_xpm);
 	app->shtex->scope = img_to_tex_static_rm(app, scope_xpm);
 	app->shtex->credits = draw_credits(app, NULL);
-	app->shtex->alphabet = img_to_tex_static_rm(app, small_font_xpm);
+	app->shtex->alphabet[FC_BLACK] = img_to_tex_static_rm(app, small_font_black_xpm);
+	app->shtex->alphabet[FC_RED] = img_to_tex_static_rm(app, small_font_red_xpm);
+	app->shtex->alphabet[FC_GREEN] = img_to_tex_static_rm(app, small_font_green_xpm);
+	app->shtex->alphabet[FC_YELLOW] = img_to_tex_static_rm(app, small_font_yellow_xpm);
+	app->shtex->alphabet[FC_BLUE] = img_to_tex_static_rm(app, small_font_blue_xpm);
+	app->shtex->alphabet[FC_MAGENTA] = img_to_tex_static_rm(app, small_font_magenta_xpm);
+	app->shtex->alphabet[FC_CYAN] = img_to_tex_static_rm(app, small_font_cyan_xpm);
 	app->shtex->playertile = draw_playertile();
 	app->shtex->square = get_tile(15);
 	generate_msg_text(app);

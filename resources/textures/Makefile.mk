@@ -118,7 +118,13 @@ FILES   = arm_cannon_big.xpm \
 			scope.xpm \
 			skybox.xpm \
 			skybox1.xpm \
-			small_font.xpm \
+			small_font_black.xpm \
+			small_font_red.xpm \
+			small_font_green.xpm \
+			small_font_yellow.xpm \
+			small_font_blue.xpm \
+			small_font_magenta.xpm \
+			small_font_cyan.xpm \
 			stone_wall.xpm \
 			super0.xpm \
 			super1.xpm \

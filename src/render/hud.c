@@ -49,10 +49,10 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 }
 
 inline __attribute__((always_inline, used))
-void	place_char(char c, t_info *app, t_ivect p, int scalar)
+void	place_char(char c, t_info *app, t_ivect p, int scalar, t_fontcolor col)
 {
 	t_img *const	cnvs = app->canvas;
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[col];
 	t_ivect3		it;
 	t_cdata			cd;
 	t_mcol			mc;
@@ -75,6 +75,7 @@ void	place_char(char c, t_info *app, t_ivect p, int scalar)
 		}
 	}
 }
+
 
 inline __attribute__((always_inline, used))
 t_mcol	get_mc(t_ivect3 p, int alpha, t_ivect3 it, t_cdata cd)
@@ -125,8 +126,6 @@ void	draw_hud(t_info *app)
 		place_dmg(app, app->player);
 }
 
-void	place_char(char c, t_info *app, t_ivect p, int scalar);
-
 inline __attribute__((always_inline, used))
 void	place_ammo(t_info *app, t_player *player)
 {
@@ -139,7 +138,7 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[0] = player->ammo[P_MISSILE] / 100 + '0';
 		buf[1] = (player->ammo[P_MISSILE] / 10) % 10 + '0';
 		buf[2] = player->ammo[P_MISSILE] % 10 + '0';
-		place_str(buf, app, (t_ivect){160, 48}, 2);
+		place_str(buf, app, (t_ivect){160, 48}, 2, FC_BLUE);
 		tex = &app->shtex->missile_tex[2 + (player->equipped == P_MISSILE)];
 		put_texture(app, tex, 160, 16);
 	}
@@ -148,11 +147,12 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[0] = player->ammo[P_SUPER] / 10 + '0';
 		buf[1] = player->ammo[P_SUPER] % 10 + '0';
 		buf[2] = 0;
-		place_str(buf, app, (t_ivect){224, 48}, 2);
+		place_str(buf, app, (t_ivect){224, 48}, 2, FC_BLUE);
 		tex = &app->shtex->super_tex[2 + (player->equipped == P_SUPER)];
 		put_texture(app, tex, 224, 16);
 	}
 }
+
 
 inline __attribute__((always_inline, used))
 void	place_fps(t_info *app)
@@ -169,10 +169,11 @@ void	place_fps(t_info *app)
 	{
 		digit = fps % 10;
 		fps /= 10;
-		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		place_char(digit + '0', app, (t_ivect){x, y}, 2, FC_BLUE);
 		x -= 16;
 	}
 }
+
 
 inline __attribute__((always_inline, used))
 void	place_dropped_packets(t_info *app)
@@ -185,12 +186,12 @@ void	place_dropped_packets(t_info *app)
 	y = WIN_HEIGHT - 32;
 	x = 64;
 	if (dropped == 0)
-		return place_char('0', app, (t_ivect){x, y}, 2);
+		return place_char('0', app, (t_ivect){x, y}, 2, FC_BLUE);
 	while (dropped > 0)
 	{
 		digit = dropped % 10;
 		dropped /= 10;
-		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		place_char(digit + '0', app, (t_ivect){x, y}, 2, FC_BLUE);
 		x -= 16;
 	}
 }
@@ -208,7 +209,7 @@ void	draw_textqueue(t_info *app, t_textqueue *queue)
 	while (queue != NULL)
 	{
 		pos.y -= SRV_LINE_SPACING * ((strlen(queue->str) - 1) / SRV_CHAT_WIDTH + 1);
-		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH);
+		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH, FC_BLACK);
 		queue = queue->next;
 	}
 }
@@ -222,8 +223,9 @@ void	draw_chat_input(t_info *app)
 	};
 
 	snprintf(buf, 128, "Chat: %s", app->client.chat);
-	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH);
+	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH, FC_BLACK);
 }
+
 
 inline __attribute__((always_inline, used))
 void	place_scope(t_info *app)
@@ -292,7 +294,7 @@ void	place_energy(t_info *app, t_player *player)
 	buf[0] = (health / 10) + '0';
 	buf[1] = (health % 10) + '0';
 	buf[2] = 0;
-	place_str(buf, app, (t_ivect){96, 48}, 2);
+	place_str(buf, app, (t_ivect){96, 48}, 2, FC_BLUE);
 	place_energy_backup(app, player);
 }
 
@@ -338,7 +340,7 @@ void	place_boss_health(t_info *app)
 	}
 	put_texture(app, &bbar[0], start.x - 16, start.y - 1);
 	put_texture(app, &bbar[1], start.x + (WIN_WIDTH / 2), start.y - 1);
-	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2);
+	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2, FC_BLUE);
 }
 
 inline __attribute__((always_inline, used))
@@ -347,7 +349,7 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 	char	buf[50];
 
 	format_time(buf, 50, time);
-	place_str(buf, app, pos, scalar);
+	place_str(buf, app, pos, scalar, FC_BLUE);
 }
 
 #define THIRTY_FIVE 35
@@ -463,8 +465,7 @@ void	put_texture(t_info *app, t_tex *tex, int x, int y)
 	}
 }
 
-void	place_char(char c, t_info *app, t_ivect p, int scalar);
-void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha);
+void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha, t_fontcolor col);
 
 inline __attribute__((always_inline, used))
 void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
@@ -503,7 +504,7 @@ void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
  */
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 {
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[FC_BLUE];
 	t_ivect			it;
 	int				start_x;
 	t_cdata			cd;
@@ -528,7 +529,7 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 	}
 }
 
-void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
+void	place_str(char *str, t_info *app, t_ivect pos, int scalar, t_fontcolor col)
 {
 	int				i;
 	const t_ivect	spos = pos;
@@ -536,7 +537,7 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	i = 0;
 	while (str[i])
 	{
-		place_char(str[i], app, pos, scalar);
+		place_char(str[i], app, pos, scalar, col);
 		if (str[i++] == '\n')
 		{
 			pos.y += 8 * scalar;
@@ -547,7 +548,26 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
-void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
+void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width, t_fontcolor col)
+{
+	int				i;
+	const t_ivect	spos = pos;
+
+	i = 0;
+	while (str[i])
+	{
+		place_char(str[i++], app, pos, scalar, col);
+		if (i % width == 0)
+		{
+			pos.y += 8 * (scalar + 1);
+			pos.x = spos.x;
+			continue ;
+		}
+		pos.x += 8 * scalar;
+	}
+}
+
+void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar, t_fontcolor col)
 {
 	int			i;
 	int			start_x;
@@ -563,32 +583,13 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	{
 		pos3.xy = pos;
 		if (!ft_strncmp(str, "time trial", 10) && app->menu_state.prev == PAUSE)
-			place_char_alpha(str[i], app, pos3, 127);
+			place_char_alpha(str[i], app, pos3, 127, col);
 		else
-			place_char(str[i], app, pos, scalar);
+			place_char(str[i], app, pos, scalar, col);
 		if (str[i++] == '\n')
 		{
 			pos.y += 8 * scalar;
 			pos.x = start_x;
-			continue ;
-		}
-		pos.x += 8 * scalar;
-	}
-}
-
-void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width)
-{
-	int				i;
-	const t_ivect	spos = pos;
-
-	i = 0;
-	while (str[i])
-	{
-		place_char(str[i++], app, pos, scalar);
-		if (i % width == 0)
-		{
-			pos.y += 8 * (scalar + 1);
-			pos.x = spos.x;
 			continue ;
 		}
 		pos.x += 8 * scalar;
@@ -611,7 +612,7 @@ void	place_menu(const char **strs, t_ivect pos, int scalar, t_info *app)
 		center.x = pos.x;
 		center.y = iy.y;
 		str = (char *) strs[iy.x++];
-		place_str_centred(str, app, center, scalar);
+		place_str_centred(str, app, center, scalar, FC_BLUE);
 		iy.y += scalar * 16;
 	}
 	str = (char *)strs[menustate.selected];
@@ -619,6 +620,7 @@ void	place_menu(const char **strs, t_ivect pos, int scalar, t_info *app)
 	iy.y = start.y + (menustate.selected * 16 * scalar) - 24;
 	put_texture(app, &app->shtex->trophy_tex[0], start.x, iy.y);
 }
+
 
 int		get_tile_idx(char **map, int i, int j);
 void	place_triggers_minimap(t_lvl *lvl, t_img *img, int scale);
@@ -875,10 +877,10 @@ t_img	cvttex_img(t_tex tex)
 }
 
 inline __attribute__((always_inline, used))
-void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
+void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha, t_fontcolor col)
 {
 	t_img *const	cnvs = app->canvas;
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[col];
 	t_ivect3		it;
 	t_cdata			cd;
 

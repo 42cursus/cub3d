@@ -62,7 +62,7 @@ int	render_load(void *param)
 
 	ft_memcpy_avx2((int *) app->canvas->data, (int *) app->bg->data,
 		WIN_HEIGHT * WIN_WIDTH * sizeof(int));
-	place_str_centred((char *)"LOADING", app, pos, 2);
+	place_str_centred((char *)"LOADING", app, pos, 2, FC_BLUE);
 	render_calc_time(app);
 	app->fr_count++;
 	if (app->fr_count == app->fr_rate / 4)

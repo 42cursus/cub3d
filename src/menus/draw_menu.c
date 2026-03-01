@@ -21,9 +21,9 @@ void	draw_menu_lvlselect(t_info *app)
 	i = -1;
 	while (++i < app->no_maps)
 		place_str_centred(app->map_ids[i], app,
-			(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
+			(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3, FC_BLUE);
 	place_str_centred((char *)"back", app,
-		(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3);
+		(t_ivect){WIN_WIDTH / 2, 360 + (i * 48)}, 3, FC_BLUE);
 	pos.x = WIN_WIDTH / 2 - 320;
 	pos.y = 330 + (app->menu_state.selected * 48);
 	put_texture(app, &app->shtex->trophy_tex[0], pos.x, pos.y);
@@ -78,16 +78,16 @@ void	draw_menu_win(t_info *app)
 
 	player = app->player;
 	place_str_centred((char *)"You win", app,
-		(t_ivect){WIN_WIDTH / 2, 340}, 5);
+		(t_ivect){WIN_WIDTH / 2, 340}, 5, FC_BLUE);
 	if (app->timer.active == 1)
 	{
 		place_str_centred((char *)"Your time was:", app,
-			(t_ivect){WIN_WIDTH / 2, 420}, 3);
+			(t_ivect){WIN_WIDTH / 2, 420}, 3, FC_BLUE);
 		place_timer(app, app->timer.total_ms,
 			(t_ivect){WIN_WIDTH / 2 - (24 * 4), 460}, 3);
 		ft_snprintf(buf, 40, "collected: %d%%",
 			(player->pickups_collected * 100) / player->total_pickups);
-		place_str_centred(buf, app, (t_ivect){WIN_WIDTH / 2, 520}, 3);
+		place_str_centred(buf, app, (t_ivect){WIN_WIDTH / 2, 520}, 3, FC_BLUE);
 		place_menu((const char *[]){"next level", "MAIN MENU", "EXIT"},
 			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2 + 100}, 3, app);
 	}
@@ -136,7 +136,7 @@ void	draw_menu_items(t_info *app)
 	if (app->menu_state.state == LOSE)
 	{
 		place_str_centred((char *)"You died", app,
-			(t_ivect){WIN_WIDTH / 2, 340}, 5);
+			(t_ivect){WIN_WIDTH / 2, 340}, 5, FC_BLUE);
 		place_menu((const char *[]){"retry level", "MAIN MENU", "EXIT"},
 			(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 3, app);
 	}
@@ -154,5 +154,5 @@ void	draw_menu_items(t_info *app)
 	if (app->menu_state.state == OPTIONS)
 		draw_menu_options(app);
 	if (app->menu_state.state == CONNECTING)
-		place_str_centred("Connecting...", app, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4);
+		place_str_centred("Connecting...", app, (t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, FC_BLUE);
 }

@@ -122,8 +122,8 @@ t_ret_code	do_state_initial(void *param, int argc, char **argv)
 	}
 	if (app->mlx == NULL)
 		return (printf("Error: failed to init mlx: %m\n"), fail);
-	if (!no_maps)
-		return (printf("Error: no valid maps provided\n"), fail);
+//	if (!no_maps)
+//		return (printf("Error: no valid maps provided\n"), fail);
 	init_menu_select_funcs(app, &app->menu_state);
 	do_load(app, NULL);
 	replace_image(app, &app->bg, NULL);
