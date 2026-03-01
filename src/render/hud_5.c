@@ -12,8 +12,7 @@
 
 #include "cub3d.h"
 
-void	place_char(char c, t_info *app, t_ivect p, int scalar);
-void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha);
+void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha, t_fontcolor col);
 
 inline __attribute__((always_inline, used))
 void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
@@ -52,7 +51,7 @@ void	place_tex_to_image_scale(t_img *const img, t_ctex *tex, t_ivect pos,
  */
 void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 {
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[FC_BLUE];
 	t_ivect			it;
 	int				start_x;
 	t_cdata			cd;
@@ -77,7 +76,7 @@ void	place_char_img(char c, t_img *img, t_info *app, t_ivect3 ps)
 	}
 }
 
-void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
+void	place_str(char *str, t_info *app, t_ivect pos, int scalar, t_fontcolor col)
 {
 	int				i;
 	const t_ivect	spos = pos;
@@ -85,7 +84,7 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	i = 0;
 	while (str[i])
 	{
-		place_char(str[i], app, pos, scalar);
+		place_char(str[i], app, pos, scalar, col);
 		if (str[i++] == '\n')
 		{
 			pos.y += 8 * scalar;
@@ -96,7 +95,7 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
-void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width)
+void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width, t_fontcolor col)
 {
 	int				i;
 	const t_ivect	spos = pos;
@@ -104,7 +103,7 @@ void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int wi
 	i = 0;
 	while (str[i])
 	{
-		place_char(str[i++], app, pos, scalar);
+		place_char(str[i++], app, pos, scalar, col);
 		if (i % width == 0)
 		{
 			pos.y += 8 * (scalar + 1);
@@ -115,7 +114,7 @@ void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int wi
 	}
 }
 
-void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
+void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar, t_fontcolor col)
 {
 	int			i;
 	int			start_x;
@@ -131,9 +130,9 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 	{
 		pos3.xy = pos;
 		if (!ft_strncmp(str, "time trial", 10) && app->menu_state.prev == PAUSE)
-			place_char_alpha(str[i], app, pos3, 127);
+			place_char_alpha(str[i], app, pos3, 127, col);
 		else
-			place_char(str[i], app, pos, scalar);
+			place_char(str[i], app, pos, scalar, col);
 		if (str[i++] == '\n')
 		{
 			pos.y += 8 * scalar;
@@ -160,7 +159,7 @@ void	place_menu(const char **strs, t_ivect pos, int scalar, t_info *app)
 		center.x = pos.x;
 		center.y = iy.y;
 		str = (char *) strs[iy.x++];
-		place_str_centred(str, app, center, scalar);
+		place_str_centred(str, app, center, scalar, FC_BLUE);
 		iy.y += scalar * 16;
 	}
 	str = (char *)strs[menustate.selected];

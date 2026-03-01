@@ -28,10 +28,10 @@ t_img	cvttex_img(t_tex tex)
 }
 
 inline __attribute__((always_inline, used))
-void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha)
+void	place_char_alpha(char c, t_info *app, t_ivect3 p, int alpha, t_fontcolor col)
 {
 	t_img *const	cnvs = app->canvas;
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[col];
 	t_ivect3		it;
 	t_cdata			cd;
 

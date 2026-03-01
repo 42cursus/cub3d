@@ -141,6 +141,17 @@ enum e_dir
 	CURR
 };
 
+typedef enum
+{
+	FC_BLACK = 0,
+	FC_RED,
+	FC_GREEN,
+	FC_YELLOW,
+	FC_BLUE,
+	FC_MAGENTA,
+	FC_CYAN,
+}	t_fontcolor;
+
 enum
 {
 	NONE = 0,
@@ -288,15 +299,15 @@ typedef enum e_shtex
 	tex_TITLE = 166,
 	tex_SCOPE,
 	tex_ALPHABET,
-	tex_TELE,
+	tex_TELE = 175,
 	tex_CREDITS,
 	tex_BOSS_BAR,
-	tex_ROCKS = 173,
-	tex_EMPTY = 180,
+	tex_ROCKS = 180,
+	tex_EMPTY = 187,
 	tex_PLAYERTILE,
 	tex_DECORATIVE,
-	tex_MESSAGES = 191,
-	tex_SQUARE = 198,
+	tex_MESSAGES = 198,
+	tex_SQUARE = 205,
 	TEX_MAX
 }	t_etex;
 
@@ -985,7 +996,7 @@ typedef struct s_shtex
 			t_tex	dmg_tex[8];
 			t_tex	title;
 			t_tex	scope;
-			t_tex	alphabet;
+			t_tex	alphabet[7];
 			t_tex	tele;
 			t_tex	credits;
 			t_tex	boss_bar[2];
@@ -1396,9 +1407,10 @@ void		put_texture(t_info *app, t_tex *tex, int x, int y);
 void		place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
 				double scalar);
 
-void		place_str(char *str, t_info *app, t_ivect spos, int scalar);
-void		place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width);
-void		place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
+void		place_char(char c, t_info *app, t_ivect p, int scalar, t_fontcolor col);
+void		place_str(char *str, t_info *app, t_ivect spos, int scalar, t_fontcolor col);
+void		place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width, t_fontcolor col);
+void		place_str_centred(char *str, t_info *app, t_ivect pos, int scalar, t_fontcolor col);
 void		place_fps(t_info *app);
 void		place_dropped_packets(t_info *app);
 void		place_timer(t_info *app, size_t time, t_ivect pos, int scalar);

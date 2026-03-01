@@ -49,10 +49,10 @@ void	place_tile_on_image32(t_img *img, t_img *tile, t_point p)
 }
 
 inline __attribute__((always_inline, used))
-void	place_char(char c, t_info *app, t_ivect p, int scalar)
+void	place_char(char c, t_info *app, t_ivect p, int scalar, t_fontcolor col)
 {
 	t_img *const	cnvs = app->canvas;
-	t_tex const		alph = app->shtex->alphabet;
+	t_tex const		alph = app->shtex->alphabet[col];
 	t_ivect3		it;
 	t_cdata			cd;
 	t_mcol			mc;

@@ -166,6 +166,56 @@ void	input_exec_name(void *param)
 	app->menu_state.selected++;
 }
 
+char	get_key_upper(char key)
+{
+	switch (key) {
+		case ('1'):
+			return '!';
+		case ('2'):
+			return '@';
+		case ('3'):
+			return '#';
+		case ('4'):
+			return '$';
+		case ('5'):
+			return '%';
+		case ('6'):
+			return '^';
+		case ('7'):
+			return '&';
+		case ('8'):
+			return '*';
+		case ('9'):
+			return '(';
+		case ('0'):
+			return ')';
+		case ('-'):
+			return '_';
+		case ('='):
+			return '+';
+		case ('['):
+			return '{';
+		case (']'):
+			return '}';
+		case ('\\'):
+			return '|';
+		case (';'):
+			return ':';
+		case ('\''):
+			return '"';
+		case (','):
+			return '<';
+		case ('.'):
+			return '>';
+		case ('/'):
+			return '?';
+		case ('`'):
+			return '~';
+		default:
+			return key;
+	}
+}
+
 int	key_press_input(KeySym key, void *param)
 {
 	t_info *const	app = param;
@@ -192,19 +242,11 @@ int	key_press_input(KeySym key, void *param)
 	{
 		if (app->input.len < app->input.max_inputs)
 		{
+			char c = key - XK_space + ' ';
 			if (app->keys[idx_XK_Shift])
-			{
-				switch (key) {
-					case (XK_semicolon):
-						app->input.buf[app->input.len++] = ':';
-						break;
-					default:
-						app->input.buf[app->input.len++] = key - XK_space + ' ';
-						break;
-				}
-			}
+				app->input.buf[app->input.len++] = get_key_upper(c);
 			else
-				app->input.buf[app->input.len++] = key - XK_space + ' ';
+				app->input.buf[app->input.len++] = c;
 			app->input.buf[app->input.len] = '\0';
 		}
 	}

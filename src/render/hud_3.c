@@ -50,7 +50,7 @@ void	place_energy(t_info *app, t_player *player)
 	buf[0] = (health / 10) + '0';
 	buf[1] = (health % 10) + '0';
 	buf[2] = 0;
-	place_str(buf, app, (t_ivect){96, 48}, 2);
+	place_str(buf, app, (t_ivect){96, 48}, 2, FC_BLUE);
 	place_energy_backup(app, player);
 }
 
@@ -96,7 +96,7 @@ void	place_boss_health(t_info *app)
 	}
 	put_texture(app, &bbar[0], start.x - 16, start.y - 1);
 	put_texture(app, &bbar[1], start.x + (WIN_WIDTH / 2), start.y - 1);
-	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2);
+	place_str((char *)"Phantoon", app, (t_ivect){start.x, start.y - 24}, 2, FC_BLUE);
 }
 
 inline __attribute__((always_inline, used))
@@ -105,5 +105,5 @@ void	place_timer(t_info *app, size_t time, t_ivect pos, int scalar)
 	char	buf[50];
 
 	format_time(buf, 50, time);
-	place_str(buf, app, pos, scalar);
+	place_str(buf, app, pos, scalar, FC_BLUE);
 }

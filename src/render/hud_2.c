@@ -12,8 +12,6 @@
 
 #include "cub3d.h"
 
-void	place_char(char c, t_info *app, t_ivect p, int scalar);
-
 inline __attribute__((always_inline, used))
 void	place_ammo(t_info *app, t_player *player)
 {
@@ -26,7 +24,7 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[0] = player->ammo[P_MISSILE] / 100 + '0';
 		buf[1] = (player->ammo[P_MISSILE] / 10) % 10 + '0';
 		buf[2] = player->ammo[P_MISSILE] % 10 + '0';
-		place_str(buf, app, (t_ivect){160, 48}, 2);
+		place_str(buf, app, (t_ivect){160, 48}, 2, FC_BLUE);
 		tex = &app->shtex->missile_tex[2 + (player->equipped == P_MISSILE)];
 		put_texture(app, tex, 160, 16);
 	}
@@ -35,7 +33,7 @@ void	place_ammo(t_info *app, t_player *player)
 		buf[0] = player->ammo[P_SUPER] / 10 + '0';
 		buf[1] = player->ammo[P_SUPER] % 10 + '0';
 		buf[2] = 0;
-		place_str(buf, app, (t_ivect){224, 48}, 2);
+		place_str(buf, app, (t_ivect){224, 48}, 2, FC_BLUE);
 		tex = &app->shtex->super_tex[2 + (player->equipped == P_SUPER)];
 		put_texture(app, tex, 224, 16);
 	}
@@ -56,7 +54,7 @@ void	place_fps(t_info *app)
 	{
 		digit = fps % 10;
 		fps /= 10;
-		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		place_char(digit + '0', app, (t_ivect){x, y}, 2, FC_BLUE);
 		x -= 16;
 	}
 }
@@ -72,12 +70,12 @@ void	place_dropped_packets(t_info *app)
 	y = WIN_HEIGHT - 32;
 	x = 64;
 	if (dropped == 0)
-		return place_char('0', app, (t_ivect){x, y}, 2);
+		return place_char('0', app, (t_ivect){x, y}, 2, FC_BLUE);
 	while (dropped > 0)
 	{
 		digit = dropped % 10;
 		dropped /= 10;
-		place_char(digit + '0', app, (t_ivect){x, y}, 2);
+		place_char(digit + '0', app, (t_ivect){x, y}, 2, FC_BLUE);
 		x -= 16;
 	}
 }
@@ -95,7 +93,7 @@ void	draw_textqueue(t_info *app, t_textqueue *queue)
 	while (queue != NULL)
 	{
 		pos.y -= SRV_LINE_SPACING * ((strlen(queue->str) - 1) / SRV_CHAT_WIDTH + 1);
-		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH);
+		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH, FC_BLACK);
 		queue = queue->next;
 	}
 }
@@ -109,7 +107,7 @@ void	draw_chat_input(t_info *app)
 	};
 
 	snprintf(buf, 128, "Chat: %s", app->client.chat);
-	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH);
+	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH, FC_BLACK);
 }
 
 inline __attribute__((always_inline, used))

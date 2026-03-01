@@ -1,5 +1,5 @@
 /* XPM */
-static char *small_font_xpm[]={
+static char *small_font_blue_xpm[]={
 "760 8 4 1",
 ". c None",
 "a c #283888",
