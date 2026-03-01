@@ -30,6 +30,7 @@ void	do_initial_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
 		(void *)&key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 6;
@@ -62,7 +63,7 @@ void	do_initial_to_intro(void *param)
 	app->player = init_player(app);
 	fill_with_colour(app->bg, 0x000000, 0x000000);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_intro, app);
-	mlx_hook(app->win, KeyRelease, KeyReleaseMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
@@ -82,7 +83,7 @@ void	do_intro_to_mmenu(void *param)
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	app->mlx->end_loop = 0;
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;

@@ -98,7 +98,6 @@ void	do_multiload_to_mmenu(void *param)
 	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MULTI;
 	app->menu_state.selected = 0;

@@ -44,9 +44,8 @@ void	do_pmenu_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
@@ -74,7 +73,7 @@ void	do_lose_to_mmenu(void *param)
 		(void *) &key_press_mmenu, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
