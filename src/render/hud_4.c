@@ -92,7 +92,7 @@ void	place_mmap(t_info *app)
 	t_img *const	canvas = app->canvas;
 	t_player *const	player = app->player;
 
-	if (app->keys[get_key_index(XK_Shift_L)])
+	if (!app->input.active && app->keys[get_key_index(XK_Shift_L)])
 		place_minimap_xl(app, lvl, canvas, player);
 	else
 		place_minimap_xs(app, lvl, canvas);

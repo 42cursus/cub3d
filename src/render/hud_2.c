@@ -108,7 +108,7 @@ void	draw_chat_input(t_info *app)
 		.y = WIN_HEIGHT - 72 - SRV_LINE_SPACING * ((app->input.len + CHAT_PREFIX_LEN - 1) / SRV_CHAT_WIDTH),
 	};
 
-	snprintf(buf, 128, "Chat: %s", app->input.buf);
+	snprintf(buf, 128, "Chat: %s", app->client.chat);
 	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH);
 }
 

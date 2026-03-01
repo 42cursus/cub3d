@@ -20,6 +20,7 @@ int	main(int argc, char **argv)
 		.fullscreen = GO_TO_FULLSCREEN_ON_LOAD
 	};
 
+
 	printf("fov: %d halffov: %f\n", app->fov_deg, app->fov_rad_half);
 	printf("n_textures: %f\n", (double)sizeof(t_shtex) / sizeof(t_tex));
 	printf("tex_MAX: %d\n", TEX_MAX);

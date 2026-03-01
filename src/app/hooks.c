@@ -119,6 +119,11 @@ int	key_press_multi(KeySym key, void *param)
 			app->prev_key_hook = key_press_multi;
 			mlx_hook(app->win, KeyPress, KeyPressMask, (void *)&key_press_input, app);
 			app->input.active = true;
+			app->input.max_inputs = CMSG_CHAT_BUFSIZE - 1;
+			app->input.buf = app->client.chat;
+			app->input.buf[0] = '\0';
+			app->input.len = 0;
+			app->input.exec = &input_exec_chat;
 		}
 		idx = get_key_index(key);
 		if (idx != -1)
@@ -132,10 +137,33 @@ int	key_release_play(KeySym key, void *param)
 	t_info *const	app = param;
 	int				idx;
 
+	printf("key released! %lu\n", key);
 	idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
 	return (0);
+}
+
+void	input_exec_chat(void *param)
+{
+	t_info *const	app = param;
+
+	client_send_chat(app);
+}
+
+void	input_exec_ip(void *param)
+{
+	t_info *const	app = param;
+
+	app->menu_state.selected++;
+	menu_go_input_name(app, &app->menu_state);
+}
+
+void	input_exec_name(void *param)
+{
+	t_info *const	app = param;
+
+	app->menu_state.selected++;
 }
 
 int	key_press_input(KeySym key, void *param)
@@ -143,29 +171,26 @@ int	key_press_input(KeySym key, void *param)
 	t_info *const	app = param;
 	// t_player *const	player = app->player;
 	// int				idx;
-
-	int idx = get_key_index(key);
-	if (idx == idx_XK_Shift)
-		app->keys[idx] = true;
+	printf("key pressed! %lu\n", key);
 
 	if (key == XK_Escape)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
 		app->input.active = false;
-		app->input.buf[0] = '\0';
-		app->input.len = 0;
+		// app->input.buf[0] = '\0';
+		// app->input.len = 0;
 	}
 	else if (key == XK_Return)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
 		app->input.active = false;
-		client_send_chat(app);
+		app->input.exec(app);
 	}
 	else if (key >= XK_space && key <= XK_asciitilde)
 	{
-		if (app->input.len < CMSG_CHAT_BUFSIZE - 1)
+		if (app->input.len < app->input.max_inputs)
 		{
 			if (app->keys[idx_XK_Shift])
 			{
@@ -187,6 +212,10 @@ int	key_press_input(KeySym key, void *param)
 	{
 		app->input.buf[--app->input.len] = '\0';
 	}
+
+	int idx = get_key_index(key);
+	if (idx == idx_XK_Shift)
+		app->keys[idx] = true;
 	return (0);
 }
 
@@ -202,7 +231,6 @@ int	key_press_input_ip(KeySym key, void *param)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
-		app->menu_state.selected++;
 	}
 	else if ((key >= XK_0 && key <= XK_9) || key == XK_period)
 	{

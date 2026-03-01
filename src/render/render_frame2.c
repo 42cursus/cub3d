@@ -40,7 +40,7 @@ int	render_intro(void *param)
 
 int	render_mmenu(void *param)
 {
-	size_t			time;
+	// size_t			time;
 	t_info *const	app = param;
 	t_img *const	bg = app->bg;
 	t_tex *const	tex = &app->shtex->title;
@@ -48,12 +48,9 @@ int	render_mmenu(void *param)
 
 	ft_memcpy_avx2(dst, (int *)bg->data, bg->size_line * bg->height);
 	put_texture(app, tex, (WIN_WIDTH - tex->w) / 2, 100);
+	render_calc_time(app);
 	draw_menu_items(app);
-	while (get_time_us() - app->fr_last < app->fr_delay)
-		usleep(100);
-	time = get_time_us();
-	app->fr_time = time - app->fr_last;
-	app->fr_last = time;
+	place_fps(app);
 	on_expose(app);
 	// printf("%s\n", app->inputbuf);
 	return (0);

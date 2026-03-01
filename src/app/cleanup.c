@@ -29,6 +29,7 @@ int	cleanup(t_info *app)
 	free_split(app->map_ids);
 	get_pooled_ray(2);
 	free_select_funcs(&app->menu_state);
+	// XAutoRepeatOn(app->mlx->display); // Disables key repeat
 	if (app->canvas != NULL)
 		destroy_cnvs(app);
 	if (app->overlay.data != NULL)
