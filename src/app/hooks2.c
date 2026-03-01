@@ -44,6 +44,10 @@ int	key_press_mmenu(KeySym key, void *param)
 	// 	app->prev_key_hook = key_press_mmenu;
 	// 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)key_press_input, app);
 	// }
+	printf("key pressed! %lu\n", key);
+	int idx = get_key_index(key);
+	if (idx != -1)
+		app->keys[idx] = true;
 	return (0);
 }
 

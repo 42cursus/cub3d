@@ -123,10 +123,12 @@ int	setup_client_client(t_client *client, char *ip)
 int	client_handle_handshake(t_info *app, t_client *client)
 {
 	socklen_t	len = sizeof(struct sockaddr_in);
-	t_clientmsg	cmsg;
-
-	cmsg.id = -1;
-	cmsg.type = CMT_CONNECT;
+	t_clientmsg	cmsg = {
+		.id = -1,
+		.type = CMT_CONNECT,
+	};
+	strncpy(cmsg.name, client->name, 12);
+	printf("cmsg name: %s\nclient name: %s\n", cmsg.name, client->name);
 
 	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
 
@@ -188,7 +190,7 @@ pid_t	launch_server(t_info *app)
 	}
 	if (app->client.hosting && setup_client_host(&app->client))
 		return -1;
-	else if (!app->client.hosting && setup_client_client(&app->client, app->input.buf))
+	else if (!app->client.hosting && setup_client_client(&app->client, app->client.ip_str))
 		return -1;
 	if (client_handle_handshake(app, &app->client))
 		return (-1);
@@ -204,6 +206,11 @@ void	server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
 	{
 		id = srv->n_clients;
 		memcpy(&srv->clientaddr[srv->n_clients++], &packet->sockbuf, sizeof(packet->sockbuf));
+		if (strlen(packet->data.name) > 0)
+			snprintf(srv->clients[id].name, 13, "%s", packet->data.name);
+		else
+			snprintf(srv->clients[id].name, 13, "Player %d", id + 1);
+		printf("packet name: %s\nplayer name: %s\n", packet->data.name, srv->clients[id].name);
 	}
 
 	sendto(
@@ -303,7 +310,7 @@ void	add_connection_message(t_server *srv, int player_id)
 	char	buf[256];
 	t_list	*msg;
 
-	snprintf(buf, 256, "Player %d connected", player_id);
+	snprintf(buf, 256, "%s connected", srv->clients[player_id].name);
 	msg = ft_lstnew(strdup(buf));
 	ft_lstadd_back(&srv->msg_queue, msg);
 }
@@ -313,7 +320,7 @@ void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
 	char	buf[256];
 	t_list	*msg;
 
-	snprintf(buf, 256, "Player %d: %s", cmsg->id + 1, cmsg->chat);
+	snprintf(buf, 256, "%s: %s", srv->clients[cmsg->id].name, cmsg->chat);
 	msg = ft_lstnew(strdup(buf));
 	ft_lstadd_back(&srv->msg_queue, msg);
 }
@@ -324,7 +331,7 @@ void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 	switch (packet->data.type) {
 		case (CMT_CONNECT):
 			server_handle_handshake(app, srv, packet);
-			add_connection_message(srv, srv->n_clients);
+			add_connection_message(srv, srv->n_clients - 1);
 			break;
 		case (CMT_PROJ):
 			server_handle_projectiles(app, cmsg);
@@ -489,9 +496,9 @@ void	client_send_chat(t_info *app)
 		.type = CMT_CHAT,
 	};
 
-	strncpy(cmsg.chat, app->input.buf, CMSG_CHAT_BUFSIZE - 1);
+	strncpy(cmsg.chat, app->client.chat, CMSG_CHAT_BUFSIZE - 1);
 	app->input.len = 0;
-	app->input.buf[0] = '\0';
+	app->client.chat[0] = '\0';
 	client_send_msg(&app->client, &cmsg);
 }
 

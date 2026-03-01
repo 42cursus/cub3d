@@ -219,6 +219,8 @@ enum e_idx
 	idx_XK_F5,
 	idx_XK_BackSpace,
 	idx_XK_Shift,
+	idx_XK_h,
+	idx_XK_m,
 };
 
 typedef enum e_snd
@@ -824,6 +826,7 @@ typedef struct
 			t_vect	dir;
 		}	player;
 		char		chat[CMSG_CHAT_BUFSIZE];
+		char		name[16];
 	};
 }	t_clientmsg;
 
@@ -848,6 +851,7 @@ typedef struct
 	int		event;
 	int		dead;
 	int		id;
+	char	name[16];
 }	t_playermult;
 
 enum smsg_type : uint8_t
@@ -916,6 +920,7 @@ typedef enum e_menustate
 	LVL_SELECT,
 	MULTI,
 	MULTI_CONNECT,
+	MULTI_HOST,
 	PAUSE,
 	OPTIONS,
 	WIN,
@@ -1182,8 +1187,11 @@ typedef struct s_client
 	int					id;
 	struct sockaddr_in	servaddr;
 	int					dropped;
-	int					hosting;
+	bool				hosting;
 	t_textqueue			*msg_queue;
+	char				chat[128];
+	char				ip_str[64];
+	char				name[16];
 }	t_client;
 
 struct s_info
@@ -1241,8 +1249,10 @@ struct s_info
 	struct
 	{
 		int		len;
-		char	buf[512];
+		char	*buf;
 		bool	active;
+		int		max_inputs;
+		void	(*exec)(void *);
 	}	input;
 	t_server	*srv;
 };
@@ -1488,6 +1498,8 @@ void		menu_go_multi(t_info *app, t_menustate *menu_state);
 void		menu_go_repeat(t_info *app, t_menustate *menu_state);
 void		menu_go_fail(t_info *app, t_menustate *menu_state);
 void		menu_go_mmenu(t_info *app, t_menustate *menu_state);
+void		menu_go_input_ip(t_info *app, t_menustate *menu_state);
+void		menu_go_input_name(t_info *app, t_menustate *menu_state);
 void		init_menu_select_funcs(t_info *app, t_menustate *menu_state);
 void		place_menu(const char **strs, t_ivect pos, int scalar, t_info *app);
 void		draw_menu_options(t_info *app);
@@ -1590,6 +1602,10 @@ void		draw_textqueue(t_info *app, t_textqueue *queue);
 void		draw_chat_input(t_info *app);;
 void		cull_textqueue(t_textqueue **queue, size_t time);
 void		clear_textqueue(t_textqueue **queue);
+
+void		input_exec_ip(void *param);
+void		input_exec_name(void *param);
+void		input_exec_chat(void *param);
 
 int			pad_init(pad_state *ps, const char *path);
 void		pad_poll(pad_state *ps, t_info *app);

@@ -305,7 +305,7 @@ void	add_pickup_message(t_server *srv, int player_id, t_subtype item)
 	char	buf[256];
 	t_list	*msg;
 
-	snprintf(buf, 256, "Player %d picked up %s", player_id + 1, stringify_item_type(item));
+	snprintf(buf, 256, "%s picked up %s", srv->clients[player_id].name, stringify_item_type(item));
 	msg = ft_lstnew(strdup(buf));
 	ft_lstadd_back(&srv->msg_queue, msg);
 }

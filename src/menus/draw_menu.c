@@ -37,11 +37,37 @@ void	draw_menu_multi(t_info *app)
 
 void	draw_menu_multi_connect(t_info *app)
 {
-	char	buf[1024];
-	char	cursor = app->prev_key_hook == NULL ? ' ' : '_';
+	char	buf[256];
+	char	buf2[256];
 
-	snprintf(buf, 1024, "ip: %s%c", app->input.buf, cursor);
-	place_menu((const char *[]){buf, "JOIN", "BACK"},
+	// printf("selected: %d\n", app->menu_state.selected);
+	// printf("active: %d\n", app->input.active);
+	snprintf(
+		buf, 256, "ip: %s%c",
+		app->client.ip_str,
+		app->input.active && app->menu_state.selected == 0 ? '_' : ' '
+	);
+	snprintf(
+		buf2, 256, "name: %s%c",
+		app->client.name,
+		app->input.active && app->menu_state.selected == 1 ? '_' : ' '
+	);
+	place_menu((const char *[]){buf, buf2, "JOIN", "BACK"},
+		(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
+}
+
+void	draw_menu_multi_host(t_info *app)
+{
+	char	buf[256];
+
+	// printf("selected: %d\n", app->menu_state.selected);
+	// printf("active: %d\n", app->input.active);
+	snprintf(
+		buf, 256, "name: %s%c",
+		app->client.name,
+		app->input.active && app->menu_state.selected == 0 ? '_' : ' '
+	);
+	place_menu((const char *[]){buf, "START", "BACK"},
 		(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 }
 
@@ -123,6 +149,8 @@ void	draw_menu_items(t_info *app)
 		draw_menu_multi(app);
 	if (app->menu_state.state == MULTI_CONNECT)
 		draw_menu_multi_connect(app);
+	if (app->menu_state.state == MULTI_HOST)
+		draw_menu_multi_host(app);
 	if (app->menu_state.state == OPTIONS)
 		draw_menu_options(app);
 	if (app->menu_state.state == CONNECTING)

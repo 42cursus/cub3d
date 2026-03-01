@@ -95,13 +95,14 @@ void	do_multiload_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
-	app->menu_state.state = MAIN;
+	app->menu_state.state = MULTI;
 	app->menu_state.selected = 0;
-	app->menu_state.no_items = 6;
+	app->menu_state.no_items = 3;
 }
 
 t_ret_code do_state_multi(void *param)
@@ -142,9 +143,9 @@ void do_multi_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
@@ -217,9 +218,9 @@ void	do_pmenu_mult_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
