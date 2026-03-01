@@ -29,7 +29,7 @@ int	main(int argc, char **argv)
 	printf("sizeof sobj: %lu Bytes\n", sizeof(t_sobj));
 	printf("sizeof sdoor: %lu Bytes\n", sizeof(t_sdoor));
 	printf("sizeof servermsg: %lu Bytes\n", sizeof(t_servermsg));
-	printf("sizeof combined servermsg: %lu Bytes\n", sizeof(t_sobj) * SRV_MAX_OBJECTS + sizeof(t_sdoor) * SRV_MAX_DOORS + 8);
+	// printf("sizeof combined servermsg: %lu Bytes\n", sizeof(t_sobj) * SRV_MAX_OBJECTS + sizeof(t_sdoor) * SRV_MAX_DOORS + 8);
 	printf("sizeof clientmsg: %lu Bytes\n", sizeof(t_clientmsg));
 	// exit(0);
 	while (app->state != STATE_END)

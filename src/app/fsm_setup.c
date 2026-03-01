@@ -32,7 +32,11 @@ t_transition	*get_state_transitions(size_t *size)
 	{STATE_LOAD, fail, STATE_MMENU},
 	{STATE_MULTILOAD, ok, STATE_MULTI},
 	{STATE_MULTILOAD, fail, STATE_MMENU},
-	{STATE_MULTI, ok, STATE_MMENU},
+	{STATE_MULTI, repeat, STATE_MMENU},
+	{STATE_MULTI, ok, STATE_PMENU_MULT},
+	{STATE_PMENU_MULT, ok, STATE_MULTI},
+	{STATE_PMENU_MULT, repeat, STATE_MMENU},
+	{STATE_PMENU_MULT, fail, STATE_END},
 	{STATE_PLAY, ok, STATE_WIN},
 	{STATE_PLAY, fail, STATE_LOSE},
 	{STATE_PLAY, repeat, STATE_PMENU},
@@ -66,6 +70,7 @@ t_state_func *const	*get_state_table(void)
 	[STATE_PLAY] = do_state_play,
 	[STATE_MULTI] = do_state_multi,
 	[STATE_PMENU] = do_state_pmenu,
+	[STATE_PMENU_MULT] = do_state_pmenu_mult,
 	[STATE_LOSE] = do_state_lose,
 	[STATE_WIN] = do_state_win,
 	[NUM_STATES - 1] = NULL
@@ -104,6 +109,12 @@ t_transition_func	**get_trans_table(void)
 		},
 		[STATE_MULTI] = {
 			[STATE_MMENU] = do_multi_to_mmenu,
+			[STATE_PMENU_MULT] = do_multi_to_pmenu_mult,
+		},
+		[STATE_PMENU_MULT] = {
+			[STATE_MMENU] = do_pmenu_mult_to_mmenu,
+			[STATE_MULTI] = do_pmenu_mult_to_mult,
+			[STATE_END] = do_pmenu_mult_to_end,
 		},
 		[STATE_PLAY] = {
 			[STATE_PMENU] = do_play_to_pmenu,

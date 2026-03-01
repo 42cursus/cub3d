@@ -24,6 +24,7 @@ typedef enum e_game_state
 	STATE_MULTI,
 	STATE_CREDITS,
 	STATE_PMENU,
+	STATE_PMENU_MULT,
 	STATE_LOSE,
 	STATE_WIN,
 	STATE_END,
@@ -72,6 +73,11 @@ void		do_multiload_to_multi(void *param);
 void		do_multiload_to_mmenu(void *param);
 
 void		do_multi_to_mmenu(void *param);
+void		do_multi_to_pmenu_mult(void *param);
+
+void		do_pmenu_mult_to_mult(void *param);
+void		do_pmenu_mult_to_mmenu(void *param);
+void		do_pmenu_mult_to_end(void *param);
 
 void		do_play_to_pmenu(void *param);
 void		do_play_to_win(void *param);
@@ -101,6 +107,7 @@ t_ret_code	do_state_multiload(void *param);
 t_ret_code	do_state_play(void *param);
 t_ret_code	do_state_multi(void *param);
 t_ret_code	do_state_pmenu(void *param);
+t_ret_code	do_state_pmenu_mult(void *param);
 t_ret_code	do_state_win(void *param);
 t_ret_code	do_state_lose(void *param);
 t_ret_code	do_state_credits(void *param);

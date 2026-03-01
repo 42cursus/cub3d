@@ -145,6 +145,10 @@ int	render_play_multi(void *param)
 	app->fr_count++;
 	draw_hud(app);
 	place_dropped_packets(app);
+	if (app->input.active == true)
+	{
+		draw_chat_input(app);
+	}
 	draw_textqueue(app, app->client.msg_queue);
 	cull_textqueue(&app->client.msg_queue, app->fr_last);
 	on_expose(app);

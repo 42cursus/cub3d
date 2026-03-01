@@ -198,16 +198,31 @@ void	place_dropped_packets(t_info *app)
 void	draw_textqueue(t_info *app, t_textqueue *queue)
 {
 	t_ivect	pos = {
-		.x = 32,
-		.y = WIN_HEIGHT - 48 - (textqueue_len(queue) * 24),
+			.x = 32,
+			.y = WIN_HEIGHT - 72,
 	};
+
+	if (app->input.active)
+		pos.y -= SRV_LINE_SPACING * ((app->input.len + CHAT_PREFIX_LEN - 1) / SRV_CHAT_WIDTH);
 
 	while (queue != NULL)
 	{
-		place_str(queue->str, app, pos, 2);
-		pos.y += 24;
+		pos.y -= SRV_LINE_SPACING * ((strlen(queue->str) - 1) / SRV_CHAT_WIDTH + 1);
+		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH);
 		queue = queue->next;
 	}
+}
+
+void	draw_chat_input(t_info *app)
+{
+	char	buf[128];
+	t_ivect	pos = {
+			.x = 32,
+			.y = WIN_HEIGHT - 72 - SRV_LINE_SPACING * ((app->input.len + CHAT_PREFIX_LEN - 1) / SRV_CHAT_WIDTH),
+	};
+
+	snprintf(buf, 128, "Chat: %s", app->input.buf);
+	place_str_justified(buf, app, pos, 2, SRV_CHAT_WIDTH);
 }
 
 inline __attribute__((always_inline, used))
@@ -555,6 +570,25 @@ void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 		{
 			pos.y += 8 * scalar;
 			pos.x = start_x;
+			continue ;
+		}
+		pos.x += 8 * scalar;
+	}
+}
+
+void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width)
+{
+	int				i;
+	const t_ivect	spos = pos;
+
+	i = 0;
+	while (str[i])
+	{
+		place_char(str[i++], app, pos, scalar);
+		if (i % width == 0)
+		{
+			pos.y += 8 * (scalar + 1);
+			pos.x = spos.x;
 			continue ;
 		}
 		pos.x += 8 * scalar;
