@@ -209,7 +209,7 @@ void	draw_textqueue(t_info *app, t_textqueue *queue)
 	while (queue != NULL)
 	{
 		pos.y -= SRV_LINE_SPACING * ((strlen(queue->str) - 1) / SRV_CHAT_WIDTH + 1);
-		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH, FC_BLACK);
+		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH, queue->col);
 		queue = queue->next;
 	}
 }

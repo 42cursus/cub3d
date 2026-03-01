@@ -36,11 +36,11 @@ void	subtract_health(t_info *app, t_player *player, int damage)
 void	add_dead_message(t_server *srv, int player_id)
 {
 	char	buf[256];
-	t_list	*msg;
+	t_textqueue	*msg;
 
 	snprintf(buf, 256, "%s died :(", srv->clients[player_id].name);
-	msg = ft_lstnew(strdup(buf));
-	ft_lstadd_back(&srv->msg_queue, msg);
+	msg = textqueue_new(strdup(buf), 6000000, FC_RED, 0);
+	textqueue_add_back(&srv->msg_queue, msg);
 }
 
 void	subtract_health_mult(t_info *app, t_playermult *player, int damage)

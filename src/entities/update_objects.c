@@ -303,11 +303,11 @@ char	*stringify_item_type(t_subtype item)
 void	add_pickup_message(t_server *srv, int player_id, t_subtype item)
 {
 	char	buf[256];
-	t_list	*msg;
+	t_textqueue	*msg;
 
 	snprintf(buf, 256, "%s picked up %s", srv->clients[player_id].name, stringify_item_type(item));
-	msg = ft_lstnew(strdup(buf));
-	ft_lstadd_back(&srv->msg_queue, msg);
+	msg = textqueue_new(strdup(buf), 6000000, FC_BLUE, 0);
+	textqueue_add_back(&srv->msg_queue, msg);
 }
 
 void	deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player)
@@ -355,6 +355,6 @@ void deserialise_player_state(t_info *app, t_servermsg *smsg)
 
 void	deserialise_text(t_info *app, t_servermsg *smsg)
 {
-	t_textqueue *message = textqueue_new(app, strdup(smsg->payload.text), smsg->payload.timeout);
+	t_textqueue *message = textqueue_new(strdup(smsg->payload.text), smsg->payload.timeout, smsg->payload.col, app->fr_last);
 	textqueue_add_front(&app->client.msg_queue, message);
 }
