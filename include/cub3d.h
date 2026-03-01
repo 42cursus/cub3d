@@ -891,6 +891,7 @@ typedef struct
 		{
 			char		text[512];
 			size_t		timeout;
+			t_fontcolor	col;
 		};
 	}	payload;
 }	t_servermsg;
@@ -1156,6 +1157,15 @@ typedef struct s_packetin
 	struct sockaddr_in		sockbuf;
 }	packet_in;
 
+typedef struct s_textmsg
+{
+	char				*str;
+	size_t				arrival_time;
+	size_t				timeout;
+	t_fontcolor			col;
+	struct s_textmsg	*next;
+}	t_textqueue;
+
 typedef struct s_server
 {
 	int					sockfd;
@@ -1163,16 +1173,8 @@ typedef struct s_server
 	struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
 	t_playermult		clients[SRV_MAX_PLAYERS];
 	int					n_clients;
-	t_list				*msg_queue;
+	t_textqueue			*msg_queue;
 }	t_server;
-
-typedef struct s_textmsg
-{
-	char				*str;
-	size_t				arrival_time;
-	size_t				timeout;
-	struct s_textmsg	*next;
-}	t_textqueue;
 
 typedef struct s_client
 {
@@ -1588,7 +1590,7 @@ void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 void		deserialise_text(t_info *app, t_servermsg *smsg);
 
-t_textqueue	*textqueue_new(t_info *app, char *text, size_t timeout);
+t_textqueue	*textqueue_new(char *text, size_t timeout, t_fontcolor col, size_t time);
 void		textqueue_add_back(t_textqueue **queue, t_textqueue *msg);
 void		textqueue_add_front(t_textqueue **queue, t_textqueue *msg);
 int			textqueue_len(t_textqueue *queue);

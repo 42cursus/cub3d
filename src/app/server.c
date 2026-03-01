@@ -308,21 +308,21 @@ const char *stringify_smsg_type(enum smsg_type type)
 void	add_connection_message(t_server *srv, int player_id)
 {
 	char	buf[256];
-	t_list	*msg;
+	t_textqueue	*msg;
 
 	snprintf(buf, 256, "%s connected", srv->clients[player_id].name);
-	msg = ft_lstnew(strdup(buf));
-	ft_lstadd_back(&srv->msg_queue, msg);
+	msg = textqueue_new(strdup(buf), 6000000, FC_GREEN, 0);
+	textqueue_add_back(&srv->msg_queue, msg);
 }
 
 void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
 {
 	char	buf[256];
-	t_list	*msg;
+	t_textqueue	*msg;
 
 	snprintf(buf, 256, "%s: %s", srv->clients[cmsg->id].name, cmsg->chat);
-	msg = ft_lstnew(strdup(buf));
-	ft_lstadd_back(&srv->msg_queue, msg);
+	msg = textqueue_new(strdup(buf), 30000000, FC_BLACK, 0);
+	textqueue_add_back(&srv->msg_queue, msg);
 }
 
 void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
@@ -390,17 +390,16 @@ void	server_send_msg(t_server *srv, struct sockaddr_in *client, t_servermsg *sms
 
 void	server_send_text_queue(t_server *srv)
 {
-	t_list		*current = srv->msg_queue;
+	t_textqueue	*current = srv->msg_queue;
 	t_servermsg	msg = {
 		.type = SMT_TEXT,
-		.payload.timeout = 6000000,
 	};
 
 	while (current != NULL)
 	{
 		strncpy(msg.payload.text, current->str, 511);
-		if (strchr(msg.payload.text, ':'))
-			msg.payload.timeout *= 5;
+		msg.payload.timeout = current->timeout;
+		msg.payload.col = current->col;
 		for (int i = 0; i < srv->n_clients; i++)
 			server_send_msg(srv, &srv->clientaddr[i], &msg);
 		current = current->next;
@@ -417,7 +416,7 @@ void	server_send_messages(t_info *app, t_server *srv)
 		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_PLAYER]);
 	}
 	server_send_text_queue(srv);
-	ft_lstclear(&srv->msg_queue, free);
+	clear_textqueue(&srv->msg_queue);
 	srv->msg_queue = NULL;
 }
 
@@ -558,13 +557,14 @@ void	client_receive_msgs(t_info *app)
 	(void)count;
 }
 
-t_textqueue	*textqueue_new(t_info *app, char *text, size_t timeout)
+t_textqueue	*textqueue_new(char *text, size_t timeout, t_fontcolor col, size_t time)
 {
 	t_textqueue *new = calloc(1, sizeof(*new));
 
 	new->next = NULL;
 	new->str = text;
-	new->arrival_time = app->fr_last;
+	new->col = col;
+	new->arrival_time = time;
 	new->timeout = timeout;
 	return new;
 }
