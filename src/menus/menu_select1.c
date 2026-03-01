@@ -40,8 +40,8 @@ void	menu_go_multi(t_info *app, t_menustate *menu_state)
 
 void	menu_go_multi_connect(t_info *app, t_menustate *menu_state)
 {
-	app->inputbuf[0] = '\0';
-	app->inputlen = 0;
+	app->input.buf[0] = '\0';
+	app->input.len = 0;
 	menu_state->prev = menu_state->state;
 	menu_state->state = MULTI_CONNECT;
 	menu_state->selected = 0;

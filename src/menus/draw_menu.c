@@ -40,7 +40,7 @@ void	draw_menu_multi_connect(t_info *app)
 	char	buf[1024];
 	char	cursor = app->prev_key_hook == NULL ? ' ' : '_';
 
-	snprintf(buf, 1024, "ip: %s%c", app->inputbuf, cursor);
+	snprintf(buf, 1024, "ip: %s%c", app->input.buf, cursor);
 	place_menu((const char *[]){buf, "JOIN", "BACK"},
 		(t_ivect){WIN_WIDTH / 2, WIN_HEIGHT / 2}, 4, app);
 }

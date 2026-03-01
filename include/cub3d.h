@@ -107,10 +107,13 @@
 
 # define LARGE_MMAP_SCALE 16
 
-# define SRV_MAX_OBJECTS 64
+# define SRV_MAX_OBJECTS 63
 # define SRV_MAX_DOORS 32
 # define SRV_MAX_PLAYERS 4
 # define SRV_TEXT_TIMEOUT 6000000
+# define SRV_CHAT_WIDTH 48
+# define SRV_LINE_SPACING 24
+# define CHAT_PREFIX_LEN 6
 
 # define TEX_DIR "./resources/textures"
 
@@ -790,8 +793,11 @@ enum cmsg_type : uint8_t
 	CMT_POS,
 	CMT_PROJ,
 	CMT_DOOR,
+	CMT_CHAT,
 	CMT_DISCONNECT,
 };
+
+#define CMSG_CHAT_BUFSIZE 120
 
 typedef struct
 {
@@ -814,6 +820,7 @@ typedef struct
 			t_vect	pos;
 			t_vect	dir;
 		}	player;
+		char		chat[CMSG_CHAT_BUFSIZE];
 	};
 }	t_clientmsg;
 
@@ -865,7 +872,11 @@ typedef struct
 			int		n_serialdoors;
 		};
 		t_playermult	player;
-		char			text[512];
+		struct
+		{
+			char		text[512];
+			size_t		timeout;
+		};
 	}	payload;
 }	t_servermsg;
 
@@ -1143,6 +1154,7 @@ typedef struct s_textmsg
 {
 	char				*str;
 	size_t				arrival_time;
+	size_t				timeout;
 	struct s_textmsg	*next;
 }	t_textqueue;
 
@@ -1208,8 +1220,12 @@ struct s_info
 	t_client	client;
 	pid_t		srv_pid;
 	int			(*prev_key_hook)(KeySym, void *);
-	char		inputbuf[512];
-	int			inputlen;
+	struct
+	{
+		int		len;
+		char	buf[512];
+		bool	active;
+	}	input;
 	t_server	*srv;
 };
 
@@ -1369,11 +1385,14 @@ void		fill_with_colour_r(t_img *img, int f_col, int c_col);
 void		put_texture(t_info *app, t_tex *tex, int x, int y);
 void		place_tex_to_image_scale(t_img *img, const t_tex *tex, t_ivect pos,
 				double scalar);
+
 void		place_str(char *str, t_info *app, t_ivect spos, int scalar);
+void		place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width);
 void		place_str_centred(char *str, t_info *app, t_ivect pos, int scalar);
 void		place_fps(t_info *app);
 void		place_dropped_packets(t_info *app);
 void		place_timer(t_info *app, size_t time, t_ivect pos, int scalar);
+
 t_tex		img_to_tex(t_info *app, const char *filename);
 t_tex		img_to_tex_static_rm(t_info *app, const char **xpm_data);
 t_tex		img_to_tex_static_cm(t_info *app, const char **xpm_data);
@@ -1535,6 +1554,7 @@ void		client_send_msg(t_client *client, t_clientmsg *cmsg);
 void		client_send_pos(t_info *app);
 void		client_send_proj(t_info *app, t_eproj type);
 void		client_send_door(t_info *app, t_ivect pos);
+void		client_send_chat(t_info *app);
 void		client_receive_msgs(t_info *app);
 
 void		add_pickup_message(t_server *srv, int player_id, t_subtype item);
@@ -1544,10 +1564,12 @@ void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 void		deserialise_text(t_info *app, t_servermsg *smsg);
 
-t_textqueue	*textqueue_new(t_info *app, char *text);
+t_textqueue	*textqueue_new(t_info *app, char *text, size_t timeout);
 void		textqueue_add_back(t_textqueue **queue, t_textqueue *msg);
+void		textqueue_add_front(t_textqueue **queue, t_textqueue *msg);
 int			textqueue_len(t_textqueue *queue);
 void		draw_textqueue(t_info *app, t_textqueue *queue);
+void		draw_chat_input(t_info *app);;
 void		cull_textqueue(t_textqueue **queue, size_t time);
 void		clear_textqueue(t_textqueue **queue);
 

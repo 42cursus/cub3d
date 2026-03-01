@@ -355,6 +355,6 @@ void deserialise_player_state(t_info *app, t_servermsg *smsg)
 
 void	deserialise_text(t_info *app, t_servermsg *smsg)
 {
-	t_textqueue *message = textqueue_new(app, strdup(smsg->payload.text));
-	textqueue_add_back(&app->client.msg_queue, message);
+	t_textqueue *message = textqueue_new(app, strdup(smsg->payload.text), smsg->payload.timeout);
+	textqueue_add_front(&app->client.msg_queue, message);
 }

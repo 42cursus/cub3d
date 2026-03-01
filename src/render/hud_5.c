@@ -96,6 +96,25 @@ void	place_str(char *str, t_info *app, t_ivect pos, int scalar)
 	}
 }
 
+void	place_str_justified(char *str, t_info *app, t_ivect pos, int scalar, int width)
+{
+	int				i;
+	const t_ivect	spos = pos;
+
+	i = 0;
+	while (str[i])
+	{
+		place_char(str[i++], app, pos, scalar);
+		if (i % width == 0)
+		{
+			pos.y += 8 * (scalar + 1);
+			pos.x = spos.x;
+			continue ;
+		}
+		pos.x += 8 * scalar;
+	}
+}
+
 void	place_str_centred(char *str, t_info *app, t_ivect pos, int scalar)
 {
 	int			i;

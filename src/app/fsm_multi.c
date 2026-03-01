@@ -18,7 +18,7 @@ void	do_mmenu_to_multiload(void *param)
 {
 	t_info *const	app = param;
 
-	printf("do_mmenu_to_multiload\n");
+	// printf("do_mmenu_to_multiload\n");
 	app->fr_count = 0;
 	app->lvl = init_map();
 	if (parse_cub(app, "./maps/multi.cub"))
@@ -44,7 +44,7 @@ t_ret_code	do_state_multiload(void *param)
 {
 	t_info *const	app = param;
 
-	printf("do_state_multiload\n");
+	// printf("do_state_multiload\n");
 	if (app->rc != ok)
 		return (app->rc);
 	// if (app->lvl && app->lvl->music)
@@ -61,7 +61,7 @@ void	do_multiload_to_multi(void *param)
 {
 	t_info *const	app = param;
 
-	printf("do_multiload_to_multi\n");
+	// printf("do_multiload_to_multi\n");
 	replace_image(app, &app->bg, NULL);
 	replace_image_r(app, &app->bg_r, NULL);
 	mlx_loop_hook(app->mlx, &render_play_multi, app);
@@ -88,7 +88,7 @@ void	do_multiload_to_mmenu(void *param)
 {
 	t_info *const	app = param;
 
-	printf("do_multiload_to_mmenu\n");
+	// printf("do_multiload_to_mmenu\n");
 	cleanup_maps(app);
 	app->player = (free(app->player), NULL);
 	replace_image(app, &app->bg, (char *) TEX_DIR"/wall.xpm");
@@ -108,7 +108,7 @@ t_ret_code do_state_multi(void *param)
 {
 	t_info *const	app = param;
 
-	printf("do_state_multi\n");
+	// printf("do_state_multi\n");
 	mlx_mouse_hide(app->mlx, app->win);
 	replace_sky_r(app, (char *)TEX_DIR"/fog_sky.xpm");
 	replace_sky(app, (char *)TEX_DIR"/fog_sky.xpm");

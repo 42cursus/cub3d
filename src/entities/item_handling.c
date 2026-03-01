@@ -141,7 +141,7 @@ int	handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current)
 		// printf("player%d pos: (%.1f,%.1f)\n", i, player->pos.x, player->pos.y);
 		if (vector_distance(player->pos, obj->pos) < 0.5)
 		{
-			printf("player in range! %d\n", i);
+			// printf("player in range! %d\n", i);
 			retval = handle_pickups_mult(obj, player);
 			if (!retval)
 				return (0);

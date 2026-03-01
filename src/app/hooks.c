@@ -113,6 +113,13 @@ int	key_press_multi(KeySym key, void *param)
 			handle_open_door_client(app, &player->rays[WIN_WIDTH / 2]);
 		else if (key == XK_x)
 			spawn_projectile_client(app, player);
+		else if (key == XK_t)
+		{
+			memset(app->keys, 0, sizeof(bool) * 16);
+			app->prev_key_hook = key_press_multi;
+			mlx_hook(app->win, KeyPress, KeyPressMask, (void *)&key_press_input, app);
+			app->input.active = true;
+		}
 		idx = get_key_index(key);
 		if (idx != -1)
 			app->keys[idx] = true;
@@ -138,36 +145,47 @@ int	key_press_input(KeySym key, void *param)
 	// int				idx;
 
 	int idx = get_key_index(key);
-	if (idx != -1)
+	if (idx == idx_XK_Shift)
 		app->keys[idx] = true;
 
 	if (key == XK_Escape)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
+		app->input.active = false;
+		app->input.buf[0] = '\0';
+		app->input.len = 0;
+	}
+	else if (key == XK_Return)
+	{
+		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
+		app->prev_key_hook = NULL;
+		app->input.active = false;
+		client_send_chat(app);
 	}
 	else if (key >= XK_space && key <= XK_asciitilde)
 	{
-		if (app->inputlen < 512)
+		if (app->input.len < CMSG_CHAT_BUFSIZE - 1)
 		{
 			if (app->keys[idx_XK_Shift])
 			{
 				switch (key) {
 					case (XK_semicolon):
-						app->inputbuf[app->inputlen++] = ':';
+						app->input.buf[app->input.len++] = ':';
 						break;
 					default:
-						app->inputbuf[app->inputlen++] = key - XK_space + ' ';
+						app->input.buf[app->input.len++] = key - XK_space + ' ';
 						break;
 				}
 			}
 			else
-				app->inputbuf[app->inputlen++] = key - XK_space + ' ';
+				app->input.buf[app->input.len++] = key - XK_space + ' ';
+			app->input.buf[app->input.len] = '\0';
 		}
 	}
-	else if (key == XK_BackSpace && app->inputlen > 0)
+	else if (key == XK_BackSpace && app->input.len > 0)
 	{
-		app->inputbuf[--app->inputlen] = '\0';
+		app->input.buf[--app->input.len] = '\0';
 	}
 	return (0);
 }
@@ -180,7 +198,7 @@ int	key_press_input_ip(KeySym key, void *param)
 	if (idx != -1)
 		app->keys[idx] = true;
 
-	else if (key == XK_Return || key == XK_Escape)
+	if (key == XK_Return || key == XK_Escape)
 	{
 		mlx_hook(app->win, KeyPress, KeyPressMask, (void *)app->prev_key_hook, app);
 		app->prev_key_hook = NULL;
@@ -188,15 +206,15 @@ int	key_press_input_ip(KeySym key, void *param)
 	}
 	else if ((key >= XK_0 && key <= XK_9) || key == XK_period)
 	{
-		if (app->inputlen < 32)
+		if (app->input.len < 32)
 		{
-			app->inputbuf[app->inputlen++] = key - XK_space + ' ';
-			app->inputbuf[app->inputlen] = '\0';
+			app->input.buf[app->input.len++] = key - XK_space + ' ';
+			app->input.buf[app->input.len] = '\0';
 		}
 	}
-	else if (key == XK_BackSpace && app->inputlen > 0)
+	else if (key == XK_BackSpace && app->input.len > 0)
 	{
-		app->inputbuf[--app->inputlen] = '\0';
+		app->input.buf[--app->input.len] = '\0';
 	}
 	return (0);
 }

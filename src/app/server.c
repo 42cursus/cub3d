@@ -188,7 +188,7 @@ pid_t	launch_server(t_info *app)
 	}
 	if (app->client.hosting && setup_client_host(&app->client))
 		return -1;
-	else if (!app->client.hosting && setup_client_client(&app->client, app->inputbuf))
+	else if (!app->client.hosting && setup_client_client(&app->client, app->input.buf))
 		return -1;
 	if (client_handle_handshake(app, &app->client))
 		return (-1);
@@ -308,6 +308,16 @@ void	add_connection_message(t_server *srv, int player_id)
 	ft_lstadd_back(&srv->msg_queue, msg);
 }
 
+void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
+{
+	char	buf[256];
+	t_list	*msg;
+
+	snprintf(buf, 256, "Player %d: %s", cmsg->id + 1, cmsg->chat);
+	msg = ft_lstnew(strdup(buf));
+	ft_lstadd_back(&srv->msg_queue, msg);
+}
+
 void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 {
 	t_clientmsg *cmsg = &packet->data;
@@ -325,6 +335,9 @@ void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 			break;
 		case (CMT_DOOR):
 			handle_open_door_server(app, cmsg->door.pos);
+			break;
+		case (CMT_CHAT):
+			add_chat_message(srv, cmsg);
 			break;
 		default:
 			break;
@@ -373,11 +386,14 @@ void	server_send_text_queue(t_server *srv)
 	t_list		*current = srv->msg_queue;
 	t_servermsg	msg = {
 		.type = SMT_TEXT,
+		.payload.timeout = 6000000,
 	};
 
 	while (current != NULL)
 	{
 		strncpy(msg.payload.text, current->str, 511);
+		if (strchr(msg.payload.text, ':'))
+			msg.payload.timeout *= 5;
 		for (int i = 0; i < srv->n_clients; i++)
 			server_send_msg(srv, &srv->clientaddr[i], &msg);
 		current = current->next;
@@ -466,6 +482,19 @@ void	client_send_door(t_info *app, t_ivect pos)
 	client_send_msg(client, &cmsg);
 }
 
+void	client_send_chat(t_info *app)
+{
+	t_clientmsg cmsg = {
+		.id = app->client.id,
+		.type = CMT_CHAT,
+	};
+
+	strncpy(cmsg.chat, app->input.buf, CMSG_CHAT_BUFSIZE - 1);
+	app->input.len = 0;
+	app->input.buf[0] = '\0';
+	client_send_msg(&app->client, &cmsg);
+}
+
 void	client_process_msg(t_info *app, t_servermsg *smsg)
 {
 	switch (smsg->type) {
@@ -522,13 +551,14 @@ void	client_receive_msgs(t_info *app)
 	(void)count;
 }
 
-t_textqueue	*textqueue_new(t_info *app, char *text)
+t_textqueue	*textqueue_new(t_info *app, char *text, size_t timeout)
 {
 	t_textqueue *new = calloc(1, sizeof(*new));
 
 	new->next = NULL;
 	new->str = text;
 	new->arrival_time = app->fr_last;
+	new->timeout = timeout;
 	return new;
 }
 
@@ -546,6 +576,20 @@ void	textqueue_add_back(t_textqueue **queue, t_textqueue *msg)
 	while (current->next != NULL)
 		current = current->next;
 	current->next = msg;
+}
+
+void	textqueue_add_front(t_textqueue **queue, t_textqueue *msg)
+{
+	if (queue == NULL)
+		return ;
+	if (*queue == NULL)
+	{
+		*queue = msg;
+		return ;
+	}
+
+	msg->next = *queue;
+	*queue = msg;
 }
 
 int	textqueue_len(t_textqueue *queue)
@@ -566,7 +610,7 @@ void	cull_textqueue(t_textqueue **queue, size_t time)
 
 	t_textqueue *current = *queue;
 	t_textqueue *tmp;
-	while (current != NULL && time - current->arrival_time > SRV_TEXT_TIMEOUT)
+	while (current != NULL && time - current->arrival_time > current->timeout)
 	{
 		tmp = current;
 		current = tmp->next;
@@ -574,6 +618,23 @@ void	cull_textqueue(t_textqueue **queue, size_t time)
 		free(tmp);
 	}
 	*queue = current;
+	if (current == NULL)
+		return ;
+
+	while (current->next != NULL)
+	{
+		if (time - current->next->arrival_time > current->next->timeout)
+		{
+			tmp = current->next;
+			current->next = tmp->next;
+			free(tmp->str);
+			free(tmp);
+		}
+		else
+		{
+			current = current->next;
+		}
+	}
 }
 
 void	clear_textqueue(t_textqueue **queue)
