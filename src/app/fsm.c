@@ -172,9 +172,8 @@ void	do_win_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
@@ -277,9 +276,8 @@ void	do_pmenu_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
@@ -304,10 +302,10 @@ void	do_lose_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask,
-		(void *) &key_press_mmenu, app);
+			 (void *) &key_press_mmenu, app);
 	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
@@ -568,14 +566,14 @@ void	do_credits_to_mmenu(void *param)
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	app->mlx->end_loop = 0;
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *)&key_press_mmenu, app);
-	mlx_hook(app->win, ButtonPress, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	mlx_hook(app->win, ButtonRelease, NoEventMask, NULL, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
 	mlx_hook(app->win, MotionNotify, NoEventMask, NULL, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 3;
 	app->menu_state.no_items = 6;
 }
+
 
 void	do_load_to_mmenu(void *param)
 {
@@ -611,18 +609,19 @@ void	do_initial_to_mmenu(void *param)
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask,
-		(void *)&key_press_mmenu, app);
+			 (void *)&key_press_mmenu, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
 	app->menu_state.no_items = 6;
 	XSetInputFocus(app->mlx->display, app->win->window,
-		RevertToPointerRoot, CurrentTime);
+				   RevertToPointerRoot, CurrentTime);
 	grab_result = XGrabKeyboard(app->mlx->display, app->win->window, True,
-			GrabModeAsync, GrabModeAsync, CurrentTime);
+								GrabModeAsync, GrabModeAsync, CurrentTime);
 	if (grab_result != GrabSuccess)
 		ft_dprintf(STDERR_FILENO, "XGrabKeyboard failed: %d\n", grab_result);
 	XGrabPointer(app->mlx->display, app->win->window, True, PointerMotionMask,
-		GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+				 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
 	mlx_mouse_move(app->mlx, app->win, WIN_WIDTH / 2, WIN_HEIGHT / 2);
 	XUngrabPointer(app->mlx->display, CurrentTime);
 	XUngrabKeyboard(app->mlx->display, CurrentTime);
@@ -664,7 +663,7 @@ void	do_intro_to_mmenu(void *param)
 	mlx_expose_hook(app->win, &expose_win, app);
 	mlx_loop_hook(app->mlx, &render_mmenu, app);
 	mlx_hook(app->win, KeyPress, KeyPressMask, (void *) &key_press_mmenu, app);
-	mlx_hook(app->win, KeyRelease, NoEventMask, NULL, app);
+	mlx_hook(app->win, KeyRelease, KeyReleaseMask, (void *)&key_release_play, app);
 	app->mlx->end_loop = 0;
 	app->menu_state.state = MAIN;
 	app->menu_state.selected = 0;
