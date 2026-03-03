@@ -137,7 +137,7 @@ int	key_release_play(KeySym key, void *param)
 	t_info *const	app = param;
 	int				idx;
 
-	printf("key released! %lu\n", key);
+	// printf("key released! %lu\n", key);
 	idx = get_key_index(key);
 	if (idx != -1)
 		app->keys[idx] = false;
@@ -148,7 +148,8 @@ void	input_exec_chat(void *param)
 {
 	t_info *const	app = param;
 
-	client_send_chat(app);
+	if (strlen(app->client.chat) > 0)
+		client_send_chat(app);
 }
 
 void	input_exec_ip(void *param)
@@ -221,7 +222,7 @@ int	key_press_input(KeySym key, void *param)
 	t_info *const	app = param;
 	// t_player *const	player = app->player;
 	// int				idx;
-	printf("key pressed! %lu\n", key);
+	// printf("key pressed! %lu\n", key);
 
 	if (key == XK_Escape)
 	{
