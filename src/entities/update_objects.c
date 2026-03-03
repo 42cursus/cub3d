@@ -241,8 +241,9 @@ void	update_objects_mult(t_info *app, t_player *player, t_lvl *lvl)
 {
 	lvl->serialdata[SMT_OBJS].payload.n_serialobjs = app->srv == NULL ? 0 : app->srv->n_clients;
 	lvl->serialdata[SMT_DOORS].payload.n_serialdoors = 0;
+	printf("nclients: %d\n", app->srv->n_clients);
 	for (int i = 0; i < app->srv->n_clients; i++)
-		app->srv->clients[i].event = EVENT_NONE;
+		app->srv->clients[i]->event = EVENT_NONE;
 
 	update_enemies_mult(app, lvl);
 	update_projectiles_mult(app, player, lvl);
@@ -300,12 +301,12 @@ char	*stringify_item_type(t_subtype item)
 	}
 }
 
-void	add_pickup_message(t_server *srv, int player_id, t_subtype item)
+void	add_pickup_message(t_server *srv, t_playermult *player, t_subtype item)
 {
 	char	buf[256];
 	t_textqueue	*msg;
 
-	snprintf(buf, 256, "%s picked up %s", srv->clients[player_id].name, stringify_item_type(item));
+	snprintf(buf, 256, "%s picked up %s", player->name, stringify_item_type(item));
 	msg = textqueue_new(strdup(buf), 6000000, FC_BLUE, 0);
 	textqueue_add_back(&srv->msg_queue, msg);
 }

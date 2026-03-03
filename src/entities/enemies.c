@@ -121,7 +121,7 @@ int	handle_obj_entity_mult(t_info *app, t_obj *obj, t_list **current)
 	obj->tex_id = handle_animation(app, obj->anim);
 	for (int i = 0; i < app->srv->n_clients; i++)
 	{
-		t_playermult *player = &app->srv->clients[i];
+		t_playermult *player = app->srv->clients[i];
 		if (vector_distance(obj->pos, player->pos) < 0.5 && !player->dead)
 		{
 			if (obj->subtype != E_ATOMIC)

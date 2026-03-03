@@ -137,17 +137,17 @@ int	handle_projectile_death(t_info *app, t_obj *obj, t_list **current)
 	return (-1);
 }
 
-int	check_player_proximity(t_vect pos, t_playermult *players, int n_players)
+t_playermult	*check_player_proximity(t_vect pos, t_playermult **players, int n_players)
 {
 	for (int i = 0; i < n_players; i++)
 	{
-		if (players[i].dead != 1)
+		if (players[i]->dead != 1)
 		{
-			if (vector_distance(pos, players[i].pos) < 0.3)
-				return (i);
+			if (vector_distance(pos, players[i]->pos) < 0.3)
+				return (players[i]);
 		}
 	}
-	return (-1);
+	return (NULL);
 }
 
 int	handle_projectile_death_mult(t_info *app, t_obj *obj, t_list **current)
@@ -177,17 +177,17 @@ int	handle_projectile_death_mult(t_info *app, t_obj *obj, t_list **current)
 		return (0);
 	}
 
-	int player_id = check_player_proximity(obj->pos, app->srv->clients, app->srv->n_clients);
-	if (player_id != -1 && player_id != obj->player_id)
+	t_playermult *player = check_player_proximity(obj->pos, app->srv->clients, app->srv->n_clients);
+	if (player != NULL && player->id != obj->player_id)
 	{
 		start_obj_death(obj, app);
 		if (obj->subtype == P_BEAM)
-			subtract_health_mult(app, &app->srv->clients[player_id], 10);
+			subtract_health_mult(app, player, 10);
 		else if (obj->subtype == P_SUPER)
-			subtract_health_mult(app, &app->srv->clients[player_id], 50);
+			subtract_health_mult(app, player, 50);
 		else if (obj->subtype == P_MISSILE)
-			subtract_health_mult(app, &app->srv->clients[player_id], 30);
-		app->srv->clients[player_id].dmg_dir = scale_vect(obj->dir, -1);
+			subtract_health_mult(app, player, 30);
+		player->dmg_dir = scale_vect(obj->dir, -1);
 		return (0);
 	}
 	return (-1);

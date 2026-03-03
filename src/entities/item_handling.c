@@ -137,7 +137,7 @@ int	handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current)
 	obj->tex_id = handle_animation(app, obj->anim);
 	for (; i < app->srv->n_clients; i++)
 	{
-		player = &app->srv->clients[i];
+		player = app->srv->clients[i];
 		// printf("player%d pos: (%.1f,%.1f)\n", i, player->pos.x, player->pos.y);
 		if (vector_distance(player->pos, obj->pos) < 0.5)
 		{
@@ -146,7 +146,7 @@ int	handle_obj_item_mult(t_info *app, t_obj *obj, t_list **current)
 			if (!retval)
 				return (0);
 			// play_pickup_sound(app, obj);
-			add_pickup_message(app->srv, i, obj->subtype);
+			add_pickup_message(app->srv, player, obj->subtype);
 			handle_collectables_mult(obj, player);
 			*current = delete_object(&lvl->items, *current);
 			return (1);

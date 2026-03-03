@@ -128,7 +128,6 @@ int	client_handle_handshake(t_info *app, t_client *client)
 		.type = CMT_CONNECT,
 	};
 	strncpy(cmsg.name, client->name, 12);
-	printf("cmsg name: %s\nclient name: %s\n", cmsg.name, client->name);
 
 	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
 
@@ -158,14 +157,14 @@ void	init_server_state(t_info *app, t_server *srv)
 	app->lvl->serialdata[SMT_PLAYER].type = SMT_PLAYER;
 	set_framerate(app, 120);
 
-	for (int i = 0; i < SRV_MAX_PLAYERS; i++)
-	{
-		srv->clients[i].health = 99;
-		srv->clients[i].max_health = 99;
-		srv->clients[i].max_ammo[P_BEAM] = -1;
-		srv->clients[i].pos = app->lvl->starting_pos;
-		srv->clients[i].id = i;
-	}
+	// for (int i = 0; i < SRV_MAX_PLAYERS; i++)
+	// {
+	// 	srv->clients[i].health = 99;
+	// 	srv->clients[i].max_health = 99;
+	// 	srv->clients[i].max_ammo[P_BEAM] = -1;
+	// 	srv->clients[i].pos = app->lvl->starting_pos;
+	// 	srv->clients[i].id = i;
+	// }
 }
 
 pid_t	launch_server(t_info *app)
@@ -197,32 +196,46 @@ pid_t	launch_server(t_info *app)
 	return (pid);
 }
 
-void	server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
+t_playermult	*server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
 {
 	int	id;
+	t_playermult *player = NULL;
 	if (srv->n_clients == SRV_MAX_PLAYERS)
 		id = -1;
 	else
 	{
-		id = srv->n_clients;
-		memcpy(&srv->clientaddr[srv->n_clients++], &packet->sockbuf, sizeof(packet->sockbuf));
-		if (strlen(packet->data.name) > 0)
-			snprintf(srv->clients[id].name, 13, "%s", packet->data.name);
-		else
-			snprintf(srv->clients[id].name, 13, "Player %d", id + 1);
-		printf("packet name: %s\nplayer name: %s\n", packet->data.name, srv->clients[id].name);
-	}
+		id = srv->id_count++;
+		srv->n_clients++;
 
+		if (strlen(packet->data.name) > 0)
+			player = playermult_new(packet->data.name, id);
+		else
+		{
+			player = playermult_new("", id);
+			snprintf(player->name, 16, "Player %d", id + 1);
+		}
+		memcpy(&player->sock, &packet->sockbuf, sizeof(packet->sockbuf));
+		player->health = 99;
+		player->max_health = 99;
+		player->max_ammo[P_BEAM] = -1;
+		player->pos = app->lvl->starting_pos;
+		player->id = id;
+		player->srv = srv;
+		playertree_add(&srv->players, player);
+	}
 	sendto(
 		srv->sockfd, (char *)&id, sizeof(id), 0,
-		(const struct sockaddr *) &srv->clientaddr[id], sizeof(srv->clientaddr[id])
+		(const struct sockaddr *) &packet->sockbuf, sizeof(packet->sockbuf)
 	);
 	printf("server response sent. n_clients: %d\n", srv->n_clients);
+	return player;
 	(void)app;
 }
 
 void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 {
+	t_playermult *player = find_player_by_id(app->srv->players, cdata->id);
+
 	switch (cdata->proj.type) {
 		case (PROJ_BEAM):
 			spawn_projectile_server(
@@ -239,9 +252,10 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 				cdata->proj.dir,
 				app->lvl, P_MISSILE, cdata->id
 			);
-			app->srv->clients[cdata->id].ammo[P_MISSILE] -= 1;
-			if (app->srv->clients[cdata->id].ammo[P_MISSILE] == -1)
-				app->srv->clients[cdata->id].ammo[P_MISSILE] = 0;
+			player = find_player_by_id(app->srv->players, cdata->id);
+			player->ammo[P_MISSILE] -= 1;
+			if (player->ammo[P_MISSILE] == -1)
+				player->ammo[P_MISSILE] = 0;
 			break;
 		case (PROJ_SUPER):
 			spawn_projectile_server(
@@ -250,9 +264,10 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 				cdata->proj.dir,
 				app->lvl, P_SUPER, cdata->id
 			);
-			app->srv->clients[cdata->id].ammo[P_SUPER] -= 1;
-			if (app->srv->clients[cdata->id].ammo[P_SUPER] == -1)
-				app->srv->clients[cdata->id].ammo[P_SUPER] = 0;
+			player = find_player_by_id(app->srv->players, cdata->id);
+			player->ammo[P_SUPER] -= 1;
+			if (player->ammo[P_SUPER] == -1)
+				player->ammo[P_SUPER] = 0;
 			break;
 		default:
 			break;
@@ -261,9 +276,10 @@ void	server_handle_projectiles(t_info *app, t_clientmsg *cdata)
 
 void	server_handle_player(t_server *srv, t_clientmsg *cmsg)
 {
-	// printf("msg id: %d pos: (%f, %f)\n", cmsg->id, cmsg->player.pos.x, cmsg->player.pos.y);
-	srv->clients[cmsg->id].pos = cmsg->player.pos;
-	srv->clients[cmsg->id].dir = cmsg->player.dir;
+	t_playermult *player = find_player_by_id(srv->players, cmsg->id);
+
+	player->pos = cmsg->player.pos;
+	player->dir = cmsg->player.dir;
 }
 
 const char *stringify_cmsg_type(enum cmsg_type type)
@@ -305,12 +321,12 @@ const char *stringify_smsg_type(enum smsg_type type)
 	}
 }
 
-void	add_connection_message(t_server *srv, int player_id)
+void	add_connection_message(t_server *srv, t_playermult *player)
 {
 	char	buf[256];
 	t_textqueue	*msg;
 
-	snprintf(buf, 256, "%s connected", srv->clients[player_id].name);
+	snprintf(buf, 256, "%s connected", player->name);
 	msg = textqueue_new(strdup(buf), 6000000, FC_GREEN, 0);
 	textqueue_add_back(&srv->msg_queue, msg);
 }
@@ -319,8 +335,9 @@ void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
 {
 	char	buf[256];
 	t_textqueue	*msg;
+	t_playermult *player = find_player_by_id(srv->players, cmsg->id);
 
-	snprintf(buf, 256, "%s: %s", srv->clients[cmsg->id].name, cmsg->chat);
+	snprintf(buf, 256, "%s: %s", player->name, cmsg->chat);
 	msg = textqueue_new(strdup(buf), 30000000, FC_BLACK, 0);
 	textqueue_add_back(&srv->msg_queue, msg);
 }
@@ -328,10 +345,11 @@ void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
 void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 {
 	t_clientmsg *cmsg = &packet->data;
+	t_playermult *player;
 	switch (packet->data.type) {
 		case (CMT_CONNECT):
-			server_handle_handshake(app, srv, packet);
-			add_connection_message(srv, srv->n_clients - 1);
+			player = server_handle_handshake(app, srv, packet);
+			add_connection_message(srv, player);
 			break;
 		case (CMT_PROJ):
 			server_handle_projectiles(app, cmsg);
@@ -388,6 +406,13 @@ void	server_send_msg(t_server *srv, struct sockaddr_in *client, t_servermsg *sms
 	);
 }
 
+void	playertree_send_msg(t_playermult *player, t_servermsg *msg)
+{
+	t_server *srv = player->srv;
+
+	server_send_msg(srv, &player->sock, msg);
+}
+
 void	server_send_text_queue(t_server *srv)
 {
 	t_textqueue	*current = srv->msg_queue;
@@ -400,21 +425,25 @@ void	server_send_text_queue(t_server *srv)
 		strncpy(msg.payload.text, current->str, 511);
 		msg.payload.timeout = current->timeout;
 		msg.payload.col = current->col;
-		for (int i = 0; i < srv->n_clients; i++)
-			server_send_msg(srv, &srv->clientaddr[i], &msg);
+		traverse_playertree_arg(srv->players, PRE_ORD, (void (*)(t_playermult *, void *))playertree_send_msg, &msg);
 		current = current->next;
 	}
 }
 
+void	playertree_send_state(t_playermult *player, t_info *app)
+{
+	t_server *srv = player->srv;
+
+	memcpy(&app->lvl->serialdata[SMT_PLAYER].payload, player, sizeof(t_playermult));
+		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_OBJS]);
+		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_DOORS]);
+		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_PLAYER]);
+}
+
 void	server_send_messages(t_info *app, t_server *srv)
 {
-	for (int i = 0; i < srv->n_clients; i++)
-	{
-		memcpy(&app->lvl->serialdata[SMT_PLAYER].payload, &srv->clients[i], sizeof(t_playermult));
-		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_OBJS]);
-		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_DOORS]);
-		server_send_msg(srv, &srv->clientaddr[i], &app->lvl->serialdata[SMT_PLAYER]);
-	}
+	traverse_playertree_arg(srv->players, PRE_ORD,
+						 (void (*)(t_playermult *, void *))playertree_send_state, app);
 	server_send_text_queue(srv);
 	clear_textqueue(&srv->msg_queue);
 	srv->msg_queue = NULL;
@@ -426,6 +455,8 @@ void	server_loop(t_info *app, t_server *srv)
 	{
 		app->fr_last = get_time_us();
 		server_receive_messages(app, srv);
+		int count = 0;
+		fill_clients_array(srv->players, srv->clients, &count);
 		// size_t	ts1 = get_time_us();
 		// printf("\n\e[32;1m## LOOP TIME ##\e[m\nreceive: %luus\n", ts1 - app->fr_last);
 		
@@ -658,4 +689,144 @@ void	clear_textqueue(t_textqueue **queue)
 		free(tmp);
 	}
 	*queue = NULL;
+}
+
+t_playermult *playermult_new(char *name, int id)
+{
+	t_playermult *out = calloc(1, sizeof(*out));
+
+	strncpy(out->name, name, 15);
+	out->id = id;
+	return out;
+}
+
+void	playertree_add(t_playermult **tree, t_playermult *player)
+{
+	if (tree == NULL)
+		return ;
+
+	t_playermult **addr = tree;
+	t_playermult *current = *tree;
+
+	while (current != NULL)
+	{
+		int diff = current->id - player->id;
+		if (diff < 0)
+			addr = &current->left;
+		else if (diff > 0)
+			addr = &current->right;
+		else
+			exit(1);
+		current = *addr;
+	}
+	*addr = player;
+}
+
+void	traverse_playertree_arg(t_playermult *tree, t_treeorder order, void (*f)(t_playermult *, void *), void *param)
+{
+	if (tree == NULL)
+		return ;
+
+	switch (order) {
+		case (PRE_ORD):
+			f(tree, param);
+			traverse_playertree_arg(tree->left, order, f, param);
+			traverse_playertree_arg(tree->right, order, f, param);
+			return ;
+		case (IN_ORD):
+			traverse_playertree_arg(tree->left, order, f, param);
+			f(tree, param);
+			traverse_playertree_arg(tree->right, order, f, param);
+			return ;
+		case (POST_ORD):
+			traverse_playertree_arg(tree->left, order, f, param);
+			traverse_playertree_arg(tree->right, order, f, param);
+			f(tree, param);
+			return ;
+	}
+}
+
+void	traverse_playertree_arg2(t_playermult *tree, t_treeorder order, void (*f)(t_playermult *, void *, void *), void *param1, void *param2)
+{
+	if (tree == NULL)
+		return ;
+
+	switch (order) {
+		case (PRE_ORD):
+			f(tree, param1, param2);
+			traverse_playertree_arg2(tree->left, order, f, param1, param2);
+			traverse_playertree_arg2(tree->right, order, f, param1, param2);
+			return ;
+		case (IN_ORD):
+			traverse_playertree_arg2(tree->left, order, f, param1, param2);
+			f(tree, param1, param2);
+			traverse_playertree_arg2(tree->right, order, f, param1, param2);
+			return ;
+		case (POST_ORD):
+			traverse_playertree_arg2(tree->left, order, f, param1, param2);
+			traverse_playertree_arg2(tree->right, order, f, param1, param2);
+			f(tree, param1, param2);
+			return ;
+	}
+}
+
+void	traverse_playertree(t_playermult *tree, t_treeorder order, void (*f)(void *))
+{
+	if (tree == NULL)
+		return ;
+
+	switch (order) {
+		case (PRE_ORD):
+			f(tree);
+			traverse_playertree(tree->left, order, f);
+			traverse_playertree(tree->right, order, f);
+			return ;
+		case (IN_ORD):
+			traverse_playertree(tree->left, order, f);
+			f(tree);
+			traverse_playertree(tree->right, order, f);
+			return ;
+		case (POST_ORD):
+			traverse_playertree(tree->left, order, f);
+			traverse_playertree(tree->right, order, f);
+			f(tree);
+			return ;
+	}
+}
+
+void	clear_playertree(t_playermult **tree)
+{
+	traverse_playertree(*tree, POST_ORD, free);
+}
+
+void	print_playermult(t_playermult *player)
+{
+	printf("name: %s\n", player->name);
+}
+
+t_playermult	*find_player_by_id(t_playermult *tree, int id)
+{
+	t_playermult *current = tree;
+
+	while (current != NULL)
+	{
+		if (current->id > id)
+			current = current->left;
+		else if (current->id < id)
+			current = current->right;
+		else
+			break ;
+	}
+
+	return (current);
+}
+
+void	fill_clients_array(t_playermult *tree, t_playermult **arr, int *count)
+{
+	if (tree == NULL)
+		return ;
+
+	arr[(*count)++] = tree;
+	fill_clients_array(tree->left, arr, count);
+	fill_clients_array(tree->right, arr, count);
 }

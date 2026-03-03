@@ -109,12 +109,20 @@
 # define SRV_MAX_OBJECTS 63
 # define SRV_MAX_DOORS 32
 # define SRV_MAX_PLAYERS 4
+# define SRV_MAX_NAMELEN 15
 # define SRV_TEXT_TIMEOUT 6000000
 # define SRV_CHAT_WIDTH 48
 # define SRV_LINE_SPACING 24
 # define CHAT_PREFIX_LEN 6
 
 # define TEX_DIR "./resources/textures"
+
+typedef enum
+{
+	PRE_ORD,
+	IN_ORD,
+	POST_ORD,
+}	t_treeorder;
 
 enum e_calc_idxs
 {
@@ -849,7 +857,9 @@ typedef enum
 	EVENT_PU_AMMO	= 1 << 3,
 }	t_event;
 
-typedef struct
+struct s_server;
+
+typedef struct s_playermult
 {
 	t_vect	pos;
 	t_vect	dir;
@@ -862,7 +872,11 @@ typedef struct
 	int		event;
 	int		dead;
 	int		id;
-	char	name[16];
+	char	name[SRV_MAX_NAMELEN + 1];
+	struct s_server		*srv;
+	struct sockaddr_in	sock;
+	struct s_playermult *left;
+	struct s_playermult *right;
 }	t_playermult;
 
 enum smsg_type : uint8_t
@@ -1188,9 +1202,11 @@ typedef struct s_server
 {
 	int					sockfd;
 	struct sockaddr_in	servaddr;
-	struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
-	t_playermult		clients[SRV_MAX_PLAYERS];
+	t_playermult		*players;
+	// struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
+	t_playermult		*clients[SRV_MAX_PLAYERS];
 	int					n_clients;
+	int					id_count;
 	t_textqueue			*msg_queue;
 }	t_server;
 
@@ -1268,6 +1284,13 @@ struct s_info
 		void	(*exec)(void *);
 	}	input;
 	t_server	*srv;
+};
+
+struct tree_search_args
+{
+	t_vect pos;
+	double distance;
+	t_playermult *found;
 };
 
 # define ANGLE_EPSILON 0.02 // angle blend width (radians)
@@ -1537,7 +1560,7 @@ void		calculate_credits_offset(t_info *app, t_dummy *dummy);
 void		start_obj_death(t_obj *obj, t_info *app);
 t_list		*delete_object(t_list **obj_list, t_list *obj_node);
 t_obj		*check_obj_proximity(t_vect pos, t_lvl *lvl);
-int 		check_player_proximity(t_vect pos, t_playermult *players, int n_players);
+t_playermult	*check_player_proximity(t_vect pos, t_playermult **players, int n_players);
 int			point_oob_global(t_vect pos, t_lvl *lvl);
 void		select_projectile_tex(t_obj *obj, t_player *player, t_info *app);
 t_etex		handle_animation(t_info *app, t_anim anim);
@@ -1601,14 +1624,14 @@ void		client_send_door(t_info *app, t_ivect pos);
 void		client_send_chat(t_info *app);
 void		client_receive_msgs(t_info *app);
 
-void		add_pickup_message(t_server *srv, int player_id, t_subtype item);
+void	add_pickup_message(t_server *srv, t_playermult *player, t_subtype item);
 void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
 void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
 void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);
 void		deserialise_text(t_info *app, t_servermsg *smsg);
 
-t_textqueue	*textqueue_new(char *text, size_t timeout, t_fontcolor col, size_t time);
+t_textqueue *textqueue_new(char *text, size_t timeout, t_fontcolor col, size_t time);
 void		textqueue_add_back(t_textqueue **queue, t_textqueue *msg);
 void		textqueue_add_front(t_textqueue **queue, t_textqueue *msg);
 int			textqueue_len(t_textqueue *queue);
@@ -1623,4 +1646,15 @@ void		input_exec_chat(void *param);
 
 int			pad_init(pad_state *ps, const char *path);
 void		pad_poll(pad_state *ps, t_info *app);
+
+t_playermult	*playermult_new(char *name, int id);
+void			playertree_add(t_playermult **tree, t_playermult *player);
+void			traverse_playertree(t_playermult *tree, t_treeorder order, void (*f)(void *));
+void			traverse_playertree_arg(t_playermult *tree, t_treeorder order, void (*f)(t_playermult *, void *), void *param);
+void			traverse_playertree_arg2(t_playermult *tree, t_treeorder order, void (*f)(t_playermult *, void *, void *), void *param1, void *param2);
+void			clear_playertree(t_playermult **tree);
+void			print_playermult(t_playermult *player);
+t_playermult	*find_player_by_id(t_playermult *tree, int id);
+void			fill_clients_array(t_playermult *tree, t_playermult **arr, int *count);
+
 #endif //CUB3D_H
