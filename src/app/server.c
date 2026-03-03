@@ -711,9 +711,9 @@ void	playertree_add(t_playermult **tree, t_playermult *player)
 	while (current != NULL)
 	{
 		int diff = current->id - player->id;
-		if (diff < 0)
+		if (diff > 0)
 			addr = &current->left;
-		else if (diff > 0)
+		else if (diff < 0)
 			addr = &current->right;
 		else
 			exit(1);
