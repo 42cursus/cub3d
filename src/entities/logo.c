@@ -12,7 +12,7 @@
 
 #include "cub3d.h"
 
-void	add_serialobj(t_obj *obj, t_lvl *lvl);
+void	add_serialobj(t_info *app, t_obj *obj, t_lvl *lvl);
 
 void	spawn_logo_piece(t_info *app, t_vect pos, t_vect dir, t_etex tex_id)
 {
@@ -58,7 +58,7 @@ void	update_logo_pieces(t_info *app, t_player *player, t_lvl *lvl)
 		// obj->norm = rotate_vect(scale_vect(player->dir, 0.5), M_PI_2);
 		// obj->p2 = add_vect(obj->pos, obj->norm);
 		current = current->next;
-		add_serialobj(obj, lvl);
+		add_serialobj(app, obj, lvl);
 	}
 	if (player->dead == 0 && stopped == 14)
 	{

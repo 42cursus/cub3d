@@ -803,7 +803,11 @@ typedef struct s_serialdoor
 	bool	open;
 } 	t_sdoor;
 
+#ifdef __clang__
 typedef enum e_proj : uint8_t
+#else
+typedef enum e_proj
+#endif
 {
 	PROJ_BEAM,
 	PROJ_MISSILE,
@@ -811,7 +815,11 @@ typedef enum e_proj : uint8_t
 	PROJ_MAX,
 }	t_eproj;
 
+#ifdef __clang__
 enum cmsg_type : uint8_t
+#else
+enum cmsg_type
+#endif
 {
 	CMT_CONNECT = 0,
 	CMT_POS,
@@ -875,12 +883,19 @@ typedef struct s_playermult
 	int		arr_idx;
 	char	name[SRV_MAX_NAMELEN + 1];
 	struct s_server		*srv;
-	struct sockaddr_in	sock;
+	union {
+		struct sockaddr     sa;
+		struct sockaddr_in  in;
+	} sock;
 	struct s_playermult *left;
 	struct s_playermult *right;
 }	t_playermult;
 
+#ifdef __clang__
 enum smsg_type : uint8_t
+#else
+enum smsg_type
+#endif
 {
 	SMT_OBJS = 0,
 	SMT_DOORS,
@@ -1187,7 +1202,10 @@ typedef struct pad_state
 typedef struct s_packetin
 {
 	t_clientmsg				data;
-	struct sockaddr_in		sockbuf;
+	union {
+		struct sockaddr     sa;
+		struct sockaddr_in  in;
+	} buf;
 }	packet_in;
 
 typedef struct s_textmsg
@@ -1202,7 +1220,10 @@ typedef struct s_textmsg
 typedef struct s_server
 {
 	int					sockfd;
-	struct sockaddr_in	servaddr;
+	union {
+		struct sockaddr     sa;
+		struct sockaddr_in  in;
+	} addr;
 	t_playermult		*playertree;
 	// struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
 	t_playermult		*clients[SRV_MAX_PLAYERS];
@@ -1215,7 +1236,10 @@ typedef struct s_client
 {
 	int					sockfd;
 	int					id;
-	struct sockaddr_in	servaddr;
+	union {
+		struct sockaddr     sa;
+		struct sockaddr_in  in;
+	} addr;
 	int					dropped;
 	bool				hosting;
 	t_textqueue			*msg_queue;
@@ -1652,7 +1676,7 @@ void		input_exec_chat(void *param);
 int			pad_init(pad_state *ps, const char *path);
 void		pad_poll(pad_state *ps, t_info *app);
 
-t_playermult	*playermult_new(char *name, int id);
+t_playermult	*playermult_new(const char *name, int id);
 void			playertree_add(t_playermult **tree, t_playermult *player);
 void			traverse_playertree(t_playermult *tree, t_treeorder order, void (*f)(void *));
 void			traverse_playertree_arg(t_playermult *tree, t_treeorder order, void (*f)(t_playermult *, void *), void *param);

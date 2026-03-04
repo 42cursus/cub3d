@@ -282,7 +282,7 @@ void	deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl)
 	}
 }
 
-char	*stringify_item_type(t_subtype item)
+const char * stringify_item_type(t_subtype item)
 {
 	switch (item) {
 		case (I_HEALTH):

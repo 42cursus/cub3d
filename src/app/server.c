@@ -40,13 +40,11 @@ int	setup_server(t_server *srv)
 		perror("fcntl F_SETFL");
 	}
 
-	memset(&srv->servaddr, 0, sizeof(srv->servaddr));
-    srv->servaddr.sin_family = AF_INET;
-    srv->servaddr.sin_port = htons(8080);
-    srv->servaddr.sin_addr.s_addr = INADDR_ANY;
-
-
-	if (bind(srv->sockfd, (const struct sockaddr *)&srv->servaddr, sizeof(srv->servaddr)) < 0)
+	memset(&srv->addr.in, 0, sizeof(srv->addr.in));
+    srv->addr.in.sin_family = AF_INET;
+    srv->addr.in.sin_port = htons(8080);
+    srv->addr.in.sin_addr.s_addr = INADDR_ANY;
+	if (bind(srv->sockfd, &srv->addr.sa, sizeof(srv->addr.sa)) < 0)
 	{
 		perror("bind");
 		// exit(1);
@@ -76,12 +74,12 @@ int	setup_client_host(t_client *client)
 		perror("fcntl F_SETFL");
 	}
 
-	memset(&client->servaddr, 0, sizeof(client->servaddr));
-    client->servaddr.sin_family = AF_INET;
-    client->servaddr.sin_port = htons(8080);
-    // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
-    // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
-    client->servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	memset(&client->addr.in, 0, sizeof(client->addr.in));
+    client->addr.in.sin_family = AF_INET;
+    client->addr.in.sin_port = htons(8080);
+    // client->addr.in.sin_addr.s_addr = inet_addr("10.18.152.152");
+    // client->addr.in.sin_addr.s_addr = inet_addr("10.11.4.5");
+    client->addr.in.sin_addr.s_addr = inet_addr("127.0.0.1");
 
 	client->dropped = 0;
 
@@ -108,12 +106,12 @@ int	setup_client_client(t_client *client, char *ip)
 		perror("fcntl F_SETFL");
 	}
 
-	memset(&client->servaddr, 0, sizeof(client->servaddr));
-    client->servaddr.sin_family = AF_INET;
-    client->servaddr.sin_port = htons(8080);
-    // client->servaddr.sin_addr.s_addr = inet_addr("10.18.152.152");
-    // client->servaddr.sin_addr.s_addr = inet_addr("10.11.4.5");
-    client->servaddr.sin_addr.s_addr = inet_addr(ip);
+	memset(&client->addr.in, 0, sizeof(client->addr.in));
+    client->addr.in.sin_family = AF_INET;
+    client->addr.in.sin_port = htons(8080);
+    // client->addr.in.sin_addr.s_addr = inet_addr("10.18.152.152");
+    // client->addr.in.sin_addr.s_addr = inet_addr("10.11.4.5");
+    client->addr.in.sin_addr.s_addr = inet_addr(ip);
 
 	client->dropped = 0;
 
@@ -147,7 +145,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	};
 	strncpy(cmsg.name, client->name, 12);
 
-	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
+	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, &client->addr.sa, sizeof(client->addr.sa));
 
 	// usleep(100000);
 	int	id = -1;
@@ -155,7 +153,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	ssize_t	n = 0;
 	while (n <= 0)
 	{
-		n = recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, (struct sockaddr *)&app->client.servaddr, &len);
+		n = recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, &app->client.addr.sa, &len);
 		if (get_time_ms() - start_time > 2000)
 			return 1;
 	}
@@ -209,7 +207,7 @@ t_playermult	*server_handle_handshake(t_info *app, t_server *srv, packet_in *pac
 	}
 	sendto(
 		srv->sockfd, (char *)&id, sizeof(id), 0,
-		(const struct sockaddr *) &packet->sockbuf, sizeof(packet->sockbuf)
+		&packet->buf.sa, sizeof(packet->buf.sa)
 	);
 	printf("server response sent. n_clients: %d count: %d\n", srv->n_clients, srv->id_count);
 	return player;
@@ -374,11 +372,11 @@ void	server_receive_messages(t_info *app, t_server *srv)
 	errno = 0;
 	// app->lvl->serialdata[SMT_OBJS].payload.n_serialobjs = 0;
 	packet_in	packet;
-	socklen_t	len = sizeof(packet.sockbuf);
+	socklen_t	len = sizeof(packet.buf.in);
 
 	recvfrom(
 		srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
-		0, (struct sockaddr *)&packet.sockbuf, &len
+		0, &packet.buf.sa, &len
 	);
 
 	while (errno == 0)
@@ -387,7 +385,7 @@ void	server_receive_messages(t_info *app, t_server *srv)
 
 		recvfrom(
 			srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
-			0, (struct sockaddr *)&packet.sockbuf, &len
+			0, &packet.buf.sa, &len
 		);
 	}
 	// printf("messages received: %d\n", n_msgs);
@@ -405,7 +403,7 @@ void	playertree_send_msg(t_playermult *player, void *msg)
 {
 	t_server *srv = player->srv;
 
-	server_send_msg(srv, &player->sock, msg);
+	server_send_msg(srv, &player->sock.in, msg);
 }
 
 void	server_send_text_queue(t_server *srv)
@@ -431,9 +429,9 @@ void	playertree_send_state(t_playermult *player, void *info)
 	t_info		*app = info;
 
 	memcpy(&app->lvl->serialdata[SMT_PLAYER].payload, player, sizeof(t_playermult));
-		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_OBJS]);
-		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_DOORS]);
-		server_send_msg(srv, &player->sock, &app->lvl->serialdata[SMT_PLAYER]);
+		server_send_msg(srv, &player->sock.in, &app->lvl->serialdata[SMT_OBJS]);
+		server_send_msg(srv, &player->sock.in, &app->lvl->serialdata[SMT_DOORS]);
+		server_send_msg(srv, &player->sock.in, &app->lvl->serialdata[SMT_PLAYER]);
 }
 
 void	server_send_messages(t_info *app, t_server *srv)
@@ -471,7 +469,7 @@ void	server_loop(t_info *app, t_server *srv)
 
 void	client_send_msg(t_client *client, t_clientmsg *cmsg)
 {
-	sendto(client->sockfd, (char *)cmsg, sizeof(t_clientmsg), 0, (const struct sockaddr *) &client->servaddr, sizeof(client->servaddr));
+	sendto(client->sockfd, (char *)cmsg, sizeof(t_clientmsg), 0, &client->addr.sa, sizeof(client->addr.sa));
 }
 
 void	client_send_pos(t_info *app)
@@ -564,7 +562,7 @@ void	client_process_msg(t_info *app, t_servermsg *smsg)
 
 void	client_receive_msgs(t_info *app)
 {
-	socklen_t	len = sizeof(app->client.servaddr);
+	socklen_t	len = sizeof(app->client.addr.in);
 	errno = 0;
 	int			count = 0;
 	t_servermsg smsg;
@@ -574,7 +572,7 @@ void	client_receive_msgs(t_info *app)
 		app->client.sockfd,
 		(char *)&smsg,
 		sizeof(t_servermsg), 0,
-		(struct sockaddr *)&app->client.servaddr, &len
+		&app->client.addr.sa, &len
 	);
 	while (errno == 0)
 	{
@@ -586,7 +584,7 @@ void	client_receive_msgs(t_info *app)
 			app->client.sockfd,
 			(char *)&smsg,
 			sizeof(t_servermsg), 0,
-			(struct sockaddr *)&app->client.servaddr, &len
+			&app->client.addr.sa, &len
 		);
 	}
 	// printf("Packets received this tick: %d\n", count);
@@ -696,7 +694,7 @@ void	clear_textqueue(t_textqueue **queue)
 	*queue = NULL;
 }
 
-t_playermult *playermult_new(char *name, int id)
+t_playermult *playermult_new(const char *name, int id)
 {
 	t_playermult *out = calloc(1, sizeof(*out));
 
@@ -909,7 +907,7 @@ t_playermult	*server_add_client(t_info *app, t_server *srv, packet_in *packet)
 		player = playermult_new("", id);
 		snprintf(player->name, 16, "Player %d", id + 1);
 	}
-	memcpy(&player->sock, &packet->sockbuf, sizeof(packet->sockbuf));
+	memcpy(&player->sock, &packet->buf.in, sizeof(packet->buf.in));
 	player->health = 99;
 	player->max_health = 99;
 	player->max_ammo[P_BEAM] = -1;
