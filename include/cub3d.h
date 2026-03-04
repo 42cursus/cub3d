@@ -1270,7 +1270,7 @@ struct s_info
 	char		**map_ids;
 	int			no_maps;
 	t_player	*player;
-	bool		keys[16];
+	bool		keys[32];
 	bool		mouse[16];
 	t_state		state;
 	t_ret_code	rc;
