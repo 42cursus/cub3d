@@ -203,7 +203,7 @@ void	draw_textqueue(t_info *app, t_textqueue *queue)
 			.y = WIN_HEIGHT - 72,
 	};
 	int			count = 0;
-	const int	max_msgs = (WIN_HEIGHT - 72) / 24;
+	const int	max_msgs = (WIN_HEIGHT - 72 - 64) / 24;
 
 	if (app->input.active)
 		pos.y -= SRV_LINE_SPACING * ((app->input.len + CHAT_PREFIX_LEN - 1) / SRV_CHAT_WIDTH);
