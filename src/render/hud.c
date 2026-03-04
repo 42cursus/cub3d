@@ -202,12 +202,16 @@ void	draw_textqueue(t_info *app, t_textqueue *queue)
 			.x = 32,
 			.y = WIN_HEIGHT - 72,
 	};
+	int			count = 0;
+	const int	max_msgs = (WIN_HEIGHT - 72) / 24;
 
 	if (app->input.active)
 		pos.y -= SRV_LINE_SPACING * ((app->input.len + CHAT_PREFIX_LEN - 1) / SRV_CHAT_WIDTH);
 
 	while (queue != NULL)
 	{
+		if (++count > max_msgs)
+			return ;
 		pos.y -= SRV_LINE_SPACING * ((strlen(queue->str) - 1) / SRV_CHAT_WIDTH + 1);
 		place_str_justified(queue->str, app, pos, 2, SRV_CHAT_WIDTH, queue->col);
 		queue = queue->next;
