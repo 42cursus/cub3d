@@ -135,6 +135,7 @@ void do_multi_to_mmenu(void *param)
 		waitpid(app->srv_pid, NULL, 0);
 		app->srv_pid = 0;
 	}
+	client_send_disconnect(app);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	cleanup_maps(app);
 	free(app->player);
@@ -208,7 +209,10 @@ void	do_pmenu_mult_to_mmenu(void *param)
 		kill(app->srv_pid, SIGKILL);
 		waitpid(app->srv_pid, NULL, 0);
 		app->srv_pid = 0;
+		// clear_playertree(&app->srv.)
 	}
+	client_send_disconnect(app);
+	close(app->client.sockfd);
 	ft_memset(app->keys, 0, sizeof(bool) * 16);
 	cleanup_maps(app);
 	free(app->player);
@@ -230,6 +234,7 @@ void	do_pmenu_mult_to_end(void *param)
 {
 	t_info *const	app = param;
 
+	client_send_disconnect(app);
 	cleanup_maps(app);
 	free(app->player);
 	clear_textqueue(&app->client.msg_queue);

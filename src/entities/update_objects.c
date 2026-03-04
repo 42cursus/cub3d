@@ -241,7 +241,6 @@ void	update_objects_mult(t_info *app, t_player *player, t_lvl *lvl)
 {
 	lvl->serialdata[SMT_OBJS].payload.n_serialobjs = app->srv == NULL ? 0 : app->srv->n_clients;
 	lvl->serialdata[SMT_DOORS].payload.n_serialdoors = 0;
-	printf("nclients: %d\n", app->srv->n_clients);
 	for (int i = 0; i < app->srv->n_clients; i++)
 		app->srv->clients[i]->event = EVENT_NONE;
 

@@ -1202,7 +1202,7 @@ typedef struct s_server
 {
 	int					sockfd;
 	struct sockaddr_in	servaddr;
-	t_playermult		*players;
+	t_playermult		*playertree;
 	// struct sockaddr_in	clientaddr[SRV_MAX_PLAYERS];
 	t_playermult		*clients[SRV_MAX_PLAYERS];
 	int					n_clients;
@@ -1623,6 +1623,7 @@ void		client_send_proj(t_info *app, t_eproj type);
 void		client_send_door(t_info *app, t_ivect pos);
 void		client_send_chat(t_info *app);
 void		client_receive_msgs(t_info *app);
+void		client_send_disconnect(t_info *app);
 
 void	add_pickup_message(t_server *srv, t_playermult *player, t_subtype item);
 void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
@@ -1656,5 +1657,6 @@ void			clear_playertree(t_playermult **tree);
 void			print_playermult(t_playermult *player);
 t_playermult	*find_player_by_id(t_playermult *tree, int id);
 void			fill_clients_array(t_playermult *tree, t_playermult **arr, int *count);
+t_playermult 	*playertree_delete_node(t_playermult *tree, int id);
 
 #endif //CUB3D_H
