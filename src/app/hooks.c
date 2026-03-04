@@ -32,9 +32,23 @@ int	get_key_index(KeySym key)
 	size_t			i;
 	int				ret;
 	const KeySym	arr[] = {
-		XK_a, XK_d, XK_e, XK_s, XK_w, XK_x,
-		XK_Left, XK_Up, XK_Right, XK_Down,
-		XK_Shift_L, XK_h, XK_m,
+		XK_a,
+		XK_d,
+		XK_e,
+		XK_s,
+		XK_w,
+		XK_x,
+		XK_Left,
+		XK_Up,
+		XK_Right,
+		XK_Down,
+		XK_Escape,
+		XK_Return,
+		XK_F5,
+		XK_BackSpace,
+		XK_Shift_L,
+		XK_h,
+		XK_m,
 	};
 
 	i = 0;
@@ -258,7 +272,10 @@ int	key_press_input(KeySym key, void *param)
 
 	int idx = get_key_index(key);
 	if (idx == idx_XK_Shift)
+	{
+		// printf("shift pressed!\n");
 		app->keys[idx] = true;
+	}
 	return (0);
 }
 
@@ -294,6 +311,7 @@ int	key_press_mmenu(KeySym key, void *param)
 {
 	t_info *const	app = param;
 
+	// printf("key pressed! %lu\n", key);
 	if (key == XK_F11)
 	{
 		app->fullscreen = !app->fullscreen;
