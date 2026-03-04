@@ -872,6 +872,7 @@ typedef struct s_playermult
 	int		event;
 	int		dead;
 	int		id;
+	int		arr_idx;
 	char	name[SRV_MAX_NAMELEN + 1];
 	struct s_server		*srv;
 	struct sockaddr_in	sock;
@@ -1625,8 +1626,11 @@ void		client_send_chat(t_info *app);
 void		client_receive_msgs(t_info *app);
 void		client_send_disconnect(t_info *app);
 
-void	add_pickup_message(t_server *srv, t_playermult *player, t_subtype item);
-void		add_serialplayer(t_clientmsg *cdata, t_lvl *lvl);
+t_playermult	*server_add_client(t_info *app, t_server *srv, packet_in *packet);
+void			server_remove_client(t_server *srv, int id);
+
+void		add_pickup_message(t_server *srv, t_playermult *player, t_subtype item);
+void		add_serialplayer(t_info *app, t_clientmsg *cmsg);
 void		deserialise_doors(t_sdoor *serialdoors, int n_sdoors, t_lvl *lvl);
 void		deserialise_objs(t_sobj *serialobjs, int n_sobjs, t_player *player);
 void 		deserialise_player_state(t_info *app, t_servermsg *smsg);

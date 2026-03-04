@@ -163,7 +163,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 		return (1);
 	printf("client id: %d\n", id);
 	client->id = id;
-
+	usleep(100000);
 	return (0);
 }
 
@@ -204,24 +204,8 @@ t_playermult	*server_handle_handshake(t_info *app, t_server *srv, packet_in *pac
 		id = -1;
 	else
 	{
-		id = srv->id_count++;
-		srv->n_clients++;
-
-		if (strlen(packet->data.name) > 0)
-			player = playermult_new(packet->data.name, id);
-		else
-		{
-			player = playermult_new("", id);
-			snprintf(player->name, 16, "Player %d", id + 1);
-		}
-		memcpy(&player->sock, &packet->sockbuf, sizeof(packet->sockbuf));
-		player->health = 99;
-		player->max_health = 99;
-		player->max_ammo[P_BEAM] = -1;
-		player->pos = app->lvl->starting_pos;
-		player->id = id;
-		player->srv = srv;
-		playertree_add(&srv->playertree, player);
+		player = server_add_client(app, srv, packet);
+		id = player->id;
 	}
 	sendto(
 		srv->sockfd, (char *)&id, sizeof(id), 0,
@@ -352,27 +336,23 @@ void	add_chat_message(t_server *srv, t_clientmsg *cmsg)
 	textqueue_add_back(&srv->msg_queue, msg);
 }
 
-bool	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
+void	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 {
 	t_clientmsg		*cmsg = &packet->data;
 	t_playermult	*player;
-	bool			clients_changed = false;
 
 	switch (packet->data.type) {
 		case (CMT_CONNECT):
 			player = server_handle_handshake(app, srv, packet);
 			if (player)
-			{
 				add_connection_message(srv, player);
-				clients_changed = true;
-			}
 			break;
 		case (CMT_PROJ):
 			server_handle_projectiles(app, cmsg);
 			break;
 		case (CMT_POS):
 			server_handle_player(srv, cmsg);
-			add_serialplayer(cmsg, app->lvl);
+			add_serialplayer(app, cmsg);
 			break;
 		case (CMT_DOOR):
 			handle_open_door_server(app, cmsg->door.pos);
@@ -382,25 +362,19 @@ bool	server_handle_msg(t_info *app, t_server *srv, packet_in *packet)
 			break;
 		case (CMT_DISCONNECT):
 			add_disconnection_message(srv, find_player_by_id(srv->playertree, cmsg->id));
-			playertree_delete_node(srv->playertree, cmsg->id);
-			srv->n_clients--;
-			if (srv->n_clients == 0)
-				srv->playertree = NULL;
-			clients_changed = true;
+			server_remove_client(srv, cmsg->id);
 			break;
 		default:
 			break;
 	}
-
-	return clients_changed;
 }
 
-bool	server_receive_messages(t_info *app, t_server *srv)
+void	server_receive_messages(t_info *app, t_server *srv)
 {
 	errno = 0;
+	// app->lvl->serialdata[SMT_OBJS].payload.n_serialobjs = 0;
 	packet_in	packet;
 	socklen_t	len = sizeof(packet.sockbuf);
-	bool clients_changed = false;
 
 	recvfrom(
 		srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
@@ -409,17 +383,14 @@ bool	server_receive_messages(t_info *app, t_server *srv)
 
 	while (errno == 0)
 	{
-		if (server_handle_msg(app, srv, &packet))
-			clients_changed = true;
+		server_handle_msg(app, srv, &packet);
 
 		recvfrom(
 			srv->sockfd, (char *)&packet.data, sizeof(t_clientmsg),
 			0, (struct sockaddr *)&packet.sockbuf, &len
 		);
 	}
-
 	// printf("messages received: %d\n", n_msgs);
-	return (clients_changed);
 }
 
 void	server_send_msg(t_server *srv, struct sockaddr_in *client, t_servermsg *smsg)
@@ -479,12 +450,7 @@ void	server_loop(t_info *app, t_server *srv)
 	{
 		app->fr_last = get_time_us();
 
-		if (server_receive_messages(app, srv))
-		{
-			int count = 0;
-			fill_clients_array(srv->playertree, srv->clients, &count);
-		}
-
+		server_receive_messages(app, srv);
 		// size_t	ts1 = get_time_us();
 		// printf("\n\e[32;1m## LOOP TIME ##\e[m\nreceive: %luus\n", ts1 - app->fr_last);
 		
@@ -865,7 +831,9 @@ void	fill_clients_array(t_playermult *tree, t_playermult **arr, int *count)
 	if (tree == NULL)
 		return ;
 
-	arr[(*count)++] = tree;
+	int idx = (*count)++;
+	arr[idx] = tree;
+	tree->arr_idx = idx;
 	fill_clients_array(tree->left, arr, count);
 	fill_clients_array(tree->right, arr, count);
 }
@@ -925,4 +893,42 @@ t_playermult *playertree_delete_node(t_playermult *tree, int id)
 		tree->right = playertree_delete_node(tree, successor->id);
 	}
 	return (tree);
+}
+
+t_playermult	*server_add_client(t_info *app, t_server *srv, packet_in *packet)
+{
+	t_playermult *player;
+
+	int id = srv->id_count++;
+	srv->n_clients++;
+
+	if (strlen(packet->data.name) > 0)
+		player = playermult_new(packet->data.name, id);
+	else
+	{
+		player = playermult_new("", id);
+		snprintf(player->name, 16, "Player %d", id + 1);
+	}
+	memcpy(&player->sock, &packet->sockbuf, sizeof(packet->sockbuf));
+	player->health = 99;
+	player->max_health = 99;
+	player->max_ammo[P_BEAM] = -1;
+	player->pos = app->lvl->starting_pos;
+	player->id = id;
+	player->srv = srv;
+	playertree_add(&srv->playertree, player);
+	srv->n_clients = 0;
+	fill_clients_array(srv->playertree, srv->clients, &srv->n_clients);
+	if (srv->n_clients == 0)
+		srv->playertree = NULL;
+	return (player);
+}
+
+void	server_remove_client(t_server *srv, int id)
+{
+	srv->playertree = playertree_delete_node(srv->playertree, id);
+	srv->n_clients = 0;
+	fill_clients_array(srv->playertree, srv->clients, &srv->n_clients);
+	if (srv->n_clients == 0)
+		srv->playertree = NULL;
 }

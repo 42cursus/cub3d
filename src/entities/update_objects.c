@@ -27,9 +27,11 @@ void	add_serialobj(t_info *app, t_obj *obj, t_lvl *lvl)
 	sobj->id = -1;
 }
 
-void	add_serialplayer(t_clientmsg *cmsg, t_lvl *lvl)
+void	add_serialplayer(t_info *app, t_clientmsg *cmsg)
 {
-	t_sobj *sobj = &lvl->serialdata[SMT_OBJS].payload.serialobjs[cmsg->id];
+	t_servermsg	*msg = &app->lvl->serialdata[SMT_OBJS];
+	int			idx = find_player_by_id(app->srv->playertree, cmsg->id)->arr_idx;
+	t_sobj		*sobj = &msg->payload.serialobjs[idx];
 
 	sobj->pos = vect_to_fvect(cmsg->player.pos);
 	sobj->damaged = 0;
