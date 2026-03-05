@@ -1639,6 +1639,7 @@ int			str_cmp_whitespace(void *data, void *ref);
 
 int			setup_server(t_server *srv);
 pid_t		launch_server(t_info *app);
+int			connect_to_server(t_client *client);
 void		server_loop(t_info *app, t_server *srv);
 int			setup_client_host(t_client *client);
 int			setup_client_client(t_client *client, char *ip);
