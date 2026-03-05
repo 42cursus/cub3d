@@ -272,17 +272,17 @@ void	place_energy_backup(t_info *app, t_player *player)
 	t_shtex *const	shtex = app->shtex;
 
 	i = -1;
-	start = (t_ivect){32, 16};
+	start = (t_ivect){16, 16};
 	while (++i < backup)
 	{
 		if (i > 6)
-			start = (t_ivect){-96, 16};
+			start = (t_ivect){-96, 32};
 		put_texture(app, &shtex->energy_tex[1], start.x + i * 16, start.y);
 	}
 	while (i < max_backup)
 	{
 		if (i > 6)
-			start = (t_ivect){-96, 16};
+			start = (t_ivect){-96, 32};
 		put_texture(app, &shtex->energy_tex[2], start.x + (i++) * 16, start.y);
 	}
 }
