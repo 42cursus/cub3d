@@ -49,8 +49,13 @@ t_ret_code	do_state_multiload(void *param)
 		return (app->rc);
 	// if (app->lvl && app->lvl->music)
 	// 	Mix_PlayChannel(ch_music1, app->lvl->music, -1);
-	app->srv_pid = launch_server(app);
-	if (app->srv_pid == -1)
+	if (app->client.hosting)
+	{
+		app->srv_pid = launch_server(app);
+		if (app->srv_pid <= 0)
+			return (fail);
+	}
+	if (connect_to_server(&app->client))
 		return (fail);
 	mlx_loop(app->mlx);
 	replace_sky(app, (char *) TEX_DIR"/skybox.xpm");

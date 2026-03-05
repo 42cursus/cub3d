@@ -136,7 +136,7 @@ void	init_server_state(t_info *app, t_server *srv)
 	// }
 }
 
-int	client_handle_handshake(t_info *app, t_client *client)
+int	client_handle_handshake(t_client *client)
 {
 	socklen_t	len = sizeof(struct sockaddr_in);
 	t_clientmsg	cmsg = {
@@ -152,7 +152,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 	ssize_t	n = 0;
 	while (n <= 0)
 	{
-		n = recvfrom(app->client.sockfd, (char *)&id, sizeof(id), 0, &app->client.addr.sa, &len);
+		n = recvfrom(client->sockfd, (char *)&id, sizeof(id), 0, &client->addr.sa, &len);
 		if (get_time_ms() - start_time > 2000)
 			return 1;
 	}
@@ -184,13 +184,18 @@ pid_t	launch_server(t_info *app)
 			close(srv.sockfd);
 		}
 	}
-	if (app->client.hosting && setup_client_host(&app->client))
-		return -1;
-	else if (!app->client.hosting && setup_client_client(&app->client, app->client.ip_str))
-		return -1;
-	if (client_handle_handshake(app, &app->client))
-		return (-1);
 	return (pid);
+}
+
+int	connect_to_server(t_client *client)
+{
+	if (client->hosting && setup_client_host(client))
+		return 1;
+	else if (!client->hosting && setup_client_client(client, client->ip_str))
+		return 1;
+	if (client_handle_handshake(client))
+		return 3;
+	return 0;
 }
 
 t_playermult	*server_handle_handshake(t_info *app, t_server *srv, packet_in *packet)
