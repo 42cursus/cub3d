@@ -14,7 +14,6 @@ FILES   = colour.c \
 			credits.c \
 			credits_avx2.c \
 			draw.c \
-			draw_utils.c \
 			draw_rays.c \
 			floor_transposed_avx2.c \
 			hud.c \

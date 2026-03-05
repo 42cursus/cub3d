@@ -43,7 +43,6 @@ INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
 # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-fstrict-aliasing
 OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-march=native -mtune=native \
-						-flto \
 						-falign-functions=32 \
 						-fno-semantic-interposition \
 						-fcf-protection=none \
@@ -52,7 +51,9 @@ OPTIMIZE_FLAGS	:= -O3 -ffast-math -fno-math-errno -fno-trapping-math \
 						-mprefer-vector-width=256 \
 						-ftree-vectorize \
 						-fstrict-aliasing \
-						-fno-strict-overflow
+						-fno-strict-overflow \
+#						-flto \
+
 
 ifeq ($(COMPILER),clang)
 OPTIMIZE_FLAGS	+= -fvectorize -mllvm --interleave-loops \

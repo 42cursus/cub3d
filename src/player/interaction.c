@@ -81,7 +81,7 @@ void	handle_open_door_client(t_info *app, t_ray *crosshair)
 void	handle_open_door_server(t_info *app, t_ivect pos)
 {
 	char	*doortile = &app->lvl->map[pos.y][pos.x];
-	int		open;
+	int		open = 0;
 
 	if (*doortile == 'D')
 	{

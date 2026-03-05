@@ -143,8 +143,7 @@ int	client_handle_handshake(t_info *app, t_client *client)
 		.id = -1,
 		.type = CMT_CONNECT,
 	};
-	strncpy(cmsg.name, client->name, 12);
-
+	ft_strlcpy(cmsg.chat, client->name, 1);
 	sendto(client->sockfd, (char *)&cmsg, sizeof(t_clientmsg), 0, &client->addr.sa, sizeof(client->addr.sa));
 
 	// usleep(100000);
@@ -529,7 +528,7 @@ void	client_send_chat(t_info *app)
 		.type = CMT_CHAT,
 	};
 
-	strncpy(cmsg.chat, app->client.chat, CMSG_CHAT_BUFSIZE - 1);
+	ft_strlcpy(cmsg.chat, app->client.chat, CMSG_CHAT_BUFSIZE);
 	app->input.len = 0;
 	app->client.chat[0] = '\0';
 	client_send_msg(&app->client, &cmsg);
@@ -698,7 +697,7 @@ t_playermult *playermult_new(const char *name, int id)
 {
 	t_playermult *out = calloc(1, sizeof(*out));
 
-	strncpy(out->name, name, 15);
+	ft_strlcpy(out->name, name,SRV_MAX_NAMELEN + 1);
 	out->id = id;
 	return out;
 }
@@ -859,7 +858,7 @@ void	playermult_copy(t_playermult *dst, t_playermult *src)
 	dst->id = src->id;
 	memcpy(dst->ammo, src->ammo, sizeof(int) * 3);
 	memcpy(dst->max_ammo, src->max_ammo, sizeof(int) * 3);
-	strncpy(dst->name, src->name, SRV_MAX_NAMELEN);
+	ft_strlcpy(dst->name, src->name, sizeof(dst->name));
 	dst->sock = src->sock;
 }
 

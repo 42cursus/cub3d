@@ -100,8 +100,8 @@ void	spawn_projectile_client(t_info *app, t_player *player)
 			proj = PROJ_MISSILE;
 			break;
 		case (P_SUPER):
+		default:
 			proj = PROJ_SUPER;
-			break;
 	}
 	snd = ({if (proj == PROJ_BEAM) snd = snd_gun; else snd = snd_rocket; snd;});
 	client_send_proj(app, proj);
