@@ -19,21 +19,35 @@ DOMAIN			= $(shell hostname -d)
 
 LIBFT_DIR		= ./lib/ft
 LIBX_DIR		= ./lib/mlx
-BUILD_DIR		= build
+BUILD_DIR		= $(PWD)/build
 INC_DIR			= ./include
+
+LIBEVDEV_VER	= 1.12.1+dfsg-1
+
+LIB_DEPS		:= libevdev-dev libevdev2
+LIB_DEB_FILES	= $(LIB_DEPS:%=$(BUILD_DIR)/%_$(LIBEVDEV_VER)_amd64.deb)
+APT_DIR			:= $(BUILD_DIR)/apt
 
 RMFLAGS			= -r
 
-#CC				:= cc
-CC				:= clang
+CC				:= cc
+#CC				:= clang
 #CC				:= gcc
 
+define SOURCES_LIST
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+deb-src http://gb.archive.ubuntu.com/ubuntu/ jammy-updates restricted universe main multiverse
+
+deb http://gb.archive.ubuntu.com/ubuntu/ jammy main restricted
+deb-src http://gb.archive.ubuntu.com/ubuntu/ jammy restricted universe main multiverse
+endef
 
 COMPILER		:= $(shell echo | $(CC) -dM -E - | grep -q '__clang__' && echo clang || echo gcc)
 
 INCLUDE_FLAGS	:= -I. -I$(INC_DIR) \
 					-I/usr/include \
 					-I/usr/include/libevdev-1.0 \
+					-I$(PWD)/resources/rootfs/usr/include/libevdev-1.0 \
 					-I/usr/include/SDL2 \
 					-I/usr/include/freetype2 \
 					-I/usr/include/libpng16
@@ -103,7 +117,7 @@ DEBUG_FLAGS		:= -g3 -gdwarf-3 \
 
 MANDATORY_FLAGS	:= -Wall -Wextra -Werror -Wimplicit -Wstrict-aliasing=2 -mavx2
 CFLAGS			= $(MANDATORY_FLAGS) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) \
-					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -fstack-usage -DSKIP_INTRO=1
+					$(INCLUDE_FLAGS) $(DIAGNOSTIC_FLAGS) -fno-builtin-snprintf -DSKIP_INTRO=1
 
 ifeq ($(COMPILER),clang)
 CFLAGS			+= -Wno-self-assign
@@ -130,16 +144,21 @@ endif
 LIBFT			=  $(LIBFT_DIR)/libft.a
 LIBX			=  $(LIBX_DIR)/libmlx.a
 LIBTEX			=  $(BUILD_DIR)/libtextures.a
-LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX)
+LIBS			:= $(LIBFT) $(LIBX) $(LIBTEX) \
+					$(PWD)/resources/rootfs/usr/lib/x86_64-linux-gnu/libevdev.so \
+					$(PWD)/resources/rootfs/usr/include/libevdev-1.0/libevdev/libevdev.h
 
 LINK_FLAGS		:= -L $(LIBFT_DIR) -L $(LIBX_DIR) -L $(BUILD_DIR) \
+					-L/usr/lib/x86_64-linux-gnu \
+					-L $(PWD)/resources/rootfs/usr/lib/x86_64-linux-gnu \
 					-L/usr/lib/x86_64-linux-gnu \
 					-ltextures -lmlx -lft -levdev -lX11 -lXext -lm \
 					$(SDL_MIX_LIB) -lSDL2 -lfreetype \
 					-O3 -Wl,-O3,-Bsymbolic-functions,--as-needed \
 						-march=native -maes \
-						-flto \
 						-Wl,-zmax-page-size=0x200000 \
+#						-flto \
+
 #					-fsanitize-address-use-after-scope \
 #					-fsanitize=address,undefined,bounds,alignment,object-size \
 #					-fsanitize=shift,signed-integer-overflow,null,return \
@@ -161,15 +180,15 @@ SRCS			+= $(CUB_SRCS)
 OBJS			= $(SRCS:%.c=$(BUILD_DIR)/%.o)
 TEX_OBJ			= $(TEXTURES:%.xpm=$(BUILD_DIR)/%.xpm.o)
 
-ifeq ($(MAKELEVEL),0)
-	# Only set --jobs if user didn't already pass a -j option manually
-	ifeq ($(filter -j,$(MAKEFLAGS)),)
-		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory --quiet
-	endif
-	ifeq ($(filter "--output-sync=target",$(MAKEFLAGS)),)
-		MAKEFLAGS += --output-sync=target
-	endif
-endif
+#ifeq ($(MAKELEVEL),0)
+#	# Only set --jobs if user didn't already pass a -j option manually
+#	ifeq ($(filter -j,$(MAKEFLAGS)),)
+#		MAKEFLAGS += --jobs=$(shell nproc) --no-print-directory --quiet
+#	endif
+#	ifeq ($(filter "--output-sync=target",$(MAKEFLAGS)),)
+#		MAKEFLAGS += --output-sync=target
+#	endif
+#endif
 
 ## all
 all: $(NAME)
@@ -207,6 +226,41 @@ $(SDL_HEADER):
 $(LIBX) libx: $(LIBX_DIR)/Makefile.gen
 		+$(MAKE) -C $(LIBX_DIR) -f Makefile.gen all
 		@echo "LIBX BUILD COMPLETE!"
+
+$(PWD)/resources/rootfs/usr/lib/x86_64-linux-gnu/libevdev.so: $(LIB_DEPS)
+	dpkg -x $(BUILD_DIR)/libevdev2_$(LIBEVDEV_VER)_amd64.deb $(PWD)/resources/rootfs
+$(PWD)/resources/rootfs/usr/include/libevdev-1.0/libevdev/libevdev.h: $(LIB_DEPS)
+	dpkg -x $(BUILD_DIR)/libevdev-dev_$(LIBEVDEV_VER)_amd64.deb $(PWD)/resources/rootfs
+
+$(LIB_DEPS): $(APT_DIR)/sources.list
+	( cd $(BUILD_DIR) && apt \
+	  -o Dir::Etc::SourceList=$(APT_DIR)/sources.list \
+	  -o Dir::Etc::Preferences=/dev/null \
+	  -o Dir::Etc::PreferencesParts=/dev/null \
+	  -o Dir::State=$(APT_DIR)/state \
+	  -o Dir::State::Lists=$(APT_DIR)/lists \
+	  -o Dir::Cache=$(APT_DIR)/cache \
+	  download \
+		$(@)=$(LIBEVDEV_VER) )
+
+.ONESHELL:
+$(APT_DIR)/sources.list:
+	mkdir -p $(APT_DIR)/state
+	mkdir -p $(APT_DIR)/lists/partial
+	mkdir -p $(APT_DIR)/cache/archives/partial
+	cat <<- EOF > $(APT_DIR)/sources.list
+		deb http://gb.archive.ubuntu.com/ubuntu/ jammy-updates main restricted
+		deb-src http://gb.archive.ubuntu.com/ubuntu/ jammy-updates restricted universe main multiverse
+
+		deb http://gb.archive.ubuntu.com/ubuntu/ jammy main restricted
+		deb-src http://gb.archive.ubuntu.com/ubuntu/ jammy restricted universe main multiverse
+	EOF
+	apt-get \
+	  -o Dir::Etc::SourceList=$(APT_DIR)/sources.list \
+	  -o Dir::State=$(APT_DIR)/state \
+	  -o Dir::State::Lists=$(APT_DIR)/lists \
+	  -o Dir::Cache=$(APT_DIR)/cache \
+	  update
 
 ## clean_libft
 clean_libft:

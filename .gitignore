@@ -209,3 +209,5 @@ Network Trash Folder
 Temporary Items
 .apdisk
 /resources/sprites/
+/resources/test/apt/
+/resources/rootfs/
